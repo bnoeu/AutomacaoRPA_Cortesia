@@ -22,8 +22,6 @@ chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
 
 def valida_pedido():
     tentativa = 0
-    ahk.win_activate('TopCompras')
-    ahk.win_wait_active('TopCompras')
     # * -------------------------------------- VALIDAÇÃO DO PEDIDO --------------------------------------
     while tentativa <= 2:
         time.sleep(1)
