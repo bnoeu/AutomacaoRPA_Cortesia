@@ -65,7 +65,6 @@ def verifica_tela(nome_tela, manual=False):
     else:
         exit(print(F'--- Tela: {nome_tela} está fechada, saindo do programa.'))
 
-
 def marca_lancado(texto_marcacao='Lancado'):
     ahk.win_activate('db_alltrips')
     time.sleep(1)
@@ -93,7 +92,6 @@ def marca_lancado(texto_marcacao='Lancado'):
             bot.click(procura_imagem(imagem='img_planilha/bt_aplicar.png'))
     else:
         print('Não achou o botao de edição')
-
 
 def coleta_planilha():
     ahk.win_activate('db_alltrips')
@@ -124,7 +122,6 @@ def coleta_planilha():
         dados_planilha.append(ahk.get_clipboard())
         bot.press('right')
     return dados_planilha
-
 
 def acoes_planilha():
     validou_xml = False

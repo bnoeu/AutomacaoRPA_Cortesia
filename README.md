@@ -2,7 +2,4 @@ Sistema (RPA) criado para automatizar o processo de lançamento de notas fiscais
 Os dados são coletados via um app que criamos utilizando o Microsoft Power Apps, e os dados são salvos numa planilha do OneDrive, planilha que é acessada pela automação para coleta dos dados e inserção no sistema TopCon. 
 
 Bibliotecas utilizadas:
-Pygetwindow
-OpenCV
-Pytesseract
-AHK
+Pygetwindow, OpenCV, Pytesseract, AHK
