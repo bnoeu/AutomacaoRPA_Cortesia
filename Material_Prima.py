@@ -14,13 +14,12 @@ import pyautogui as bot
 
 # --- Definição de parametros
 ahk = AHK()
-bot.PAUSE = 1.2  # Pausa padrão do bot
+bot.PAUSE = 1.5  # Pausa padrão do bot
 posicao_img = 0  # Define a variavel para utilização global dela.
 continuar = True
 bot.FAILSAFE = True
-acabou_pedido = True
-numero_nf = "965999"
-transportador = "111594"
+numero_nf = "965999"  # Valor para teste
+transportador = "111594"  # Valor para teste
 tempo_inicio = time.time()
 chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
 pytesseract.pytesseract.tesseract_cmd = r"C:\tesseract\tesseract.exe"
@@ -65,9 +64,10 @@ def acoes_planilha():
             print('Aguardando topvoltar')
         tentativa = 0
         while tentativa < 10:
-            #print(F'Tentativa: {tentativa}')
+            # print(F'Tentativa: {tentativa}')
             if procura_imagem(imagem='img_topcon/botao_sim.jpg', limite_tentativa=2, continuar_exec=True) is not False:
-                bot.click(procura_imagem(imagem='img_topcon/botao_sim.jpg', limite_tentativa=2, continuar_exec=True))
+                bot.click(procura_imagem(imagem='img_topcon/botao_sim.jpg',
+                          limite_tentativa=2, continuar_exec=True))
                 validou_xml is True
                 return dados_planilha
             # Verifica se encontrou o erro de NFE lançada
@@ -94,6 +94,7 @@ def acoes_planilha():
 # * ---------------------------------------------------------------------------------------------------
 def programa_principal():
     while True:  # ! Programa principal
+        acabou_pedido = True
         while acabou_pedido is True:
             dados_planilha = acoes_planilha()
             cracha_mot = dados_planilha[0]
@@ -101,23 +102,42 @@ def programa_principal():
             silo2 = dados_planilha[2]
             filial_estoq = dados_planilha[3].split('-')
             filial_estoq = filial_estoq[0]
+            if filial_estoq == '1001':
+                centro_custo = 'VILA'
+            elif filial_estoq == '1002':
+                centro_custo = 'CACAPAVA'
+            elif filial_estoq == '1003':
+                centro_custo = 'BARUERI'
+            elif filial_estoq == '1004':
+                centro_custo = 'JAGUARE'
+            elif filial_estoq == '1006':
+                centro_custo = 'ATIBAIA'
+            elif filial_estoq == '1008':
+                centro_custo = 'MOGI'
+            else:
+                exit('Filial de estoque não padronizada')
             chave_xml = dados_planilha[4]
             print(F'Crachá: {cracha_mot} Silo1: {silo1} Silo2: {silo2}, {filial_estoq}, {chave_xml}')
             time.sleep(1)
-            valida_pedido(acabou_pedido= False)
+            acabou_pedido = valida_pedido(acabou_pedido=False)
             print(F'Chegou até aqui acabou pedido = {acabou_pedido}')
         # * -------------------------------------- PREENCHE DATA --------------------------------------
-        bot.click(900, 201) #Clica no campo filial de estoque
+        bot.click(900, 201)  # Clica no campo filial de estoque
         bot.write(filial_estoq)
-        bot.press('ENTER', presses=2) #Confirma a informação da nova filial de estoque
+        # Confirma a informação da nova filial de estoque
+        bot.press('ENTER', presses=2)
         bot.click(procura_imagem(imagem='img_topcon/data_operacao.jpg'))
-        bot.click(1006, 345)  # Campo data da operação
+        # bot.click(1006, 345)  # Campo data da operação
         hoje = date.today()
         hoje = hoje.strftime("%d%m%Y")  # dd/mm/YY
         bot.write(hoje, interval=0.10)
         bot.press('enter')
         time.sleep(8)
+        ahk.win_wait_active('TopCompras')
+        bot.write(centro_custo) # Altera o campo centro de custo, para o dado coletado
+        bot.press('ENTER')
         # * -------------------------------------- VALIDAÇÃO TRANSPORTADOR --------------------------------------
+        ahk.win_wait_active('TopCompras')
         bot.click(105, 515)  # Clica no campo "Valores Totais"
         time.sleep(1)
         bot.click(317, 897)  # Campo transportador
@@ -136,7 +156,8 @@ def programa_principal():
         # * -------------------------------------- Aba Pedido --------------------------------------
         bot.click(procura_imagem(
             imagem='img_topcon/produtos_servicos.png', limite_tentativa=8))
-        bot.click(procura_imagem(imagem='img_topcon/botao_alterar.png', limite_tentativa=8, area=(100, 839, 300, 400)))
+        bot.click(procura_imagem(imagem='img_topcon/botao_alterar.png',
+                  limite_tentativa=8, area=(100, 839, 300, 400)))
         time.sleep(2)
         # 1: Topo direto imagem, #2 inferior lado esquerdo
         bot.screenshot('img_topcon/toneladas.png', region=(198, 167, 75, 25))
@@ -158,7 +179,8 @@ def programa_principal():
         if silo2 != '':  # realiza a divisão da quantidade de cimento
             qtd_ton = str((qtd_ton / 2))
             qtd_ton = qtd_ton.replace(".", ",")
-            print(F'--- Foi informado dois silos, preenchendo... {silo1} e {silo2}, quantidade: {qtd_ton}')
+            print(
+                F'--- Foi informado dois silos, preenchendo... {silo1} e {silo2}, quantidade: {qtd_ton}')
             bot.write(silo1)
             bot.press('ENTER')
             bot.write(str(qtd_ton))
@@ -168,7 +190,8 @@ def programa_principal():
             bot.write(str(qtd_ton))
             bot.press('ENTER')
         elif silo1 != '':
-            print(F'--- Foi informado UM silo, preenchendo... {silo1}, quantidade: {qtd_ton}')
+            print(
+                F'--- Foi informado UM silo, preenchendo... {silo1}, quantidade: {qtd_ton}')
             qtd_ton = str(qtd_ton)
             qtd_ton = qtd_ton.replace(".", ",")
             bot.write(silo1)
@@ -178,6 +201,9 @@ def programa_principal():
         # * -------------------------------------- Conclusão lançamento --------------------------------------
         bot.click(procura_imagem(imagem='img_topcon/confirma.png'))
         bot.press('pagedown')  # Conclui o lançamento
+        exit()
+        #TODO --- Caso abra a tela de transferencia.
+        
         bot.click(procura_imagem(imagem='img_topcon/operacao_realizada.png', limite_tentativa=1000))
         bot.press('ENTER')
         temppo_final = time.time()
@@ -185,7 +211,8 @@ def programa_principal():
         # * -------------------------------------- Marca planilha --------------------------------------
         marca_lancado(texto_marcacao='Lancado_RPA')
 
+
 programa_principal()
 
-# TODO --- Caso o pedido já tenha acabado
-# TODO --- Caso o pedido acabe, avisar ao Mateus 
+
+# TODO --- Caso o pedido acabe, avisar ao Mateus

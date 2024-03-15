@@ -85,7 +85,7 @@ def valida_pedido(acabou_pedido = False):
                 bot.click(procura_imagem(imagem='img_topcon/botao_ok.jpg'))
                 acabou_pedido = False
                 tentativa = 5
-                return acabou_pedido
+                return False
             if acabou_pedido is True:  # Caso durante a verificação tenha ocorrido algum erro
                 bot.click(procura_imagem(imagem='img_topcon/bt_cancela.png'))
                 marca_lancado(texto_marcacao='Erro_Pedido')
