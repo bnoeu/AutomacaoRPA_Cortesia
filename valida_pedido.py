@@ -20,7 +20,7 @@ tempo_inicio = time.time()
 chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
 
 
-def valida_pedido():
+def valida_pedido(acabou_pedido = False):
     tentativa = 0
     # * -------------------------------------- VALIDAÇÃO DO PEDIDO --------------------------------------
     while tentativa <= 2:
@@ -48,7 +48,7 @@ def valida_pedido():
         elif ('PEDRISCO LIMPO' in texto) or ('LAVAD' in texto):
             print('Contém PEDRISCO LIMPO')
             item_pedido.append('PED_BRITA0.jpg')
-        elif 'AREIA PRIME' in texto:
+        elif ('AREIA PRIME' in texto) or ('AREA PRIME' in texto):
             print('Contém AREIA PRIME')
             item_pedido.append('PED_AREIAPRIME.png')
         elif 'E-40' in texto:
@@ -61,22 +61,21 @@ def valida_pedido():
             print('Contém AREIA QUARTZO')
             item_pedido.append('PED_AREIAFINA.png')
         else:
-            exit(
-                print(F'Texto não padronizado, verificar script, texto: {texto.strip()}'))
+            exit(print(F'Texto não padronizado, verificar script, texto: {texto.strip()}'))
 
         posicoes = bot.locateAllOnScreen('img_pedidos/' + item_pedido[0], confidence=0.9, grayscale=True)
         for pos in posicoes:  # Tenta em todos pedidos encontrados
             print(F'Achou o {texto} na posição {pos}')
             bot.doubleClick(pos)
             bot.click(procura_imagem(imagem='img_topcon/localizar.png'))
-            # 1: Topo direto imagem, #Erro_Pedi inferior lado esquerdo
+            time.sleep(1)
             bot.screenshot('img_topcon/valida_itensxml.png', region=(168, 400, 250, 30))
             img = cv2.imread('img_topcon/valida_itensxml.png')
             gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
             thresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)[1]
             texto_xml = pytesseract.image_to_string(thresh, lang='por', config='--psm 6').strip()
             print(F'Item da nota: {texto}, texto que ainda ficou: {texto_xml}')
-            if len(texto_xml) > 2:  # Verifica se ainda ficou item no "Itens pedido"
+            if len(texto_xml) > 4:  # Verifica se ainda ficou item no "Itens pedido"
                 print('"Itens XML" ainda tem informação! desmarcando pedido marcado')
                 bot.doubleClick(pos)
                 acabou_pedido = False
@@ -86,7 +85,7 @@ def valida_pedido():
                 bot.click(procura_imagem(imagem='img_topcon/botao_ok.jpg'))
                 acabou_pedido = False
                 tentativa = 5
-                break
+                return acabou_pedido
             if acabou_pedido is True:  # Caso durante a verificação tenha ocorrido algum erro
                 bot.click(procura_imagem(imagem='img_topcon/bt_cancela.png'))
                 marca_lancado(texto_marcacao='Erro_Pedido')
@@ -94,6 +93,9 @@ def valida_pedido():
             time.sleep(1)
         else:
             bot.click(744, 227, 1)
-            if tentativa >= 2:
-                exit('Não encontrou nenhum item na tela 6201 no campo "Pedidos", aumentar a sensibilidade')
+            if tentativa >= 2: #Caso já tenha realiza duas execuções
+                bot.click(procura_imagem(imagem='img_topcon/bt_cancela.png'))
+                marca_lancado('Erro_Pedido')
+                acabou_pedido = True
+                return acabou_pedido
             tentativa += 1

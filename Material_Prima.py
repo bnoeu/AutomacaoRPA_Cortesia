@@ -18,7 +18,7 @@ bot.PAUSE = 1.2  # Pausa padrão do bot
 posicao_img = 0  # Define a variavel para utilização global dela.
 continuar = True
 bot.FAILSAFE = True
-acabou_pedido = ''
+acabou_pedido = True
 numero_nf = "965999"
 transportador = "111594"
 tempo_inicio = time.time()
@@ -74,7 +74,7 @@ def acoes_planilha():
             elif procura_imagem(imagem='img_topcon/chave_invalida.png', limite_tentativa=2, continuar_exec=True) is not False:
                 print('--- Nota já lançada, marcando planilha!')
                 bot.press('ENTER')
-                marca_lancado()
+                marca_lancado(texto_marcacao='Lancado_Manual')
                 break
             elif procura_imagem(imagem='img_topcon/naoencontrado_xml.png', limite_tentativa=2, continuar_exec=True) is not False:
                 bot.press('ENTER')
@@ -94,16 +94,18 @@ def acoes_planilha():
 # * ---------------------------------------------------------------------------------------------------
 def programa_principal():
     while True:  # ! Programa principal
-        dados_planilha = acoes_planilha()
-        cracha_mot = dados_planilha[0]
-        silo1 = dados_planilha[1]
-        silo2 = dados_planilha[2]
-        filial_estoq = dados_planilha[3].split('-')
-        filial_estoq = filial_estoq[0]
-        chave_xml = dados_planilha[4]
-        print(F'Crachá: {cracha_mot} Silo1: {silo1} Silo2: {silo2}, {filial_estoq}, {chave_xml}')
-        time.sleep(1)
-        valida_pedido()
+        while acabou_pedido is True:
+            dados_planilha = acoes_planilha()
+            cracha_mot = dados_planilha[0]
+            silo1 = dados_planilha[1]
+            silo2 = dados_planilha[2]
+            filial_estoq = dados_planilha[3].split('-')
+            filial_estoq = filial_estoq[0]
+            chave_xml = dados_planilha[4]
+            print(F'Crachá: {cracha_mot} Silo1: {silo1} Silo2: {silo2}, {filial_estoq}, {chave_xml}')
+            time.sleep(1)
+            valida_pedido(acabou_pedido= False)
+            print(F'Chegou até aqui acabou pedido = {acabou_pedido}')
         # * -------------------------------------- PREENCHE DATA --------------------------------------
         bot.click(900, 201) #Clica no campo filial de estoque
         bot.write(filial_estoq)
@@ -181,7 +183,7 @@ def programa_principal():
         temppo_final = time.time()
         print(F'\n--- Lançamento concluido, tempo: {temppo_final - tempo_inicio}')
         # * -------------------------------------- Marca planilha --------------------------------------
-        marca_lancado()
+        marca_lancado(texto_marcacao='Lancado_RPA')
 
 programa_principal()
 

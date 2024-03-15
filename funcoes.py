@@ -117,6 +117,7 @@ def coleta_planilha():
             bot.hotkey('ctrl', 'c')
             if 'Recuperando' in ahk.get_clipboard():
                 print('Tentando copiar novamente')
+                time.sleep(0.2)
             else:
                 break
         dados_planilha.append(ahk.get_clipboard())
