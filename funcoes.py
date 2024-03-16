@@ -124,63 +124,63 @@ def coleta_planilha():
         bot.press('right')
     return dados_planilha
 
-def acoes_planilha():
-    validou_xml = False
-    while validou_xml is False:
-        # * Trata os dados coletados em "dados_planilha"
-        dados_planilha = coleta_planilha()
-        chave_xml = dados_planilha[4]
-        # * -------------------------------------- Lançamento Topcon --------------------------------------
-        bot.PAUSE = 1  # Pausa padrão do bot
-        time.sleep(1)
-        #! Tela de lançamento, necessaria apenas se estiver em modo de teste
-        menu_inicio = bot.confirm(
-            text='Deseja iniciar o lançamento?', title='Atenção', buttons=['Iniciar', 'Fechar'])
-        if menu_inicio == 'Fechar':
-            exit(print('Fechando programa...'))
-        print('--- Iniciando lançamento ----')
-        time.sleep(1)
-        tela_compras = gw.getWindowsWithTitle('TopCompras')[0]
-        tela_compras.maximize()
-        tela_compras.activate()  # Ativa a tela de compras
-        ahk.win_activate('TopCompras')
-        if tela_compras.isMaximized:
-            print('Tela compras está maximizada! Iniciando o programa')
-        else:
-            exit(print('Tela compras não abriu... Fechando script'))
-        # Processo de lançamento
-        time.sleep(1)
-        bot.press('F2')
-        bot.press('F3')
-        bot.press('F3')
-        bot.click(558, 235)  # Clica dentro do campo para inserir a chave XML
-        time.sleep(1)
-        bot.write(chave_xml)
-        bot.press('ENTER')
-        time.sleep(3)
-        ahk.win_wait_active('TopCompras')
-        while procura_imagem(imagem='img_topcon/naorespondendo.png', limite_tentativa=2, continuar_exec=True) is not True:
-            time.sleep(2)
-            print('Aguardando topvoltar')
-        tentativa = 0
-        while tentativa < 10:
-            print(F'Tentativa: {tentativa}')
-            if procura_imagem(imagem='botao_sim.jpg', limite_tentativa=2, continuar_exec=True) is not False:
-                bot.click(procura_imagem(imagem='botao_sim.jpg',
-                          limite_tentativa=2, continuar_exec=True))
-                return dados_planilha, (validou_xml is True)
-            # Verifica se encontrou o erro de NFE lançada
-            elif procura_imagem(imagem='chave_invalida.png', limite_tentativa=2, continuar_exec=True) is not False:
-                print('--- Nota já lançada, marcando planilha!')
-                bot.press('ENTER')
-                marca_lancado()
-                break
-            # Verifica se encontrou o erro de NFE lançada
-            elif procura_imagem(imagem='img_topcon/naoencontrado_xml.png', limite_tentativa=2, continuar_exec=True) is not False:
-                bot.press('ENTER')
-                exit(print('--- XML ainda não baixado!!'))
-                # TODO ---- O que fazer nestes casos?
-                break
-            tentativa += 1
-        if tentativa >= 10:
-            exit('Rodou 10 verificações e não achou nenhuma tela, aumentar o tempo')
+# def acoes_planilha():
+#     validou_xml = False
+#     while validou_xml is False:
+#         # * Trata os dados coletados em "dados_planilha"
+#         dados_planilha = coleta_planilha()
+#         chave_xml = dados_planilha[4]
+#         # * -------------------------------------- Lançamento Topcon --------------------------------------
+#         bot.PAUSE = 1  # Pausa padrão do bot
+#         time.sleep(1)
+#         #! Tela de lançamento, necessaria apenas se estiver em modo de teste
+#         menu_inicio = bot.confirm(
+#             text='Deseja iniciar o lançamento?', title='Atenção', buttons=['Iniciar', 'Fechar'])
+#         if menu_inicio == 'Fechar':
+#             exit(print('Fechando programa...'))
+#         print('--- Iniciando lançamento ----')
+#         time.sleep(1)
+#         tela_compras = gw.getWindowsWithTitle('TopCompras')[0]
+#         tela_compras.maximize()
+#         tela_compras.activate()  # Ativa a tela de compras
+#         ahk.win_activate('TopCompras')
+#         if tela_compras.isMaximized:
+#             print('Tela compras está maximizada! Iniciando o programa')
+#         else:
+#             exit(print('Tela compras não abriu... Fechando script'))
+#         # Processo de lançamento
+#         time.sleep(1)
+#         bot.press('F2')
+#         bot.press('F3')
+#         bot.press('F3')
+#         bot.click(558, 235)  # Clica dentro do campo para inserir a chave XML
+#         time.sleep(1)
+#         bot.write(chave_xml)
+#         bot.press('ENTER')
+#         time.sleep(3)
+#         ahk.win_wait_active('TopCompras')
+#         while procura_imagem(imagem='img_topcon/naorespondendo.png', limite_tentativa=2, continuar_exec=True) is not True:
+#             time.sleep(2)
+#             print('Aguardando topvoltar')
+#         tentativa = 0
+#         while tentativa < 10:
+#             print(F'Tentativa: {tentativa}')
+#             if procura_imagem(imagem='botao_sim.jpg', limite_tentativa=2, continuar_exec=True) is not False:
+#                 bot.click(procura_imagem(imagem='botao_sim.jpg',
+#                           limite_tentativa=2, continuar_exec=True))
+#                 return dados_planilha, (validou_xml is True)
+#             # Verifica se encontrou o erro de NFE lançada
+#             elif procura_imagem(imagem='chave_invalida.png', limite_tentativa=2, continuar_exec=True) is not False:
+#                 print('--- Nota já lançada, marcando planilha!')
+#                 bot.press('ENTER')
+#                 marca_lancado()
+#                 break
+#             # Verifica se encontrou o erro de NFE lançada
+#             elif procura_imagem(imagem='img_topcon/naoencontrado_xml.png', limite_tentativa=2, continuar_exec=True) is not False:
+#                 bot.press('ENTER')
+#                 exit(print('--- XML ainda não baixado!!'))
+#                 # TODO ---- O que fazer nestes casos?
+#                 break
+#             tentativa += 1
+#         if tentativa >= 10:
+#             exit('Rodou 10 verificações e não achou nenhuma tela, aumentar o tempo')
