@@ -25,14 +25,14 @@ pytesseract.pytesseract.tesseract_cmd = r"C:\tesseract\tesseract.exe"
 
 def procura_imagem(imagem, limite_tentativa=4, area=(0, 0, 1920, 1080), continuar_exec=False):
     tentativa = 0
-    print(F'--- Tentando encontrar "{imagem}", tentativa: {tentativa}', end='... ')
+    #print(F'--- Tentando encontrar "{imagem}", tentativa: {tentativa}', end='... ')
     while tentativa < limite_tentativa:
         tentativa += 1
         time.sleep(0.5)
         # Identifica posição do logo TOPCON
         posicao_img = bot.locateOnScreen(imagem, grayscale=True, confidence=0.88, region=area)
         if posicao_img is not None:
-            print(F'encontrou a imagem na posição: {posicao_img}')
+            #print(F'encontrou a imagem na posição: {posicao_img}')
             break
     if (continuar_exec is True) and (posicao_img is None):
         print('não achou imagem, continuando execução pois o parametro "continuar_exec" está habilitado')
@@ -99,7 +99,7 @@ def coleta_planilha():
     if procura_imagem(imagem='img_planilha/botao_exibicaoverde.png', continuar_exec=True, limite_tentativa=2) is False:
         bot.click(procura_imagem(imagem='img_planilha/botao_edicao.png'))
         bot.click(procura_imagem(imagem='img_planilha/botao_exibicao.png'))
-        procura_imagem(imagem='img_planilha/botao_exibicaoverde.png')
+        procura_imagem(imagem='img_planilha/botao_exibicaoverde.png', limite_tentativa= 8)
     else:
         print('--- Já está no modo de edição, continuando processo')
         # Validação se houve novo valor inserido
