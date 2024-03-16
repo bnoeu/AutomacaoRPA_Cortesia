@@ -151,10 +151,10 @@ def programa_principal():
                   limite_tentativa=8, area=(100, 839, 300, 400)))
         time.sleep(2)
         # 1: Topo direto imagem, #2 inferior lado esquerdo
-        bot.screenshot('img_topcon/toneladas.png', region=(198, 167, 75, 25))
+        bot.screenshot('img_geradas/toneladas.png', region=(198, 167, 75, 25))
         print('--- Tirou print ----')
         # Verificação do texto da imagem.
-        img = cv2.imread('img_topcon/toneladas.png')
+        img = cv2.imread('img_geradas/toneladas.png')
         scale_percent = 120  # percent of original size
         width = int(img.shape[1] * scale_percent / 100)
         height = int(img.shape[0] * scale_percent / 100)
