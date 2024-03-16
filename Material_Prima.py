@@ -66,11 +66,9 @@ def acoes_planilha():
         while tentativa < 10:
             # print(F'Tentativa: {tentativa}')
             if procura_imagem(imagem='img_topcon/botao_sim.jpg', limite_tentativa=3, continuar_exec=True) is not False:
-                bot.click(procura_imagem(imagem='img_topcon/botao_sim.jpg',
-                          limite_tentativa=2, continuar_exec=True))
+                bot.click(procura_imagem(imagem='img_topcon/botao_sim.jpg', limite_tentativa=2, continuar_exec=True))
                 validou_xml is True
                 return dados_planilha
-            # Verifica se encontrou o erro de NFE lançada
             elif procura_imagem(imagem='img_topcon/chave_invalida.png', limite_tentativa=3, continuar_exec=True) is not False:
                 print('--- Nota já lançada, marcando planilha!')
                 bot.press('ENTER')
@@ -83,6 +81,10 @@ def acoes_planilha():
             elif procura_imagem(imagem='img_topcon/chave_44digitos.png', limite_tentativa=3, continuar_exec=True) is not False:
                 bot.press('ENTER')
                 marca_lancado(texto_marcacao='Chave_invalida')
+                programa_principal()
+            elif procura_imagem(imagem='img_topcon/transportador_incorreto.png', limite_tentativa=3, continuar_exec=True) is not False:
+                bot.press('ENTER')
+                marca_lancado(texto_marcacao='Transportador_incorreto')
                 programa_principal()
             tentativa += 1
         if tentativa >= 15:
