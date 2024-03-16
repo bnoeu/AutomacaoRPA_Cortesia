@@ -41,8 +41,8 @@ def valida_pedido(acabou_pedido = False):
         # cv2.imshow('T', thresh)
         # cv2.waitKey()
         texto = pytesseract.image_to_string(thresh, lang='eng', config='--psm 6').strip()
-
-        if ('PEDRA 01' in texto) or ('PEDRA DI' in texto) or ('BRITADA 01' in texto):
+        PEDRA_1 = ['PEDRA 01', 'PEDRA DI', 'BRITADA 01', 'PEDRA 1']
+        if texto in PEDRA_1:
             print('Contém PEDRA 1')
             item_pedido.append('PED_BRITA1.jpg')
         elif ('PEDRISCO LIMPO' in texto) or ('LAVAD' in texto):
