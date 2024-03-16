@@ -31,7 +31,7 @@ def acoes_planilha():
     while validou_xml is False:
         # * Trata os dados coletados em "dados_planilha"
         dados_planilha = coleta_planilha()
-        chave_xml = dados_planilha[4]
+        chave_xml = dados_planilha[4].strip()
         # * -------------------------------------- Lançamento Topcon --------------------------------------
         bot.PAUSE = 1  # Pausa padrão do bot
         time.sleep(1)
@@ -59,28 +59,28 @@ def acoes_planilha():
         bot.press('ENTER')
         time.sleep(3)
         ahk.win_wait_active('TopCompras')
-        while procura_imagem(imagem='img_topcon/naorespondendo.png', limite_tentativa=2, continuar_exec=True) is not False:
+        while procura_imagem(imagem='img_topcon/naorespondendo.png', limite_tentativa=3, continuar_exec=True) is not False:
             time.sleep(2)
             print('Aguardando topvoltar')
         tentativa = 0
         while tentativa < 10:
             # print(F'Tentativa: {tentativa}')
-            if procura_imagem(imagem='img_topcon/botao_sim.jpg', limite_tentativa=2, continuar_exec=True) is not False:
+            if procura_imagem(imagem='img_topcon/botao_sim.jpg', limite_tentativa=3, continuar_exec=True) is not False:
                 bot.click(procura_imagem(imagem='img_topcon/botao_sim.jpg',
                           limite_tentativa=2, continuar_exec=True))
                 validou_xml is True
                 return dados_planilha
             # Verifica se encontrou o erro de NFE lançada
-            elif procura_imagem(imagem='img_topcon/chave_invalida.png', limite_tentativa=2, continuar_exec=True) is not False:
+            elif procura_imagem(imagem='img_topcon/chave_invalida.png', limite_tentativa=3, continuar_exec=True) is not False:
                 print('--- Nota já lançada, marcando planilha!')
                 bot.press('ENTER')
                 marca_lancado(texto_marcacao='Lancado_Manual')
                 break
-            elif procura_imagem(imagem='img_topcon/naoencontrado_xml.png', limite_tentativa=2, continuar_exec=True) is not False:
+            elif procura_imagem(imagem='img_topcon/naoencontrado_xml.png', limite_tentativa=3, continuar_exec=True) is not False:
                 bot.press('ENTER')
                 marca_lancado(texto_marcacao='Aguardando_SEFAZ')
                 programa_principal()
-            elif procura_imagem(imagem='img_topcon/chave_44digitos.png', limite_tentativa=2, continuar_exec=True) is not False:
+            elif procura_imagem(imagem='img_topcon/chave_44digitos.png', limite_tentativa=3, continuar_exec=True) is not False:
                 bot.press('ENTER')
                 marca_lancado(texto_marcacao='Chave_invalida')
                 programa_principal()
@@ -201,9 +201,7 @@ def programa_principal():
         # * -------------------------------------- Conclusão lançamento --------------------------------------
         bot.click(procura_imagem(imagem='img_topcon/confirma.png'))
         bot.press('pagedown')  # Conclui o lançamento
-        exit()
         #TODO --- Caso abra a tela de transferencia.
-        
         bot.click(procura_imagem(imagem='img_topcon/operacao_realizada.png', limite_tentativa=1000))
         bot.press('ENTER')
         temppo_final = time.time()
