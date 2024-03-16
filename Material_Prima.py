@@ -29,12 +29,12 @@ pytesseract.pytesseract.tesseract_cmd = r"C:\tesseract\tesseract.exe"
 def acoes_planilha():
     validou_xml = False
     while validou_xml is False:
+        time.sleep(1)
         # * Trata os dados coletados em "dados_planilha"
         dados_planilha = coleta_planilha()
         chave_xml = dados_planilha[4].strip()
         # * -------------------------------------- Lançamento Topcon --------------------------------------
         bot.PAUSE = 1  # Pausa padrão do bot
-        time.sleep(1)
         ahk.win_activate('TopCompras')
         if ahk.win_is_active('TopCompras'):
             print('Tela compras está maximizada! Iniciando o programa')
@@ -43,13 +43,10 @@ def acoes_planilha():
         # Processo de lançamento
         time.sleep(1)
         bot.press('F2')
-        bot.press('F3')
-        bot.press('F3')
+        bot.press('F3', presses= 2, interval= 0.3)
         bot.click(558, 235)  # Clica dentro do campo para inserir a chave XML
-        time.sleep(1)
         bot.write(chave_xml)
         bot.press('ENTER')
-        time.sleep(3)
         ahk.win_wait_active('TopCompras')
         while procura_imagem(imagem='img_topcon/naorespondendo.png', limite_tentativa=3, continuar_exec=True) is not False:
             time.sleep(2)
