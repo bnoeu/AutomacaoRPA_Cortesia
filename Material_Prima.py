@@ -35,14 +35,6 @@ def acoes_planilha():
         # * -------------------------------------- Lançamento Topcon --------------------------------------
         bot.PAUSE = 1  # Pausa padrão do bot
         time.sleep(1)
-        '''#! Tela de lançamento, necessaria apenas se estiver em modo de teste
-        menu_inicio = bot.confirm(text='Deseja iniciar o lançamento?', title='Atenção', buttons=['Iniciar', 'Fechar'])
-        if menu_inicio == 'Fechar':
-            exit(print('Fechando programa...'))        
-        print('--- Iniciando lançamento ----')
-        time.sleep(1)
-        '''
-
         ahk.win_activate('TopCompras')
         if ahk.win_is_active('TopCompras'):
             print('Tela compras está maximizada! Iniciando o programa')
@@ -210,8 +202,6 @@ def programa_principal():
         print(F'\n--- Lançamento concluido, tempo: {temppo_final - tempo_inicio}')
         # * -------------------------------------- Marca planilha --------------------------------------
         marca_lancado(texto_marcacao='Lancado_RPA')
-
-
 programa_principal()
 
 
