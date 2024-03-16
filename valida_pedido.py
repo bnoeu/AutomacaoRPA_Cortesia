@@ -27,9 +27,9 @@ def valida_pedido(acabou_pedido = False):
         time.sleep(1)
         item_pedido = []
         # 1: Topo direto imagem, #2 inferior lado esquerdo
-        bot.screenshot('img_topcon/item_nota.png', region=(170, 400, 280, 30))
+        bot.screenshot('img_geradas/item_nota.png', region=(170, 400, 280, 30))
         print('--- Tirou print ----')
-        img = cv2.imread('img_topcon/item_nota.png')
+        img = cv2.imread('img_geradas/item_nota.png')
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         scale_percent = 180  # percent of original size
         width = int(img.shape[1] * scale_percent / 100)
@@ -69,8 +69,8 @@ def valida_pedido(acabou_pedido = False):
             bot.doubleClick(pos)
             bot.click(procura_imagem(imagem='img_topcon/localizar.png'))
             time.sleep(1)
-            bot.screenshot('img_topcon/valida_itensxml.png', region=(168, 400, 250, 30))
-            img = cv2.imread('img_topcon/valida_itensxml.png')
+            bot.screenshot('img_geradas/valida_itensxml.png', region=(168, 400, 250, 30))
+            img = cv2.imread('img_geradas/valida_itensxml.png')
             gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
             thresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)[1]
             texto_xml = pytesseract.image_to_string(thresh, lang='por', config='--psm 6').strip()

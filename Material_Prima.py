@@ -49,7 +49,7 @@ def acoes_planilha():
         bot.press('ENTER')
         ahk.win_wait_active('TopCompras')
         while procura_imagem(imagem='img_topcon/naorespondendo.png', limite_tentativa=3, continuar_exec=True) is not False:
-            time.sleep(2)
+            time.sleep(1)
             print('Aguardando topvoltar')
         tentativa = 0
         while tentativa < 10:
@@ -123,7 +123,7 @@ def programa_principal():
         hoje = hoje.strftime("%d%m%Y")  # dd/mm/YY
         bot.write(hoje, interval=0.10)
         bot.press('enter')
-        time.sleep(8)
+        time.sleep(10)
         ahk.win_wait_active('TopCompras')
         bot.write(centro_custo) # Altera o campo centro de custo, para o dado coletado
         bot.press('ENTER')
@@ -149,12 +149,12 @@ def programa_principal():
             imagem='img_topcon/produtos_servicos.png', limite_tentativa=8))
         bot.click(procura_imagem(imagem='img_topcon/botao_alterar.png',
                   limite_tentativa=8, area=(100, 839, 300, 400)))
-        time.sleep(2)
+        time.sleep(2.5)
         # 1: Topo direto imagem, #2 inferior lado esquerdo
-        bot.screenshot('img_topcon/toneladas.png', region=(198, 167, 75, 25))
+        bot.screenshot('img_geradas/toneladas.png', region=(198, 167, 75, 25))
         print('--- Tirou print ----')
         # Verificação do texto da imagem.
-        img = cv2.imread('img_topcon/toneladas.png')
+        img = cv2.imread('img_geradas/toneladas.png')
         scale_percent = 120  # percent of original size
         width = int(img.shape[1] * scale_percent / 100)
         height = int(img.shape[0] * scale_percent / 100)
