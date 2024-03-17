@@ -130,13 +130,14 @@ def programa_principal():
         # * -------------------------------------- VALIDAÇÃO TRANSPORTADOR --------------------------------------
         ahk.win_wait_active('TopCompras')
         bot.click(105, 515)  # Clica no campo "Valores Totais"
-        time.sleep(1)
+        time.sleep(3)
         bot.click(317, 897)  # Campo transportador
         procura_imagem(imagem='img_topcon/campo_re_0.png', limite_tentativa=20)
         print(F'--- PREENCHENDO TRANSPORTADOR: {cracha_mot}')
         time.sleep(1)
         bot.write(cracha_mot, interval=0.10)  # ID transportador
         bot.press('enter')
+        #TODO --- Inserir a pesquisa do transportador_incorreto
         time.sleep(1)
         bot.press('enter')
         if bot.click(procura_imagem('img_topcon/campo_placa.png', continuar_exec=True)) is not False:
