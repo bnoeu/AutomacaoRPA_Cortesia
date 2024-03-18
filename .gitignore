@@ -11,3 +11,4 @@ img_topcon/valida_itensxml.png
 *.pyc
 /__pycache__
 /img_geradas
+/__pycache__

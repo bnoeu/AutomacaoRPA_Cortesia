@@ -7,8 +7,9 @@ import pygetwindow as gw
 import pytesseract
 from ahk import AHK
 from datetime import date
-from funcoes import marca_lancado, procura_imagem, coleta_planilha
+from funcoes import marca_lancado, procura_imagem, verifica_tela
 from valida_pedido import valida_pedido
+from coleta_planilha import coleta_planilha
 import pyautogui as bot
 
 
@@ -24,24 +25,23 @@ tempo_inicio = time.time()
 chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
 pytesseract.pytesseract.tesseract_cmd = r"C:\tesseract\tesseract.exe"
 
-
 #! Funções
 def acoes_planilha():
+    time.sleep(1)
     validou_xml = False
     while validou_xml is False:
-        time.sleep(1)
         # * Trata os dados coletados em "dados_planilha"
         dados_planilha = coleta_planilha()
         chave_xml = dados_planilha[4].strip()
         # * -------------------------------------- Lançamento Topcon --------------------------------------
         bot.PAUSE = 1  # Pausa padrão do bot
+        print('--- Abrindo TopCompras')
         ahk.win_activate('TopCompras')
         if ahk.win_is_active('TopCompras'):
             print('Tela compras está maximizada! Iniciando o programa')
         else:
-            exit(print('Tela compras não abriu... Fechando script'))
+            exit(bot.alert('Tela de Compras não abriu.'))
         # Processo de lançamento
-        time.sleep(1)
         bot.press('F2')
         bot.press('F3', presses= 2, interval= 0.3)
         bot.click(558, 235)  # Clica dentro do campo para inserir a chave XML
@@ -105,8 +105,10 @@ def programa_principal():
                 centro_custo = 'ATIBAIA'
             elif filial_estoq == '1008':
                 centro_custo = 'MOGI'
+            elif filial_estoq == '1005':
+                centro_custo = 'SANTOS'
             else:
-                exit('Filial de estoque não padronizada')
+                exit(F'Filial de estoque não padronizada {filial_estoq}')
             chave_xml = dados_planilha[4]
             print(F'Crachá: {cracha_mot} Silo1: {silo1} Silo2: {silo2}, {filial_estoq}, {chave_xml}')
             time.sleep(1)
@@ -127,11 +129,15 @@ def programa_principal():
         ahk.win_wait_active('TopCompras')
         bot.write(centro_custo) # Altera o campo centro de custo, para o dado coletado
         bot.press('ENTER')
+        time.sleep(2)
+        while ahk.win_exists('Não está respondendo'):
+            time.sleep(2)
         # * -------------------------------------- VALIDAÇÃO TRANSPORTADOR --------------------------------------
         ahk.win_wait_active('TopCompras')
         bot.click(105, 515)  # Clica no campo "Valores Totais"
-        time.sleep(3)
+        time.sleep(1)
         bot.click(317, 897)  # Campo transportador
+        time.sleep(2)
         procura_imagem(imagem='img_topcon/campo_re_0.png', limite_tentativa=20)
         print(F'--- PREENCHENDO TRANSPORTADOR: {cracha_mot}')
         time.sleep(1)
@@ -182,8 +188,7 @@ def programa_principal():
             bot.write(str(qtd_ton))
             bot.press('ENTER')
         elif silo1 != '':
-            print(
-                F'--- Foi informado UM silo, preenchendo... {silo1}, quantidade: {qtd_ton}')
+            print(F'--- Foi informado UM silo, preenchendo... {silo1}, quantidade: {qtd_ton}')
             qtd_ton = str(qtd_ton)
             qtd_ton = qtd_ton.replace(".", ",")
             bot.write(silo1)
@@ -194,10 +199,25 @@ def programa_principal():
         bot.click(procura_imagem(imagem='img_topcon/confirma.png'))
         bot.press('pagedown')  # Conclui o lançamento
         #TODO --- Caso abra a tela de transferencia.
+        while ahk.win_exists('Não está respondendo'):
+            time.sleep(2)
         bot.click(procura_imagem(imagem='img_topcon/operacao_realizada.png', limite_tentativa=1000))
+        time.sleep(1)
         bot.press('ENTER')
-        temppo_final = time.time()
-        print(F'\n--- Lançamento concluido, tempo: {temppo_final - tempo_inicio}')
+        time.sleep(2)
+        if bot.click(procura_imagem('img_topcon/deseja_processar.png', continuar_exec=True, limite_tentativa= 8)) is not False:
+            print('Entrou no IF do deseja processar')
+            time.sleep(1)
+            bot.press('ENTER')
+            verifica_tela('pdf - Google Chrome')
+            ahk.win_close('pdf - Google Chrome')
+            print('--- Abrindo Transmissão Nota Fiscal')
+            ahk.win_activate('Transmissão Nota Fiscal')
+            bot.click(procura_imagem(imagem='img_topcon/sair_tela.png'))
+            time.sleep(5)
+        
+        tempo_final = time.time()
+        print(F'\n--- Lançamento concluido, tempo: {tempo_final - tempo_inicio}')
         # * -------------------------------------- Marca planilha --------------------------------------
         marca_lancado(texto_marcacao='Lancado_RPA')
 programa_principal()

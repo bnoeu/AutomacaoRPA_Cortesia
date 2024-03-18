@@ -24,7 +24,7 @@ def valida_pedido(acabou_pedido = False):
     tentativa = 0
     # * -------------------------------------- VALIDAÇÃO DO PEDIDO --------------------------------------
     while tentativa <= 2:
-        time.sleep(1)
+        time.sleep(2)
         item_pedido = []
         # 1: Topo direto imagem, #2 inferior lado esquerdo
         bot.screenshot('img_geradas/item_nota.png', region=(170, 400, 280, 30))

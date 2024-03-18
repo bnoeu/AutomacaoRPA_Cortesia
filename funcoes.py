@@ -25,7 +25,7 @@ pytesseract.pytesseract.tesseract_cmd = r"C:\tesseract\tesseract.exe"
 
 def procura_imagem(imagem, limite_tentativa=4, area=(0, 0, 1920, 1080), continuar_exec=False):
     tentativa = 0
-    #print(F'--- Tentando encontrar "{imagem}", tentativa: {tentativa}', end='... ')
+    print(F'--- Tentando encontrar "{imagem}", tentativa: {tentativa}', end='... ')
     while tentativa < limite_tentativa:
         tentativa += 1
         time.sleep(0.5)
@@ -66,6 +66,7 @@ def verifica_tela(nome_tela, manual=False):
         exit(print(F'--- Tela: {nome_tela} está fechada, saindo do programa.'))
 
 def marca_lancado(texto_marcacao='Lancado'):
+    print('--- Abrindo planilha')
     ahk.win_activate('db_alltrips')
     time.sleep(1)
     if procura_imagem(imagem='img_planilha/botao_exibicaoverde.png', continuar_exec=True, limite_tentativa=3) is not False:
@@ -93,33 +94,3 @@ def marca_lancado(texto_marcacao='Lancado'):
     else:
         print('Não achou o botao de edição')
 
-def coleta_planilha():
-    ahk.win_activate('db_alltrips')
-    time.sleep(1)
-    if procura_imagem(imagem='img_planilha/botao_exibicaoverde.png', continuar_exec=True, limite_tentativa=2) is False:
-        bot.click(procura_imagem(imagem='img_planilha/botao_edicao.png'))
-        bot.click(procura_imagem(imagem='img_planilha/botao_exibicao.png'))
-        procura_imagem(imagem='img_planilha/botao_exibicaoverde.png', limite_tentativa= 8)
-    else:
-        print('--- Já está no modo de edição, continuando processo')
-        # Validação se houve novo valor inserido
-        time.sleep(1)
-    
-    alteracao_filtro()
-
-    # * Coleta os dados da linha atual
-    dados_planilha = []
-    print('--- Copiando dados e formatando')
-    bot.click(100, 510)  # Clica na primeira linha
-    bot.PAUSE = 0.3
-    for n in range(0, 7, 1):  # Copia dados dos 6 campos
-        while True:
-            bot.hotkey('ctrl', 'c')
-            if 'Recuperando' in ahk.get_clipboard():
-                print('Tentando copiar novamente')
-                time.sleep(0.2)
-            else:
-                break
-        dados_planilha.append(ahk.get_clipboard())
-        bot.press('right')
-    return dados_planilha
