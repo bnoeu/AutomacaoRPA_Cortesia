@@ -16,7 +16,7 @@ continuar = True
 bot.FAILSAFE = True
 numero_nf = "965999"
 transportador = "111594"
-tempo_inicio = time.time()
+#tempo_inicio = time.time()
 chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
 
 
@@ -41,7 +41,7 @@ def valida_pedido(acabou_pedido = False):
         # cv2.imshow('T', thresh)
         # cv2.waitKey()
         texto = pytesseract.image_to_string(thresh, lang='eng', config='--psm 6').strip()
-        PEDRA_1 = ['PEDRA 01', 'PEDRA DI', 'BRITADA 01', 'PEDRA 1']
+        PEDRA_1 = ['PEDRA 01', 'PEDRA DI', 'BRITADA 01', 'PEDRA 1', 'PEDRA BRITADA 01']
         if texto in PEDRA_1:
             print('Contém PEDRA 1')
             item_pedido.append('PED_BRITA1.jpg')

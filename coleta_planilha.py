@@ -20,7 +20,7 @@ continuar = True
 bot.FAILSAFE = True
 numero_nf = "965999"  # Valor para teste
 transportador = "111594"  # Valor para teste
-tempo_inicio = time.time()
+#tempo_inicio = time.time()
 chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
 pytesseract.pytesseract.tesseract_cmd = r"C:\tesseract\tesseract.exe"
 

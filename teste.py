@@ -20,19 +20,15 @@ bot.FAILSAFE = True
 acabou_pedido = ''
 numero_nf = "965999"
 transportador = "111594"
-tempo_inicio = time.time()
+# tempo_inicio = time.time()
 chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
 pytesseract.pytesseract.tesseract_cmd = r"C:\tesseract\tesseract.exe"
 
 time.sleep(1)
 #! Utilizado apenas para estar trechos de codigo.
-
-for window in ahk.list_windows():
-        time.sleep(0.2)
-        if 'Google Chrome (VM-CortesiaApli.CORTESIA.com)' in window.title:
-                print('Google Chrome (VM-CortesiaApli.CORTESIA.com)')
-                ahk.win_kill('Google Chrome (VM-CortesiaApli.CORTESIA.com)')
-                ahk.win_close('Google Chrome (VM-CortesiaApli.CORTESIA.com)')
-                ahk.win_activate('Google Chrome (VM-CortesiaApli.CORTESIA.com)')
-                bot.hotkey('alt', 'F4')
-                
+ahk.win_activate('TopCompras', title_match_mode= 2)
+'''
+bot.click(procura_imagem('img_topcon/vinc_item_xml.png', continuar_exec=True, limite_tentativa= 8))
+'''
+if procura_imagem('img_topcon/vinc_item_xml.png', continuar_exec=True, limite_tentativa= 8)
+bot.press('s')

@@ -18,7 +18,7 @@ bot.FAILSAFE = True
 acabou_pedido = ''
 numero_nf = "965999"
 transportador = "111594"
-tempo_inicio = time.time()
+#tempo_inicio = time.time()
 chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
 pytesseract.pytesseract.tesseract_cmd = r"C:\tesseract\tesseract.exe"
 
