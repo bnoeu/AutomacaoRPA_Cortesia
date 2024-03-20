@@ -31,7 +31,7 @@ def coleta_planilha():
     if procura_imagem(imagem='img_planilha/botao_exibicaoverde.png', continuar_exec=True, limite_tentativa=2) is False:
         bot.click(procura_imagem(imagem='img_planilha/botao_edicao.png'))
         bot.click(procura_imagem(imagem='img_planilha/botao_exibicao.png'))
-        procura_imagem(imagem='img_planilha/botao_exibicaoverde.png', limite_tentativa= 8)
+        procura_imagem(imagem='img_planilha/botao_exibicaoverde.png', limite_tentativa= 4)
     else:
         print('--- Já está no modo de edição, continuando processo')
         # Validação se houve novo valor inserido

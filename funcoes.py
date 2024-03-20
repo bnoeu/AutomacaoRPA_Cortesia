@@ -3,6 +3,7 @@
 
 import time
 import datetime
+import cv2
 import pygetwindow as gw
 import pytesseract
 from ahk import AHK
@@ -25,21 +26,20 @@ pytesseract.pytesseract.tesseract_cmd = r"C:\tesseract\tesseract.exe"
 
 def procura_imagem(imagem, limite_tentativa=4, area=(0, 0, 1920, 1080), continuar_exec=False):
     tentativa = 0
-    print(F'--- Tentando encontrar "{imagem}", tentativa: {tentativa}', end='... ')
     while tentativa < limite_tentativa:
-        tentativa += 1
+        print(F'--- Tentando encontrar "{imagem}", tentativa: {tentativa}', end='... ')
         time.sleep(0.5)
         # Identifica posição do logo TOPCON
-        posicao_img = bot.locateOnScreen(imagem, grayscale=True, confidence=0.88, region=area)
+        posicao_img = bot.locateCenterOnScreen(imagem, grayscale=True, confidence=0.88, region=area)
         if posicao_img is not None:
-            #print(F'encontrou a imagem na posição: {posicao_img}')
+            print(F'encontrou a imagem na posição: {posicao_img}')
             break
+        tentativa += 1
     if (continuar_exec is True) and (posicao_img is None):
         print('não achou imagem, continuando execução pois o parametro "continuar_exec" está habilitado')
         return False
     if tentativa >= limite_tentativa:
-        exit(bot.alert(
-            text=F'não foi possivel encontrar: {imagem}', title='Erro!', button='Fechar'))
+        exit(bot.alert(text=F'não foi possivel encontrar: {imagem}', title='Erro!', button='Fechar'))
     return posicao_img
 
 def alteracao_filtro():
@@ -94,3 +94,19 @@ def marca_lancado(texto_marcacao='Lancado'):
     else:
         print('Não achou o botao de edição')
 
+def extrai_txt_img(imagem, area_tela):
+        bot.screenshot('img_geradas/' + imagem, region = area_tela)
+        print('--- Tirou print ----')
+        img = cv2.imread('img_geradas/' + imagem)
+        scale_percent = 180  # percent of original size
+        width = int(img.shape[1] * scale_percent / 110)
+        height = int(img.shape[0] * scale_percent / 110)
+        dim = (width, height)
+        img = cv2.resize(img, dim, interpolation=cv2.INTER_AREA)
+        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        thresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)[1]
+        #cv2.imshow('T', thresh)
+        #cv2.waitKey()
+        time.sleep(1)
+        texto = pytesseract.image_to_string(thresh, lang='eng', config='--psm 6').strip()
+        return texto

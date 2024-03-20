@@ -7,7 +7,7 @@ import pygetwindow as gw
 import pytesseract
 from ahk import AHK
 from datetime import date
-from funcoes import marca_lancado, procura_imagem, verifica_tela
+from funcoes import marca_lancado, procura_imagem, verifica_tela, extrai_txt_img
 from valida_pedido import valida_pedido
 from coleta_planilha import coleta_planilha
 import pyautogui as bot
@@ -119,6 +119,9 @@ def programa_principal():
         bot.write(filial_estoq)
         # Confirma a informação da nova filial de estoque
         bot.press('ENTER', presses=2)
+        ahk.win_activate('TopCompras')
+        time.sleep(2)
+        ahk.win_wait_active('TopCompras')
         bot.click(procura_imagem(imagem='img_topcon/data_operacao.jpg'))
         # bot.click(1006, 345)  # Campo data da operação
         hoje = date.today()
@@ -152,24 +155,11 @@ def programa_principal():
         else:
             print('Achou o campo ou já está preenchido')
         # * -------------------------------------- Aba Pedido --------------------------------------
-        bot.click(procura_imagem(
-            imagem='img_topcon/produtos_servicos.png', limite_tentativa=8))
+        bot.click(procura_imagem(imagem='img_topcon/produtos_servicos.png', limite_tentativa=8))
         bot.click(procura_imagem(imagem='img_topcon/botao_alterar.png',
                   limite_tentativa=8, area=(100, 839, 300, 400)))
         time.sleep(2.5)
-        # 1: Topo direto imagem, #2 inferior lado esquerdo
-        bot.screenshot('img_geradas/toneladas.png', region=(198, 167, 75, 25))
-        print('--- Tirou print ----')
-        # Verificação do texto da imagem.
-        img = cv2.imread('img_geradas/toneladas.png')
-        scale_percent = 140  # percent of original size
-        width = int(img.shape[1] * scale_percent / 100)
-        height = int(img.shape[0] * scale_percent / 100)
-        dim = (width, height)
-        img = cv2.resize(img, dim, interpolation=cv2.INTER_AREA)
-        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-        thresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)[1]
-        qtd_ton = pytesseract.image_to_string(thresh, config='--psm 6').strip()
+        qtd_ton = extrai_txt_img(imagem = 'item_nota.png', area_tela=(198, 167, 75, 25)).strip()     
         qtd_ton = qtd_ton.replace(",", ".")
         print(F'--- Texto coletado da quantidade: {qtd_ton}')
         time.sleep(1)
@@ -199,26 +189,35 @@ def programa_principal():
         bot.press('pagedown')  # Conclui o lançamento
         while ahk.win_exists('Não está respondendo'):
             time.sleep(2)
-        while procura_imagem(imagem='img_topcon/operacao_realizada.png', limite_tentativa=1000) is False:
-                ahk.win_activate('TopCompras')
-                time.sleep(0.5)
+        while procura_imagem(imagem='img_topcon/operacao_realizada.png', continuar_exec=True) is False:
+                time.sleep(2)
+                print('Aguardando')
+        ahk.win_activate('TopCompras')
+        time.sleep(2)
         bot.click(procura_imagem(imagem='img_topcon/operacao_realizada.png', limite_tentativa=1000))
         time.sleep(1)
         bot.press('ENTER')
         time.sleep(2)
-        if bot.click(procura_imagem('img_topcon/deseja_processar.png', continuar_exec=True, limite_tentativa= 8)) is not None:
+        ahk.win_activate('TopCom')
+        print(bot.click(procura_imagem('img_topcon/bt_sim.png', continuar_exec=True, limite_tentativa= 4)))
+        if bot.click(procura_imagem('img_topcon/deseja_processar.png', continuar_exec=True, limite_tentativa= 4)) is not None:
                 time.sleep(1)
-                bot.press('S')
-        ahk.win_wait('.pdf', title_match_mode= 2)
-        ahk.win_activate('.pdf', title_match_mode= 2)
-        ahk.win_close('pdf - Google Chrome', title_match_mode= 2)
-        ahk.win_activate('Transmissão', title_match_mode=2)
-        bot.click(procura_imagem(imagem='img_topcon/sair_tela.png'))
+                bot.click(procura_imagem('img_topcon/bt_sim.png', continuar_exec=True, limite_tentativa= 4))
+                while True: #Aguardar o .PDF
+                        try:
+                                ahk.win_wait('.pdf', title_match_mode= 2, timeout= 2)
+                                time.sleep(1)
+                        except TimeoutError: 
+                                print('Aguardando .PDF')
+                        else:
+                                ahk.win_activate('.pdf', title_match_mode= 2)
+                                ahk.win_close('pdf - Google Chrome', title_match_mode= 2)
+                                print('Fechou o PDF')
+                                break 
+                time.sleep(2) 
+                ahk.win_activate('Transmissão', title_match_mode=2)
+                bot.click(procura_imagem(imagem='img_topcon/sair_tela.png'))
         time.sleep(5)
-        exit('--- PROGRAMAR ESSA PARTE DO PROGRAMA.')
-
-
-        
         tempo_final = time.time()
         tempo_final_seg = (tempo_final - tempo_inicio) / 60
         print(F'\n--- Lançamento concluido, tempo: {tempo_final_seg}')
