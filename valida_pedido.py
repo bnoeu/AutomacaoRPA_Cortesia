@@ -102,4 +102,4 @@ def valida_pedido(acabou_pedido = False):
                 return acabou_pedido
             tentativa += 1
                  
-valida_pedido()
+#valida_pedido()
