@@ -35,7 +35,7 @@ def verifica_ped_vazio(texto, pos):
 def valida_pedido(acabou_pedido = False):
     tentativa = 0
     # * -------------------------------------- VALIDAÇÃO DO PEDIDO --------------------------------------
-    time.sleep(2)
+    time.sleep(1)
     item_pedido = []
 
     # 1: Topo direto imagem, #2 inferior lado esquerdo
@@ -84,7 +84,7 @@ def valida_pedido(acabou_pedido = False):
         else:
             print('--- Pedido validado, saindo do loop dos pedidos encontrados')
             break
-        time.sleep(2)
+        time.sleep(1)
     else:
         bot.click(744, 227, 1)
         if tentativa >= 2: #Caso já tenha realiza duas execuções

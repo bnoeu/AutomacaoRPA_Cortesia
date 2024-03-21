@@ -27,4 +27,9 @@ pytesseract.pytesseract.tesseract_cmd = r"C:\tesseract\tesseract.exe"
 time.sleep(1)
 ahk.win_activate('TopCompras')
 #! Utilizado apenas para estar trechos de codigo.
-bot.click(168, 400)
+
+while ahk.win_exists('Não está respondendo', title_match_mode= 2):
+        time.sleep(2)
+while procura_imagem(imagem='img_topcon/operacao_realizada.png', continuar_exec=True, limite_tentativa= 8) is False:
+        time.sleep(2)
+        print('Aguardando')

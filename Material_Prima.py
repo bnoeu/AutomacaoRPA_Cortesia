@@ -128,11 +128,11 @@ def programa_principal():
         hoje = hoje.strftime("%d%m%Y")  # dd/mm/YY
         bot.write(hoje, interval=0.10)
         bot.press('enter')
-        time.sleep(10)
+        time.sleep(8)
         ahk.win_wait_active('TopCompras')
         bot.write(centro_custo) # Altera o campo centro de custo, para o dado coletado
         bot.press('ENTER')
-        time.sleep(2)
+        time.sleep(1)
         while ahk.win_exists('Não está respondendo'):
             time.sleep(2)
         # * -------------------------------------- VALIDAÇÃO TRANSPORTADOR --------------------------------------
@@ -188,16 +188,16 @@ def programa_principal():
         bot.click(procura_imagem(imagem='img_topcon/confirma.png'))
         bot.press('pagedown')  # Conclui o lançamento
         while ahk.win_exists('Não está respondendo'):
-            time.sleep(2)
+            time.sleep(1)
         while procura_imagem(imagem='img_topcon/operacao_realizada.png', continuar_exec=True) is False:
-                time.sleep(2)
+                time.sleep(1)
                 print('Aguardando')
         ahk.win_activate('TopCompras')
-        time.sleep(2)
+        time.sleep(1)
         bot.click(procura_imagem(imagem='img_topcon/operacao_realizada.png', limite_tentativa=1000))
         time.sleep(1)
         bot.press('ENTER')
-        time.sleep(2)
+        time.sleep(1)
         ahk.win_activate('TopCom')
         print(bot.click(procura_imagem('img_topcon/bt_sim.png', continuar_exec=True, limite_tentativa= 4)))
         if bot.click(procura_imagem('img_topcon/deseja_processar.png', continuar_exec=True, limite_tentativa= 4)) is not None:
@@ -214,10 +214,10 @@ def programa_principal():
                                 ahk.win_close('pdf - Google Chrome', title_match_mode= 2)
                                 print('Fechou o PDF')
                                 break 
-                time.sleep(2) 
+                time.sleep(1) 
                 ahk.win_activate('Transmissão', title_match_mode=2)
                 bot.click(procura_imagem(imagem='img_topcon/sair_tela.png'))
-        time.sleep(5)
+        time.sleep(3)
         tempo_final = time.time()
         tempo_final_seg = (tempo_final - tempo_inicio) / 60
         print(F'\n--- Lançamento concluido, tempo: {tempo_final_seg}')
