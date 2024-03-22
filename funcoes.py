@@ -29,17 +29,16 @@ def procura_imagem(imagem, limite_tentativa=4, area=(0, 0, 1920, 1080), continua
     while tentativa < limite_tentativa:
         print(F'--- Tentando encontrar "{imagem}", tentativa: {tentativa}', end='... ')
         time.sleep(0.5)
-        # Identifica posição do logo TOPCON
         posicao_img = bot.locateCenterOnScreen(imagem, grayscale=True, confidence=0.88, region=area)
         if posicao_img is not None:
-            print(F'encontrou a imagem na posição: {posicao_img}')
+            print(F'Imagem na posição: {posicao_img}')
             break
         tentativa += 1
     if (continuar_exec is True) and (posicao_img is None):
-        print('não achou imagem, continuando execução pois o parametro "continuar_exec" está habilitado')
+        print('Não encontrada, continuando execução pois o parametro "continuar_exec" está habilitado')
         return False
     if tentativa >= limite_tentativa:
-        exit(bot.alert(text=F'não foi possivel encontrar: {imagem}', title='Erro!', button='Fechar'))
+        exit(bot.alert(text=F'Não foi possivel encontrar: {imagem}', title='Erro!', button='Fechar'))
     return posicao_img
 
 def alteracao_filtro():
@@ -96,9 +95,9 @@ def marca_lancado(texto_marcacao='Lancado'):
 
 def extrai_txt_img(imagem, area_tela):
         bot.screenshot('img_geradas/' + imagem, region = area_tela)
-        print('--- Tirou print ----')
+        print(F'--- Tirou print da imagem: {imagem} ----')
         img = cv2.imread('img_geradas/' + imagem)
-        scale_percent = 180  # percent of original size
+        scale_percent = 180
         width = int(img.shape[1] * scale_percent / 110)
         height = int(img.shape[0] * scale_percent / 110)
         dim = (width, height)

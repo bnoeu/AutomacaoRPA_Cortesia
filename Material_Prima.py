@@ -188,18 +188,17 @@ def programa_principal():
         bot.click(procura_imagem(imagem='img_topcon/confirma.png'))
         bot.press('pagedown')  # Conclui o lançamento
         while ahk.win_exists('Não está respondendo'):
+            time.sleep(2)
+        while bot.click(procura_imagem(imagem='img_topcon/operacao_realizada.png', continuar_exec=True, limite_tentativa= 1000)) is False:
             time.sleep(1)
-        while procura_imagem(imagem='img_topcon/operacao_realizada.png', continuar_exec=True) is False:
-                time.sleep(1)
-                print('Aguardando')
-        ahk.win_activate('TopCompras')
-        time.sleep(1)
-        bot.click(procura_imagem(imagem='img_topcon/operacao_realizada.png', limite_tentativa=1000))
-        time.sleep(1)
+            print('Aguardando')
+            ahk.win_activate('TopCompras')
         bot.press('ENTER')
-        time.sleep(1)
         ahk.win_activate('TopCom')
-        print(bot.click(procura_imagem('img_topcon/bt_sim.png', continuar_exec=True, limite_tentativa= 4)))
+        ahk.win_wait_active('TopCom')
+        exit()
+        #! PORQUE ESSE PRINT AQUI?!
+        #print(bot.click(procura_imagem('img_topcon/bt_sim.png', continuar_exec=True, limite_tentativa= 4)))
         if bot.click(procura_imagem('img_topcon/deseja_processar.png', continuar_exec=True, limite_tentativa= 4)) is not None:
                 time.sleep(1)
                 bot.click(procura_imagem('img_topcon/bt_sim.png', continuar_exec=True, limite_tentativa= 4))
