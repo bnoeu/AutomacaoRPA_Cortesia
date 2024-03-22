@@ -26,6 +26,7 @@ def verifica_ped_vazio(texto, pos):
     if len(texto_xml) > 4:  # Verifica se ainda ficou item no "Itens pedido"
         print('Itens XML ainda tem informação! desmarcando pedido marcado')
         bot.doubleClick(pos)
+        return False
     else:  # Caso fique vazio
         print('Itens XML ficou vazio! prosseguindo')
         bot.click(procura_imagem(imagem='img_topcon/confirma.png'))
@@ -34,6 +35,7 @@ def verifica_ped_vazio(texto, pos):
 
 
 def valida_pedido(acabou_pedido=False):
+    ahk.win_activate('TopCom', title_match_mode= 2)
     tentativa = 0
     # * -------------------------------------- VALIDAÇÃO DO PEDIDO --------------------------------------
     time.sleep(1)
@@ -41,7 +43,7 @@ def valida_pedido(acabou_pedido=False):
 
     # 1: Topo direto imagem, #2 inferior lado esquerdo
     texto = extrai_txt_img(imagem='item_nota.png', area_tela=(170, 400, 280, 30))
-    PEDRA_1 = ['PEDRA 01', 'PEDRA DI', 'BRITADA 01', 'PEDRA 1', 'PEDRA BRITADA 01']
+    PEDRA_1 = ['PEDRA 01', 'PEDRA DI', 'BRITADA 01', 'PEDRA 1', 'PEDRA BRITADA 01', 'PEDRAT']
     if texto in PEDRA_1:
         print('Contém PEDRA 1')
         item_pedido.append('PED_BRITA1.jpg')
@@ -76,16 +78,17 @@ def valida_pedido(acabou_pedido=False):
         bot.doubleClick(pos)
         bot.click(procura_imagem(imagem='img_topcon/localizar.png'))
         vazio = verifica_ped_vazio(texto=texto, pos=pos) # Retorna TRUE caso esteja vazio
+        print(F'VALOR VAZIO: {vazio}')
         if vazio is not True:
             bot.click(procura_imagem('img_topcon/vinc_xml_pedido.png', continuar_exec=True, limite_tentativa=2))
             if procura_imagem('img_topcon/dife_valor.png', continuar_exec=True, limite_tentativa=2):
                 bot.press('ENTER')
             if procura_imagem('img_topcon/operacao_fiscal_configurada.png', continuar_exec=True, limite_tentativa=2):
                 bot.press('ENTER')
-            exit('SAIU')
             vazio = verifica_ped_vazio(texto=texto, pos=pos)
         else:
             print('--- Pedido validado, saindo do loop dos pedidos encontrados')
+            break
         time.sleep(1)
     else: #Caso não encontre nenhuma imagem de pedido
         if tentativa >= 2:  # Caso já tenha realiza duas execuções

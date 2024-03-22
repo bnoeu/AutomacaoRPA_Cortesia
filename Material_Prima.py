@@ -196,10 +196,10 @@ def programa_principal():
         bot.press('ENTER')
         ahk.win_activate('TopCom')
         ahk.win_wait_active('TopCom')
-        exit()
         #! PORQUE ESSE PRINT AQUI?!
         #print(bot.click(procura_imagem('img_topcon/bt_sim.png', continuar_exec=True, limite_tentativa= 4)))
         if bot.click(procura_imagem('img_topcon/deseja_processar.png', continuar_exec=True, limite_tentativa= 4)) is not None:
+                exit()
                 time.sleep(1)
                 bot.click(procura_imagem('img_topcon/bt_sim.png', continuar_exec=True, limite_tentativa= 4))
                 while True: #Aguardar o .PDF
