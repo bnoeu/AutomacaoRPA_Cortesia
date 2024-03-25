@@ -21,11 +21,11 @@ chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
 
 
 def verifica_ped_vazio(texto, pos):
-    texto_xml = extrai_txt_img( 'valida_itensxml.png', area_tela=(168, 400, 250, 30)).strip()
+    texto_xml = extrai_txt_img(
+        'valida_itensxml.png', area_tela=(168, 400, 250, 30)).strip()
     print(F'Item da nota: {texto}, texto que ainda ficou: {texto_xml}')
     if len(texto_xml) > 4:  # Verifica se ainda ficou item no "Itens pedido"
-        print('Itens XML ainda tem informação! desmarcando pedido marcado')
-        bot.doubleClick(pos)
+        print('Itens XML ainda tem informação!')
         return False
     else:  # Caso fique vazio
         print('Itens XML ficou vazio! prosseguindo')
@@ -35,15 +35,16 @@ def verifica_ped_vazio(texto, pos):
 
 
 def valida_pedido(acabou_pedido=False):
-    ahk.win_activate('TopCom', title_match_mode= 2)
+    ahk.win_activate('Vinculação Itens da Nota', title_match_mode=2)
+    ahk.win_wait_active('Vinculação Itens da Nota', title_match_mode=2)
+    time.sleep(2.5)
     tentativa = 0
-    # * -------------------------------------- VALIDAÇÃO DO PEDIDO --------------------------------------
-    time.sleep(1)
     item_pedido = []
-
     # 1: Topo direto imagem, #2 inferior lado esquerdo
-    texto = extrai_txt_img(imagem='item_nota.png', area_tela=(170, 400, 280, 30))
-    PEDRA_1 = ['PEDRA 01', 'PEDRA DI', 'BRITADA 01', 'PEDRA 1', 'PEDRA BRITADA 01', 'PEDRAT']
+    texto = extrai_txt_img(imagem='item_nota.png',
+                           area_tela=(170, 400, 280, 30))
+    PEDRA_1 = ['PEDRA 01', 'PEDRA DI', 'BRITADA 01', 'PEDRA 1', 'PEDRA BRITADA 01', 'PEDRAT', 'PEDRA BRITADA 1', 'BRITADA 1', 'BRITA 01']
+    PO_PEDRA = ['PO DE PEDRA', 'AREA INDUSTRIAL', 'INDUSTRIAL']
     if texto in PEDRA_1:
         print('Contém PEDRA 1')
         item_pedido.append('PED_BRITA1.jpg')
@@ -62,7 +63,7 @@ def valida_pedido(acabou_pedido=False):
     elif ('CP 1ll' in texto) or ('CP lll' in texto) or ('CP 111' in texto):
         print(F'Contém Cimento CP III, texto coletado: {texto}')
         item_pedido.append('PED_CPIII40.png')
-    elif 'PO DE PEDRA' in texto:
+    elif texto in PO_PEDRA:
         print('Contém PO DE PEDRA')
         item_pedido.append('PED_POPEDRA.png')
     elif 'QUARTZ' in texto:
@@ -72,26 +73,35 @@ def valida_pedido(acabou_pedido=False):
         exit(
             print(F'Texto não padronizado, verificar script, texto: {texto.strip()}'))
 
-    posicoes = bot.locateAllOnScreen('img_pedidos/' + item_pedido[0], confidence=0.9, grayscale=True, region=(0, 0, 850, 321))
+    posicoes = bot.locateAllOnScreen(
+        'img_pedidos/' + item_pedido[0], confidence=0.9, grayscale=True, region=(0, 0, 850, 321))
     for pos in posicoes:  # Tenta em todos pedidos encontrados
         print(F'Achou o {texto} na posição {pos}')
-        bot.doubleClick(pos)
+        bot.doubleClick(pos)  # Marca o pedido encontrado
         bot.click(procura_imagem(imagem='img_topcon/localizar.png'))
-        vazio = verifica_ped_vazio(texto=texto, pos=pos) # Retorna TRUE caso esteja vazio
+        # Retorna TRUE caso esteja vazio
+        vazio = verifica_ped_vazio(texto=texto, pos=pos)
         print(F'VALOR VAZIO: {vazio}')
         if vazio is not True:
-            bot.click(procura_imagem('img_topcon/vinc_xml_pedido.png', continuar_exec=True, limite_tentativa=2))
+            bot.click(procura_imagem('img_topcon/vinc_xml_pedido.png',
+                      continuar_exec=True, limite_tentativa=2))
+            time.sleep(3)
+            vazio = verifica_ped_vazio(texto=texto, pos=pos)
             if procura_imagem('img_topcon/dife_valor.png', continuar_exec=True, limite_tentativa=2):
                 bot.press('ENTER')
             if procura_imagem('img_topcon/operacao_fiscal_configurada.png', continuar_exec=True, limite_tentativa=2):
                 bot.press('ENTER')
-            vazio = verifica_ped_vazio(texto=texto, pos=pos)
+            if verifica_ped_vazio(texto=texto, pos=pos) is not True:
+                print('--- Não ficou vazio, desmarcando pedido')
+                # Clica novamente no mesmo pedido, para desmarcar
+                bot.doubleClick(pos)
         else:
-            print('--- Pedido validado, saindo do loop dos pedidos encontrados')
+            print(
+                F'--- Pedido validado, saindo do loop dos pedidos encontrados, valor do campo: {vazio}')
             break
-        time.sleep(1)
-    else: #Caso não encontre nenhuma imagem de pedido
-        if tentativa >= 2:  # Caso já tenha realiza duas execuções
+        time.sleep(0.5)
+    else:  # Caso não encontre nenhuma imagem de pedido
+        if vazio is False:  # Caso já tenha realiza duas execuções
             bot.click(procura_imagem(imagem='img_topcon/bt_cancela.png'))
             marca_lancado('Erro_Pedido')
             acabou_pedido = True

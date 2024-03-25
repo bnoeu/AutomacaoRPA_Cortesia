@@ -25,29 +25,29 @@ chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
 pytesseract.pytesseract.tesseract_cmd = r"C:\tesseract\tesseract.exe"
 
 def coleta_planilha():
-    print('--- Abrindo planilha')
+    print('--- Abrindo planilha - COLETA_PLANILHA')
     ahk.win_activate('db_alltrips')
-    time.sleep(1)
-    if procura_imagem(imagem='img_planilha/botao_exibicaoverde.png', continuar_exec=True, limite_tentativa=2) is False:
+    time.sleep(2)
+    if procura_imagem(imagem='img_planilha/botao_exibicaoverde.png', continuar_exec=True) is False:
         bot.click(procura_imagem(imagem='img_planilha/botao_edicao.png'))
         bot.click(procura_imagem(imagem='img_planilha/botao_exibicao.png'))
-        procura_imagem(imagem='img_planilha/botao_exibicaoverde.png', limite_tentativa= 4)
+        time.sleep(1)
+        procura_imagem(imagem='img_planilha/botao_exibicaoverde.png')
     else:
         print('--- Já está no modo de edição, continuando processo')
         # Validação se houve novo valor inserido
-        time.sleep(1)
     alteracao_filtro()
     # * Coleta os dados da linha atual
     dados_planilha = []
     print('--- Copiando dados e formatando')
     bot.click(100, 510)  # Clica na primeira linha
-    bot.PAUSE = 0.3
+    bot.PAUSE = 0.2
     for n in range(0, 7, 1):  # Copia dados dos 6 campos
         while True:
             bot.hotkey('ctrl', 'c')
             if 'Recuperando' in ahk.get_clipboard():
                 print('Tentando copiar novamente')
-                time.sleep(0.2)
+                time.sleep(0.15)
             else:
                 break
         dados_planilha.append(ahk.get_clipboard())
