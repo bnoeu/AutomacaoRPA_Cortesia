@@ -72,33 +72,36 @@ def valida_pedido(acabou_pedido=False):
         exit(print(F'Texto não padronizado, verificar script, texto: {texto.strip()}'))
         
 #* --------------------------------- Pedidos Encontrados 
-    posicoes = bot.locateAllOnScreen('img_pedidos/' + item_pedido[0], confidence=0.9, grayscale=True, region=(0, 0, 850, 400))
-    for pos in posicoes:  # Tenta em todos pedidos encontrados
-        print(F'Achou o {texto} na posição {pos}')
-        bot.doubleClick(pos)  # Marca o pedido encontrado
-        bot.click(procura_imagem(imagem='img_topcon/localizar.png'))
-        # Retorna TRUE caso esteja vazio
-        vazio = verifica_ped_vazio(texto=texto, pos=pos)
-        print(F'VALOR VAZIO: {vazio}')
-        if vazio is not True:
-            bot.click(procura_imagem('img_topcon/vinc_xml_pedido.png',continuar_exec=True, limite_tentativa=2))
-            time.sleep(3)
+    while tentativa <= 2:
+        if tentativa > 1:
+            bot.click(744, 230) #Clica para descer o menu e exibir o resto das opções 
+            exit(F'Tentativa: {tentativa}')
+        posicoes = bot.locateAllOnScreen('img_pedidos/' + item_pedido[0], confidence=0.9, grayscale=True, region=(0, 0, 850, 400))
+        time.sleep(5)
+        for pos in posicoes:  # Tenta em todos pedidos encontrados
+            print(F'Achou o {texto} na posição {pos}')
+            bot.doubleClick(pos)  # Marca o pedido encontrado
+            bot.click(procura_imagem(imagem='img_topcon/localizar.png'))
+            # Retorna TRUE caso esteja vazio
             vazio = verifica_ped_vazio(texto=texto, pos=pos)
-            if procura_imagem('img_topcon/dife_valor.png', continuar_exec=True, limite_tentativa=2):
-                bot.press('ENTER')
-            if procura_imagem('img_topcon/operacao_fiscal_configurada.png', continuar_exec=True, limite_tentativa=2):
-                bot.press('ENTER')
-            if verifica_ped_vazio(texto=texto, pos=pos) is not True:
-                print('--- Não ficou vazio, desmarcando pedido')
-                bot.doubleClick(pos) # Clica novamente no mesmo pedido, para desmarcar
-        else:
-            print(F'--- Pedido validado, saindo do loop dos pedidos encontrados, valor do campo: {vazio}')
-            break
-        time.sleep(0.5)
-    else:  # Caso não encontre nenhuma imagem de pedido
+            print(F'VALOR VAZIO: {vazio}')
+            if vazio is not True:
+                bot.click(procura_imagem('img_topcon/vinc_xml_pedido.png',continuar_exec=True, limite_tentativa=2))
+                time.sleep(3)
+                vazio = verifica_ped_vazio(texto=texto, pos=pos)
+                if procura_imagem('img_topcon/dife_valor.png', continuar_exec=True, limite_tentativa=2):
+                    bot.press('ENTER')
+                if procura_imagem('img_topcon/operacao_fiscal_configurada.png', continuar_exec=True, limite_tentativa=2):
+                    bot.press('ENTER')
+                if verifica_ped_vazio(texto=texto, pos=pos) is not True:
+                    print('--- Não ficou vazio, desmarcando pedido')
+                    bot.doubleClick(pos) # Clica novamente no mesmo pedido, para desmarcar
+            else:
+                print(F'--- Pedido validado, saindo do loop dos pedidos encontrados, valor do campo: {vazio}')
+                break
+            tentativa += 1
         if vazio is False:  # Caso já tenha realiza duas execuções
             bot.click(procura_imagem(imagem='img_topcon/bt_cancela.png'))
             marca_lancado('Erro_Pedido')
             acabou_pedido = True
             return acabou_pedido
-    tentativa += 1

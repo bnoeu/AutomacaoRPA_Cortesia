@@ -124,7 +124,7 @@ def programa_principal():
         bot.click(1006, 345)  # Campo data da operação
         #bot.click(procura_imagem(imagem='img_topcon/data_operacao.jpg'))
         hoje = date.today()
-        hoje = hoje.strftime("%d%m%Y")  # dd/mm/YY
+        hoje = hoje.strftime("%d%m%y")  # dd/mm/YY
         bot.write(hoje, interval=0.10)
         bot.press('enter')
         time.sleep(4)
