@@ -26,7 +26,7 @@ pytesseract.pytesseract.tesseract_cmd = r"C:\tesseract\tesseract.exe"
 
 def coleta_planilha():
     print('--- Abrindo planilha - COLETA_PLANILHA')
-    ahk.win_activate('db_alltrips')
+    ahk.win_activate('db_alltrips', title_match_mode= 2)
     time.sleep(2)
     if procura_imagem(imagem='img_planilha/botao_exibicaoverde.png', continuar_exec=True) is False:
         bot.click(procura_imagem(imagem='img_planilha/botao_edicao.png'))

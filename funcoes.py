@@ -26,22 +26,20 @@ pytesseract.pytesseract.tesseract_cmd = r"C:\tesseract\tesseract.exe"
 
 def procura_imagem(imagem, limite_tentativa=4, area=(0, 0, 1920, 1080), continuar_exec=False):
     tentativa = 0
+    print( F'--- Tentando encontrar: {imagem}')
     while tentativa < limite_tentativa:
-        print(
-            F'--- Tentando encontrar "{imagem}", tentativa: {tentativa}', end='... ')
         time.sleep(0.5)
         posicao_img = bot.locateCenterOnScreen(
             imagem, grayscale=True, confidence=0.88, region=area)
         if posicao_img is not None:
-            print(F'Imagem na posição: {posicao_img}')
+            print(F'--- Imagem na posição: {posicao_img}')
             break
         tentativa += 1
     if (continuar_exec is True) and (posicao_img is None):
-        print('Não encontrada, continuando execução pois o parametro "continuar_exec" está habilitado')
+        print('--- Não encontrada, continuando execução pois o parametro "continuar_exec" está habilitado')
         return False
     if tentativa >= limite_tentativa:
-        exit(bot.alert(
-            text=F'Não foi possivel encontrar: {imagem}', title='Erro!', button='Fechar'))
+        exit(bot.alert(text=F'Não foi possivel encontrar: {imagem}', title='Erro!', button='Fechar'))
     return posicao_img
 
 
@@ -63,7 +61,7 @@ def alteracao_filtro():
 def verifica_tela(nome_tela, manual=False):
     if ahk.win_exists(nome_tela):
         print(F'--- A tela: {nome_tela} está aberta')
-        ahk.win_activate(nome_tela)
+        ahk.win_activate(nome_tela, title_match_mode= 2)
         return True
     elif manual is True:
         print(
@@ -119,11 +117,9 @@ def extrai_txt_img(imagem, area_tela):
     dim = (width, height)
     img = cv2.resize(img, dim, interpolation=cv2.INTER_AREA)
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    thresh = cv2.threshold(
-        gray, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)[1]
+    thresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)[1]
     # cv2.imshow('T', thresh)
     # cv2.waitKey()
     time.sleep(0.5)
-    texto = pytesseract.image_to_string(
-        thresh, lang='eng', config='--psm 6').strip()
+    texto = pytesseract.image_to_string(thresh, lang='eng', config='--psm 6').strip()
     return texto

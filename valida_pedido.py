@@ -33,10 +33,9 @@ def verifica_ped_vazio(texto, pos):
         bot.click(procura_imagem(imagem='img_topcon/botao_ok.jpg'))
         return True
 
-
 def valida_pedido(acabou_pedido=False):
-    ahk.win_activate('Vinculação Itens da Nota', title_match_mode=2)
-    ahk.win_wait_active('Vinculação Itens da Nota', title_match_mode=2)
+    ahk.win_activate('Vinculação Itens da Nota', title_match_mode = 2)
+    ahk.win_wait_active('Vinculação Itens da Nota', title_match_mode = 2)
     time.sleep(2.5)
     tentativa = 0
     item_pedido = []
@@ -70,11 +69,10 @@ def valida_pedido(acabou_pedido=False):
         print('Contém AREIA QUARTZO')
         item_pedido.append('PED_AREIAFINA.png')
     else:
-        exit(
-            print(F'Texto não padronizado, verificar script, texto: {texto.strip()}'))
-
-    posicoes = bot.locateAllOnScreen(
-        'img_pedidos/' + item_pedido[0], confidence=0.9, grayscale=True, region=(0, 0, 850, 321))
+        exit(print(F'Texto não padronizado, verificar script, texto: {texto.strip()}'))
+        
+#* --------------------------------- Pedidos Encontrados 
+    posicoes = bot.locateAllOnScreen('img_pedidos/' + item_pedido[0], confidence=0.9, grayscale=True, region=(0, 0, 850, 400))
     for pos in posicoes:  # Tenta em todos pedidos encontrados
         print(F'Achou o {texto} na posição {pos}')
         bot.doubleClick(pos)  # Marca o pedido encontrado
@@ -83,8 +81,7 @@ def valida_pedido(acabou_pedido=False):
         vazio = verifica_ped_vazio(texto=texto, pos=pos)
         print(F'VALOR VAZIO: {vazio}')
         if vazio is not True:
-            bot.click(procura_imagem('img_topcon/vinc_xml_pedido.png',
-                      continuar_exec=True, limite_tentativa=2))
+            bot.click(procura_imagem('img_topcon/vinc_xml_pedido.png',continuar_exec=True, limite_tentativa=2))
             time.sleep(3)
             vazio = verifica_ped_vazio(texto=texto, pos=pos)
             if procura_imagem('img_topcon/dife_valor.png', continuar_exec=True, limite_tentativa=2):
@@ -93,11 +90,9 @@ def valida_pedido(acabou_pedido=False):
                 bot.press('ENTER')
             if verifica_ped_vazio(texto=texto, pos=pos) is not True:
                 print('--- Não ficou vazio, desmarcando pedido')
-                # Clica novamente no mesmo pedido, para desmarcar
-                bot.doubleClick(pos)
+                bot.doubleClick(pos) # Clica novamente no mesmo pedido, para desmarcar
         else:
-            print(
-                F'--- Pedido validado, saindo do loop dos pedidos encontrados, valor do campo: {vazio}')
+            print(F'--- Pedido validado, saindo do loop dos pedidos encontrados, valor do campo: {vazio}')
             break
         time.sleep(0.5)
     else:  # Caso não encontre nenhuma imagem de pedido

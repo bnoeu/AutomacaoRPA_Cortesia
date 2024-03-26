@@ -36,8 +36,8 @@ def acoes_planilha():
         # * -------------------------------------- Lançamento Topcon --------------------------------------
         bot.PAUSE = 1  # Pausa padrão do bot
         print('--- Abrindo TopCompras')
-        ahk.win_activate('TopCompras')
-        if ahk.win_is_active('TopCompras'):
+        ahk.win_activate('TopCompras', title_match_mode= 2)
+        if ahk.win_is_active('TopCompras', title_match_mode= 2):
             print('Tela compras está maximizada! Iniciando o programa')
         else:
             exit(bot.alert('Tela de Compras não abriu.'))
@@ -115,19 +115,19 @@ def programa_principal():
             acabou_pedido = valida_pedido(acabou_pedido=False)
             print(F'Chegou até aqui acabou pedido = {acabou_pedido}')
         # * -------------------------------------- PREENCHE DATA --------------------------------------
+        ahk.win_activate('TopCompras', title_match_mode= 2)
+        ahk.win_wait_active('TopCompras', title_match_mode= 2)
         bot.click(900, 201)  # Clica no campo filial de estoque
         bot.write(filial_estoq)
         bot.press('ENTER', presses=1) # Confirma a informação da nova filial de estoque
         time.sleep(2)
-        ahk.win_activate('TopCompras')
-        ahk.win_wait_active('TopCompras')
         bot.click(1006, 345)  # Campo data da operação
         #bot.click(procura_imagem(imagem='img_topcon/data_operacao.jpg'))
         hoje = date.today()
         hoje = hoje.strftime("%d%m%Y")  # dd/mm/YY
         bot.write(hoje, interval=0.10)
         bot.press('enter')
-        time.sleep(8)
+        time.sleep(4)
         ahk.win_wait_active('TopCompras')
         bot.write(centro_custo) # Altera o campo centro de custo, para o dado coletado
         bot.press('ENTER')
@@ -136,15 +136,12 @@ def programa_principal():
         while ahk.win_exists('Não está respondendo'):
             time.sleep(2)
         # * -------------------------------------- VALIDAÇÃO TRANSPORTADOR --------------------------------------
-        time.sleep(0.5)
-        ahk.win_activate('TopCompras')
-        ahk.win_wait_active('TopCompras')
+        time.sleep(2)
         bot.click(105, 515)  # Clica no campo "Valores Totais"
-        time.sleep(0.5)
-        bot.click(317, 897)  # Campo transportador
-        time.sleep(5)
-        procura_imagem(imagem='img_topcon/campo_re_0.png', limite_tentativa=20)
+        time.sleep(8)
         print(F'--- PREENCHENDO TRANSPORTADOR: {cracha_mot}')
+        bot.click(317, 897)  # Campo transportador
+        procura_imagem(imagem='img_topcon/campo_re_0.png', limite_tentativa=20)
         time.sleep(0.5)
         bot.write(cracha_mot, interval=0.10)  # ID transportador
         bot.press('enter')
@@ -189,23 +186,18 @@ def programa_principal():
         # * -------------------------------------- Conclusão lançamento --------------------------------------
         bot.click(procura_imagem(imagem='img_topcon/confirma.png'))
         bot.press('pagedown')  # Conclui o lançamento
-        
         print('--- Aguardando TopCompras Retornar')
         while ahk.win_exists('Não está respondendo'):
             time.sleep(2)
-            
         while bot.click(procura_imagem(imagem='img_topcon/operacao_realizada.png', continuar_exec=True, limite_tentativa= 1000)) is False:
             time.sleep(0.5)
-            print('Aguardando')
-            ahk.win_activate('TopCompras')
+            ahk.win_activate('TopCompras', title_match_mode= 2)
         bot.press('ENTER')
-        ahk.win_activate('TopCom')
-        ahk.win_wait_active('TopCom')
-        #! PORQUE ESSE PRINT AQUI?!
-        #print(bot.click(procura_imagem('img_topcon/bt_sim.png', continuar_exec=True, limite_tentativa= 4)))
-        if bot.click(procura_imagem('img_topcon/deseja_processar.png', continuar_exec=True, limite_tentativa= 4)) is not None:
-                exit()
-                time.sleep(0.5)
+        time.sleep(4)
+        ahk.win_wait_active('TopCom', timeout= 10)
+        ahk.win_activate('TopCom', title_match_mode= 2)
+        if bot.click(procura_imagem('img_topcon/deseja_processar.png', continuar_exec=True, limite_tentativa= 4)) is not False:
+                time.sleep(2)
                 bot.click(procura_imagem('img_topcon/bt_sim.png', continuar_exec=True, limite_tentativa= 4))
                 while True: #Aguardar o .PDF
                         try:
@@ -218,13 +210,14 @@ def programa_principal():
                                 ahk.win_close('pdf - Google Chrome', title_match_mode= 2)
                                 print('Fechou o PDF')
                                 break 
-                time.sleep(0.5) 
+                time.sleep(2) 
                 ahk.win_activate('Transmissão', title_match_mode=2)
                 bot.click(procura_imagem(imagem='img_topcon/sair_tela.png'))
         time.sleep(3)
         tempo_final = time.time()
         tempo_final_seg = (tempo_final - tempo_inicio) / 60
         print(F'\n--- Lançamento concluido, tempo: {tempo_final_seg}')
+
         # * -------------------------------------- Marca planilha --------------------------------------
         marca_lancado(texto_marcacao='Lancado_RPA')
 programa_principal()
