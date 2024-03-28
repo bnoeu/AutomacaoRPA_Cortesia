@@ -15,7 +15,6 @@ import pyautogui as bot
 
 # --- Definição de parametros
 ahk = AHK()
-bot.PAUSE = 1.8  # Pausa padrão do bot
 posicao_img = 0  # Define a variavel para utilização global dela.
 continuar = True
 bot.FAILSAFE = True
@@ -34,7 +33,6 @@ def acoes_planilha():
         dados_planilha = coleta_planilha()
         chave_xml = dados_planilha[4].strip()
         # * -------------------------------------- Lançamento Topcon --------------------------------------
-        bot.PAUSE = 1  # Pausa padrão do bot
         print('--- Abrindo TopCompras')
         ahk.win_activate('TopCompras', title_match_mode= 2)
         if ahk.win_is_active('TopCompras', title_match_mode= 2):

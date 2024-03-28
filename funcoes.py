@@ -12,7 +12,7 @@ import pyautogui as bot
 
 # --- Definição de parametros
 ahk = AHK()
-bot.PAUSE = 1.2  # Pausa padrão do bot
+bot.PAUSE = 1.8  # Pausa padrão do bot
 posicao_img = 0  # Define a variavel para utilização global dela.
 continuar = True
 bot.FAILSAFE = True
@@ -44,18 +44,20 @@ def procura_imagem(imagem, limite_tentativa=4, area=(0, 0, 1920, 1080), continua
 
 
 def alteracao_filtro():
-    time.sleep(0.5)
+    time.sleep(1)
     if procura_imagem(imagem='img_planilha/bt_filtro.png', continuar_exec=True, limite_tentativa=8) is not False:
+        time.sleep(2)
         print('--- Já está filtrado, continuando!')
     else:
         print('--- Não está filtrado, executando o filtro!')
-        bot.click(procura_imagem(
-            imagem='img_planilha/bt_setabaixo.png', area=(1463, 419, 100, 100)))
-        bot.click(procura_imagem(
-            imagem='img_planilha/botao_selecionartudo.png'))
+        bot.click(procura_imagem(imagem='img_planilha/bt_setabaixo.png', area=(1463, 419, 100, 100)))
+        time.sleep(1)
+        bot.click(procura_imagem(imagem='img_planilha/botao_selecionartudo.png'))
+        time.sleep(1)
         bot.click(procura_imagem(imagem='img_planilha/bt_vazias.png'))
+        time.sleep(1)
         bot.click(procura_imagem(imagem='img_planilha/bt_aplicar.png'))
-        time.sleep(2)
+        time.sleep(1)
 
 
 def verifica_tela(nome_tela, manual=False):
@@ -74,35 +76,33 @@ def verifica_tela(nome_tela, manual=False):
 def marca_lancado(texto_marcacao='Lancado'):
     print('--- Abrindo planilha - MARCA_LANCADO')
     ahk.win_activate('db_alltrips')
-    time.sleep(1)
+    time.sleep(2)
     if bot.click(procura_imagem(imagem='img_planilha/botao_exibicaoverde.png', continuar_exec=True, limite_tentativa=3)) is not False:
-        time.sleep(2)
+        time.sleep(4)
         bot.click(procura_imagem(imagem='img_planilha/botao_iniciaredicao.png'))
-        time.sleep(2)
+        time.sleep(4)
         if procura_imagem(imagem='img_planilha/txt_modificada.png', continuar_exec=True, limite_tentativa=2) is not False:
+            time.sleep(4)
             bot.click(procura_imagem(imagem='img_planilha/bt_sim.png'))
+        time.sleep(4)
         procura_imagem(imagem='img_planilha/botao_edicao.png')
+        time.sleep(4)
         bot.doubleClick(1494, 508)
         bot.write(texto_marcacao)
         bot.press('RIGHT')
         hoje = datetime.date.today()
         bot.write(str(hoje))
         bot.press("ENTER")
-        time.sleep(0.5)
+        time.sleep(2)
         if procura_imagem(imagem='img_planilha/bt_filtro.png', continuar_exec=True, limite_tentativa=8) is not False:
-            bot.click(procura_imagem(imagem='img_planilha/bt_filtro.png',
-                      continuar_exec=True, limite_tentativa=8))
+            bot.click(procura_imagem(imagem='img_planilha/bt_filtro.png',continuar_exec=True, limite_tentativa=8))
             bot.click(procura_imagem(imagem='img_planilha/bt_aplicar.png'))
-            time.sleep(2)
         else:
             print('--- Não está filtrado, executando o filtro!')
-            bot.click(procura_imagem(
-                imagem='img_planilha/bt_setabaixo.png', area=(1463, 419, 100, 100)))
-            bot.click(procura_imagem(
-                imagem='img_planilha/botao_selecionartudo.png'))
+            bot.click(procura_imagem( imagem='img_planilha/bt_setabaixo.png', area=(1463, 419, 100, 100)))
+            bot.click(procura_imagem(imagem='img_planilha/botao_selecionartudo.png'))
             bot.click(procura_imagem(imagem='img_planilha/bt_vazias.png'))
             bot.click(procura_imagem(imagem='img_planilha/bt_aplicar.png'))
-            time.sleep(2)
     else:
         print('Não achou o botao de edição')
 

@@ -13,7 +13,6 @@ from coleta_planilha import coleta_planilha
 
 # --- Definição de parametros
 ahk = AHK()
-bot.PAUSE = 1.2  # Pausa padrão do bot
 posicao_img = 0  # Define a variavel para utilização global dela.
 continuar = True
 bot.FAILSAFE = True
@@ -25,6 +24,21 @@ chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
 pytesseract.pytesseract.tesseract_cmd = r"C:\tesseract\tesseract.exe"
 
 time.sleep(1)
-ahk.win_activate('TopCompras')
+#ahk.win_activate('TopCompras')
+ahk.win_activate('db_alltrips', title_match_mode= 2)
 #! Utilizado apenas para estar trechos de codigo.
-bot.click(744, 230)
+'''
+if procura_imagem(imagem='img_planilha/bt_filtro.png', continuar_exec=True, limite_tentativa=8) is not False:
+    time.sleep(2)
+    print('--- Já está filtrado, continuando!')
+else:
+    print('--- Não está filtrado, executando o filtro!')
+    bot.click(procura_imagem(imagem='img_planilha/bt_setabaixo.png', area=(1463, 419, 100, 100)))
+    time.sleep(1)
+    bot.click(procura_imagem(imagem='img_planilha/botao_selecionartudo.png'))
+    time.sleep(1)
+    bot.click(procura_imagem(imagem='img_planilha/bt_vazias.png'))
+    time.sleep(1)
+    bot.click(procura_imagem(imagem='img_planilha/bt_aplicar.png'))
+    time.sleep(1)
+'''

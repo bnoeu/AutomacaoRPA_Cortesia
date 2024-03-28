@@ -10,7 +10,6 @@ import pyautogui as bot
 
 # --- Definição de parametros
 ahk = AHK()
-bot.PAUSE = 1  # Pausa padrão do bot
 posicao_img = 0  # Define a variavel para utilização global dela.
 continuar = True
 bot.FAILSAFE = True
@@ -35,7 +34,7 @@ def verifica_ped_vazio(texto, pos):
 
 def valida_pedido(acabou_pedido=False):
     ahk.win_activate('Vinculação Itens da Nota', title_match_mode = 2)
-    ahk.win_wait_active('Vinculação Itens da Nota', title_match_mode = 2)
+    ahk.win_wait_active('Vinculação Itens da Nota', title_match_mode = 2, timeout= 20)
     time.sleep(2.5)
     tentativa = 0
     item_pedido = []
@@ -73,6 +72,7 @@ def valida_pedido(acabou_pedido=False):
         
 #* --------------------------------- Pedidos Encontrados 
     while tentativa <= 2:
+        print(F'--- Tentativa: {tentativa}')
         if tentativa > 1:
             bot.click(744, 230) #Clica para descer o menu e exibir o resto das opções 
             exit(F'Tentativa: {tentativa}')

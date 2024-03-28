@@ -14,7 +14,6 @@ import pyautogui as bot
 
 # --- Definição de parametros
 ahk = AHK()
-bot.PAUSE = 1.5  # Pausa padrão do bot
 posicao_img = 0  # Define a variavel para utilização global dela.
 continuar = True
 bot.FAILSAFE = True
@@ -25,9 +24,10 @@ chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
 pytesseract.pytesseract.tesseract_cmd = r"C:\tesseract\tesseract.exe"
 
 def coleta_planilha():
+    bot.PAUSE = 1  # Pausa padrão do bot
     print('--- Abrindo planilha - COLETA_PLANILHA')
     ahk.win_activate('db_alltrips', title_match_mode= 2)
-    time.sleep(2)
+    time.sleep(1)
     if procura_imagem(imagem='img_planilha/botao_exibicaoverde.png', continuar_exec=True) is False:
         bot.click(procura_imagem(imagem='img_planilha/botao_edicao.png'))
         bot.click(procura_imagem(imagem='img_planilha/botao_exibicao.png'))
@@ -41,7 +41,6 @@ def coleta_planilha():
     dados_planilha = []
     print('--- Copiando dados e formatando')
     bot.click(100, 510)  # Clica na primeira linha
-    bot.PAUSE = 0.2
     for n in range(0, 7, 1):  # Copia dados dos 6 campos
         while True:
             bot.hotkey('ctrl', 'c')
@@ -52,4 +51,5 @@ def coleta_planilha():
                 break
         dados_planilha.append(ahk.get_clipboard())
         bot.press('right')
+    bot.PAUSE = 1.8  # Pausa padrão do bot
     return dados_planilha
