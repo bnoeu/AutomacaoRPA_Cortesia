@@ -2,8 +2,8 @@
 # Para utilização na Cortesia Concreto.
 
 import time
-import cv2
-import pytesseract
+#import cv2
+#import pytesseract
 from ahk import AHK
 from funcoes import marca_lancado, procura_imagem, extrai_txt_img
 import pyautogui as bot
@@ -15,13 +15,11 @@ continuar = True
 bot.FAILSAFE = True
 numero_nf = "965999"
 transportador = "111594"
-# tempo_inicio = time.time()
 chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
 
 
 def verifica_ped_vazio(texto, pos):
-    texto_xml = extrai_txt_img(
-        'valida_itensxml.png', area_tela=(168, 400, 250, 30)).strip()
+    texto_xml = extrai_txt_img(imagem='valida_itensxml.png', area_tela=(168, 400, 250, 30)).strip()
     print(F'Item da nota: {texto}, texto que ainda ficou: {texto_xml}')
     if len(texto_xml) > 4:  # Verifica se ainda ficou item no "Itens pedido"
         print('Itens XML ainda tem informação!')
@@ -84,11 +82,12 @@ def valida_pedido(acabou_pedido=False):
             bot.click(procura_imagem(imagem='img_topcon/localizar.png'))
             # Retorna TRUE caso esteja vazio
             vazio = verifica_ped_vazio(texto=texto, pos=pos)
-            print(F'VALOR VAZIO: {vazio}')
+            print(F'--- Valor campo "vazio": {vazio}')
             if vazio is not True:
                 bot.click(procura_imagem('img_topcon/vinc_xml_pedido.png',continuar_exec=True, limite_tentativa=2))
                 time.sleep(3)
                 vazio = verifica_ped_vazio(texto=texto, pos=pos)
+                print(F'--- Valor campo "vazio": {vazio}')
                 if procura_imagem('img_topcon/dife_valor.png', continuar_exec=True, limite_tentativa=2):
                     bot.press('ENTER')
                 if procura_imagem('img_topcon/operacao_fiscal_configurada.png', continuar_exec=True, limite_tentativa=2):
@@ -105,3 +104,5 @@ def valida_pedido(acabou_pedido=False):
             marca_lancado('Erro_Pedido')
             acabou_pedido = True
             return acabou_pedido
+        else:
+            break

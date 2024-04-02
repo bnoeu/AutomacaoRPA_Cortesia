@@ -2,14 +2,12 @@
 # Para utilização na Cortesia Concreto.
 
 import time
-import cv2
-import pygetwindow as gw
+#import cv2
+#import pygetwindow as gw
 import pytesseract
 from ahk import AHK
 from datetime import date
-from funcoes import marca_lancado, procura_imagem, verifica_tela, extrai_txt_img
-from valida_pedido import valida_pedido
-from coleta_planilha import coleta_planilha
+from funcoes import procura_imagem
 import pyautogui as bot
 
 
@@ -21,7 +19,6 @@ continuar = True
 bot.FAILSAFE = True
 numero_nf = "965999"  # Valor para teste
 transportador = "111594"  # Valor para teste
-tempo_inicio = time.time()
 chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
 pytesseract.pytesseract.tesseract_cmd = r"C:\tesseract\tesseract.exe"
 
