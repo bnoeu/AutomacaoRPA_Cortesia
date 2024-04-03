@@ -8,6 +8,7 @@ import pytesseract
 #import cv2
 from ahk import AHK
 import pyautogui as bot
+from funcoes import procura_imagem, extrai_txt_img, marca_lancado
 
 # --- Definição de parametros
 ahk = AHK()
@@ -22,8 +23,10 @@ pytesseract.pytesseract.tesseract_cmd = r"C:\tesseract\tesseract.exe"
 time.sleep(1)
 
 
-#ahk.win_activate('TopCompras')
-#ahk.win_activate('db_alltrips', title_match_mode= 2)
-
-
+#ahk.win_activate('TopCompras', title_match_mode= 2)
+ahk.win_activate('db_alltrips', title_match_mode= 2)
 #! Utilizado apenas para estar trechos de codigo.
+
+if procura_imagem(imagem='img_planilha/txt_modificada.png', continuar_exec=True, limite_tentativa= 8) is not False: 
+    print('--- Achou a tela informando que a planilha atualizou.')
+    bot.click(procura_imagem(imagem='img_planilha/bt_sim.png', limite_tentativa= 8))
