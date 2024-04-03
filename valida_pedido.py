@@ -5,7 +5,7 @@ import time
 #import cv2
 #import pytesseract
 from ahk import AHK
-from funcoes import marca_lancado, procura_imagem, extrai_txt_img
+from funcoes import marca_lancado, procura_imagem, extrai_txt_img, verifica_ped_vazio
 import pyautogui as bot
 
 # --- Definição de parametros
@@ -17,30 +17,18 @@ numero_nf = "965999"
 transportador = "111594"
 chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
 
-
-def verifica_ped_vazio(texto, pos):
-    texto_xml = extrai_txt_img(imagem='valida_itensxml.png', area_tela=(168, 400, 250, 30)).strip()
-    print(F'Item da nota: {texto}, texto que ainda ficou: {texto_xml}')
-    if len(texto_xml) > 4:  # Verifica se ainda ficou item no "Itens pedido"
-        print('Itens XML ainda tem informação!')
-        return False
-    else:  # Caso fique vazio
-        print('Itens XML ficou vazio! prosseguindo')
-        bot.click(procura_imagem(imagem='img_topcon/confirma.png'))
-        bot.click(procura_imagem(imagem='img_topcon/botao_ok.jpg'))
-        return True
-
 def valida_pedido(acabou_pedido=False):
-    ahk.win_activate('Vinculação Itens da Nota', title_match_mode = 2)
-    ahk.win_wait_active('Vinculação Itens da Nota', title_match_mode = 2, timeout= 20)
-    time.sleep(2.5)
     tentativa = 0
     item_pedido = []
-    # 1: Topo direto imagem, #2 inferior lado esquerdo
-    texto = extrai_txt_img(imagem='item_nota.png',
-                           area_tela=(170, 400, 280, 30))
     PEDRA_1 = ['PEDRA 01', 'PEDRA DI', 'BRITADA 01', 'PEDRA 1', 'PEDRA BRITADA 01', 'PEDRAT', 'PEDRA BRITADA 1', 'BRITADA 1', 'BRITA 01']
     PO_PEDRA = ['PO DE PEDRA', 'AREA INDUSTRIAL', 'INDUSTRIAL']
+
+    #Força a abertura da tela de vinculação de item versus nota
+    ahk.win_activate('Vinculação Itens da Nota', title_match_mode = 2)
+    ahk.win_wait_active('Vinculação Itens da Nota', title_match_mode = 2, timeout= 20)
+
+    #Coleta o texto do campo "item XML", que é o item a constar na nota fiscal, e com base nisso, trata o dado
+    texto = extrai_txt_img(imagem='item_nota.png',area_tela=(170, 400, 280, 30))
     if texto in PEDRA_1:
         print('Contém PEDRA 1')
         item_pedido.append('PED_BRITA1.jpg')

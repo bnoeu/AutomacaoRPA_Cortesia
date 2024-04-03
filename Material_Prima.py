@@ -31,8 +31,7 @@ def acoes_planilha():
     while validou_xml is False:
         # * Trata os dados coletados em "dados_planilha"
         dados_planilha = coleta_planilha()
-        bot.PAUSE = 1.5
-        print(F'--- Alterado PAUSE {bot.PAUSE} ')
+        bot.PAUSE = 2
         chave_xml = dados_planilha[4].strip()
         # * -------------------------------------- Lançamento Topcon --------------------------------------
         print('--- Abrindo TopCompras')
@@ -48,14 +47,10 @@ def acoes_planilha():
         bot.write(chave_xml)
         bot.press('ENTER')
         ahk.win_wait_active('TopCompras')
-        while procura_imagem(imagem='img_topcon/naorespondendo.png', limite_tentativa=3, continuar_exec=True) is not False:
-            time.sleep(0.5)
-            print('Aguardando topvoltar')
         tentativa = 0
         while tentativa < 10:
             if procura_imagem(imagem='img_topcon/botao_sim.jpg', limite_tentativa=3, continuar_exec=True) is not False:
-                bot.click(procura_imagem(imagem='img_topcon/botao_sim.jpg',
-                          limite_tentativa=2, continuar_exec=True))
+                bot.click(procura_imagem(imagem='img_topcon/botao_sim.jpg',limite_tentativa=2, continuar_exec=True))
                 validou_xml is True
                 return dados_planilha
             elif procura_imagem(imagem='img_topcon/chave_invalida.png', limite_tentativa=3, continuar_exec=True) is not False:
@@ -88,7 +83,6 @@ def programa_principal():
         acabou_pedido = True
         while acabou_pedido is True:
             dados_planilha = acoes_planilha()
-            exit()
             cracha_mot = dados_planilha[0]
             silo1 = dados_planilha[1]
             silo2 = dados_planilha[2]
@@ -112,7 +106,6 @@ def programa_principal():
                 exit(F'Filial de estoque não padronizada {filial_estoq}')
             chave_xml = dados_planilha[4]
             print(F'Crachá: {cracha_mot} Silo1: {silo1} Silo2: {silo2}, {filial_estoq}, {chave_xml}')
-            time.sleep(0.5)
             acabou_pedido = valida_pedido(acabou_pedido=False)
             print(F'Chegou até aqui acabou pedido = {acabou_pedido}')
         # * -------------------------------------- PREENCHE DATA --------------------------------------
@@ -124,7 +117,6 @@ def programa_principal():
         bot.press('ENTER', presses=1)
         time.sleep(2)
         bot.click(1006, 345)  # Campo data da operação
-        # bot.click(procura_imagem(imagem='img_topcon/data_operacao.jpg'))
         hoje = date.today()
         hoje = hoje.strftime("%d%m%y")  # dd/mm/YY
         bot.write(hoje, interval=0.10)
@@ -146,6 +138,7 @@ def programa_principal():
             time.sleep(2)
         print(F'--- PREENCHENDO TRANSPORTADOR: {cracha_mot}')
         bot.click(317, 897)  # Campo transportador
+        time.sleep(3)
         procura_imagem(imagem='img_topcon/campo_re_0.png', limite_tentativa=20)
         time.sleep(0.5)
         bot.write(cracha_mot, interval=0.10)  # ID transportador
@@ -153,7 +146,8 @@ def programa_principal():
         # TODO --- Inserir a pesquisa do transportador_incorreto
         time.sleep(0.5)
         bot.press('enter')
-        if bot.click(procura_imagem('img_topcon/campo_placa.png', continuar_exec=True)) is not False:
+        if procura_imagem('img_topcon/campo_placa.png', continuar_exec=True) is not False:
+            bot.click(procura_imagem('img_topcon/campo_placa.png', continuar_exec=True))
             bot.write('XXX0000')
             bot.press('ENTER')
         else:
@@ -164,7 +158,7 @@ def programa_principal():
         bot.click(procura_imagem(imagem='img_topcon/botao_alterar.png',
                   limite_tentativa=8, area=(100, 839, 300, 400)))
         time.sleep(2.5)
-        qtd_ton = extrai_txt_img( imagem='item_nota.png', area_tela=(198, 167, 75, 25)).strip()
+        qtd_ton = extrai_txt_img( imagem='img_toneladas.png', area_tela=(198, 167, 75, 25)).strip()
         qtd_ton = qtd_ton.replace(",", ".")
         print(F'--- Texto coletado da quantidade: {qtd_ton}')
         time.sleep(0.5)
