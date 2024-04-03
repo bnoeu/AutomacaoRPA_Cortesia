@@ -29,9 +29,8 @@ def procura_imagem(imagem, limite_tentativa=4, area=(0, 0, 1920, 1080), continua
     tentativa = 0
     print(F'--- Tentando encontrar: {imagem}')
     while tentativa < limite_tentativa:
-        time.sleep(0.5)
-        posicao_img = bot.locateCenterOnScreen(
-            imagem, grayscale=True, confidence=0.85, region=area)
+        time.sleep(2)
+        posicao_img = bot.locateCenterOnScreen(imagem, grayscale=True, confidence=0.85, region=area)
         if posicao_img is not None:
             print(F'--- Imagem na posição: {posicao_img}')
             break
@@ -98,6 +97,8 @@ def marca_lancado(texto_marcacao='Lancado'):
         else:
             print('--- Não está filtrado, executando o filtro!')
             bot.click(procura_imagem(imagem='img_planilha/bt_setabaixo.png', area=(1529, 459, 75, 75)))
+            while procura_imagem(imagem='img_planilha/botao_selecionartudo.png') is None:
+                time.sleep(1)
             bot.click(procura_imagem(imagem='img_planilha/botao_selecionartudo.png'))
             bot.click(procura_imagem(imagem='img_planilha/bt_vazias.png'))
             bot.click(procura_imagem(imagem='img_planilha/bt_aplicar.png'))
