@@ -16,7 +16,6 @@ bot.PAUSE = 1.8  # Pausa padrão do bot
 posicao_img = 0  # Define a variavel para utilização global dela.
 continuar = True
 bot.FAILSAFE = True
-acabou_pedido = ''
 numero_nf = "965999"
 transportador = "111594"
 # tempo_inicio = time.time()
