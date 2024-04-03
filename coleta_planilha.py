@@ -40,9 +40,9 @@ def coleta_planilha():
         print('--- Não está filtrado, executando o filtro!')
         bot.click(procura_imagem(imagem='img_planilha/bt_setabaixo.png', area=(1529, 459, 75, 75)))
         time.sleep(5) #Necessario pois nem sempre o excel é rapido na exeibição
-        bot.click(procura_imagem(imagem='img_planilha/botao_selecionartudo.png', limite_tentativa= 30))
-        bot.click(procura_imagem(imagem='img_planilha/bt_vazias.png'))
-        bot.click(procura_imagem(imagem='img_planilha/bt_aplicar.png'))    
+        bot.click(procura_imagem(imagem='img_planilha/botao_selecionartudo.png', limite_tentativa= 30, confianca= 0.5))
+        bot.click(procura_imagem(imagem='img_planilha/bt_vazias.png', confianca= 0.5))
+        bot.click(procura_imagem(imagem='img_planilha/bt_aplicar.png', confianca= 0.5))    
     
     # * Coleta os dados da linha atual
     dados_planilha = []

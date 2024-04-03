@@ -24,12 +24,12 @@ pytesseract.pytesseract.tesseract_cmd = r"C:\tesseract\tesseract.exe"
 bot.useImageNotFoundException(False)
 
 
-def procura_imagem(imagem, limite_tentativa=4, area=(0, 0, 1920, 1080), continuar_exec=False):
-    tentativa = 0
+def procura_imagem(imagem, limite_tentativa=4, area=(0, 0, 1920, 1080), continuar_exec=False, confianca = 0.85):
+    tentativa = 0   
     print(F'--- Tentando encontrar: {imagem}')
     while tentativa < limite_tentativa:
         time.sleep(2)
-        posicao_img = bot.locateCenterOnScreen(imagem, grayscale=True, confidence=0.85, region=area)
+        posicao_img = bot.locateCenterOnScreen(imagem, grayscale= True, confidence= confianca, region= area)
         if posicao_img is not None:
             print(F'--- Imagem na posição: {posicao_img}')
             break
@@ -96,11 +96,11 @@ def marca_lancado(texto_marcacao='Lancado'):
         else:
             print('--- Não está filtrado, executando o filtro!')
             bot.click(procura_imagem(imagem='img_planilha/bt_setabaixo.png', area=(1529, 459, 75, 75)))
-            while procura_imagem(imagem='img_planilha/botao_selecionartudo.png') is None:
+            while procura_imagem(imagem='img_planilha/botao_selecionartudo.png', confianca= 0.5) is None:
                 time.sleep(1)
-            bot.click(procura_imagem(imagem='img_planilha/botao_selecionartudo.png'))
-            bot.click(procura_imagem(imagem='img_planilha/bt_vazias.png'))
-            bot.click(procura_imagem(imagem='img_planilha/bt_aplicar.png'))
+            bot.click(procura_imagem(imagem='img_planilha/botao_selecionartudo.png', confianca= 0.5))
+            bot.click(procura_imagem(imagem='img_planilha/bt_vazias.png', confianca= 0.5))
+            bot.click(procura_imagem(imagem='img_planilha/bt_aplicar.png',  confianca= 0.5))
     else: #Caso já esteja no modo "Edição"
         pass
         #exit(bot.alert('Não achou o botao de edição: botao_exibicaoverde.png'))
