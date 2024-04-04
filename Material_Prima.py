@@ -33,7 +33,7 @@ def acoes_planilha():
     while validou_xml is False:
         # * Trata os dados coletados em "dados_planilha"
         dados_planilha = coleta_planilha()
-        bot.PAUSE = 1.5
+        bot.PAUSE = 2
         chave_xml = dados_planilha[4].strip()
         # * -------------------------------------- Lançamento Topcon --------------------------------------
         print('--- Abrindo TopCompras')
