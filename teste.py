@@ -27,5 +27,4 @@ time.sleep(1)
 ahk.win_activate('db_alltrips', title_match_mode= 2)
 #! Utilizado apenas para estar trechos de codigo.
 
-bot.click(procura_imagem(imagem='img_planilha/botao_selecionartudo.png', confianca= 0.5))
-bot.click(procura_imagem(imagem='img_planilha/bt_vazias.png', confianca= 0.5))
+bot.click(procura_imagem(imagem='img_planilha/bt_aplicar.png', confianca= 0.4))

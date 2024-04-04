@@ -42,7 +42,7 @@ def coleta_planilha():
         time.sleep(5) #Necessario pois nem sempre o excel é rapido na exeibição
         bot.click(procura_imagem(imagem='img_planilha/botao_selecionartudo.png', limite_tentativa= 30, confianca= 0.5))
         bot.click(procura_imagem(imagem='img_planilha/bt_vazias.png', confianca= 0.5))
-        bot.click(procura_imagem(imagem='img_planilha/bt_aplicar.png', confianca= 0.5))    
+        bot.click(procura_imagem(imagem='img_planilha/bt_aplicar.png', confianca= 0.4))    
     
     # * Coleta os dados da linha atual
     dados_planilha = []

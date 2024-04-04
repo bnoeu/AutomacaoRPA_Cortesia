@@ -100,7 +100,7 @@ def marca_lancado(texto_marcacao='Lancado'):
                 time.sleep(1)
             bot.click(procura_imagem(imagem='img_planilha/botao_selecionartudo.png', confianca= 0.5))
             bot.click(procura_imagem(imagem='img_planilha/bt_vazias.png', confianca= 0.5))
-            bot.click(procura_imagem(imagem='img_planilha/bt_aplicar.png',  confianca= 0.5))
+            bot.click(procura_imagem(imagem='img_planilha/bt_aplicar.png',  confianca= 0.4))
     else: #Caso já esteja no modo "Edição"
         pass
         #exit(bot.alert('Não achou o botao de edição: botao_exibicaoverde.png'))
