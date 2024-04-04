@@ -45,7 +45,7 @@ def acoes_planilha():
         # Processo de lançamento
         bot.press('F2')
         bot.press('F3', presses=2, interval=0.3)
-        bot.click(558, 235)  # Clica dentro do campo para inserir a chave XML
+        bot.doubleClick(558, 235, interval = 1)  # Clica dentro do campo para inserir a chave XML
         bot.write(chave_xml)
         bot.press('ENTER')
         ahk.win_wait_active('TopCompras')
@@ -143,6 +143,9 @@ def programa_principal():
         print(F'--- PREENCHENDO TRANSPORTADOR: {cracha_mot}')
         bot.click(317, 897)  # Campo transportador
         time.sleep(3)
+        bot.click(105, 515)  # Clica no campo "Valores Totais"
+        time.sleep(2)
+        bot.click(317, 897)  # Campo transportador
         procura_imagem(imagem='img_topcon/campo_re_0.png', limite_tentativa=20)
         time.sleep(0.5)
         bot.write(cracha_mot, interval=0.10)  # ID transportador
