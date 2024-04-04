@@ -25,13 +25,15 @@ chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
 pytesseract.pytesseract.tesseract_cmd = r"C:\tesseract\tesseract.exe"
 
 #! Funções
+
+
 def acoes_planilha():
     time.sleep(0.5)
     validou_xml = False
     while validou_xml is False:
         # * Trata os dados coletados em "dados_planilha"
         dados_planilha = coleta_planilha()
-        bot.PAUSE = 2
+        bot.PAUSE = 1.5
         chave_xml = dados_planilha[4].strip()
         # * -------------------------------------- Lançamento Topcon --------------------------------------
         print('--- Abrindo TopCompras')
@@ -50,7 +52,8 @@ def acoes_planilha():
         tentativa = 0
         while tentativa < 10:
             if procura_imagem(imagem='img_topcon/botao_sim.jpg', limite_tentativa=3, continuar_exec=True) is not False:
-                bot.click(procura_imagem(imagem='img_topcon/botao_sim.jpg',limite_tentativa=2, continuar_exec=True))
+                bot.click(procura_imagem(imagem='img_topcon/botao_sim.jpg',
+                          limite_tentativa=2, continuar_exec=True))
                 validou_xml is True
                 return dados_planilha
             elif procura_imagem(imagem='img_topcon/chave_invalida.png', limite_tentativa=3, continuar_exec=True) is not False:
@@ -105,7 +108,8 @@ def programa_principal():
             else:
                 exit(F'Filial de estoque não padronizada {filial_estoq}')
             chave_xml = dados_planilha[4]
-            print(F'Crachá: {cracha_mot} Silo1: {silo1} Silo2: {silo2}, {filial_estoq}, {chave_xml}')
+            print(
+                F'Crachá: {cracha_mot} Silo1: {silo1} Silo2: {silo2}, {filial_estoq}, {chave_xml}')
             acabou_pedido = valida_pedido(acabou_pedido=False)
             print(F'Chegou até aqui acabou pedido = {acabou_pedido}')
         # * -------------------------------------- PREENCHE DATA --------------------------------------
@@ -147,18 +151,21 @@ def programa_principal():
         time.sleep(0.5)
         bot.press('enter')
         if procura_imagem('img_topcon/campo_placa.png', continuar_exec=True) is not False:
-            bot.click(procura_imagem('img_topcon/campo_placa.png', continuar_exec=True))
+            bot.click(procura_imagem(
+                'img_topcon/campo_placa.png', continuar_exec=True))
             bot.write('XXX0000')
             bot.press('ENTER')
         else:
             print('--- Não achou o campo ou já está preenchido')
         # * -------------------------------------- Aba Pedido --------------------------------------
-        bot.doubleClick(procura_imagem(imagem='img_topcon/produtos_servicos.png', limite_tentativa=8))
+        bot.doubleClick(procura_imagem(
+            imagem='img_topcon/produtos_servicos.png', limite_tentativa=8))
         time.sleep(4)
         bot.click(procura_imagem(imagem='img_topcon/botao_alterar.png',
                   limite_tentativa=8, area=(100, 839, 300, 400)))
         time.sleep(2.5)
-        qtd_ton = extrai_txt_img( imagem='img_toneladas.png', area_tela=(198, 167, 75, 25)).strip()
+        qtd_ton = extrai_txt_img(
+            imagem='img_toneladas.png', area_tela=(198, 167, 75, 25)).strip()
         qtd_ton = qtd_ton.replace(",", ".")
         print(F'--- Texto coletado da quantidade: {qtd_ton}')
         time.sleep(0.5)
@@ -199,9 +206,11 @@ def programa_principal():
         ahk.win_wait_active('TopCom', timeout=10)
         ahk.win_activate('TopCom', title_match_mode=2)
         if procura_imagem('img_topcon/deseja_processar.png', continuar_exec=True, limite_tentativa=4) is not False:
-            print(procura_imagem('img_topcon/deseja_processar.png', continuar_exec=True, limite_tentativa=4))
+            print(procura_imagem('img_topcon/deseja_processar.png',
+                  continuar_exec=True, limite_tentativa=4))
             time.sleep(2)
-            bot.click(procura_imagem('img_topcon/bt_sim.png',continuar_exec=True, limite_tentativa=4))
+            bot.click(procura_imagem('img_topcon/bt_sim.png',
+                      continuar_exec=True, limite_tentativa=4))
             while True:  # Aguardar o .PDF
                 try:
                     ahk.win_wait('.pdf', title_match_mode=2, timeout=2)
@@ -223,7 +232,8 @@ def programa_principal():
 
         # * -------------------------------------- Marca planilha --------------------------------------
         marca_lancado(texto_marcacao='Lancado_RPA')
-        
+
+
 programa_principal()
 
 # TODO --- Caso o pedido acabe, avisar ao Mateus

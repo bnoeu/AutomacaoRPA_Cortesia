@@ -12,7 +12,7 @@ import pyautogui as bot
 
 # --- Definição de parametros
 ahk = AHK()
-bot.PAUSE = 2  # Pausa padrão do bot
+bot.PAUSE = 1.5  # Pausa padrão do bot
 posicao_img = 0  # Define a variavel para utilização global dela.
 continuar = True
 bot.FAILSAFE = True
@@ -63,7 +63,7 @@ def marca_lancado(texto_marcacao='Lancado'):
         texto_marcacao (str, optional): _description_. Texto que será preenchido.
     """
     print('--- Abrindo planilha - MARCA_LANCADO')
-    ahk.win_activate('db_alltrips')
+    ahk.win_activate('db_alltrips', title_match_mode= 2)
 
     #Verifica se está no modo "Apenas exibição", caso esteja, altera para permitir edição.
     if procura_imagem(imagem='img_planilha/botao_exibicaoverde.png', continuar_exec=True) is not False:
@@ -71,7 +71,7 @@ def marca_lancado(texto_marcacao='Lancado'):
         bot.click(procura_imagem(imagem='img_planilha/botao_iniciaredicao.png'))
         
         #Caso apareça a tela informando que houve alteração durante esse periodo, confirma que quer atualizar e prossegue.
-        if procura_imagem(imagem='img_planilha/txt_modificada.png', continuar_exec=True, limite_tentativa= 8) is not False: 
+        if procura_imagem(imagem='img_planilha/txt_modificada.png', continuar_exec=True, limite_tentativa= 4) is not False: 
             print('--- Achou a tela informando que a planilha atualizou.')
             bot.click(procura_imagem(imagem='img_planilha/bt_sim.png'))
 
@@ -90,8 +90,8 @@ def marca_lancado(texto_marcacao='Lancado'):
         time.sleep(2)
 
         #Retorna a planilha para o modo "Somente Exibição (Botão Verde)"
-        if procura_imagem(imagem='img_planilha/bt_filtro.png', continuar_exec=True, limite_tentativa=8) is not False:
-            bot.click(procura_imagem(imagem='img_planilha/bt_filtro.png', continuar_exec=True, limite_tentativa=8))
+        if procura_imagem(imagem='img_planilha/bt_filtro.png', continuar_exec=True, limite_tentativa=8, area = (1468, 400, 200, 200)) is not False:
+            bot.click(procura_imagem(imagem='img_planilha/bt_filtro.png', continuar_exec=True, limite_tentativa=8, area= (1468, 400, 200, 200)))
             bot.click(procura_imagem(imagem='img_planilha/bt_aplicar.png'))
         else:
             print('--- Não está filtrado, executando o filtro!')
