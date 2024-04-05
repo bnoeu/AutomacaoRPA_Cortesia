@@ -72,8 +72,8 @@ def marca_lancado(texto_marcacao='Lancado'):
         
         #Caso apareça a tela informando que houve alteração durante esse periodo, confirma que quer atualizar e prossegue.
         if procura_imagem(imagem='img_planilha/txt_modificada.png', continuar_exec=True, limite_tentativa= 4) is not False: 
-            print('--- Achou a tela informando que a planilha atualizou.')
-            bot.click(procura_imagem(imagem='img_planilha/bt_sim.png'))
+            print('--- Planilha atualizada, confirmando alterações..')
+            bot.click(procura_imagem(imagem='img_planilha/bt_sim.png', limite_tentativa= 8, confianca= 0.45, area= (751, 521, 429, 218)))
 
         #Verifica se realmente entrou no modo edição.
         procura_imagem(imagem='img_planilha/botao_edicao.png')
