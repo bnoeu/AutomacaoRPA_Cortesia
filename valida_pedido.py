@@ -58,6 +58,7 @@ def valida_pedido(acabou_pedido=False):
         
 #* --------------------------------- Pedidos Encontrados 
     while tentativa <= 2:
+        vazio = ''
         print(F'--- Tentativa: {tentativa}')
         if tentativa > 1:
             bot.click(744, 230) #Clica para descer o menu e exibir o resto das opções 
@@ -87,6 +88,11 @@ def valida_pedido(acabou_pedido=False):
                 print(F'--- Pedido validado, saindo do loop dos pedidos encontrados, valor do campo: {vazio}')
                 break
             tentativa += 1
+        else:
+            bot.click(procura_imagem(imagem='img_topcon/bt_cancela.png'))
+            marca_lancado('Erro_Pedido')
+            acabou_pedido = True
+            return acabou_pedido
         if vazio is False:  # Caso já tenha realiza duas execuções
             bot.click(procura_imagem(imagem='img_topcon/bt_cancela.png'))
             marca_lancado('Erro_Pedido')
@@ -94,3 +100,4 @@ def valida_pedido(acabou_pedido=False):
             return acabou_pedido
         else:
             break
+valida_pedido()

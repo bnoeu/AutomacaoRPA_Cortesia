@@ -18,8 +18,6 @@ ahk = AHK()
 posicao_img = 0  # Define a variavel para utilização global dela.
 continuar = True
 bot.FAILSAFE = True
-numero_nf = "965999"  # Valor para teste
-transportador = "111594"  # Valor para teste
 tempo_inicio = time.time()
 chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
 pytesseract.pytesseract.tesseract_cmd = r"C:\tesseract\tesseract.exe"
@@ -33,10 +31,10 @@ def acoes_planilha():
     while validou_xml is False:
         # * Trata os dados coletados em "dados_planilha"
         dados_planilha = coleta_planilha()
-        bot.PAUSE = 2
+        bot.PAUSE = 1.5
         chave_xml = dados_planilha[4].strip()
         # * -------------------------------------- Lançamento Topcon --------------------------------------
-        print('--- Abrindo TopCompras')
+        print('--- Abrindo TopCompras para iniciar o lançamento')
         ahk.win_activate('TopCompras', title_match_mode=2)
         if ahk.win_is_active('TopCompras', title_match_mode=2):
             print('Tela compras está maximizada! Iniciando o programa')
@@ -44,8 +42,9 @@ def acoes_planilha():
             exit(bot.alert('Tela de Compras não abriu.'))
         # Processo de lançamento
         bot.press('F2')
-        bot.press('F3', presses=2, interval=0.3)
-        bot.doubleClick(558, 235, interval = 1)  # Clica dentro do campo para inserir a chave XML
+        bot.press('F3', presses=2, interval=0.5)
+        time.sleep(2)
+        bot.doubleClick(558, 235, interval = 2)  # Clica dentro do campo para inserir a chave XML
         bot.write(chave_xml)
         bot.press('ENTER')
         ahk.win_wait_active('TopCompras')
@@ -68,10 +67,6 @@ def acoes_planilha():
             elif procura_imagem(imagem='img_topcon/chave_44digitos.png', limite_tentativa=3, continuar_exec=True) is not False:
                 bot.press('ENTER')
                 marca_lancado(texto_marcacao='Chave_invalida')
-                programa_principal()
-            elif procura_imagem(imagem='img_topcon/transportador_incorreto.png', limite_tentativa=3, continuar_exec=True) is not False:
-                bot.press('ENTER')
-                marca_lancado(texto_marcacao='Transportador_incorreto')
                 programa_principal()
             tentativa += 1
         if tentativa >= 15:
@@ -108,8 +103,7 @@ def programa_principal():
             else:
                 exit(F'Filial de estoque não padronizada {filial_estoq}')
             chave_xml = dados_planilha[4]
-            print(
-                F'Crachá: {cracha_mot} Silo1: {silo1} Silo2: {silo2}, {filial_estoq}, {chave_xml}')
+            print(F'Crachá: {cracha_mot} Silo1: {silo1} Silo2: {silo2}, {filial_estoq}, {chave_xml}')
             acabou_pedido = valida_pedido(acabou_pedido=False)
             print(F'Chegou até aqui acabou pedido = {acabou_pedido}')
         # * -------------------------------------- PREENCHE DATA --------------------------------------
@@ -134,41 +128,46 @@ def programa_principal():
         ahk.win_wait_active('TopCompras', title_match_mode=2)
         while ahk.win_exists('Não está respondendo'):
             time.sleep(2)
+
         # * -------------------------------------- VALIDAÇÃO TRANSPORTADOR --------------------------------------
         time.sleep(2)
-        bot.click(105, 515)  # Clica no campo "Valores Totais"
-        time.sleep(8)
+        bot.doubleClick(105, 515, interval= 2)  # Clica no campo "Valores Totais"
+        time.sleep(4)
         while ahk.win_exists('Não está respondendo'):
             time.sleep(2)
         print(F'--- PREENCHENDO TRANSPORTADOR: {cracha_mot}')
         bot.click(317, 897)  # Campo transportador
-        time.sleep(3)
-        bot.click(105, 515)  # Clica no campo "Valores Totais"
         time.sleep(2)
-        bot.click(317, 897)  # Campo transportador
-        procura_imagem(imagem='img_topcon/campo_re_0.png', limite_tentativa=20)
+        procura_imagem(imagem='img_topcon/campo_re_0.png', limite_tentativa=20, confianca = 0.5)
         time.sleep(0.5)
         bot.write(cracha_mot, interval=0.10)  # ID transportador
         bot.press('enter')
-        # TODO --- Inserir a pesquisa do transportador_incorreto
         time.sleep(0.5)
+
+        #Caso o transportador seja invalido
+        while procura_imagem(imagem='img_topcon/nome_transportador.png', limite_tentativa=20, confianca = 0.5) is not False:
+            print('--- Aguardando aparecer o nome do transportador ou tela de transportador não localizado')
+            if procura_imagem(imagem='img_topcon/nome_transportador.png', limite_tentativa=20, confianca = 0.5) is not False:
+                print('Transportador não localizado! reiniciando o processo e marcando')
+                bot.press('ENTER')
+                marca_lancado(texto_marcacao= 'Transportador')
+                programa_principal()
+
+        #Verifica se o campo da placa ficou preenchido
         bot.press('enter')
         if procura_imagem('img_topcon/campo_placa.png', continuar_exec=True) is not False:
-            bot.click(procura_imagem(
-                'img_topcon/campo_placa.png', continuar_exec=True))
+            bot.click(procura_imagem('img_topcon/campo_placa.png', continuar_exec=True))
             bot.write('XXX0000')
             bot.press('ENTER')
         else:
             print('--- Não achou o campo ou já está preenchido')
+
         # * -------------------------------------- Aba Pedido --------------------------------------
-        bot.doubleClick(procura_imagem(
-            imagem='img_topcon/produtos_servicos.png', limite_tentativa=8))
+        bot.doubleClick(procura_imagem(imagem='img_topcon/produtos_servicos.png', limite_tentativa=8))
         time.sleep(4)
-        bot.click(procura_imagem(imagem='img_topcon/botao_alterar.png',
-                  limite_tentativa=8, area=(100, 839, 300, 400)))
+        bot.click(procura_imagem(imagem='img_topcon/botao_alterar.png',limite_tentativa=8, area=(100, 839, 300, 400)))
         time.sleep(2.5)
-        qtd_ton = extrai_txt_img(
-            imagem='img_toneladas.png', area_tela=(198, 167, 75, 25)).strip()
+        qtd_ton = extrai_txt_img(imagem='img_toneladas.png', area_tela=(198, 167, 75, 25)).strip()
         qtd_ton = qtd_ton.replace(",", ".")
         print(F'--- Texto coletado da quantidade: {qtd_ton}')
         time.sleep(0.5)

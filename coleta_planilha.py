@@ -13,8 +13,6 @@ ahk = AHK()
 posicao_img = 0  # Define a variavel para utilização global dela.
 continuar = True
 bot.FAILSAFE = True
-numero_nf = "965999"  # Valor para teste
-transportador = "111594"  # Valor para teste
 chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
 pytesseract.pytesseract.tesseract_cmd = r"C:\tesseract\tesseract.exe"
 
@@ -57,5 +55,5 @@ def coleta_planilha():
                 break
         dados_planilha.append(ahk.get_clipboard())
         bot.press('right')
-    print('--- Dados copiados com sucesso.')
+    print(F'--- Dados copiados com sucesso: {dados_planilha}')
     return dados_planilha

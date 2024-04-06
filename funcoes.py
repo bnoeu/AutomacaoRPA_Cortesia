@@ -16,8 +16,6 @@ bot.PAUSE = 2  # Pausa padrão do bot
 posicao_img = 0  # Define a variavel para utilização global dela.
 continuar = True
 bot.FAILSAFE = True
-numero_nf = "965999"
-transportador = "111594"
 # tempo_inicio = time.time()
 chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
 pytesseract.pytesseract.tesseract_cmd = r"C:\tesseract\tesseract.exe"
@@ -26,16 +24,16 @@ bot.useImageNotFoundException(False)
 
 def procura_imagem(imagem, limite_tentativa=4, area=(0, 0, 1920, 1080), continuar_exec=False, confianca = 0.85):
     tentativa = 0   
-    print(F'--- Tentando encontrar: {imagem}')
+    print(F'--- Tentando encontrar: {imagem}', end= ' ')
     while tentativa < limite_tentativa:
-        time.sleep(2)
+        time.sleep(0.5)
         posicao_img = bot.locateCenterOnScreen(imagem, grayscale= True, confidence= confianca, region= area)
         if posicao_img is not None:
-            print(F'--- Imagem na posição: {posicao_img}')
+            print(F'Encontrou na posição: {posicao_img}')
             break
         tentativa += 1
     if (continuar_exec is True) and (posicao_img is None):
-        print('--- Não encontrada, continuando execução pois o parametro "continuar_exec" está habilitado')
+        print(F'' + 'Não encontrada, continuando execução pois o parametro "continuar_exec" está habilitado')
         return False
     if tentativa >= limite_tentativa:
         print('--- FECHANDO PLANILHA PARA EVITAR ERROS')
@@ -115,7 +113,7 @@ def extrai_txt_img(imagem, area_tela):
     img = cv2.imread('img_geradas/' + imagem)
 
     # Define uma porcentagem de escala para redimensionar a imagem
-    porce_escala = 180
+    porce_escala = 185
     largura = int(img.shape[1] * porce_escala / 50)
     altura = int(img.shape[0] * porce_escala / 50)
     nova_dim = (largura, altura)

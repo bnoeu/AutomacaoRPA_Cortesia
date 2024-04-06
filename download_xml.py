@@ -17,8 +17,6 @@ bot.PAUSE = 2  # Pausa padrão do bot
 posicao_img = 0  # Define a variavel para utilização global dela.
 continuar = True
 bot.FAILSAFE = True
-numero_nf = "965999"  # Valor para teste
-transportador = "111594"  # Valor para teste
 chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
 pytesseract.pytesseract.tesseract_cmd = r"C:\tesseract\tesseract.exe"
 
