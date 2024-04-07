@@ -22,7 +22,7 @@ pytesseract.pytesseract.tesseract_cmd = r"C:\tesseract\tesseract.exe"
 bot.useImageNotFoundException(False)
 
 
-def procura_imagem(imagem, limite_tentativa=4, area=(0, 0, 1920, 1080), continuar_exec=False, confianca = 0.85):
+def procura_imagem(imagem, limite_tentativa=4, area=(0, 0, 1920, 1080), continuar_exec=False, confianca = 0.75):
     tentativa = 0   
     print(F'--- Tentando encontrar: {imagem}', end= ' ')
     while tentativa < limite_tentativa:
@@ -142,6 +142,6 @@ def verifica_ped_vazio(texto, pos):
         return False
     else:  # Caso fique vazio
         print('Itens XML ficou vazio! prosseguindo')
-        bot.click(procura_imagem(imagem='img_topcon/confirma.png'))
-        bot.click(procura_imagem(imagem='img_topcon/botao_ok.jpg'))
+        bot.click(procura_imagem(imagem='img_topcon/confirma.png', limite_tentativa= 10))
+        bot.click(procura_imagem(imagem='img_topcon/botao_ok.jpg', limite_tentativa= 10))
         return True

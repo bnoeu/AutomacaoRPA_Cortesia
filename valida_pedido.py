@@ -64,7 +64,7 @@ def valida_pedido(acabou_pedido=False):
             bot.click(744, 230) #Clica para descer o menu e exibir o resto das opções 
             exit(F'Tentativa: {tentativa}')
         posicoes = bot.locateAllOnScreen('img_pedidos/' + item_pedido[0], confidence=0.9, grayscale=True, region=(0, 0, 850, 400))
-        time.sleep(5)
+        time.sleep(1)
         for pos in posicoes:  # Tenta em todos pedidos encontrados
             print(F'Achou o {texto} na posição {pos}')
             bot.doubleClick(pos)  # Marca o pedido encontrado
@@ -74,7 +74,7 @@ def valida_pedido(acabou_pedido=False):
             print(F'--- Valor campo "vazio": {vazio}')
             if vazio is not True:
                 bot.click(procura_imagem('img_topcon/vinc_xml_pedido.png',continuar_exec=True, limite_tentativa=2))
-                time.sleep(3)
+                time.sleep(1)
                 vazio = verifica_ped_vazio(texto=texto, pos=pos)
                 print(F'--- Valor campo "vazio": {vazio}')
                 if procura_imagem('img_topcon/dife_valor.png', continuar_exec=True, limite_tentativa=2):
@@ -89,15 +89,14 @@ def valida_pedido(acabou_pedido=False):
                 break
             tentativa += 1
         else:
-            bot.click(procura_imagem(imagem='img_topcon/bt_cancela.png'))
+            bot.click(procura_imagem(imagem='img_topcon/bt_cancela.png', confianca= 0.6))
             marca_lancado('Erro_Pedido')
             acabou_pedido = True
             return acabou_pedido
         if vazio is False:  # Caso já tenha realiza duas execuções
-            bot.click(procura_imagem(imagem='img_topcon/bt_cancela.png'))
+            bot.click(procura_imagem(imagem='img_topcon/bt_cancela.png', confianca= 0.6))
             marca_lancado('Erro_Pedido')
             acabou_pedido = True
             return acabou_pedido
         else:
             break
-valida_pedido()
