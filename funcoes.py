@@ -22,7 +22,7 @@ pytesseract.pytesseract.tesseract_cmd = r"C:\tesseract\tesseract.exe"
 bot.useImageNotFoundException(False)
 
 
-def procura_imagem(imagem, limite_tentativa=4, area=(0, 0, 1920, 1080), continuar_exec=False, confianca = 0.75):
+def procura_imagem(imagem, limite_tentativa=6, area=(0, 0, 1920, 1080), continuar_exec=False, confianca = 0.75):
     tentativa = 0   
     print(F'--- Tentando encontrar: {imagem}', end= ' ')
     while tentativa < limite_tentativa:
@@ -32,6 +32,8 @@ def procura_imagem(imagem, limite_tentativa=4, area=(0, 0, 1920, 1080), continua
             print(F'Encontrou na posição: {posicao_img}')
             break
         tentativa += 1
+
+    #Caso seja para continuar
     if (continuar_exec is True) and (posicao_img is None):
         print(F'' + 'Não encontrada, continuando execução pois o parametro "continuar_exec" está habilitado')
         return False
