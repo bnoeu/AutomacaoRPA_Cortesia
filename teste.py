@@ -26,7 +26,11 @@ time.sleep(1)
 #! Variavel de teste
 cracha_mot = '112251'
 
-#ahk.win_activate('TopCompras', title_match_mode= 2)
-ahk.win_activate('db_alltrips', title_match_mode= 2)
+ahk.win_activate('TopCompras', title_match_mode= 2)
+#ahk.win_activate('db_alltrips', title_match_mode= 2)
 #! Utilizado apenas para estar trechos de codigo.
 
+
+qtd_ton = extrai_txt_img(imagem='img_toneladas.png', area_tela=(198, 167, 75, 25)).strip()
+qtd_ton = qtd_ton.replace(",", ".")
+print(F'--- Texto coletado da quantidade: {qtd_ton}')

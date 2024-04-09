@@ -110,8 +110,8 @@ def extrai_txt_img(imagem, area_tela):
 
     # Define uma porcentagem de escala para redimensionar a imagem
     porce_escala = 185
-    largura = int(img.shape[1] * porce_escala / 50)
-    altura = int(img.shape[0] * porce_escala / 50)
+    largura = int(img.shape[1] * porce_escala / 100)
+    altura = int(img.shape[0] * porce_escala / 100)
     nova_dim = (largura, altura)
 
     # Redimensiona a imagem
@@ -123,9 +123,13 @@ def extrai_txt_img(imagem, area_tela):
     # Aplica uma operação de limiarização para binarizar a imagem
     img_thresh = cv2.threshold(img_cinza, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)[1]
     
+    '''
     #Exibe as imagens em caso de debug
-    #cv2.imshow('thresh', img_thresh)
-    #cv2.waitKey()
+    cv2.imshow('img', img)
+    cv2.imshow('img_cinza', img_cinza)
+    cv2.imshow('thresh', img_thresh)
+    cv2.waitKey()
+    '''
 
     # Utiliza o pytesseract para extrair texto da imagem binarizada
     texto = pytesseract.image_to_string(img_thresh, lang='eng', config='--psm 6').strip()
