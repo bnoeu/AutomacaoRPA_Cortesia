@@ -31,7 +31,7 @@ def acoes_planilha():
     while validou_xml is False:
         # * Trata os dados coletados em "dados_planilha"
         dados_planilha = coleta_planilha()
-        bot.PAUSE = 1
+        bot.PAUSE = 1.3
         chave_xml = dados_planilha[4].strip()
         # * -------------------------------------- Lançamento Topcon --------------------------------------
         print('--- Abrindo TopCompras para iniciar o lançamento')
@@ -108,9 +108,10 @@ def programa_principal():
             print(F'Chegou até aqui acabou pedido = {acabou_pedido}')
         # * -------------------------------------- PREENCHE DATA --------------------------------------
         ahk.win_activate('TopCompras', title_match_mode=2)
-        ahk.win_wait_active('TopCompras', title_match_mode=2)
+        #ahk.win_wait_active('TopCompras', title_match_mode=2)
         bot.click(900, 201)  # Clica no campo filial de estoque
         bot.write(filial_estoq)
+        
         # Confirma a informação da nova filial de estoque
         bot.press('ENTER', presses=1)
         time.sleep(1)
@@ -204,23 +205,24 @@ def programa_principal():
         # * -------------------------------------- Conclusão lançamento --------------------------------------
         bot.click(procura_imagem(imagem='img_topcon/confirma.png'))
         bot.press('pagedown')  # Conclui o lançamento
+        
+        #Espera até que o topcom volte a responder
         print('--- Aguardando TopCompras Retornar')
         while ahk.win_exists('Não está respondendo'):
             time.sleep(1)
+
+        #Espera até aparecer a tela de operação realizada, e quando ela aparecer, clica no botão OK
         while procura_imagem(imagem='img_topcon/operacao_realizada.png', continuar_exec=True) is False:
-            time.sleep(0.5)
-            ahk.win_activate('TopCompras', title_match_mode=2)
-        bot.press('ENTER')
-        time.sleep(1)
-        ahk.win_wait_active('TopCom', timeout=10)
+            time.sleep(1)
+        else:
+            bot.click(procura_imagem(imagem='img_topcon/botao_ok.jpg', continuar_exec=True))
+        
+        #Verifica se a tela "Deseja processar" apareceu, caso sim, procede para emissão da NFE.
+        ahk.win_wait_active('TopCom', timeout=10, title_match_mode=2)
         ahk.win_activate('TopCom', title_match_mode=2)
         if procura_imagem('img_topcon/deseja_processar.png', continuar_exec=True, limite_tentativa=4) is not False:
-            print(procura_imagem('img_topcon/deseja_processar.png',
-                  continuar_exec=True, limite_tentativa=4))
-            time.sleep(1)
-            bot.click(procura_imagem('img_topcon/bt_sim.png',
-                      continuar_exec=True, limite_tentativa=4))
-            while True:  # Aguardar o .PDF
+            bot.click(procura_imagem('img_topcon/bt_sim.png', continuar_exec=True, limite_tentativa=4))
+            while True: #Aguardar o .PDF
                 try:
                     ahk.win_wait('.pdf', title_match_mode=2, timeout=2)
                     time.sleep(0.5)
@@ -234,15 +236,9 @@ def programa_principal():
             time.sleep(1)
             ahk.win_activate('Transmissão', title_match_mode=2)
             bot.click(procura_imagem(imagem='img_topcon/sair_tela.png'))
-        time.sleep(1)
-        tempo_final = time.time()
-        tempo_final_seg = (tempo_final - tempo_inicio) / 60
-        print(F'\n--- Lançamento concluido, tempo: {tempo_final_seg}')
 
         # * -------------------------------------- Marca planilha --------------------------------------
         marca_lancado(texto_marcacao='Lancado_RPA')
-
-
 programa_principal()
 
 # TODO --- Caso o pedido acabe, avisar ao Mateus

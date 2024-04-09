@@ -6,13 +6,14 @@ import datetime
 import cv2
 #import pygetwindow as gw
 import pytesseract
+import numpy as np
 from ahk import AHK
 import pyautogui as bot
 
 
 # --- Definição de parametros
 ahk = AHK()
-bot.PAUSE = 1  # Pausa padrão do bot
+bot.PAUSE = 1.3  # Pausa padrão do bot
 posicao_img = 0  # Define a variavel para utilização global dela.
 continuar = True
 bot.FAILSAFE = True
@@ -59,6 +60,7 @@ def verifica_tela(nome_tela, manual=False):
 def marca_lancado(texto_marcacao='Lancado'):
     print('--- Abrindo planilha - MARCA_LANCADO')
     ahk.win_activate('db_alltrips', title_match_mode= 2)
+    ahk.win_wait_active('db_alltrips', title_match_mode= 2)
 
     #Verifica se está no modo "Apenas exibição", caso esteja, altera para permitir edição.
     if procura_imagem(imagem='img_planilha/botao_exibicaoverde.png', continuar_exec=True) is not False:
@@ -109,26 +111,37 @@ def extrai_txt_img(imagem, area_tela):
     img = cv2.imread('img_geradas/' + imagem)
 
     # Define uma porcentagem de escala para redimensionar a imagem
-    porce_escala = 185
-    largura = int(img.shape[1] * porce_escala / 50)
-    altura = int(img.shape[0] * porce_escala / 50)
+    porce_escala = 300
+    largura = int(img.shape[1] * porce_escala / 100)
+    altura = int(img.shape[0] * porce_escala / 100)
     nova_dim = (largura, altura)
-
     # Redimensiona a imagem
     img = cv2.resize(img, nova_dim, interpolation=cv2.INTER_AREA)
 
     # Converte a imagem para tons de cinza
     img_cinza = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     
+    #Smoothing 
+    kernel = np.ones((5,5),np.float32)/50
+    smooth = cv2.filter2D(img_cinza,-1,kernel)
+
     # Aplica uma operação de limiarização para binarizar a imagem
-    img_thresh = cv2.threshold(img_cinza, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)[1]
+    blur = cv2.GaussianBlur(smooth,(5,5),0)
+    img_thresh = cv2.threshold(blur, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)[1]
     
+
+    '''
     #Exibe as imagens em caso de debug
-    #cv2.imshow('thresh', img_thresh)
-    #cv2.waitKey()
+    cv2.imshow('img_cinza', img_cinza)
+    cv2.imshow('smooth', smooth)
+    cv2.imshow('blur', blur)
+    cv2.imshow('thresh', img_thresh)
+    cv2.waitKey()
+    '''
 
     # Utiliza o pytesseract para extrair texto da imagem binarizada
     texto = pytesseract.image_to_string(img_thresh, lang='eng', config='--psm 6').strip()
+    print(F'texto: {texto}')
     return texto
 
 def verifica_ped_vazio(texto, pos):
