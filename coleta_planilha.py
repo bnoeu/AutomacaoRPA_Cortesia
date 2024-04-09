@@ -20,25 +20,16 @@ def coleta_planilha():
     bot.PAUSE = 1
     print('--- Abrindo planilha - COLETA_PLANILHA')
     ahk.win_activate('db_alltrips', title_match_mode= 2)
-<<<<<<< HEAD
-=======
     #TODO Executar um clique na primeira linha da planilha
 
     bot.PAUSE = 0.3  # Pausa padrão do bot
->>>>>>> a48b3f560d5e85628f376ecb7b5aa47835fc76cd
 
     #Verifica se já está no modo de edição, caso esteja, muda para o modo "exibição"
     if procura_imagem(imagem='img_planilha/botao_exibicaoverde.png', continuar_exec=True) is False:
         bot.click(procura_imagem(imagem='img_planilha/botao_edicao.png'))
         bot.click(procura_imagem(imagem='img_planilha/botao_exibicao.png'))
-<<<<<<< HEAD
-        #procura_imagem(imagem='img_planilha/botao_exibicaoverde.png')
-    else:
-        print('--- Já está no modo de edição, continuando processo')
-=======
     else: #Caso não esteja no modo "Edição"
         print('--- A planilha já está no modo "Exibição", continuando processo')
->>>>>>> a48b3f560d5e85628f376ecb7b5aa47835fc76cd
 
     #Altera o filtro para "vazio", para iniciar a coleta de dados.
     time.sleep(3)
@@ -47,11 +38,6 @@ def coleta_planilha():
     else:
         print('--- Não está filtrado, executando o filtro!')
         bot.click(procura_imagem(imagem='img_planilha/bt_setabaixo.png', area=(1529, 459, 75, 75)))
-<<<<<<< HEAD
-        bot.click(procura_imagem(imagem='img_planilha/botao_selecionartudo.png', limite_tentativa= 30, confianca= 0.5))
-        bot.click(procura_imagem(imagem='img_planilha/bt_vazias.png', confianca= 0.5))
-        bot.click(procura_imagem(imagem='img_planilha/bt_aplicar.png', confianca= 0.4))    
-=======
         ahk.win_activate('Sem título', title_match_mode= 2)
         #Caso não apareça o botão "Selecionar tudo" clica em "limpar filtro"
         if procura_imagem(imagem='img_planilha/botao_selecionartudo.png', confianca= 0.5, continuar_exec= True) is False:
@@ -61,7 +47,6 @@ def coleta_planilha():
             bot.click(procura_imagem(imagem='img_planilha/botao_selecionartudo.png', confianca= 0.5))
             bot.click(procura_imagem(imagem='img_planilha/bt_vazias.png', confianca= 0.5))
             bot.click(procura_imagem(imagem='img_planilha/bt_aplicar.png', confianca= 0.4))
->>>>>>> a48b3f560d5e85628f376ecb7b5aa47835fc76cd
     
     # * Coleta os dados da linha atual
     bot.PAUSE = 0.5  # Pausa padrão do bot
