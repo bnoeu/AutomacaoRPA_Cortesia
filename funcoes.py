@@ -12,7 +12,7 @@ import pyautogui as bot
 
 # --- Definição de parametros
 ahk = AHK()
-bot.PAUSE = 2  # Pausa padrão do bot
+bot.PAUSE = 1  # Pausa padrão do bot
 posicao_img = 0  # Define a variavel para utilização global dela.
 continuar = True
 bot.FAILSAFE = True
@@ -26,7 +26,7 @@ def procura_imagem(imagem, limite_tentativa=4, area=(0, 0, 1920, 1080), continua
     tentativa = 0   
     print(F'--- Tentando encontrar: {imagem}', end= ' ')
     while tentativa < limite_tentativa:
-        time.sleep(0.5)
+        time.sleep(1)
         posicao_img = bot.locateCenterOnScreen(imagem, grayscale= True, confidence= confianca, region= area)
         if posicao_img is not None:
             print(F'Encontrou na posição: {posicao_img}')
@@ -55,17 +55,12 @@ def verifica_tela(nome_tela, manual=False):
 
 
 def marca_lancado(texto_marcacao='Lancado'):
-    """Altera planilha para o modo de edição e insere o texto recebido via "texto_marcacao"
-
-    Args:
-        texto_marcacao (str, optional): _description_. Texto que será preenchido.
-    """
     print('--- Abrindo planilha - MARCA_LANCADO')
     ahk.win_activate('db_alltrips', title_match_mode= 2)
 
     #Verifica se está no modo "Apenas exibição", caso esteja, altera para permitir edição.
     if procura_imagem(imagem='img_planilha/botao_exibicaoverde.png', continuar_exec=True) is not False:
-        bot.click(procura_imagem(imagem='img_planilha/botao_exibicaoverde.png'))
+        bot.click(procura_imagem(imagem='img_planilha/botao_exibicaoverde.png', confianca = 0.8))
         bot.click(procura_imagem(imagem='img_planilha/botao_iniciaredicao.png'))
         
         #Caso apareça a tela informando que houve alteração durante esse periodo, confirma que quer atualizar e prossegue.
@@ -74,7 +69,7 @@ def marca_lancado(texto_marcacao='Lancado'):
             bot.click(procura_imagem(imagem='img_planilha/bt_sim.png', limite_tentativa= 8, confianca= 0.45, area= (751, 521, 429, 218)))
 
         #Verifica se realmente entrou no modo edição.
-        procura_imagem(imagem='img_planilha/botao_edicao.png')
+        #procura_imagem(imagem='img_planilha/botao_edicao.png')
         
         #Clica na coluna Status
         bot.doubleClick(1494, 508)
@@ -85,7 +80,7 @@ def marca_lancado(texto_marcacao='Lancado'):
         hoje = datetime.date.today()
         bot.write(str(hoje))
         bot.press("ENTER")
-        time.sleep(2)
+        time.sleep(1)
 
         #Retorna a planilha para o modo "Somente Exibição (Botão Verde)"
         if procura_imagem(imagem='img_planilha/bt_filtro.png', continuar_exec=True, limite_tentativa=8, area = (1468, 400, 200, 200)) is not False:
@@ -100,8 +95,7 @@ def marca_lancado(texto_marcacao='Lancado'):
             bot.click(procura_imagem(imagem='img_planilha/bt_vazias.png', confianca= 0.5))
             bot.click(procura_imagem(imagem='img_planilha/bt_aplicar.png',  confianca= 0.4))
     else: #Caso já esteja no modo "Edição"
-        pass
-        #exit(bot.alert('Não achou o botao de edição: botao_exibicaoverde.png'))
+        exit('--- Planilha no modo edição! Necessario scriptar essa parte')
 
 
 def extrai_txt_img(imagem, area_tela):
@@ -127,6 +121,10 @@ def extrai_txt_img(imagem, area_tela):
     # Aplica uma operação de limiarização para binarizar a imagem
     img_thresh = cv2.threshold(img_cinza, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)[1]
     
+    #Exibe as imagens em caso de debug
+    #cv2.imshow('thresh', img_thresh)
+    #cv2.waitKey()
+
     # Utiliza o pytesseract para extrair texto da imagem binarizada
     texto = pytesseract.image_to_string(img_thresh, lang='eng', config='--psm 6').strip()
     return texto

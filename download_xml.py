@@ -13,7 +13,7 @@ import pyautogui as bot
 
 # --- Definição de parametros
 ahk = AHK()
-bot.PAUSE = 2  # Pausa padrão do bot
+bot.PAUSE = 0.5  # Pausa padrão do bot
 posicao_img = 0  # Define a variavel para utilização global dela.
 continuar = True
 bot.FAILSAFE = True
@@ -45,7 +45,7 @@ bot.doubleClick(procura_imagem(
 ahk.win_wait('Não está respondendo', title_match_mode=2, timeout=50)
 while ahk.win_exists('Não está respondendo', title_match_mode=2):
     print('Aguardando')
-    time.sleep(2)
+    time.sleep(1)
 
 # TODO --- TELA REJEIÇÃO
 while True:

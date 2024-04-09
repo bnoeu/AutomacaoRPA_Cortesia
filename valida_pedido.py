@@ -18,6 +18,7 @@ transportador = "111594"
 chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
 
 def valida_pedido(acabou_pedido=False):
+    bot.PAUSE = 0.3
     tentativa = 0
     item_pedido = []
     PEDRA_1 = ['PEDRA 01', 'PEDRA DI', 'BRITADA 01', 'PEDRA 1', 'PEDRA BRITADA 01', 'PEDRAT', 'PEDRA BRITADA 1', 'BRITADA 1', 'BRITA 01']
@@ -64,17 +65,18 @@ def valida_pedido(acabou_pedido=False):
             bot.click(744, 230) #Clica para descer o menu e exibir o resto das opções 
             exit(F'Tentativa: {tentativa}')
         posicoes = bot.locateAllOnScreen('img_pedidos/' + item_pedido[0], confidence=0.9, grayscale=True, region=(0, 0, 850, 400))
-        time.sleep(5)
+        #time.sleep(1)
         for pos in posicoes:  # Tenta em todos pedidos encontrados
             print(F'Achou o {texto} na posição {pos}')
             bot.doubleClick(pos)  # Marca o pedido encontrado
             bot.click(procura_imagem(imagem='img_topcon/localizar.png'))
-            # Retorna TRUE caso esteja vazio
+            time.sleep(1)
+
             vazio = verifica_ped_vazio(texto=texto, pos=pos)
             print(F'--- Valor campo "vazio": {vazio}')
             if vazio is not True:
                 bot.click(procura_imagem('img_topcon/vinc_xml_pedido.png',continuar_exec=True, limite_tentativa=2))
-                time.sleep(3)
+                #time.sleep(1)
                 vazio = verifica_ped_vazio(texto=texto, pos=pos)
                 print(F'--- Valor campo "vazio": {vazio}')
                 if procura_imagem('img_topcon/dife_valor.png', continuar_exec=True, limite_tentativa=2):
@@ -100,4 +102,3 @@ def valida_pedido(acabou_pedido=False):
             return acabou_pedido
         else:
             break
-valida_pedido()

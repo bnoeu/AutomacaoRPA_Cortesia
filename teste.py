@@ -30,5 +30,4 @@ ahk.win_activate('TopCompras', title_match_mode= 2)
 #ahk.win_activate('db_alltrips', title_match_mode= 2)
 #! Utilizado apenas para estar trechos de codigo.
 
-
-
+marca_lancado()

@@ -17,17 +17,15 @@ chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
 pytesseract.pytesseract.tesseract_cmd = r"C:\tesseract\tesseract.exe"
 
 def coleta_planilha():
+    bot.PAUSE = 1
     print('--- Abrindo planilha - COLETA_PLANILHA')
     ahk.win_activate('db_alltrips', title_match_mode= 2)
-    time.sleep(1)
-    bot.PAUSE = 0.3  # Pausa padrão do bot
 
     #Verifica se já está no modo de edição.
     if procura_imagem(imagem='img_planilha/botao_exibicaoverde.png', continuar_exec=True) is False:
         bot.click(procura_imagem(imagem='img_planilha/botao_edicao.png'))
         bot.click(procura_imagem(imagem='img_planilha/botao_exibicao.png'))
-        time.sleep(1)
-        procura_imagem(imagem='img_planilha/botao_exibicaoverde.png')
+        #procura_imagem(imagem='img_planilha/botao_exibicaoverde.png')
     else:
         print('--- Já está no modo de edição, continuando processo')
 
@@ -37,12 +35,12 @@ def coleta_planilha():
     else:
         print('--- Não está filtrado, executando o filtro!')
         bot.click(procura_imagem(imagem='img_planilha/bt_setabaixo.png', area=(1529, 459, 75, 75)))
-        time.sleep(5) #Necessario pois nem sempre o excel é rapido na exeibição
         bot.click(procura_imagem(imagem='img_planilha/botao_selecionartudo.png', limite_tentativa= 30, confianca= 0.5))
         bot.click(procura_imagem(imagem='img_planilha/bt_vazias.png', confianca= 0.5))
         bot.click(procura_imagem(imagem='img_planilha/bt_aplicar.png', confianca= 0.4))    
     
     # * Coleta os dados da linha atual
+    bot.PAUSE = 0.5  # Pausa padrão do bot
     dados_planilha = []
     print('--- Copiando dados e formatando')
     bot.click(100, 510)  # Clica na primeira linha e coluna da planilha
