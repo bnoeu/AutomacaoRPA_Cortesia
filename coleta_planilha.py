@@ -17,12 +17,9 @@ chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
 pytesseract.pytesseract.tesseract_cmd = r"C:\tesseract\tesseract.exe"
 
 def coleta_planilha():
-    bot.PAUSE = 1
+    bot.PAUSE = 0.3  # Pausa padrão do bot
     print('--- Abrindo planilha - COLETA_PLANILHA')
     ahk.win_activate('db_alltrips', title_match_mode= 2)
-    #TODO Executar um clique na primeira linha da planilha
-
-    bot.PAUSE = 0.3  # Pausa padrão do bot
 
     #Verifica se já está no modo de edição, caso esteja, muda para o modo "exibição"
     if procura_imagem(imagem='img_planilha/botao_exibicaoverde.png', continuar_exec=True) is False:
@@ -65,4 +62,3 @@ def coleta_planilha():
     print(F'--- Dados copiados com sucesso: {dados_planilha}')
     bot.PAUSE = 0.5  # Pausa padrão do bot
     return dados_planilha
-coleta_planilha()

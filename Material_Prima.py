@@ -26,7 +26,7 @@ pytesseract.pytesseract.tesseract_cmd = r"C:\tesseract\tesseract.exe"
 
 
 def acoes_planilha():
-    time.sleep(0.5)
+    #time.sleep(0.5)
     validou_xml = False
     while validou_xml is False:
         # * Trata os dados coletados em "dados_planilha"
@@ -99,6 +99,10 @@ def programa_principal():
                 centro_custo = 'MOGI'
             elif filial_estoq == '1005':
                 centro_custo = 'SANTOS'
+            elif filial_estoq == '1005':
+                centro_custo = 'SANTOS'
+            elif filial_estoq == '1032':
+                centro_custo = 'TAMOIO'
             else:
                 exit(F'Filial de estoque não padronizada {filial_estoq}')
             chave_xml = dados_planilha[4]
@@ -171,9 +175,12 @@ def programa_principal():
 
         # * -------------------------------------- Aba Pedido --------------------------------------
         bot.doubleClick(procura_imagem(imagem='img_topcon/produtos_servicos.png', limite_tentativa=8))
-        time.sleep(1)
         bot.click(procura_imagem(imagem='img_topcon/botao_alterar.png',limite_tentativa=8, area=(100, 839, 300, 400)))
-        time.sleep(2.5)
+        
+        #Aguardando aparecer o botão de "confirma", para prosseguir com as ações.
+        procura_imagem(imagem='img_topcon/confirma.png')
+        
+        #Após encontrar o botão, 
         qtd_ton = extrai_txt_img(imagem='img_toneladas.png', area_tela=(198, 167, 75, 25)).strip()
         qtd_ton = qtd_ton.replace(",", ".")
         print(F'--- Texto coletado da quantidade: {qtd_ton}')
