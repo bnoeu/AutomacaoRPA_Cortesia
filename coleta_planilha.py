@@ -16,6 +16,7 @@ bot.FAILSAFE = True
 chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
 pytesseract.pytesseract.tesseract_cmd = r"C:\tesseract\tesseract.exe"
 
+
 def coleta_planilha():
     bot.PAUSE = 1.3
     print('--- Abrindo planilha - COLETA_PLANILHA')
