@@ -49,7 +49,7 @@ def coleta_planilha():
             bot.click(procura_imagem(imagem='img_planilha/bt_aplicar.png', confianca= 0.4))
     
     # * Coleta os dados da linha atual
-    bot.PAUSE = 0.5  # Pausa padrão do bot
+    bot.PAUSE = 0.3  # Pausa padrão do bot
     dados_planilha = []
     print('--- Copiando dados e formatando')
     bot.click(100, 510)  # Clica na primeira linha e coluna da planilha
@@ -63,5 +63,6 @@ def coleta_planilha():
         dados_planilha.append(ahk.get_clipboard())
         bot.press('right')
     print(F'--- Dados copiados com sucesso: {dados_planilha}')
+    bot.PAUSE = 0.5  # Pausa padrão do bot
     return dados_planilha
 coleta_planilha()

@@ -51,8 +51,7 @@ def acoes_planilha():
         tentativa = 0
         while tentativa < 10:
             if procura_imagem(imagem='img_topcon/botao_sim.jpg', limite_tentativa=3, continuar_exec=True) is not False:
-                bot.click(procura_imagem(imagem='img_topcon/botao_sim.jpg',
-                          limite_tentativa=2, continuar_exec=True))
+                bot.click(procura_imagem(imagem='img_topcon/botao_sim.jpg', limite_tentativa=2, continuar_exec=True))
                 validou_xml is True
                 return dados_planilha
             elif procura_imagem(imagem='img_topcon/chave_invalida.png', limite_tentativa=3, continuar_exec=True) is not False:
