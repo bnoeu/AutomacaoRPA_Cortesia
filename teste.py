@@ -30,7 +30,12 @@ ahk.win_activate('TopCompras', title_match_mode= 2)
 #ahk.win_activate('db_alltrips', title_match_mode= 2)
 #! Utilizado apenas para estar trechos de codigo.
 
-
-qtd_ton = extrai_txt_img(imagem='img_toneladas.png', area_tela=(198, 167, 75, 25)).strip()
-qtd_ton = qtd_ton.replace(",", ".")
-print(F'--- Texto coletado da quantidade: {qtd_ton}')
+tentativa = 0
+lista_erros = ['botao_sim.jpg', 'chave_invalida.png', 'naoencontrado_xml.png', 'chave_44digitos.png', 'nfe_cancelada.png']
+while tentativa < 10:
+    for item in lista_erros:
+        img = 'img_topcon/' + item
+        if procura_imagem(imagem = img, limite_tentativa= 1, continuar_exec=True) is not False:
+            print('Achou!')
+    tentativa += 1
+    print(F'Tentativa: {tentativa}')

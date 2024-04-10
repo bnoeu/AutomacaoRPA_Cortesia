@@ -50,22 +50,26 @@ def acoes_planilha():
         ahk.win_wait_active('TopCompras')
         tentativa = 0
         while tentativa < 10:
-            if procura_imagem(imagem='img_topcon/botao_sim.jpg', limite_tentativa=3, continuar_exec=True) is not False:
-                bot.click(procura_imagem(imagem='img_topcon/botao_sim.jpg', limite_tentativa=2, continuar_exec=True))
+            if procura_imagem(imagem='img_topcon/botao_sim.jpg', limite_tentativa= 1, continuar_exec=True) is not False:
+                bot.click(procura_imagem(imagem='img_topcon/botao_sim.jpg', limite_tentativa=1, continuar_exec=True))
                 validou_xml is True
                 return dados_planilha
-            elif procura_imagem(imagem='img_topcon/chave_invalida.png', limite_tentativa=3, continuar_exec=True) is not False:
+            elif procura_imagem(imagem='img_topcon/chave_invalida.png', limite_tentativa= 1, continuar_exec=True) is not False:
                 print('--- Nota já lançada, marcando planilha!')
                 bot.press('ENTER')
                 marca_lancado(texto_marcacao='Lancado_Manual')
                 break
-            elif procura_imagem(imagem='img_topcon/naoencontrado_xml.png', limite_tentativa=3, continuar_exec=True) is not False:
+            elif procura_imagem(imagem='img_topcon/naoencontrado_xml.png', limite_tentativa= 1, continuar_exec=True) is not False:
                 bot.press('ENTER')
                 marca_lancado(texto_marcacao='Aguardando_SEFAZ')
                 programa_principal()
-            elif procura_imagem(imagem='img_topcon/chave_44digitos.png', limite_tentativa=3, continuar_exec=True) is not False:
+            elif procura_imagem(imagem='img_topcon/chave_44digitos.png', limite_tentativa= 1, continuar_exec=True) is not False:
                 bot.press('ENTER')
                 marca_lancado(texto_marcacao='Chave_invalida')
+                programa_principal()
+            elif procura_imagem(imagem='img_topcon/nfe_cancelada.png', limite_tentativa= 1, continuar_exec=True) is not False:
+                bot.press('ENTER')
+                marca_lancado(texto_marcacao='NFE_CANCELADA')
                 programa_principal()
             tentativa += 1
         if tentativa >= 15:
@@ -130,27 +134,27 @@ def programa_principal():
         print('--- Aguarda aparecer o campo cod_desc')
         while procura_imagem(imagem='img_topcon/cod_desc.png', continuar_exec= True) is False:
             print('--- Aguardando campo aparecer')
-            time.sleep(1)
+            time.sleep(2)
         bot.press('ENTER')
 
         #Aguarda até SUMIR o campo "cod_desc"
         print('--- Aguarda até SUMIR o campo "cod_desc"')
         while procura_imagem(imagem='img_topcon/cod_desc.png', continuar_exec= True) is not False:
-            time.sleep(1)
+            time.sleep(2)
             print('--- Aguardando campo sumir')
 
         
-        bot.doubleClick(105, 515, interval= 2)  # Clica no campo "Valores Totais"
+        bot.doubleClick(105, 515, interval= 3)  # Clica no campo "Valores Totais"
         
         # * -------------------------------------- VALIDAÇÃO TRANSPORTADOR --------------------------------------
         print(F'--- PREENCHENDO TRANSPORTADOR: {cracha_mot}')
         bot.click(317, 897)  # Campo transportador
-        time.sleep(3)
+        time.sleep(2)
         procura_imagem(imagem='img_topcon/campo_re_0.png', limite_tentativa=20, confianca = 0.5)
-        time.sleep(0.5)
+        time.sleep(2)
         bot.write(cracha_mot, interval=0.10)  # ID transportador
         bot.press('enter')
-        time.sleep(0.5)
+        time.sleep(1)
 
         #Caso o transportador seja invalido
         ''' #! NÃO ESTÁ FUNCIONANDO, ESTÁ MARCANDO TODAS COMO "TRANSPORTADOR"
