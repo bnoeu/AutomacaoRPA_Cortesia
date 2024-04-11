@@ -13,16 +13,14 @@ ahk = AHK()
 posicao_img = 0  # Define a variavel para utilização global dela.
 continuar = True
 bot.FAILSAFE = True
+tempo_inicio = time.time() #Define o tempo inicial do lançamento
 chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
 pytesseract.pytesseract.tesseract_cmd = r"C:\tesseract\tesseract.exe"
 
 def coleta_planilha():
-    bot.PAUSE = 1.3
+    bot.PAUSE = 0.3  # Pausa padrão do bot
     print('--- Abrindo planilha - COLETA_PLANILHA')
     ahk.win_activate('db_alltrips', title_match_mode= 2)
-    #TODO Executar um clique na primeira linha da planilha
-
-    bot.PAUSE = 0.3  # Pausa padrão do bot
 
     #Verifica se já está no modo de edição, caso esteja, muda para o modo "exibição"
     if procura_imagem(imagem='img_planilha/botao_exibicaoverde.png', continuar_exec=True) is False:
@@ -32,8 +30,7 @@ def coleta_planilha():
         print('--- A planilha já está no modo "Exibição", continuando processo')
 
     #Altera o filtro para "vazio", para iniciar a coleta de dados.
-    time.sleep(3)
-    if procura_imagem(imagem='img_planilha/bt_filtro.png', continuar_exec=True, limite_tentativa=8, area= (1468, 400, 200, 200)) is not False:
+    if procura_imagem(imagem='img_planilha/bt_filtro.png', continuar_exec=True, area= (1468, 400, 200, 200)) is not False:
         print('--- Já está filtrado, continuando!')
     else:
         print('--- Não está filtrado, executando o filtro!')
@@ -49,20 +46,20 @@ def coleta_planilha():
             bot.click(procura_imagem(imagem='img_planilha/bt_aplicar.png', confianca= 0.4))
     
     # * Coleta os dados da linha atual
-    time.sleep(2)
-    bot.PAUSE = 0.5  # Pausa padrão do bot
     dados_planilha = []
     print('--- Copiando dados e formatando')
+    time.sleep(1)
     bot.click(100, 510)  # Clica na primeira linha e coluna da planilha
     for n in range(0, 7, 1):  # Copia dados dos 6 campos
         while True:
             bot.hotkey('ctrl', 'c')
             if 'Recuperando' in ahk.get_clipboard():
-                time.sleep(0.15)
+                time.sleep(0.1)
             else:
                 break
         dados_planilha.append(ahk.get_clipboard())
         bot.press('right')
     print(F'--- Dados copiados com sucesso: {dados_planilha}')
+    tempo_coleta = time.time() - tempo_inicio
+    print(F'\n Tempo que levou: {tempo_coleta}')
     return dados_planilha
-coleta_planilha()

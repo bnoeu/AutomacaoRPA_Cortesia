@@ -56,7 +56,7 @@ def valida_pedido(acabou_pedido=False):
         print('Contém AREIA QUARTZO')
         item_pedido.append('PED_AREIAFINA.png')
     else:
-        exit(print(F'Texto não padronizado, verificar script, texto: {texto.strip()}'))
+        exit(bot.alert(F'Texto não padronizado, verificar script, texto: {texto.strip()}'))
         
 #* --------------------------------- Pedidos Encontrados 
     while tentativa <= 2:
