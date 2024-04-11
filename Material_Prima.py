@@ -19,7 +19,7 @@ bot.FAILSAFE = True
 tempo_inicio = time.time()
 chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
 pytesseract.pytesseract.tesseract_cmd = r"C:\tesseract\tesseract.exe"
-bot.PAUSE = 1
+bot.PAUSE = 1.2
 
 
 # * ---------------------------------------------------------------------------------------------------
@@ -61,7 +61,7 @@ def programa_principal():
             print(F'Chegou até aqui acabou pedido = {acabou_pedido}')
         # * -------------------------------------- PREENCHE DATA --------------------------------------
         ahk.win_activate('TopCompras', title_match_mode=2)
-        # ahk.win_wait_active('TopCompras', title_match_mode=2)
+        ahk.win_wait_active('TopCompras', title_match_mode=2)
         bot.click(900, 201)  # Clica no campo filial de estoque
         bot.write(filial_estoq)
 
@@ -81,13 +81,13 @@ def programa_principal():
         print('--- Aguarda aparecer o campo cod_desc')
         while procura_imagem(imagem='img_topcon/cod_desc.png', continuar_exec=True) is False:
             print('--- Aguardando campo aparecer')
-            time.sleep(2)
+            time.sleep(4)
         bot.press('ENTER')
 
         # Aguarda até SUMIR o campo "cod_desc"
         print('--- Aguarda até SUMIR o campo "cod_desc"')
         while procura_imagem(imagem='img_topcon/cod_desc.png', continuar_exec=True) is not False:
-            time.sleep(2)
+            time.sleep(4)
             print('--- Aguardando campo sumir')
 
         # Clica no campo "Valores Totais"
@@ -201,8 +201,6 @@ def programa_principal():
 
         # * -------------------------------------- Marca planilha --------------------------------------
         marca_lancado(texto_marcacao='Lancado_RPA')
-
-
 programa_principal()
 
 # TODO --- Caso o pedido acabe, avisar ao Mateus

@@ -18,11 +18,11 @@ bot.FAILSAFE = True
 tempo_inicio = time.time()
 chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
 pytesseract.pytesseract.tesseract_cmd = r"C:\tesseract\tesseract.exe"
-bot.PAUSE = 1
+bot.PAUSE = 1.2
 
 
 def coleta_planilha():
-    bot.PAUSE = 0.3
+    bot.PAUSE = 0.4
     print('--- Abrindo planilha - COLETA_PLANILHA')
     ahk.win_activate('db_alltrips', title_match_mode= 2)
 
@@ -36,6 +36,7 @@ def coleta_planilha():
     #Altera o filtro para "vazio", para iniciar a coleta de dados.
     if procura_imagem(imagem='img_planilha/bt_filtro.png', continuar_exec=True, area= (1468, 400, 200, 200)) is not False:
         print('--- Já está filtrado, continuando!')
+        time.sleep(2)
     else:
         print('--- Não está filtrado, executando o filtro!')
         bot.click(procura_imagem(imagem='img_planilha/bt_setabaixo.png', area=(1529, 459, 75, 75)))
@@ -73,6 +74,10 @@ def valida_lancamento():
         # Trata os dados coletados em "dados_planilha"
         dados_planilha = coleta_planilha()
         chave_xml = dados_planilha[4].strip()
+        if len(chave_xml) < 10:
+            exit(bot.alert('chave_xml invalida'))
+        
+        
         # -------------------------------------- Lançamento Topcon --------------------------------------
         print('--- Abrindo TopCompras para iniciar o lançamento')
         ahk.win_activate('TopCompras', title_match_mode=2)
@@ -102,15 +107,15 @@ def valida_lancamento():
             elif procura_imagem(imagem='img_topcon/naoencontrado_xml.png', limite_tentativa= 1, continuar_exec=True) is not False:
                 bot.press('ENTER')
                 marca_lancado(texto_marcacao='Aguardando_SEFAZ')
-                return
+                break
             elif procura_imagem(imagem='img_topcon/chave_44digitos.png', limite_tentativa= 1, continuar_exec=True) is not False:
                 bot.press('ENTER')
                 marca_lancado(texto_marcacao='Chave_invalida')
-                return
+                break
             elif procura_imagem(imagem='img_topcon/nfe_cancelada.png', limite_tentativa= 1, continuar_exec=True) is not False:
                 bot.press('ENTER')
                 marca_lancado(texto_marcacao='NFE_CANCELADA')
-                return
+                break
             tentativa += 1
         if tentativa >= 15:
             exit('Rodou 10 verificações e não achou nenhuma tela, aumentar o tempo')

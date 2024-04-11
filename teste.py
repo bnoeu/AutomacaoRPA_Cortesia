@@ -10,6 +10,7 @@ from ahk import AHK
 import pyautogui as bot
 from selenium import webdriver
 from funcoes import procura_imagem, extrai_txt_img, marca_lancado
+from valida_pedido import valida_pedido
 
 # --- Definição de parametros
 ahk = AHK()
@@ -31,6 +32,5 @@ ahk.win_activate('TopCompras', title_match_mode= 2)
 #ahk.win_activate('db_alltrips', title_match_mode= 2)
 #! Utilizado apenas para estar trechos de codigo.
 
-qtd_ton = extrai_txt_img(imagem='img_toneladas.png', area_tela=(198, 167, 75, 25)).strip()
-qtd_ton = qtd_ton.replace(",", ".")
-print(F'--- Texto coletado da quantidade: {qtd_ton}')
+texto = extrai_txt_img(imagem='item_nota.png',area_tela=(170, 400, 280, 30))
+print(texto)

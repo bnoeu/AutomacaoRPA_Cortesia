@@ -18,20 +18,24 @@ transportador = "111594"
 chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
 
 def valida_pedido(acabou_pedido=False):
-    bot.PAUSE = 0.3
+    bot.PAUSE = 0.5
     tentativa = 0
     item_pedido = []
-    PEDRA_1 = ['PEDRA 01', 'PEDRA DI', 'BRITADA 01', 'PEDRA 1', 'PEDRA BRITADA 01', 'PEDRAT', 'PEDRA BRITADA 1', 'BRITADA 1', 'BRITA 01', 'BRITA 1']
+    PEDRA_1 = ['PEDRA 01', 'PEDRA DI', 'BRITADA 01', 'PEDRA 1', 'PEDRA BRITADA 01', 'PEDRAT', 'PEDRA BRITADA 1', 'BRITADA 1', 'BRITA 01', 'BRITA 1', 'BRITA NR "01"']
     PO_PEDRA = ['PO DE PEDRA', 'AREA INDUSTRIAL', 'INDUSTRIAL']
     BRITA_0 = ['BRITA 0', 'PEDRISCO LIMPO', 'LAVAD']
-    CIMENTO_CP2 = ['-40', 'E-40', '£-40', 'II-E-40', 'CIMENTO PORTLAND CP II-E-40 RS |', 'CIMENTO PORTLAND CP IIE-40 RS']
+    CIMENTO_CP2 = ['-40', 'E-40', '£-40', 'II-E-40', 'CIMENTO PORTLAND CP II-E-40 RS |', 'CIMENTO PORTLAND CP IIE-40 RS', 'CIMENTO PORTLAND CP IIE-40 RS |']
+    AREIA_RIO = ['AREIA LAVADA MEDIA']
 
     #Força a abertura da tela de vinculação de item versus nota
+    time.sleep(1)
     ahk.win_activate('Vinculação Itens da Nota', title_match_mode = 2)
     ahk.win_wait_active('Vinculação Itens da Nota', title_match_mode = 2, timeout= 20)
-
+    time.sleep(2)
+    
     #Coleta o texto do campo "item XML", que é o item a constar na nota fiscal, e com base nisso, trata o dado
     texto = extrai_txt_img(imagem='item_nota.png',area_tela=(170, 400, 280, 30))
+    print(F'Texto extraido: {texto}')
     if texto in PEDRA_1:
         print('Contém PEDRA 1')
         item_pedido.append('PED_BRITA1.jpg')
@@ -56,6 +60,12 @@ def valida_pedido(acabou_pedido=False):
     elif 'QUARTZ' in texto:
         print('Contém AREIA QUARTZO')
         item_pedido.append('PED_AREIAFINA.png')
+    elif 'AREIA ARTIFICIAL' in texto:
+        print('Contém AREIA ARTIFICIAL')
+        item_pedido.append('PED_AREIABRITA.png')
+    elif texto in AREIA_RIO:
+        print('Contém AREIA DE RIO')
+        item_pedido.append('PED_AREIARIO.png')
     else:
         exit(bot.alert(F'Texto não padronizado, verificar script, texto: {texto.strip()}'))
         
