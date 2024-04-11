@@ -5,15 +5,14 @@ import time
 import datetime
 import cv2
 #import pygetwindow as gw
-import pytesseract
 import numpy as np
+import pytesseract
 from ahk import AHK
 import pyautogui as bot
 
 
 # --- Definição de parametros
 ahk = AHK()
-bot.PAUSE = 0.1  # Pausa padrão do bot
 posicao_img = 0  # Define a variavel para utilização global dela.
 continuar = True
 bot.FAILSAFE = True
@@ -36,7 +35,7 @@ def procura_imagem(imagem, limite_tentativa=6, area=(0, 0, 1920, 1080), continua
 
     #Caso seja para continuar
     if (continuar_exec is True) and (posicao_img is None):
-        print(F'' + 'Não encontrada, continuando execução pois o parametro "continuar_exec" está habilitado')
+        print('' + 'Não encontrada, continuando execução pois o parametro "continuar_exec" está habilitado')
         return False
     if tentativa >= limite_tentativa:
         print('--- FECHANDO PLANILHA PARA EVITAR ERROS')
@@ -111,24 +110,25 @@ def extrai_txt_img(imagem, area_tela):
     img = cv2.imread('img_geradas/' + imagem)
 
     # Define uma porcentagem de escala para redimensionar a imagem
-    porce_escala = 300
-    largura = int(img.shape[1] * porce_escala / 100)
-    altura = int(img.shape[0] * porce_escala / 100)
+    porce_escala = 700
+    largura = int(img.shape[1] * porce_escala / 90)
+    altura = int(img.shape[0] * porce_escala / 90)
     nova_dim = (largura, altura)
-    # Redimensiona a imagem
-    img = cv2.resize(img, nova_dim, interpolation=cv2.INTER_AREA)
+    img = cv2.resize(img, nova_dim, interpolation=cv2.INTER_AREA) # Redimensiona a imagem
 
     # Converte a imagem para tons de cinza
     img_cinza = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    blur = cv2.GaussianBlur(img_cinza,(5,5),0)
+    
+    #Adiciona um blur
     
     #Smoothing 
     kernel = np.ones((5,5),np.float32)/50
-    smooth = cv2.filter2D(img_cinza,-1,kernel)
+    smooth = cv2.filter2D(blur,-1,kernel)
 
     # Aplica uma operação de limiarização para binarizar a imagem
-    blur = cv2.GaussianBlur(smooth,(5,5),0)
-    img_thresh = cv2.threshold(blur, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)[1]
-    
+    img_thresh = cv2.threshold(smooth, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)[1]
+    cv2.imwrite('img_thresh.png', img_thresh)
 
     '''
     #Exibe as imagens em caso de debug

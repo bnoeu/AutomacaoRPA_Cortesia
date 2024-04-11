@@ -27,13 +27,10 @@ time.sleep(1)
 #! Variavel de teste
 cracha_mot = '112251'
 
-#ahk.win_activate('TopCompras', title_match_mode= 2)
+ahk.win_activate('TopCompras', title_match_mode= 2)
 #ahk.win_activate('db_alltrips', title_match_mode= 2)
 #! Utilizado apenas para estar trechos de codigo.
-navegador = webdriver.ChromeOptions()
-navegador = webdriver.Chrome()
-navegador.add_argument("--start-maximized")
 
-
-
-navegador.get("www.selenium.dev")
+qtd_ton = extrai_txt_img(imagem='img_toneladas.png', area_tela=(198, 167, 75, 25)).strip()
+qtd_ton = qtd_ton.replace(",", ".")
+print(F'--- Texto coletado da quantidade: {qtd_ton}')

@@ -24,7 +24,7 @@ def valida_pedido(acabou_pedido=False):
     PEDRA_1 = ['PEDRA 01', 'PEDRA DI', 'BRITADA 01', 'PEDRA 1', 'PEDRA BRITADA 01', 'PEDRAT', 'PEDRA BRITADA 1', 'BRITADA 1', 'BRITA 01', 'BRITA 1']
     PO_PEDRA = ['PO DE PEDRA', 'AREA INDUSTRIAL', 'INDUSTRIAL']
     BRITA_0 = ['BRITA 0', 'PEDRISCO LIMPO', 'LAVAD']
-    CP2 = ['-40', 'E-40', '£-40']
+    CIMENTO_CP2 = ['-40', 'E-40', '£-40', 'II-E-40', 'CIMENTO PORTLAND CP II-E-40 RS |', 'CIMENTO PORTLAND CP IIE-40 RS']
 
     #Força a abertura da tela de vinculação de item versus nota
     ahk.win_activate('Vinculação Itens da Nota', title_match_mode = 2)
@@ -44,7 +44,7 @@ def valida_pedido(acabou_pedido=False):
     elif ('AREIA PRIME' in texto) or ('AREA PRIME' in texto):
         print('Contém AREIA PRIME')
         item_pedido.append('PED_AREIAPRIME.png')
-    elif texto in CP2:
+    elif texto in CIMENTO_CP2:
         print(F'Contém Cimento CP II E 40, texto coletado: {texto}')
         item_pedido.append('PED_CPIIE40.png')
     elif ('CP 1ll' in texto) or ('CP lll' in texto) or ('CP 111' in texto) or ('1-40' in texto):
@@ -104,4 +104,3 @@ def valida_pedido(acabou_pedido=False):
             return acabou_pedido
         else:
             break
-valida_pedido()

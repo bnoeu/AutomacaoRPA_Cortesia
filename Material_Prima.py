@@ -2,14 +2,12 @@
 # Para utilização na Cortesia Concreto.
 
 import time
-# import cv2
-# import pygetwindow as gw
 import pytesseract
 from ahk import AHK
 from datetime import date
 from funcoes import marca_lancado, procura_imagem, extrai_txt_img
+from acoes_planilha import valida_lancamento
 from valida_pedido import valida_pedido
-from coleta_planilha import coleta_planilha
 import pyautogui as bot
 
 
@@ -21,59 +19,7 @@ bot.FAILSAFE = True
 tempo_inicio = time.time()
 chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
 pytesseract.pytesseract.tesseract_cmd = r"C:\tesseract\tesseract.exe"
-
-#! Funções
-
-
-def acoes_planilha():
-    #time.sleep(0.5)
-    validou_xml = False
-    while validou_xml is False:
-        # * Trata os dados coletados em "dados_planilha"
-        dados_planilha = coleta_planilha()
-        bot.PAUSE = 1.3
-        chave_xml = dados_planilha[4].strip()
-        # * -------------------------------------- Lançamento Topcon --------------------------------------
-        print('--- Abrindo TopCompras para iniciar o lançamento')
-        ahk.win_activate('TopCompras', title_match_mode=2)
-        if ahk.win_is_active('TopCompras', title_match_mode=2):
-            print('Tela compras está maximizada! Iniciando o programa')
-        else:
-            exit(bot.alert('Tela de Compras não abriu.'))
-        # Processo de lançamento
-        bot.press('F2')
-        bot.press('F3', presses=2, interval=0.5)
-        time.sleep(1)
-        bot.doubleClick(558, 235, interval = 2)  # Clica dentro do campo para inserir a chave XML
-        bot.write(chave_xml)
-        bot.press('ENTER')
-        ahk.win_wait_active('TopCompras')
-        tentativa = 0
-        while tentativa < 10:
-            if procura_imagem(imagem='img_topcon/botao_sim.jpg', limite_tentativa= 1, continuar_exec=True) is not False:
-                bot.click(procura_imagem(imagem='img_topcon/botao_sim.jpg', limite_tentativa=1, continuar_exec=True))
-                validou_xml is True
-                return dados_planilha
-            elif procura_imagem(imagem='img_topcon/chave_invalida.png', limite_tentativa= 1, continuar_exec=True) is not False:
-                print('--- Nota já lançada, marcando planilha!')
-                bot.press('ENTER')
-                marca_lancado(texto_marcacao='Lancado_Manual')
-                break
-            elif procura_imagem(imagem='img_topcon/naoencontrado_xml.png', limite_tentativa= 1, continuar_exec=True) is not False:
-                bot.press('ENTER')
-                marca_lancado(texto_marcacao='Aguardando_SEFAZ')
-                programa_principal()
-            elif procura_imagem(imagem='img_topcon/chave_44digitos.png', limite_tentativa= 1, continuar_exec=True) is not False:
-                bot.press('ENTER')
-                marca_lancado(texto_marcacao='Chave_invalida')
-                programa_principal()
-            elif procura_imagem(imagem='img_topcon/nfe_cancelada.png', limite_tentativa= 1, continuar_exec=True) is not False:
-                bot.press('ENTER')
-                marca_lancado(texto_marcacao='NFE_CANCELADA')
-                programa_principal()
-            tentativa += 1
-        if tentativa >= 15:
-            exit('Rodou 10 verificações e não achou nenhuma tela, aumentar o tempo')
+bot.PAUSE = 1
 
 
 # * ---------------------------------------------------------------------------------------------------
@@ -82,8 +28,8 @@ def acoes_planilha():
 def programa_principal():
     while True:  # ! Programa principal
         acabou_pedido = True
-        while acabou_pedido is True:
-            dados_planilha = acoes_planilha()
+        while acabou_pedido is True: #Verifica se o pedido está valido.
+            dados_planilha = valida_lancamento()
             cracha_mot = dados_planilha[0]
             silo1 = dados_planilha[1]
             silo2 = dados_planilha[2]
@@ -115,10 +61,10 @@ def programa_principal():
             print(F'Chegou até aqui acabou pedido = {acabou_pedido}')
         # * -------------------------------------- PREENCHE DATA --------------------------------------
         ahk.win_activate('TopCompras', title_match_mode=2)
-        #ahk.win_wait_active('TopCompras', title_match_mode=2)
+        # ahk.win_wait_active('TopCompras', title_match_mode=2)
         bot.click(900, 201)  # Clica no campo filial de estoque
         bot.write(filial_estoq)
-        
+
         # Confirma a informação da nova filial de estoque
         bot.press('ENTER', presses=1)
         time.sleep(1)
@@ -131,33 +77,34 @@ def programa_principal():
         # Altera o campo centro de custo, para o dado coletado
         bot.write(centro_custo)
 
-        #Aguarda aparecer o campo "cod_desc"
+        # Aguarda aparecer o campo "cod_desc"
         print('--- Aguarda aparecer o campo cod_desc')
-        while procura_imagem(imagem='img_topcon/cod_desc.png', continuar_exec= True) is False:
+        while procura_imagem(imagem='img_topcon/cod_desc.png', continuar_exec=True) is False:
             print('--- Aguardando campo aparecer')
             time.sleep(2)
         bot.press('ENTER')
 
-        #Aguarda até SUMIR o campo "cod_desc"
+        # Aguarda até SUMIR o campo "cod_desc"
         print('--- Aguarda até SUMIR o campo "cod_desc"')
-        while procura_imagem(imagem='img_topcon/cod_desc.png', continuar_exec= True) is not False:
+        while procura_imagem(imagem='img_topcon/cod_desc.png', continuar_exec=True) is not False:
             time.sleep(2)
             print('--- Aguardando campo sumir')
 
-        
-        bot.doubleClick(105, 515, interval= 3)  # Clica no campo "Valores Totais"
-        
+        # Clica no campo "Valores Totais"
+        bot.doubleClick(105, 515, interval=3)
+
         # * -------------------------------------- VALIDAÇÃO TRANSPORTADOR --------------------------------------
         print(F'--- PREENCHENDO TRANSPORTADOR: {cracha_mot}')
         bot.click(317, 897)  # Campo transportador
         time.sleep(2)
-        procura_imagem(imagem='img_topcon/campo_re_0.png', limite_tentativa=20, confianca = 0.5)
+        procura_imagem(imagem='img_topcon/campo_re_0.png',
+                       limite_tentativa=20, confianca=0.5)
         time.sleep(2)
         bot.write(cracha_mot, interval=0.10)  # ID transportador
         bot.press('enter')
         time.sleep(1)
 
-        #Caso o transportador seja invalido
+        # Caso o transportador seja invalido
         ''' #! NÃO ESTÁ FUNCIONANDO, ESTÁ MARCANDO TODAS COMO "TRANSPORTADOR"
         while procura_imagem(imagem='img_topcon/nome_transportador.png', limite_tentativa=20, confianca = 0.5) is not False:
             print('--- Aguardando aparecer o nome do transportador ou tela de transportador não localizado')
@@ -168,24 +115,26 @@ def programa_principal():
                 programa_principal()
         '''
 
-
-        #Verifica se o campo da placa ficou preenchido
+        # Verifica se o campo da placa ficou preenchido
         bot.press('enter')
         if procura_imagem('img_topcon/campo_placa.png', continuar_exec=True) is not False:
-            bot.click(procura_imagem('img_topcon/campo_placa.png', continuar_exec=True))
+            bot.click(procura_imagem(
+                'img_topcon/campo_placa.png', continuar_exec=True))
             bot.write('XXX0000')
             bot.press('ENTER')
         else:
             print('--- Não achou o campo ou já está preenchido')
 
         # * -------------------------------------- Aba Pedido --------------------------------------
-        bot.doubleClick(procura_imagem(imagem='img_topcon/produtos_servicos.png', limite_tentativa=8))
-        bot.click(procura_imagem(imagem='img_topcon/botao_alterar.png',limite_tentativa=8, area=(100, 839, 300, 400)))
-        
-        #Aguardando aparecer o botão de "confirma", para prosseguir com as ações.
+        bot.doubleClick(procura_imagem(
+            imagem='img_topcon/produtos_servicos.png', limite_tentativa=8))
+        bot.click(procura_imagem(imagem='img_topcon/botao_alterar.png',
+                  limite_tentativa=8, area=(100, 839, 300, 400)))
+
+        # Aguardando aparecer o botão de "confirma", para prosseguir com as ações.
         procura_imagem(imagem='img_topcon/confirma.png')
-        
-        #Após encontrar o botão, 
+
+        # Após encontrar o botão,
         qtd_ton = extrai_txt_img(imagem='img_toneladas.png', area_tela=(198, 167, 75, 25)).strip()
         qtd_ton = qtd_ton.replace(",", ".")
         print(F'--- Texto coletado da quantidade: {qtd_ton}')
@@ -194,7 +143,8 @@ def programa_principal():
         if silo2 != '':  # realiza a divisão da quantidade de cimento
             qtd_ton = str((qtd_ton / 2))
             qtd_ton = qtd_ton.replace(".", ",")
-            print(F'--- Foi informado dois silos, preenchendo... {silo1} e {silo2}, quantidade: {qtd_ton}')
+            print(
+                F'--- Foi informado dois silos, preenchendo... {silo1} e {silo2}, quantidade: {qtd_ton}')
             bot.write(silo1)
             bot.press('ENTER')
             bot.write(str(qtd_ton))
@@ -215,24 +165,26 @@ def programa_principal():
         # * -------------------------------------- Conclusão lançamento --------------------------------------
         bot.click(procura_imagem(imagem='img_topcon/confirma.png'))
         bot.press('pagedown')  # Conclui o lançamento
-        
-        #Espera até que o topcom volte a responder
+
+        # Espera até que o topcom volte a responder
         print('--- Aguardando TopCompras Retornar')
         while ahk.win_exists('Não está respondendo'):
             time.sleep(1)
 
-        #Espera até aparecer a tela de operação realizada, e quando ela aparecer, clica no botão OK
+        # Espera até aparecer a tela de operação realizada, e quando ela aparecer, clica no botão OK
         while procura_imagem(imagem='img_topcon/operacao_realizada.png', continuar_exec=True) is False:
             time.sleep(1)
         else:
-            bot.click(procura_imagem(imagem='img_topcon/botao_ok.jpg', continuar_exec=True))
-        
-        #Verifica se a tela "Deseja processar" apareceu, caso sim, procede para emissão da NFE.
+            bot.click(procura_imagem(
+                imagem='img_topcon/botao_ok.jpg', continuar_exec=True))
+
+        # Verifica se a tela "Deseja processar" apareceu, caso sim, procede para emissão da NFE.
         ahk.win_wait_active('TopCom', timeout=10, title_match_mode=2)
         ahk.win_activate('TopCom', title_match_mode=2)
         if procura_imagem('img_topcon/deseja_processar.png', continuar_exec=True, limite_tentativa=4) is not False:
-            bot.click(procura_imagem('img_topcon/bt_sim.png', continuar_exec=True, limite_tentativa=4))
-            while True: #Aguardar o .PDF
+            bot.click(procura_imagem('img_topcon/bt_sim.png',
+                      continuar_exec=True, limite_tentativa=4))
+            while True:  # Aguardar o .PDF
                 try:
                     ahk.win_wait('.pdf', title_match_mode=2, timeout=2)
                     time.sleep(0.5)
@@ -249,6 +201,8 @@ def programa_principal():
 
         # * -------------------------------------- Marca planilha --------------------------------------
         marca_lancado(texto_marcacao='Lancado_RPA')
+
+
 programa_principal()
 
 # TODO --- Caso o pedido acabe, avisar ao Mateus
