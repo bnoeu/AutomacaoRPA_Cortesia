@@ -112,6 +112,7 @@ def valida_pedido(acabou_pedido=False):
             marca_lancado('Erro_Pedido')
             acabou_pedido = True
             return acabou_pedido
+        '''
         if vazio is False:  # Caso já tenha realiza duas execuções
             bot.click(procura_imagem(imagem='img_topcon/bt_cancela.png', confianca= 0.6))
             marca_lancado('Erro_Pedido')
@@ -119,3 +120,4 @@ def valida_pedido(acabou_pedido=False):
             return acabou_pedido
         else:
             break
+        '''
