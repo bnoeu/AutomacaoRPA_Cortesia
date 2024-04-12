@@ -93,39 +93,34 @@ def programa_principal():
         # Aguarda aparecer o campo "cod_desc"
         print('--- Aguarda aparecer o campo cod_desc')
         while procura_imagem(imagem='img_topcon/cod_desc.png', continuar_exec=True) is False:
-            print('--- Aguardando campo aparecer')
-            time.sleep(4)
+            time.sleep(1)
         bot.press('ENTER')
 
         # Aguarda até SUMIR o campo "cod_desc"
         print('--- Aguarda até SUMIR o campo "cod_desc"')
         while procura_imagem(imagem='img_topcon/cod_desc.png', continuar_exec=True) is not False:
-            time.sleep(4)
-            print('--- Aguardando campo sumir')
+            time.sleep(1)
+        else: #Sumiu, continuando a execução
+            time.sleep(2)
 
         # Clica no campo "Valores Totais"
-        bot.doubleClick(105, 515, interval=5)
+        bot.doubleClick(105, 515, interval= 1)
 
         # * -------------------------------------- VALIDAÇÃO TRANSPORTADOR --------------------------------------
         print(F'--- PREENCHENDO TRANSPORTADOR: {cracha_mot}')
         bot.click(317, 897)  # Campo transportador
-        time.sleep(5)
         procura_imagem(imagem='img_topcon/campo_re_0.png', limite_tentativa=20, confianca=0.5)
-        time.sleep(2)
+        time.sleep(5)
         bot.write(cracha_mot, interval=0.10)  # ID transportador
         bot.press('enter')
         time.sleep(1)
 
-        # Caso o transportador seja invalido
-        ''' #! NÃO ESTÁ FUNCIONANDO, ESTÁ MARCANDO TODAS COMO "TRANSPORTADOR"
-        while procura_imagem(imagem='img_topcon/nome_transportador.png', limite_tentativa=20, confianca = 0.5) is not False:
-            print('--- Aguardando aparecer o nome do transportador ou tela de transportador não localizado')
-            if procura_imagem(imagem='img_topcon/nome_transportador.png', limite_tentativa=20, confianca = 0.5) is not False:
-                print('Transportador não localizado! reiniciando o processo e marcando')
-                bot.press('ENTER')
-                marca_lancado(texto_marcacao= 'Transportador')
-                programa_principal()
-        '''
+        #Verifica 15 vezes se apareceu a tela "transportador incorreto", caso apareça, tratar.
+        if procura_imagem(imagem='img_topcon/transportador_incorreto.png', limite_tentativa=10, continuar_exec= True) is not False:
+            print('--- Transportador incorreto!')
+            bot.press('ENTER')
+            marca_lancado(texto_marcacao='RE_incorreto')
+            programa_principal()
 
         # Verifica se o campo da placa ficou preenchido
         bot.press('enter')
@@ -140,9 +135,9 @@ def programa_principal():
         # * -------------------------------------- Aba Pedido --------------------------------------
         bot.doubleClick(procura_imagem(
             imagem='img_topcon/produtos_servicos.png', limite_tentativa=8))
-        bot.click(procura_imagem(imagem='img_topcon/botao_alterar.png',
-                  limite_tentativa=8, area=(100, 839, 300, 400)))
-
+        bot.click(procura_imagem(imagem='img_topcon/botao_alterar.png',limite_tentativa=8, area=(100, 839, 300, 400)))
+        time.sleep(3)
+        
         # Aguardando aparecer o botão de "confirma", para prosseguir com as ações.
         procura_imagem(imagem='img_topcon/confirma.png')
 

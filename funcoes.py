@@ -26,7 +26,7 @@ def procura_imagem(imagem, limite_tentativa=6, area=(0, 0, 1920, 1080), continua
     tentativa = 0   
     print(F'--- Tentando encontrar: {imagem}', end= ' ')
     while tentativa < limite_tentativa:
-        time.sleep(0.5)
+        time.sleep(0.3)
         posicao_img = bot.locateCenterOnScreen(imagem, grayscale= True, confidence= confianca, region= area)
         if posicao_img is not None:
             print(F'Encontrou na posição: {posicao_img}')
@@ -103,7 +103,7 @@ def marca_lancado(texto_marcacao='Lancado'):
 
 def extrai_txt_img(imagem, area_tela):
     # Captura uma screenshot da área especificada da tela
-    bot.screenshot('img_geradas/' + imagem, region=area_tela)
+    img = bot.screenshot('img_geradas/' + imagem, region=area_tela)
     print(F'--- Tirou print da imagem: {imagem} ----')
 
     # Lê a imagem capturada usando o OpenCV

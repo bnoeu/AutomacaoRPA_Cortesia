@@ -10,7 +10,9 @@ from ahk import AHK
 import pyautogui as bot
 from selenium import webdriver
 from funcoes import procura_imagem, extrai_txt_img, marca_lancado
+from acoes_planilha import valida_lancamento
 from valida_pedido import valida_pedido
+from Material_Prima import programa_principal
 
 # --- Definição de parametros
 ahk = AHK()
@@ -32,5 +34,6 @@ ahk.win_activate('TopCompras', title_match_mode= 2)
 #ahk.win_activate('db_alltrips', title_match_mode= 2)
 #! Utilizado apenas para estar trechos de codigo.
 
-texto = extrai_txt_img(imagem='item_nota.png',area_tela=(170, 400, 280, 30))
-print(texto)
+        
+
+

@@ -97,7 +97,7 @@ def valida_lancamento():
         while tentativa < 10:
             if procura_imagem(imagem='img_topcon/botao_sim.jpg', limite_tentativa= 1, continuar_exec=True) is not False:
                 bot.click(procura_imagem(imagem='img_topcon/botao_sim.jpg', limite_tentativa=1, continuar_exec=True))
-                print('Parte onde informa que validou o XML')
+                print('--- XML Validado, indo para verificação do pedido\n')
                 return dados_planilha
             elif procura_imagem(imagem='img_topcon/chave_invalida.png', limite_tentativa= 1, continuar_exec=True) is not False:
                 print('--- Nota já lançada, marcando planilha!')
