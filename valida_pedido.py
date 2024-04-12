@@ -78,16 +78,19 @@ def valida_pedido(acabou_pedido=False):
     while tentativa <= 2:
         vazio = ''
         print(F'--- Tentativa: {tentativa}')
-        if tentativa > 1:
+        if tentativa > 0:
+            print('--- Baixando a lista dos pedidos')
             bot.click(744, 230) #Clica para descer o menu e exibir o resto das opções 
-            exit(F'Tentativa: {tentativa}')
+        #Tenta encontrar a imagem do pedido e salva as posições onde encontrar
+        time.sleep(2)
         posicoes = bot.locateAllOnScreen('img_pedidos/' + item_pedido[0], confidence=0.9, grayscale=True, region=(0, 0, 850, 400))
-        time.sleep(1)
+        print('--- Procurando nas posições os pedidos')
         for pos in posicoes:  # Tenta em todos pedidos encontrados
             print(F'Achou o {texto} na posição {pos}')
             bot.doubleClick(pos)  # Marca o pedido encontrado
             bot.click(procura_imagem(imagem='img_topcon/localizar.png'))
             time.sleep(1)
+
 
             vazio = verifica_ped_vazio(texto=texto, pos=pos)
             print(F'--- Valor campo "vazio": {vazio}')
@@ -107,17 +110,13 @@ def valida_pedido(acabou_pedido=False):
                 print(F'--- Pedido validado, saindo do loop dos pedidos encontrados, valor do campo: {vazio}')
                 break
             tentativa += 1
-        else:
-            bot.click(procura_imagem(imagem='img_topcon/bt_cancela.png', confianca= 0.6))
-            marca_lancado('Erro_Pedido')
-            acabou_pedido = True
-            return acabou_pedido
-        '''
-        if vazio is False:  # Caso já tenha realiza duas execuções
-            bot.click(procura_imagem(imagem='img_topcon/bt_cancela.png', confianca= 0.6))
-            marca_lancado('Erro_Pedido')
-            acabou_pedido = True
-            return acabou_pedido
-        else:
+        
+        #Marcou o pedido, saindo dos loop
+        if vazio is True: 
             break
-        '''
+    else:
+        if vazio is False:
+            bot.click(procura_imagem(imagem='img_topcon/bt_cancela.png', confianca= 0.6))
+            marca_lancado('Erro_Pedido')
+            acabou_pedido = True
+            return acabou_pedido

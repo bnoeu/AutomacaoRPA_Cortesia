@@ -53,7 +53,7 @@ def coleta_planilha():
     # * Coleta os dados da linha atual
     dados_planilha = []
     print('--- Copiando dados e formatando')
-    time.sleep(1)
+    time.sleep(3)
     bot.click(100, 510)  # Clica na primeira linha e coluna da planilha
     for n in range(0, 7, 1):  # Copia dados dos 6 campos
         while True:
