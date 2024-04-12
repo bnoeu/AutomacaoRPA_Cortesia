@@ -9,7 +9,7 @@ from funcoes import marca_lancado, procura_imagem, extrai_txt_img
 from acoes_planilha import valida_lancamento
 from valida_pedido import valida_pedido
 import pyautogui as bot
-
+import sqlite3
 
 # --- Definição de parametros
 ahk = AHK()
@@ -17,10 +17,23 @@ posicao_img = 0  # Define a variavel para utilização global dela.
 continuar = True
 bot.FAILSAFE = True
 tempo_inicio = time.time()
+
 chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
 pytesseract.pytesseract.tesseract_cmd = r"C:\tesseract\tesseract.exe"
 bot.PAUSE = 1.2
 
+'''
+#Cria a conexão com o banco de dados
+con = sqlite3.connect("informacoes.db")
+
+#Cursor para realizar comandos dentro do banco de dados
+cur = con.cursor()
+
+#Utilizando o cursor, executa a ação da criação da tabela informacoes, com as seguintes colunas: XML, CRACHA, TEMPO
+#cur.execute("CREATE TABLE informacoes(xml, cracha, tempo)")
+#! Continuar tutorial de banco de dados https://docs.python.org/3/library/sqlite3.html
+exit()
+'''
 
 # * ---------------------------------------------------------------------------------------------------
 # *                                        Inicio do Programa
@@ -91,14 +104,13 @@ def programa_principal():
             print('--- Aguardando campo sumir')
 
         # Clica no campo "Valores Totais"
-        bot.doubleClick(105, 515, interval=3)
+        bot.doubleClick(105, 515, interval=5)
 
         # * -------------------------------------- VALIDAÇÃO TRANSPORTADOR --------------------------------------
         print(F'--- PREENCHENDO TRANSPORTADOR: {cracha_mot}')
         bot.click(317, 897)  # Campo transportador
-        time.sleep(2)
-        procura_imagem(imagem='img_topcon/campo_re_0.png',
-                       limite_tentativa=20, confianca=0.5)
+        time.sleep(5)
+        procura_imagem(imagem='img_topcon/campo_re_0.png', limite_tentativa=20, confianca=0.5)
         time.sleep(2)
         bot.write(cracha_mot, interval=0.10)  # ID transportador
         bot.press('enter')
