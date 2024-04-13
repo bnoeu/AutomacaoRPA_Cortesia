@@ -9,7 +9,7 @@ from funcoes import marca_lancado, procura_imagem, extrai_txt_img
 from acoes_planilha import valida_lancamento
 from valida_pedido import valida_pedido
 import pyautogui as bot
-import sqlite3
+#import sqlite3
 
 # --- Definição de parametros
 ahk = AHK()
@@ -39,7 +39,7 @@ exit()
 # *                                        Inicio do Programa
 # * ---------------------------------------------------------------------------------------------------
 def programa_principal():
-    while True:  # ! Programa principal
+    while True:  # ! Programa principal.
         acabou_pedido = True
         while acabou_pedido is True: #Verifica se o pedido está valido.
             dados_planilha = valida_lancamento()
@@ -150,8 +150,7 @@ def programa_principal():
         if silo2 != '':  # realiza a divisão da quantidade de cimento
             qtd_ton = str((qtd_ton / 2))
             qtd_ton = qtd_ton.replace(".", ",")
-            print(
-                F'--- Foi informado dois silos, preenchendo... {silo1} e {silo2}, quantidade: {qtd_ton}')
+            print(F'--- Foi informado dois silos, preenchendo... {silo1} e {silo2}, quantidade: {qtd_ton}')
             bot.write(silo1)
             bot.press('ENTER')
             bot.write(str(qtd_ton))
