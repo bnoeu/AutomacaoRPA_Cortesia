@@ -23,7 +23,7 @@ bot.PAUSE = 1.2
 
 def valida_lancamento():
     def coleta_planilha():
-        bot.PAUSE = 0.4
+        bot.PAUSE = 0.2
         print('--- Abrindo planilha - COLETA_PLANILHA')
         ahk.win_activate('db_alltrips', title_match_mode= 2)
 
@@ -31,30 +31,50 @@ def valida_lancamento():
         if procura_imagem(imagem='img_planilha/botao_exibicaoverde.png', continuar_exec=True) is False:
             bot.click(procura_imagem(imagem='img_planilha/botao_edicao.png'))
             bot.click(procura_imagem(imagem='img_planilha/botao_exibicao.png'))
+
+            #Aguarda até aparecer o botão do modo "exibição"
+            while procura_imagem(imagem='img_planilha/botao_exibicaoverde.png', continuar_exec=True) is False: #Aguarda enquanto não achar o botão
+                time.sleep(0.1)
+            else:
+                print('--- Alterado para o modo exibição, continuando.')
+            exit()
+            0
         else: #Caso não esteja no modo "Edição"
             print('--- A planilha já está no modo "Exibição", continuando processo')
 
         #Altera o filtro para "vazio", para iniciar a coleta de dados.
         if procura_imagem(imagem='img_planilha/bt_filtro.png', continuar_exec=True, area= (1468, 400, 200, 200)) is not False:
             print('--- Já está filtrado, continuando!')
-            time.sleep(2)
         else:
             print('--- Não está filtrado, executando o filtro!')
             bot.click(procura_imagem(imagem='img_planilha/bt_setabaixo.png', area=(1529, 459, 75, 75)))
+<<<<<<< HEAD
             
             #Caso não apareça o botão "Selecionar tudo" clica em "limpar filtro"
+=======
+
+            #Caso não apareça o botão "Selecionar tudo" clica em "limpar filtro" e executa tudo novamente.
+>>>>>>> bd0b452094036a7972f64d01887334bb4277e777
             if procura_imagem(imagem='img_planilha/botao_selecionartudo.png', confianca= 0.5, continuar_exec= True) is False:
                 bot.click(procura_imagem(imagem='img_planilha/bt_limparFiltro.png', confianca= 0.5))
                 coleta_planilha()
-            else:
+            else: #Se tudo estiver ok, prossegue aplicando o filtro nas notas vazias. 
                 bot.click(procura_imagem(imagem='img_planilha/botao_selecionartudo.png', confianca= 0.5))
                 bot.click(procura_imagem(imagem='img_planilha/bt_vazias.png', confianca= 0.5))
                 bot.click(procura_imagem(imagem='img_planilha/bt_aplicar.png', confianca= 0.4))
+                print('--- Filtrado pelas notas vazias!')
+
+                #Aguarda aparecer o botão do filtro, para confirmar que está filtrado! 
+                while procura_imagem(imagem='img_planilha/bt_filtro.png', continuar_exec=True, area= (1468, 400, 200, 200)) is False:
+                    print('--- Aguardando o botão do filtro na coluna "Status" ')
+                    time.sleep(0.1)
+                else:
+                    print('--- Filtro das notas vazias aplicado!')
         
         # * Coleta os dados da linha atual
         dados_planilha = []
         print('--- Copiando dados e formatando')
-        time.sleep(3)
+        time.sleep(2)
         bot.click(100, 510)  # Clica na primeira linha e coluna da planilha
         for n in range(0, 7, 1):  # Copia dados dos 6 campos
             while True:
@@ -67,7 +87,8 @@ def valida_lancamento():
             bot.press('right')
         print(F'--- Dados copiados com sucesso: {dados_planilha}')
         tempo_coleta = time.time() - tempo_inicio
-        print(F'\n Tempo que levou: {tempo_coleta}')
+        tempo_coleta = tempo_coleta / 60
+        print(F'\n Tempo que levou: {tempo_coleta:0f}')
         return dados_planilha
     
     #Realiza o processo de validação do lançamento.
