@@ -27,7 +27,7 @@ def valida_pedido(acabou_pedido=False):
     PO_PEDRA = ['PO DE PEDRA', 'AREA INDUSTRIAL', 'INDUSTRIAL']
     BRITA_0 = ['BRITA 0', 'PEDRISCO LIMPO', 'LAVAD']
     CIMENTO_CP2 = ['-40', 'E-40', '£-40', 'II-E-40', 'CIMENTO PORTLAND CP II-E-40 RS |', 'CIMENTO PORTLAND CP IIE-40 RS', 'CIMENTO PORTLAND CP IIE-40 RS |',
-                   "CIMENTO PORTLAND CP I'E-40 RS."]
+                   "CIMENTO PORTLAND CP I'E-40 RS.", "CIMENTO PORTLAND CP IE-40 RS"]
     AREIA_RIO = ['AREIA LAVADA MEDIA']
 
     
@@ -39,7 +39,7 @@ def valida_pedido(acabou_pedido=False):
     
     #Coleta o texto do campo "item XML", que é o item a constar na nota fiscal, e com base nisso, trata o dado
     texto = extrai_txt_img(imagem='item_nota.png',area_tela=(170, 400, 280, 30))
-    print(F'Texto extraido do campo Itens XML: {texto}')   
+    print(F'Texto extraido do campo Itens XML: {texto}')  
     
     #Com base no texto extraido, identifica qual o pedido
     if texto in PEDRA_1:

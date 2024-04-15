@@ -4,15 +4,16 @@
 import time
 #import datetime
 import pytesseract
-#import pygetwindow as gw
-#import cv2
+import pygetwindow as gw
+import cv2
 from ahk import AHK
 import pyautogui as bot
+from datetime import date
 from selenium import webdriver
+from openpyxl import load_workbook
 from funcoes import procura_imagem, extrai_txt_img, marca_lancado
 from acoes_planilha import valida_lancamento
 from valida_pedido import valida_pedido
-from Material_Prima import programa_principal
 
 # --- Definição de parametros
 ahk = AHK()
@@ -22,19 +23,31 @@ bot.FAILSAFE = True
 acabou_pedido = ''
 numero_nf = "965999"
 transportador = "111594"
-chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
+chave_xml, silo2, silo1 = '', '', ''
 pytesseract.pytesseract.tesseract_cmd = r"C:\tesseract\tesseract.exe"
 time.sleep(1)
 
 
 #! Variavel de teste
-cracha_mot = '112251'
+silo1 = 'SILO 6'
+filial_estoq = 'JAGUARE'
+centro_custo = filial_estoq
+cracha_mot = '112480'
+
 
 ahk.win_activate('TopCompras', title_match_mode= 2)
+
 #ahk.win_activate('db_alltrips', title_match_mode= 2)
 #! Utilizado apenas para estar trechos de codigo.
 
-        
-qtd_ton = extrai_txt_img(imagem='img_toneladas.png', area_tela=(198, 167, 75, 25)).strip()
-qtd_ton = qtd_ton.replace(",", ".")
-print(F'--- Texto coletado da quantidade: {qtd_ton}')
+
+texto = extrai_txt_img(imagem='item_nota.png',area_tela=(170, 400, 280, 30))
+print(F'Texto extraido do campo Itens XML: {texto}')  
+
+cimento = ['IE-40 RS', 'Bruno', 'Ana']
+
+for item in cimento:
+    if item in texto:
+        print(F'Está aqui, o item: {item}')
+    else:
+        print(item + ' não está aqui')

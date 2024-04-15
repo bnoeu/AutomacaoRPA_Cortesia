@@ -21,8 +21,6 @@ pytesseract.pytesseract.tesseract_cmd = r"C:\tesseract\tesseract.exe"
 bot.PAUSE = 1.2
 
 
-
-
 def valida_lancamento():
     def coleta_planilha():
         bot.PAUSE = 0.4
@@ -43,7 +41,7 @@ def valida_lancamento():
         else:
             print('--- Não está filtrado, executando o filtro!')
             bot.click(procura_imagem(imagem='img_planilha/bt_setabaixo.png', area=(1529, 459, 75, 75)))
-            ahk.win_activate('Sem título', title_match_mode= 2)
+            
             #Caso não apareça o botão "Selecionar tudo" clica em "limpar filtro"
             if procura_imagem(imagem='img_planilha/botao_selecionartudo.png', confianca= 0.5, continuar_exec= True) is False:
                 bot.click(procura_imagem(imagem='img_planilha/bt_limparFiltro.png', confianca= 0.5))

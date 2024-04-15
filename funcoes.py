@@ -110,18 +110,18 @@ def extrai_txt_img(imagem, area_tela):
     img = cv2.imread('img_geradas/' + imagem)
 
     # Define uma porcentagem de escala para redimensionar a imagem
-    porce_escala = 500
+    porce_escala = 600
     largura = int(img.shape[1] * porce_escala / 90)
     altura = int(img.shape[0] * porce_escala / 90)
     nova_dim = (largura, altura)
     img = cv2.resize(img, nova_dim, interpolation=cv2.INTER_AREA) # Redimensiona a imagem
 
     #Smoothing 
-    kernel = np.ones((6,6),np.float32)/50
-    smooth = cv2.filter2D(img,-1,kernel)
+    #kernel = np.ones((6,6),np.float32)/50
+    #smooth = cv2.filter2D(img,-1,kernel)
     
     #Adiciona um blur
-    blur = cv2.GaussianBlur(smooth,(7,7),0)
+    blur = cv2.GaussianBlur(img,(7,7),0)
     
     # Converte a imagem para tons de cinza
     img_cinza = cv2.cvtColor(blur, cv2.COLOR_BGR2GRAY)
@@ -132,17 +132,19 @@ def extrai_txt_img(imagem, area_tela):
     
     #cv2.imwrite('amostras\img_thresh.png', img_thresh)
     
+    
     '''
     #Exibe as imagens em caso de debug
-    cv2.imshow('img_cinza', img_cinza)
-    cv2.imshow('smooth', smooth)
+    #cv2.imshow('smooth', smooth)
     cv2.imshow('blur', blur)
     cv2.imshow('thresh', img_thresh)
+    cv2.imshow('img_cinza', img_cinza)
     cv2.waitKey()
-    time.sleep(10)
     '''
 
+
     # Utiliza o pytesseract para extrair texto da imagem binarizada
+    time.sleep(1)
     texto = pytesseract.image_to_string(img_thresh, lang='eng', config='--psm 6').strip()
     return texto
 
