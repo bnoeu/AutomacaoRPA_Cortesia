@@ -187,9 +187,14 @@ def programa_principal():
                 bot.press('ENTER')
                 bot.write(str(qtd_ton))
                 bot.press('ENTER')
-            bot.click(procura_imagem(imagem='img_topcon/confirma.png'))
         else:
-            print('--- Nenhum silo coletado, nota de agregado!')      
+            print('--- Nenhum silo coletado, nota de agregado!')
+
+        #Após preencher ou não os silos, clica para confirmar as informações. 
+        bot.click(procura_imagem(imagem='img_topcon/confirma.png'))
+        while procura_imagem(imagem='img_topcon/confirma.png', continuar_exec=True) is not False:
+            print('--- Aguardando fechamento da tela do botão "Alterar" ')
+            time.sleep(0.5)
         
         # Conclui o lançamento
         bot.press('pagedown')  # Conclui o lançamento

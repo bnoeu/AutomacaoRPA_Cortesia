@@ -37,8 +37,6 @@ def valida_lancamento():
                 time.sleep(0.1)
             else:
                 print('--- Alterado para o modo exibição, continuando.')
-            exit()
-            0
         else: #Caso não esteja no modo "Edição"
             print('--- A planilha já está no modo "Exibição", continuando processo')
 
@@ -48,13 +46,8 @@ def valida_lancamento():
         else:
             print('--- Não está filtrado, executando o filtro!')
             bot.click(procura_imagem(imagem='img_planilha/bt_setabaixo.png', area=(1529, 459, 75, 75)))
-<<<<<<< HEAD
-            
-            #Caso não apareça o botão "Selecionar tudo" clica em "limpar filtro"
-=======
 
             #Caso não apareça o botão "Selecionar tudo" clica em "limpar filtro" e executa tudo novamente.
->>>>>>> bd0b452094036a7972f64d01887334bb4277e777
             if procura_imagem(imagem='img_planilha/botao_selecionartudo.png', confianca= 0.5, continuar_exec= True) is False:
                 bot.click(procura_imagem(imagem='img_planilha/bt_limparFiltro.png', confianca= 0.5))
                 coleta_planilha()

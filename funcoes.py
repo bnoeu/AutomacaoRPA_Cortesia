@@ -57,7 +57,7 @@ def verifica_tela(nome_tela, manual=False):
 
 
 def marca_lancado(texto_marcacao='Lancado'):
-    print('--- Abrindo planilha - MARCA_LANCADO')
+    print(F'--- Abrindo planilha - MARCA_LANCADO, com parametro: {texto_marcacao}')
     ahk.win_activate('db_alltrips', title_match_mode= 2)
     ahk.win_wait_active('db_alltrips', title_match_mode= 2)
 
