@@ -8,7 +8,7 @@ import pytesseract
 #import cv2
 from ahk import AHK
 import pyautogui as bot
-from selenium import webdriver
+#from selenium import webdriver
 from funcoes import procura_imagem, extrai_txt_img, marca_lancado
 from acoes_planilha import valida_lancamento
 from valida_pedido import valida_pedido
@@ -34,7 +34,4 @@ ahk.win_activate('TopCompras', title_match_mode= 2)
 #ahk.win_activate('db_alltrips', title_match_mode= 2)
 #! Utilizado apenas para estar trechos de codigo.
 
-        
-qtd_ton = extrai_txt_img(imagem='img_toneladas.png', area_tela=(198, 167, 75, 25)).strip()
-qtd_ton = qtd_ton.replace(",", ".")
-print(F'--- Texto coletado da quantidade: {qtd_ton}')
+valida_lancamento()
