@@ -33,12 +33,10 @@ centro_custo = filial_estoq
 cracha_mot = '112480'
 
 
-ahk.win_activate('TopCompras', title_match_mode= 2)
+#ahk.win_activate('TopCompras', title_match_mode= 2)
 
-#ahk.win_activate('db_alltrips', title_match_mode= 2)
+ahk.win_activate('db_alltrips', title_match_mode= 2)
 #! Utilizado apenas para estar trechos de codigo.
 
-qtd_ton = extrai_txt_img(imagem='img_toneladas.png', area_tela=(895, 577, 66, 17)).strip()
-qtd_ton = qtd_ton.replace(",", ".")
-qtd_ton = float(qtd_ton)
-print(F'--- Texto coletado da quantidade: {qtd_ton}')
+bot.click(procura_imagem(imagem='img_planilha/titulo_re.png'))
+bot.press('DOWN')

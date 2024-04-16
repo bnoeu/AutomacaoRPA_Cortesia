@@ -67,8 +67,12 @@ def valida_lancamento():
         # * Coleta os dados da linha atual
         dados_planilha = []
         print('--- Copiando dados e formatando')
-        time.sleep(2)
-        bot.click(100, 510)  # Clica na primeira linha e coluna da planilha
+        time.sleep(1)
+        
+        #Clica na primeira linha (Campo RE), e pressiona seta para baixo
+        bot.click(procura_imagem(imagem='img_planilha/titulo_re.png'))
+        bot.press('DOWN')
+        
         for n in range(0, 7, 1):  # Copia dados dos 6 campos
             while True:
                 bot.hotkey('ctrl', 'c')
@@ -103,7 +107,7 @@ def valida_lancamento():
         bot.press('F2')
         bot.press('F3', presses=2, interval=0.5)
         time.sleep(1)
-        bot.doubleClick(558, 235, interval = 2)  # Clica dentro do campo para inserir a chave XML
+        bot.doubleClick(558, 235, interval = 0.5)  # Clica dentro do campo para inserir a chave XML
         bot.write(chave_xml)
         bot.press('ENTER')
         ahk.win_wait_active('TopCompras')
