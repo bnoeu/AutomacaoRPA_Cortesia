@@ -48,13 +48,13 @@ def valida_lancamento():
             bot.click(procura_imagem(imagem='img_planilha/bt_setabaixo.png', area=(1529, 459, 75, 75)))
 
             #Caso não apareça o botão "Selecionar tudo" clica em "limpar filtro" e executa tudo novamente.
-            if procura_imagem(imagem='img_planilha/botao_selecionartudo.png', confianca= 0.5, continuar_exec= True) is False:
-                bot.click(procura_imagem(imagem='img_planilha/bt_limparFiltro.png', confianca= 0.5))
+            if procura_imagem(imagem='img_planilha/botao_selecionartudo.png', continuar_exec= True) is False:
+                bot.click(procura_imagem(imagem='img_planilha/bt_limparFiltro.png'))
                 coleta_planilha()
             else: #Se tudo estiver ok, prossegue aplicando o filtro nas notas vazias. 
-                bot.click(procura_imagem(imagem='img_planilha/botao_selecionartudo.png', confianca= 0.5))
-                bot.click(procura_imagem(imagem='img_planilha/bt_vazias.png', confianca= 0.5))
-                bot.click(procura_imagem(imagem='img_planilha/bt_aplicar.png', confianca= 0.4))
+                bot.click(procura_imagem(imagem='img_planilha/botao_selecionartudo.png'))
+                bot.click(procura_imagem(imagem='img_planilha/bt_vazias.png'))
+                bot.click(procura_imagem(imagem='img_planilha/bt_aplicar.png'))
                 print('--- Filtrado pelas notas vazias!')
 
                 #Aguarda aparecer o botão do filtro, para confirmar que está filtrado! 
