@@ -117,17 +117,17 @@ def extrai_txt_img(imagem, area_tela):
     img = cv2.resize(img, nova_dim, interpolation=cv2.INTER_AREA) # Redimensiona a imagem
 
     #Smoothing 
-    #kernel = np.ones((6,6),np.float32)/50
-    #smooth = cv2.filter2D(img,-1,kernel)
+    kernel = np.ones((6,6),np.float32)/35
+    smooth = cv2.filter2D(img,-1,kernel)
     
     #Adiciona um blur
-    blur = cv2.GaussianBlur(img,(7,7),0)
+    blur = cv2.GaussianBlur(smooth,(7,7),0)
     
     # Converte a imagem para tons de cinza
     img_cinza = cv2.cvtColor(blur, cv2.COLOR_BGR2GRAY)
     
     # Aplica uma operação de limiarização para binarizar a imagem
-    blur = cv2.GaussianBlur(img_cinza,(7,7),0)
+    blur = cv2.GaussianBlur(img_cinza,(5,5),0)
     img_thresh = cv2.threshold(blur, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)[1]
     
     #cv2.imwrite('amostras\img_thresh.png', img_thresh)
@@ -136,7 +136,7 @@ def extrai_txt_img(imagem, area_tela):
     '''
     #Exibe as imagens em caso de debug
     cv2.imshow('img', img)
-    #cv2.imshow('smooth', smooth)
+    cv2.imshow('smooth', smooth)
     cv2.imshow('blur', blur)
     cv2.imshow('thresh', img_thresh)
     cv2.imshow('img_cinza', img_cinza)

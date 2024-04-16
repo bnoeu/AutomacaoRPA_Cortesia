@@ -147,7 +147,7 @@ def programa_principal():
         bot.doubleClick(procura_imagem(imagem='img_topcon/produtos_servicos.png'))
 
         # Realiza a extração da quantidade de toneladas
-        qtd_ton = extrai_txt_img(imagem='img_toneladas.png', area_tela=(895, 577, 70, 17)).strip()
+        qtd_ton = extrai_txt_img(imagem='img_toneladas.png', area_tela=(895, 577, 70, 20)).strip()
         qtd_ton = qtd_ton.replace(",", ".")
         qtd_ton = float(qtd_ton)
         print(F'--- Texto coletado da quantidade: {qtd_ton}')
@@ -204,33 +204,38 @@ def programa_principal():
         print('--- Aguardando TopCompras Retornar')
         while ahk.win_exists('Não está respondendo'):
             time.sleep(0.5)
+        time.sleep(1)
 
+        # Verifica se a tela "Deseja processar" apareceu, caso sim, procede para emissão da NFE.
+        ahk.win_wait_active('TopCom', timeout=10, title_match_mode=2)
+        ahk.win_activate('TopCom', title_match_mode=2)
+        
         # Espera até aparecer a tela de operação realizada, e quando ela aparecer, clica no botão OK
         while procura_imagem(imagem='img_topcon/operacao_realizada.png', continuar_exec=True) is False:
             time.sleep(0.5)
         else:
             bot.click(procura_imagem(imagem='img_topcon/botao_ok.jpg', continuar_exec=True))
 
-        # Verifica se a tela "Deseja processar" apareceu, caso sim, procede para emissão da NFE.
-        ahk.win_wait_active('TopCom', timeout=10, title_match_mode=2)
-        ahk.win_activate('TopCom', title_match_mode=2)
-        if procura_imagem('img_topcon/deseja_processar.png', continuar_exec=True, limite_tentativa=4) is not False:
-            bot.click(procura_imagem('img_topcon/bt_sim.png',
-                      continuar_exec=True, limite_tentativa=4))
-            while True:  # Aguardar o .PDF
-                try:
-                    ahk.win_wait('.pdf', title_match_mode=2, timeout=2)
-                    time.sleep(0.5)
-                except TimeoutError:
-                    print('Aguardando .PDF')
-                else:
-                    ahk.win_activate('.pdf', title_match_mode=2)
-                    ahk.win_close('pdf - Google Chrome', title_match_mode=2)
-                    print('Fechou o PDF')
-                    break
-            time.sleep(1)
-            ahk.win_activate('Transmissão', title_match_mode=2)
-            bot.click(procura_imagem(imagem='img_topcon/sair_tela.png'))
+
+        #Verifica se apareceu a tela de transferencia 
+        if procura_imagem('img_topcon/transferencia.png', continuar_exec=True, limite_tentativa=4) is not False:
+            if procura_imagem('img_topcon/deseja_processar.png', continuar_exec=True, limite_tentativa=4) is not False:
+                bot.click(procura_imagem('img_topcon/bt_sim.png',
+                        continuar_exec=True, limite_tentativa=4))
+                while True:  # Aguardar o .PDF
+                    try:
+                        ahk.win_wait('.pdf', title_match_mode=2, timeout=2)
+                        time.sleep(0.5)
+                    except TimeoutError:
+                        print('Aguardando .PDF')
+                    else:
+                        ahk.win_activate('.pdf', title_match_mode=2)
+                        ahk.win_close('pdf - Google Chrome', title_match_mode=2)
+                        print('Fechou o PDF')
+                        break
+                time.sleep(1)
+                ahk.win_activate('Transmissão', title_match_mode=2)
+                bot.click(procura_imagem(imagem='img_topcon/sair_tela.png'))
 
         # * -------------------------------------- Marca planilha --------------------------------------
         marca_lancado(texto_marcacao='Lancado_RPA')
