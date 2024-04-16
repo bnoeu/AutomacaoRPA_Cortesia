@@ -18,12 +18,12 @@ bot.FAILSAFE = True
 tempo_inicio = time.time()
 chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
 pytesseract.pytesseract.tesseract_cmd = r"C:\tesseract\tesseract.exe"
-bot.PAUSE = 1.2
+bot.PAUSE = 1.4
 
 
 def valida_lancamento():
     def coleta_planilha():
-        bot.PAUSE = 0.2
+        bot.PAUSE = 0.3
         print('--- Abrindo planilha - COLETA_PLANILHA')
         ahk.win_activate('db_alltrips', title_match_mode= 2)
 

@@ -20,7 +20,7 @@ tempo_inicio = time.time()
 
 chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
 pytesseract.pytesseract.tesseract_cmd = r"C:\tesseract\tesseract.exe"
-bot.PAUSE = 1.2
+bot.PAUSE = 1.4
 
 '''
 #Cria a conexão com o banco de dados
