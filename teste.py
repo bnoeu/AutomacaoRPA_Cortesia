@@ -8,13 +8,7 @@ import pygetwindow as gw
 import cv2
 from ahk import AHK
 import pyautogui as bot
-<<<<<<< HEAD
-from datetime import date
-from selenium import webdriver
-from openpyxl import load_workbook
-=======
 #from selenium import webdriver
->>>>>>> bd0b452094036a7972f64d01887334bb4277e777
 from funcoes import procura_imagem, extrai_txt_img, marca_lancado
 from acoes_planilha import valida_lancamento
 from valida_pedido import valida_pedido
@@ -44,18 +38,7 @@ ahk.win_activate('TopCompras', title_match_mode= 2)
 #ahk.win_activate('db_alltrips', title_match_mode= 2)
 #! Utilizado apenas para estar trechos de codigo.
 
-<<<<<<< HEAD
-
-texto = extrai_txt_img(imagem='item_nota.png',area_tela=(170, 400, 280, 30))
-print(F'Texto extraido do campo Itens XML: {texto}')  
-
-cimento = ['IE-40 RS', 'Bruno', 'Ana']
-
-for item in cimento:
-    if item in texto:
-        print(F'Está aqui, o item: {item}')
-    else:
-        print(item + ' não está aqui')
-=======
-valida_lancamento()
->>>>>>> bd0b452094036a7972f64d01887334bb4277e777
+qtd_ton = extrai_txt_img(imagem='img_toneladas.png', area_tela=(895, 577, 66, 17)).strip()
+qtd_ton = qtd_ton.replace(",", ".")
+qtd_ton = float(qtd_ton)
+print(F'--- Texto coletado da quantidade: {qtd_ton}')

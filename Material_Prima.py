@@ -147,10 +147,11 @@ def programa_principal():
         bot.doubleClick(procura_imagem(imagem='img_topcon/produtos_servicos.png'))
 
         # Realiza a extração da quantidade de toneladas
-        qtd_ton = extrai_txt_img(imagem='img_toneladas.png', area_tela=(895, 577, 59, 18)).strip()
+        qtd_ton = extrai_txt_img(imagem='img_toneladas.png', area_tela=(895, 577, 66, 17)).strip()
         qtd_ton = qtd_ton.replace(",", ".")
+        qtd_ton = float(qtd_ton)
         print(F'--- Texto coletado da quantidade: {qtd_ton}')
-
+        
         #Clica no alterar para exibir a tela 
         bot.click(procura_imagem(imagem='img_topcon/botao_alterar.png', area=(100, 839, 300, 400)))
 

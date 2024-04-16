@@ -133,18 +133,17 @@ def extrai_txt_img(imagem, area_tela):
     #cv2.imwrite('amostras\img_thresh.png', img_thresh)
     
     
-    '''
     #Exibe as imagens em caso de debug
+    cv2.imshow('img', img)
     #cv2.imshow('smooth', smooth)
+    '''
     cv2.imshow('blur', blur)
     cv2.imshow('thresh', img_thresh)
     cv2.imshow('img_cinza', img_cinza)
-    cv2.waitKey()
     '''
-
+    cv2.waitKey()
 
     # Utiliza o pytesseract para extrair texto da imagem binarizada
-    time.sleep(1)
     texto = pytesseract.image_to_string(img_thresh, lang='eng', config='--psm 6').strip()
     return texto
 
