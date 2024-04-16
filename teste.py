@@ -38,4 +38,5 @@ cracha_mot = '112480'
 ahk.win_activate('db_alltrips', title_match_mode= 2)
 #! Utilizado apenas para estar trechos de codigo.
 
-bot.click(110, 510)  # Clica na primeira linha e coluna da planilha
+bot.click(procura_imagem(imagem='img_planilha/titulo_re.png'))
+bot.press('DOWN')
