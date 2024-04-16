@@ -59,7 +59,7 @@ def verifica_tela(nome_tela, manual=False):
 def marca_lancado(texto_marcacao='Lancado'):
     print(F'--- Abrindo planilha - MARCA_LANCADO, com parametro: {texto_marcacao}')
     ahk.win_activate('db_alltrips', title_match_mode= 2)
-    ahk.win_wait_active('db_alltrips', title_match_mode= 2)
+    ahk.win_wait_active('db_alltrips', title_match_mode= 2, timeout= 5)
 
     #Verifica se está no modo "Apenas exibição", caso esteja, altera para permitir edição.
     if procura_imagem(imagem='img_planilha/botao_exibicaoverde.png', continuar_exec=True) is not False:
