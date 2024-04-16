@@ -67,7 +67,7 @@ def valida_lancamento():
         # * Coleta os dados da linha atual
         dados_planilha = []
         print('--- Copiando dados e formatando')
-        bot.click(100, 510)  # Clica na primeira linha e coluna da planilha
+        bot.click(110, 510)  # Clica na primeira linha e coluna da planilha
         time.sleep(1)
         for n in range(0, 7, 1):  # Copia dados dos 6 campos
             while True:
