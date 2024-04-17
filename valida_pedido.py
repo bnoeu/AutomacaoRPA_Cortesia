@@ -116,4 +116,3 @@ def valida_pedido(acabou_pedido=False):
             marca_lancado('Erro_Pedido')
             acabou_pedido = True
             return acabou_pedido
-valida_pedido()
