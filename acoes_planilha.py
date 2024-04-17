@@ -26,11 +26,22 @@ def valida_lancamento():
         bot.PAUSE = 0.3
         print('--- Abrindo planilha - COLETA_PLANILHA')
         ahk.win_activate('db_alltrips', title_match_mode= 2)
+        time.sleep(0.5)
 
         #Verifica se já está no modo de edição, caso esteja, muda para o modo "exibição"
         if procura_imagem(imagem='img_planilha/botao_exibicaoverde.png', continuar_exec=True) is False:
-            bot.click(procura_imagem(imagem='img_planilha/botao_edicao.png'))
-            bot.click(procura_imagem(imagem='img_planilha/botao_exibicao.png'))
+            bot.click(procura_imagem(imagem='img_planilha/botao_edicao.png', continuar_exec= True))
+            while procura_imagem(imagem='img_planilha/botao_exibicao.png', continuar_exec= True) is False:
+                time.sleep(0.2)
+            else:
+                print('--- Clicou no botão "Exibição" ')
+                bot.click(procura_imagem(imagem='img_planilha/botao_exibicao.png', continuar_exec= True))
+                
+                #Aguarda sumir o botão
+                while procura_imagem(imagem='img_planilha/botao_exibicaoverde.png', continuar_exec=True) is False:
+                    print('--- Aguardando entrar no modo de exibição ')
+                    time.sleep(0.2)
+            
 
             #Aguarda até aparecer o botão do modo "exibição"
             while procura_imagem(imagem='img_planilha/botao_exibicaoverde.png', continuar_exec=True) is False: #Aguarda enquanto não achar o botão

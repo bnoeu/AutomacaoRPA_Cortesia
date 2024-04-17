@@ -22,11 +22,11 @@ pytesseract.pytesseract.tesseract_cmd = r"C:\tesseract\tesseract.exe"
 bot.useImageNotFoundException(False)
 
 
-def procura_imagem(imagem, limite_tentativa=6, area=(0, 0, 1920, 1080), continuar_exec=False, confianca = 0.75):
+def procura_imagem(imagem, limite_tentativa=6, area=(0, 0, 1920, 1080), continuar_exec=False, confianca = 0.72):
     tentativa = 0   
     print(F'--- Tentando encontrar: {imagem}', end= ' ')
     while tentativa < limite_tentativa:
-        time.sleep(0.2)
+        time.sleep(0.5)
         posicao_img = bot.locateCenterOnScreen(imagem, grayscale= True, confidence= confianca, region= area)
         if posicao_img is not None:
             print(F'Encontrou na posição: {posicao_img}')
@@ -58,6 +58,7 @@ def verifica_tela(nome_tela, manual=False):
 
 def marca_lancado(texto_marcacao='Lancado'):
     print(F'--- Abrindo planilha - MARCA_LANCADO, com parametro: {texto_marcacao}')
+    time.sleep(2)
     ahk.win_activate('db_alltrips', title_match_mode= 2)
     ahk.win_wait_active('db_alltrips', title_match_mode= 2, timeout= 5)
 
