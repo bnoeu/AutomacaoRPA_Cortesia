@@ -30,18 +30,23 @@ def valida_lancamento():
 
         #Verifica se já está no modo de edição, caso esteja, muda para o modo "exibição"
         if procura_imagem(imagem='img_planilha/botao_exibicaoverde.png', continuar_exec=True) is False:
-            bot.click(procura_imagem(imagem='img_planilha/botao_edicao.png', continuar_exec= True))
-            while procura_imagem(imagem='img_planilha/botao_exibicao.png', continuar_exec= True) is False:
+            time.sleep(0.5)
+            print('--- Não está no modo exibição! Realizando alteração.')
+                        
+            #Espera até encontar o botão "Exibição" (Lapis bloqueado) e realiza um click nele
+            print('--- Alterando para o modo exibição ')
+            while procura_imagem(imagem='img_planilha/txt_exibicao.png', continuar_exec= True) is False:
                 time.sleep(0.2)
+                #Clica no botão da edição (lapis branco), para mostrar o dropdown com as opções
+                bot.click(procura_imagem(imagem='img_planilha/txt_edicao.png', continuar_exec= True))
             else:
                 print('--- Clicou no botão "Exibição" ')
-                bot.click(procura_imagem(imagem='img_planilha/botao_exibicao.png', continuar_exec= True))
+                bot.click(procura_imagem(imagem='img_planilha/txt_exibicao.png', continuar_exec= True))
                 
                 #Aguarda sumir o botão
                 while procura_imagem(imagem='img_planilha/botao_exibicaoverde.png', continuar_exec=True) is False:
                     print('--- Aguardando entrar no modo de exibição ')
                     time.sleep(0.2)
-            
 
             #Aguarda até aparecer o botão do modo "exibição"
             while procura_imagem(imagem='img_planilha/botao_exibicaoverde.png', continuar_exec=True) is False: #Aguarda enquanto não achar o botão

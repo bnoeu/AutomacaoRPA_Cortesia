@@ -1,6 +1,9 @@
 # -*- Criado por Bruno da Silva Santos. -*-
 # Para utilização na Cortesia Concreto.
 
+#! Link da planilha
+# https://cortesiaconcreto-my.sharepoint.com/:x:/g/personal/bi_cortesiaconcreto_com_br/EU6ahKCIVdxFjiB_rViPfN0Bo9SGYGReQ7VTqbKDjMXyLQ?e=QrTGT0
+
 import time
 import pytesseract
 from ahk import AHK
@@ -210,9 +213,15 @@ def programa_principal():
         ahk.win_wait_active('TopCom', timeout=10, title_match_mode=2)
         ahk.win_activate('TopCom', title_match_mode=2)
         
+        
         # Espera até aparecer a tela de operação realizada, e quando ela aparecer, clica no botão OK
         while procura_imagem(imagem='img_topcon/operacao_realizada.png', continuar_exec=True) is False:
             time.sleep(0.5)
+            if procura_imagem(imagem='img_topcon/chave_invalida.png', limite_tentativa= 1, continuar_exec=True) is not False:
+                print('--- Nota já lançada, marcando planilha!')
+                bot.press('ENTER')
+                marca_lancado(texto_marcacao='Lancado_Manual')
+                programa_principal()
         else:
             bot.click(procura_imagem(imagem='img_topcon/botao_ok.jpg', continuar_exec=True))
 

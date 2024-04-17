@@ -34,10 +34,8 @@ cracha_mot = '112480'
 
 
 #ahk.win_activate('TopCompras', title_match_mode= 2)
-#ahk.win_activate('db_alltrips', title_match_mode= 2)
+ahk.win_activate('db_alltrips', title_match_mode= 2)
 #! Utilizado apenas para estar trechos de codigo.
 
-# Realiza a extração da quantidade de toneladas
-ahk.win_activate('db_alltrips', title_match_mode= 2)
-#teste = ahk.win_wait_active('db_alltrips', title_match_mode= 2, timeout= 5)
-#print(teste)
+
+bot.click(1494, 508)

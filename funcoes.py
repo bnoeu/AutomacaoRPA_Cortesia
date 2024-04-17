@@ -22,7 +22,7 @@ pytesseract.pytesseract.tesseract_cmd = r"C:\tesseract\tesseract.exe"
 bot.useImageNotFoundException(False)
 
 
-def procura_imagem(imagem, limite_tentativa=6, area=(0, 0, 1920, 1080), continuar_exec=False, confianca = 0.72):
+def procura_imagem(imagem, limite_tentativa=6, area=(0, 0, 1920, 1080), continuar_exec=False, confianca = 0.75):
     tentativa = 0   
     print(F'--- Tentando encontrar: {imagem}', end= ' ')
     while tentativa < limite_tentativa:
@@ -70,13 +70,12 @@ def marca_lancado(texto_marcacao='Lancado'):
         #Caso apareça a tela informando que houve alteração durante esse periodo, confirma que quer atualizar e prossegue.
         if procura_imagem(imagem='img_planilha/txt_modificada.png', continuar_exec=True, limite_tentativa= 4) is not False: 
             print('--- Planilha atualizada, confirmando alterações..')
-            bot.click(procura_imagem(imagem='img_planilha/bt_sim.png', limite_tentativa= 8, confianca= 0.45, area= (751, 521, 429, 218)))
-
-        #Verifica se realmente entrou no modo edição.
-        #procura_imagem(imagem='img_planilha/botao_edicao.png')
+            bot.click(procura_imagem(imagem='img_planilha/bt_sim.png', limite_tentativa= 8, area= (751, 521, 429, 218)))
         
         #Clica na coluna Status
-        bot.doubleClick(1494, 508)
+        bot.click(procura_imagem(imagem='img_planilha/txt_status.png'))
+        #Seta para baixo
+        bot.press('DOWN')
 
         #Informa o texto recebido pela função e passa para a celula ao lado, para inserir a data
         bot.write(texto_marcacao)
@@ -93,11 +92,11 @@ def marca_lancado(texto_marcacao='Lancado'):
         else:
             print('--- Não está filtrado, executando o filtro!')
             bot.click(procura_imagem(imagem='img_planilha/bt_setabaixo.png', area=(1529, 459, 75, 75)))
-            while procura_imagem(imagem='img_planilha/botao_selecionartudo.png', confianca= 0.5) is None:
+            while procura_imagem(imagem='img_planilha/botao_selecionartudo.png') is None:
                 time.sleep(1)
-            bot.click(procura_imagem(imagem='img_planilha/botao_selecionartudo.png', confianca= 0.5))
-            bot.click(procura_imagem(imagem='img_planilha/bt_vazias.png', confianca= 0.5))
-            bot.click(procura_imagem(imagem='img_planilha/bt_aplicar.png',  confianca= 0.4))
+            bot.click(procura_imagem(imagem='img_planilha/botao_selecionartudo.png'))
+            bot.click(procura_imagem(imagem='img_planilha/bt_vazias.png'))
+            bot.click(procura_imagem(imagem='img_planilha/bt_aplicar.png'))
     else: #Caso já esteja no modo "Edição"
         exit('--- Planilha no modo edição! Necessario scriptar essa parte')
 

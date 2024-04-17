@@ -32,10 +32,9 @@ def valida_pedido(acabou_pedido=False):
 
     
     #Força a abertura da tela de vinculação de item versus nota
-    time.sleep(1)
     ahk.win_activate('Vinculação Itens da Nota', title_match_mode = 2)
     ahk.win_wait_active('Vinculação Itens da Nota', title_match_mode = 2, timeout= 20)
-    time.sleep(2)
+    time.sleep(0.5)
     
     #Coleta o texto do campo "item XML", que é o item a constar na nota fiscal, e com base nisso, trata o dado
     texto = extrai_txt_img(imagem='item_nota.png',area_tela=(170, 400, 280, 30))
@@ -82,21 +81,18 @@ def valida_pedido(acabou_pedido=False):
             print('--- Baixando a lista dos pedidos')
             bot.click(744, 230) #Clica para descer o menu e exibir o resto das opções 
         #Tenta encontrar a imagem do pedido e salva as posições onde encontrar
-        time.sleep(2)
+        time.sleep(0.5)
         posicoes = bot.locateAllOnScreen('img_pedidos/' + item_pedido[0], confidence=0.9, grayscale=True, region=(0, 0, 850, 400))
         print('--- Procurando nas posições os pedidos')
         for pos in posicoes:  # Tenta em todos pedidos encontrados
             print(F'Achou o {texto} na posição {pos}')
             bot.doubleClick(pos)  # Marca o pedido encontrado
             bot.click(procura_imagem(imagem='img_topcon/localizar.png'))
-            time.sleep(1)
-
 
             vazio = verifica_ped_vazio(texto=texto, pos=pos)
             print(F'--- Valor campo "vazio": {vazio}')
             if vazio is not True:
                 bot.click(procura_imagem('img_topcon/vinc_xml_pedido.png',continuar_exec=True, limite_tentativa=2))
-                time.sleep(1)
                 vazio = verifica_ped_vazio(texto=texto, pos=pos)
                 print(F'--- Valor campo "vazio": {vazio}')
                 if procura_imagem('img_topcon/dife_valor.png', continuar_exec=True, limite_tentativa=2):
@@ -116,7 +112,8 @@ def valida_pedido(acabou_pedido=False):
             break
     else:
         if vazio is False:
-            bot.click(procura_imagem(imagem='img_topcon/bt_cancela.png', confianca= 0.6))
+            bot.click(procura_imagem(imagem='img_topcon/bt_cancela.png'))
             marca_lancado('Erro_Pedido')
             acabou_pedido = True
             return acabou_pedido
+valida_pedido()
