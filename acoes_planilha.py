@@ -129,6 +129,7 @@ def valida_lancamento():
         ahk.win_wait_active('TopCompras')
         tentativa = 0
         while tentativa < 10:
+            time.sleep(0.5)
             if procura_imagem(imagem='img_topcon/botao_sim.jpg', limite_tentativa= 1, continuar_exec=True) is not False:
                 bot.click(procura_imagem(imagem='img_topcon/botao_sim.jpg', limite_tentativa=1, continuar_exec=True))
                 print('--- XML Validado, indo para verificação do pedido\n')
