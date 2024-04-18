@@ -6,7 +6,7 @@ import time
 # import pygetwindow as gw
 import pytesseract
 from ahk import AHK
-from funcoes import marca_lancado, procura_imagem
+from funcoes import marca_lancado, procura_imagem, som_erro
 import pyautogui as bot
 
 
@@ -36,7 +36,7 @@ def valida_lancamento():
             #Espera até encontar o botão "Exibição" (Lapis bloqueado) e realiza um click nele
             print('--- Alterando para o modo exibição ')
             while procura_imagem(imagem='img_planilha/txt_exibicao.png', continuar_exec= True) is False:
-                time.sleep(0.2)
+                time.sleep(0.4)
                 #Clica no botão da edição (lapis branco), para mostrar o dropdown com as opções
                 bot.click(procura_imagem(imagem='img_planilha/txt_edicao.png', continuar_exec= True))
             else:
@@ -46,11 +46,11 @@ def valida_lancamento():
                 #Aguarda sumir o botão
                 while procura_imagem(imagem='img_planilha/botao_exibicaoverde.png', continuar_exec=True) is False:
                     print('--- Aguardando entrar no modo de exibição ')
-                    time.sleep(0.2)
+                    time.sleep(0.4)
 
             #Aguarda até aparecer o botão do modo "exibição"
             while procura_imagem(imagem='img_planilha/botao_exibicaoverde.png', continuar_exec=True) is False: #Aguarda enquanto não achar o botão
-                time.sleep(0.1)
+                time.sleep(0.3)
             else:
                 print('--- Alterado para o modo exibição, continuando.')
         else: #Caso não esteja no modo "Edição"
@@ -74,9 +74,9 @@ def valida_lancamento():
                 print('--- Filtrado pelas notas vazias!')
 
                 #Aguarda aparecer o botão do filtro, para confirmar que está filtrado! 
-                while procura_imagem(imagem='img_planilha/bt_filtro.png', continuar_exec=True, area= (1468, 400, 200, 200)) is False:
+                while procura_imagem(imagem='img_planilha/bt_filtro.png', limite_tentativa= 10, area= (1468, 400, 200, 200)) is False:
                     print('--- Aguardando o botão do filtro na coluna "Status" ')
-                    time.sleep(0.1)
+                    time.sleep(0.4)
                 else:
                     print('--- Filtro das notas vazias aplicado!')
         
@@ -93,7 +93,7 @@ def valida_lancamento():
             while True:
                 bot.hotkey('ctrl', 'c')
                 if 'Recuperando' in ahk.get_clipboard():
-                    time.sleep(0.1)
+                    time.sleep(0.3)
                 else:
                     break
             dados_planilha.append(ahk.get_clipboard())

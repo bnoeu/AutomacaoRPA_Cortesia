@@ -162,7 +162,7 @@ def programa_principal():
             #Verifica se abriu a tela com os detalhes do item que consta na NFE (Tela botão alterar)
             while procura_imagem(imagem='img_topcon/valor_cofins.png') is False:
                 print('--- Aguardando aparecer a tela "Itens nota fiscal de compra" ')
-                time.sleep(0.2)
+                time.sleep(0.4)
             else:
                 print('--- Apareceu a tela "Itens nota fiscal de compra" ')
                 # Aguardando aparecer o botão de "confirma", para prosseguir com as ações.
