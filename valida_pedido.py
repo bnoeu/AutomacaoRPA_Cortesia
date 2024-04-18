@@ -25,10 +25,10 @@ def valida_pedido(acabou_pedido=False):
     #Nome dos itens que constarem no "Itens XML"
     PEDRA_1 = ['PEDRA 01', 'PEDRA DI', 'BRITADA 01', 'PEDRA 1', 'PEDRA BRITADA 01', 'PEDRAT', 'PEDRA BRITADA 1', 'BRITADA 1', 'BRITA 01', 'BRITA 1', 'BRITA NR "01"']
     PO_PEDRA = ['PO DE PEDRA', 'AREA INDUSTRIAL', 'INDUSTRIAL']
-    BRITA_0 = ['BRITA 0', 'PEDRISCO LIMPO', 'LAVAD']
+    BRITA_0 = ['BRITA 0', 'PEDRISCO LIMPO', 'LAVAD', 'BRITAD', 'BRITAD™']
     CIMENTO_CP2 = ['-40', 'E-40', '£-40', 'II-E-40', 'CIMENTO PORTLAND CP II-E-40 RS |', 'CIMENTO PORTLAND CP IIE-40 RS', 'CIMENTO PORTLAND CP IIE-40 RS |',
                    "CIMENTO PORTLAND CP I'E-40 RS.", "CIMENTO PORTLAND CP IE-40 RS"]
-    AREIA_RIO = ['AREIA LAVADA MEDIA']
+    AREIA_RIO = ['AREIA LAVADA MEDIA', 'AREIA MEDIA']
 
     
     #Força a abertura da tela de vinculação de item versus nota
