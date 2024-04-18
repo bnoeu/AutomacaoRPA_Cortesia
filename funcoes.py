@@ -9,6 +9,7 @@ import numpy as np
 import pytesseract
 from ahk import AHK
 import pyautogui as bot
+import winsound
 
 
 # --- Definição de parametros
@@ -21,12 +22,16 @@ chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
 pytesseract.pytesseract.tesseract_cmd = r"C:\tesseract\tesseract.exe"
 bot.useImageNotFoundException(False)
 
+def som_erro():
+    duration = 1500  # milliseconds
+    freq = 1000  # Hz
+    winsound.Beep(freq, duration)
 
 def procura_imagem(imagem, limite_tentativa=6, area=(0, 0, 1920, 1080), continuar_exec=False, confianca = 0.75):
     tentativa = 0   
     print(F'--- Tentando encontrar: {imagem}', end= ' ')
     while tentativa < limite_tentativa:
-        time.sleep(0.6)
+        time.sleep(0.7)
         posicao_img = bot.locateCenterOnScreen(imagem, grayscale= True, confidence= confianca, region= area)
         if posicao_img is not None:
             print(F'Encontrou na posição: {posicao_img}')
@@ -40,6 +45,8 @@ def procura_imagem(imagem, limite_tentativa=6, area=(0, 0, 1920, 1080), continua
     if tentativa >= limite_tentativa:
         print('--- FECHANDO PLANILHA PARA EVITAR ERROS')
         #ahk.win_kill('db_alltrips')
+        som_erro()
+        som_erro()
         exit(bot.alert(text=F'Não foi possivel encontrar: {imagem}', title='Erro!', button='Fechar'))
     return posicao_img
 

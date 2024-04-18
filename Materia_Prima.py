@@ -8,7 +8,7 @@ import time
 import pytesseract
 from ahk import AHK
 from datetime import date
-from funcoes import marca_lancado, procura_imagem, extrai_txt_img
+from funcoes import marca_lancado, procura_imagem, extrai_txt_img, som_erro
 from acoes_planilha import valida_lancamento
 from valida_pedido import valida_pedido
 import pyautogui as bot
@@ -23,7 +23,7 @@ tempo_inicio = time.time()
 
 chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
 pytesseract.pytesseract.tesseract_cmd = r"C:\tesseract\tesseract.exe"
-bot.PAUSE = 1.4
+bot.PAUSE = 1.5
 
 '''
 #Cria a conexão com o banco de dados

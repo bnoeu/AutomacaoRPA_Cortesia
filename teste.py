@@ -12,6 +12,7 @@ import pyautogui as bot
 from funcoes import procura_imagem, extrai_txt_img, marca_lancado
 from acoes_planilha import valida_lancamento
 from valida_pedido import valida_pedido
+import winsound
 
 # --- Definição de parametros
 ahk = AHK()
@@ -36,6 +37,3 @@ cracha_mot = '112480'
 #ahk.win_activate('TopCompras', title_match_mode= 2)
 ahk.win_activate('db_alltrips', title_match_mode= 2)
 #! Utilizado apenas para estar trechos de codigo.
-
-
-bot.click(1494, 508)

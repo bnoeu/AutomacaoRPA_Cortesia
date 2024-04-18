@@ -71,6 +71,7 @@ def valida_pedido(acabou_pedido=False):
         print('Contém AREIA DE RIO')
         item_pedido.append('PED_AREIARIO.png')
     else:
+        som_erro()
         exit(bot.alert(F'Texto não padronizado, verificar script, texto: {texto.strip()}'))
         
 #* --------------------------------- Pedidos Encontrados 

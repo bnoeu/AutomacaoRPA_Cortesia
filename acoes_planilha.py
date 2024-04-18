@@ -118,6 +118,7 @@ def valida_lancamento():
         if ahk.win_is_active('TopCompras', title_match_mode=2):
             print('Tela compras está maximizada! Iniciando o programa')
         else:
+            som_erro()
             exit(bot.alert('Tela de Compras não abriu.'))
         # Processo de lançamento
         bot.press('F2')
