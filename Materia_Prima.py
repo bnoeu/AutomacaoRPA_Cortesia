@@ -22,7 +22,7 @@ bot.FAILSAFE = True
 tempo_inicio = time.time()
 
 chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
-pytesseract.pytesseract.tesseract_cmd = r"C:\tesseract\tesseract.exe"
+pytesseract.pytesseract.tesseract_cmd = r"C:\Tesseract-OCR\tesseract.exe"
 bot.PAUSE = 1.5
 
 '''
