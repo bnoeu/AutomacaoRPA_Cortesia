@@ -9,23 +9,17 @@ import numpy as np
 import pytesseract
 from ahk import AHK
 import pyautogui as bot
-import winsound
 
 
 # --- Definição de parametros
 ahk = AHK()
 posicao_img = 0  # Define a variavel para utilização global dela.
 continuar = True
-bot.FAILSAFE = True
+bot.FAILSAFE = False
 # tempo_inicio = time.time()
 chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
-pytesseract.pytesseract.tesseract_cmd = r"C:\tesseract\tesseract.exe"
+pytesseract.pytesseract.tesseract_cmd = r"C:\Tesseract-OCR\tesseract.exe"
 bot.useImageNotFoundException(False)
-
-def som_erro():
-    duration = 1500  # milliseconds
-    freq = 1000  # Hz
-    winsound.Beep(freq, duration)
 
 def procura_imagem(imagem, limite_tentativa=6, area=(0, 0, 1920, 1080), continuar_exec=False, confianca = 0.75):
     tentativa = 0   
@@ -45,8 +39,6 @@ def procura_imagem(imagem, limite_tentativa=6, area=(0, 0, 1920, 1080), continua
     if tentativa >= limite_tentativa:
         print('--- FECHANDO PLANILHA PARA EVITAR ERROS')
         #ahk.win_kill('db_alltrips')
-        som_erro()
-        som_erro()
         exit(bot.alert(text=F'Não foi possivel encontrar: {imagem}', title='Erro!', button='Fechar'))
     return posicao_img
 
@@ -106,6 +98,8 @@ def marca_lancado(texto_marcacao='Lancado'):
             bot.click(procura_imagem(imagem='img_planilha/bt_aplicar.png'))
     else: #Caso já esteja no modo "Edição"
         exit('--- Planilha no modo edição! Necessario scriptar essa parte')
+    print(F'--------------------- Processou NFE, situação: {texto_marcacao} ---------------------')
+    print('')
 
 
 def extrai_txt_img(imagem, area_tela):
@@ -123,19 +117,23 @@ def extrai_txt_img(imagem, area_tela):
     nova_dim = (largura, altura)
     img = cv2.resize(img, nova_dim, interpolation=cv2.INTER_AREA) # Redimensiona a imagem
 
+    # Converte a imagem para tons de cinza
+    img_cinza = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    
+    #OTSU threshold
+    img_thresh = cv2.threshold(img_cinza, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)[1]
+    
     #Smoothing 
     kernel = np.ones((6,6),np.float32)/35
-    smooth = cv2.filter2D(img,-1,kernel)
+    smooth = cv2.filter2D(img_thresh,-1,kernel)
     
     #Adiciona um blur
     blur = cv2.GaussianBlur(smooth,(7,7),0)
     
-    # Converte a imagem para tons de cinza
-    img_cinza = cv2.cvtColor(blur, cv2.COLOR_BGR2GRAY)
+    
     
     # Aplica uma operação de limiarização para binarizar a imagem
-    blur = cv2.GaussianBlur(img_cinza,(5,5),0)
-    img_thresh = cv2.threshold(blur, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)[1]
+    #blur = cv2.GaussianBlur(img_cinza,(5,5),0)
     
     #cv2.imwrite('amostras\img_thresh.png', img_thresh)
     
@@ -151,16 +149,16 @@ def extrai_txt_img(imagem, area_tela):
     cv2.waitKey()
 
     # Utiliza o pytesseract para extrair texto da imagem binarizada
-    texto = pytesseract.image_to_string(img_thresh, lang='eng', config='--psm 6').strip()
+    texto = pytesseract.image_to_string(blur, lang='eng', config='--psm 7').strip()
     return texto
 
 def verifica_ped_vazio(texto, pos):
     #Extrai o texto da imagem 
     texto_xml = extrai_txt_img(imagem='valida_itensxml.png', area_tela=(168, 400, 250, 30)).strip()
-    print(F'Item da nota: {texto}, texto que ainda ficou: {texto_xml}')
+    print(F'Item da nota: {texto}, texto que ainda ficou: {texto_xml}, tamanho do texto {len(texto_xml)}')
 
     #Verifica pelo tamanho do texto, se ainda ficou algum valor no campo "Itens do pedido"
-    if len(texto_xml) > 4: 
+    if len(texto_xml) > 6: 
         print('Itens XML ainda tem informação!')
         return False
     else:  # Caso fique vazio

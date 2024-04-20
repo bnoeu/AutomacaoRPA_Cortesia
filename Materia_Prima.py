@@ -8,7 +8,7 @@ import time
 import pytesseract
 from ahk import AHK
 from datetime import date
-from funcoes import marca_lancado, procura_imagem, extrai_txt_img, som_erro
+from funcoes import marca_lancado, procura_imagem, extrai_txt_img
 from acoes_planilha import valida_lancamento
 from valida_pedido import valida_pedido
 import pyautogui as bot
@@ -18,7 +18,7 @@ import pyautogui as bot
 ahk = AHK()
 posicao_img = 0  # Define a variavel para utilização global dela.
 continuar = True
-bot.FAILSAFE = True
+bot.FAILSAFE = False
 tempo_inicio = time.time()
 
 chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
@@ -249,6 +249,7 @@ def programa_principal():
 
         # * -------------------------------------- Marca planilha --------------------------------------
         marca_lancado(texto_marcacao='Lancado_RPA')
+time.sleep(7200)
 programa_principal()
 
 # TODO --- Caso o pedido acabe, avisar ao Mateus

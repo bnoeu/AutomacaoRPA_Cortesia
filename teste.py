@@ -18,12 +18,12 @@ import winsound
 ahk = AHK()
 posicao_img = 0  # Define a variavel para utilização global dela.
 continuar = True
-bot.FAILSAFE = True
+bot.FAILSAFE = False
 acabou_pedido = ''
 numero_nf = "965999"
 transportador = "111594"
 chave_xml, silo2, silo1 = '', '', ''
-pytesseract.pytesseract.tesseract_cmd = r"C:\tesseract\tesseract.exe"
+pytesseract.pytesseract.tesseract_cmd = r"C:\Tesseract-OCR\tesseract.exe"
 time.sleep(1)
 
 
@@ -35,5 +35,7 @@ cracha_mot = '112480'
 
 
 #ahk.win_activate('TopCompras', title_match_mode= 2)
-ahk.win_activate('db_alltrips', title_match_mode= 2)
+#ahk.win_activate('db_alltrips', title_match_mode= 2)
 #! Utilizado apenas para estar trechos de codigo.
+
+print(bot.size())

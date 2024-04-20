@@ -6,7 +6,7 @@ import time
 # import pygetwindow as gw
 import pytesseract
 from ahk import AHK
-from funcoes import marca_lancado, procura_imagem, som_erro
+from funcoes import marca_lancado, procura_imagem
 import pyautogui as bot
 
 
@@ -14,10 +14,10 @@ import pyautogui as bot
 ahk = AHK()
 posicao_img = 0  # Define a variavel para utilização global dela.
 continuar = True
-bot.FAILSAFE = True
+bot.FAILSAFE = False
 tempo_inicio = time.time()
 chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
-pytesseract.pytesseract.tesseract_cmd = r"C:\tesseract\tesseract.exe"
+pytesseract.pytesseract.tesseract_cmd = r"C:\Tesseract-OCR\tesseract.exe"
 bot.PAUSE = 1.4
 
 
@@ -115,10 +115,10 @@ def valida_lancamento():
         # -------------------------------------- Lançamento Topcon --------------------------------------
         print('--- Abrindo TopCompras para iniciar o lançamento')
         ahk.win_activate('TopCompras', title_match_mode=2)
+        ahk.win_wait('TopCompras', title_match_mode=2, timeout= 10)
         if ahk.win_is_active('TopCompras', title_match_mode=2):
             print('Tela compras está maximizada! Iniciando o programa')
         else:
-            som_erro()
             exit(bot.alert('Tela de Compras não abriu.'))
         # Processo de lançamento
         bot.press('F2')
