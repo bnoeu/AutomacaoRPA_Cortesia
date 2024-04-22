@@ -79,10 +79,11 @@ def marca_lancado(texto_marcacao='Lancado'):
         #Informa o texto recebido pela função e passa para a celula ao lado, para inserir a data
         bot.write(texto_marcacao)
         bot.press('RIGHT')
-        hoje = datetime.date.today()
-        bot.write(str(hoje))
+        #hoje = datetime.date.today()
+        #bot.write(str(hoje))
+        bot.write('20042024')
         bot.press("ENTER")
-        time.sleep(1)
+        time.sleep(1.2)
 
         #Retorna a planilha para o modo "Somente Exibição (Botão Verde)"
         if procura_imagem(imagem='img_planilha/bt_filtro.png', continuar_exec=True, limite_tentativa=8, area = (1468, 400, 200, 200)) is not False:
@@ -98,7 +99,7 @@ def marca_lancado(texto_marcacao='Lancado'):
             bot.click(procura_imagem(imagem='img_planilha/bt_aplicar.png'))
     else: #Caso já esteja no modo "Edição"
         exit('--- Planilha no modo edição! Necessario scriptar essa parte')
-    print(F'--------------------- Processou NFE, situação: {texto_marcacao} ---------------------')
+    print(F'\033[2;37;42m --------------------- Processou NFE, situação: {texto_marcacao} --------------------- \033[0;0m')
     print('')
 
 
@@ -124,24 +125,24 @@ def extrai_txt_img(imagem, area_tela):
     img_thresh = cv2.threshold(img_cinza, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)[1]
     
     #Smoothing 
-    kernel = np.ones((6,6),np.float32)/35
-    smooth = cv2.filter2D(img_thresh,-1,kernel)
+    #kernel = np.ones((6,6),np.float32)/35
+    #smooth = cv2.filter2D(img_thresh,-1,kernel)
     
     #Adiciona um blur
-    blur = cv2.GaussianBlur(smooth,(7,7),0)
+    blur = cv2.GaussianBlur(img_thresh,(7,7),0)
     
     
     
     # Aplica uma operação de limiarização para binarizar a imagem
     #blur = cv2.GaussianBlur(img_cinza,(5,5),0)
     
-    #cv2.imwrite('amostras\img_thresh.png', img_thresh)
+    cv2.imwrite('img_geradas\img_thresh.png', img_thresh)
     
     
     '''
     #Exibe as imagens em caso de debug
     cv2.imshow('img', img)
-    cv2.imshow('smooth', smooth)
+    #cv2.imshow('smooth', smooth)
     cv2.imshow('blur', blur)
     cv2.imshow('thresh', img_thresh)
     cv2.imshow('img_cinza', img_cinza)

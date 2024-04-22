@@ -84,15 +84,19 @@ def programa_principal():
 
         # Confirma a informação da nova filial de estoque
         bot.press('ENTER', presses=1)
-        time.sleep(1)
+        time.sleep(1.5)
 
         bot.click(1006, 345)  # Campo data da operação
-        hoje = date.today()
-        hoje = hoje.strftime("%d%m%y")  # dd/mm/YY
-        bot.write(hoje)
+        #hoje = date.today()
+        #hoje = hoje.strftime("%d%m%y")  # dd/mm/YY
+        
+        #! Temporariamente preenche como 20/04
+        bot.write('200424')
         bot.press('enter')
+        time.sleep(0.5)
 
         # Altera o campo centro de custo, para o dado coletado
+        print(F'--- Trocando o centro de custo para {centro_custo}')
         bot.write(centro_custo)
 
         # Aguarda aparecer o campo "cod_desc"
@@ -249,7 +253,6 @@ def programa_principal():
 
         # * -------------------------------------- Marca planilha --------------------------------------
         marca_lancado(texto_marcacao='Lancado_RPA')
-time.sleep(7200)
 programa_principal()
 
 # TODO --- Caso o pedido acabe, avisar ao Mateus
