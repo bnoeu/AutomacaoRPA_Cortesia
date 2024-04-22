@@ -218,10 +218,9 @@ def programa_principal():
         ahk.win_wait_active('TopCom', timeout=10, title_match_mode=2)
         ahk.win_activate('TopCom', title_match_mode=2)
         
-        
         # Espera até aparecer a tela de operação realizada, e quando ela aparecer, clica no botão OK
         while procura_imagem(imagem='img_topcon/operacao_realizada.png', continuar_exec=True) is False:
-            time.sleep(0.5)
+            time.sleep(1)
             if procura_imagem(imagem='img_topcon/chave_invalida.png', limite_tentativa= 1, continuar_exec=True) is not False:
                 print('--- Nota já lançada, marcando planilha!')
                 bot.press('ENTER')
