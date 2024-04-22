@@ -16,9 +16,10 @@ bot.FAILSAFE = False
 numero_nf = "965999"
 transportador = "111594"
 chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
+validou_itensXml = False
 
 def valida_pedido(acabou_pedido=False):
-    bot.PAUSE = 0.8
+    bot.PAUSE = 1
     tentativa = 0
     item_pedido = ''
         
@@ -30,16 +31,16 @@ def valida_pedido(acabou_pedido=False):
     CIMENTO_CP2 = ('E-40', '£-40', 'II-E-40', 'CIMENTO PORTLAND CP II-E-40 RS |', 'CIMENTO PORTLAND CP IIE-40 RS', 'CIMENTO PORTLAND CP IIE-40 RS |', "CIMENTO PORTLAND CP I'E-40 RS.", "CIMENTO PORTLAND CP IE-40 RS")
     AREIA_RIO = ('AREIA LAVADA MEDIA', 'AREIA MEDIA', 'ARE A LAVADA MEDIA')
     CIMENTO_CP5 = ('CPV', 'TESTE')
-    AREIA_QUARTZO = ('AREIA DE QUARTZO VERMELHA', 'AREA QUARTZD', 'AREIA DE QUARTZ0 VERMELHA')
+    AREIA_QUARTZO = ('AREIA DE QUARTZO VERMELHA', 'AREA QUARTZD', 'AREIA DE QUARTZ0 VERMELHA', 'P2 AREIA')
     AREIA_PRIME = ('AREA PRIME', 'TESTE')
-    AREIA_BRITADA = ('AR EIA ARTIF ClaL', 'teste')
+    AREIA_BRITADA = ('AR EIA ARTIF ClaL', 'AR EIA AR TIFICIAL', 'teste')
 
     nome_pedido = [PEDRA_1, PO_PEDRA, BRITA_0, CIMENTO_CP2, CIMENTO_CP3, CIMENTO_CP5, AREIA_RIO, AREIA_QUARTZO, AREIA_PRIME, AREIA_BRITADA]
 
     #Força a abertura da tela de vinculação de item versus nota
     ahk.win_activate('Vinculação Itens da Nota', title_match_mode = 2)
     ahk.win_wait_active('Vinculação Itens da Nota', title_match_mode = 2, timeout= 20)
-    time.sleep(2)
+    time.sleep(1)
 
     #Coleta o texto do campo "item XML", que é o item a constar na nota fiscal, e com base nisso, trata o dado
     txt_itensXML = extrai_txt_img(imagem='item_nota.png',area_tela=(170, 400, 280, 30))
@@ -52,13 +53,11 @@ def valida_pedido(acabou_pedido=False):
         time.sleep(0.2)
         if definiu_pedido is True:
             break
-        print(F'\nVerificando lista: {nome}')
+        #print(F'\nVerificando lista: {nome}')
         for item_pedido in nome: #Para cada item dentro das linhas.
-            print(f'--- Comparando o texto extraido: {txt_itensXML }, com o texto: {item_pedido}')            
+            #print(f'--- Comparando o texto extraido: {txt_itensXML }, com o texto: {item_pedido}')            
             #Pesquisa se o txt_itensXML bate com o item da lista atual
             if item_pedido in txt_itensXML:
-                print(F'\n--- O item da lista: {item_pedido} é igual ao item extraido: {txt_itensXML}')
-                print(F'Lista onde encontrou: {nome}\n')
                 
                 # Mapeamento de nomes para imagens
                 mapeamento_imagens = {
@@ -77,67 +76,46 @@ def valida_pedido(acabou_pedido=False):
                 #Verificação do nome no mapeamento
                 if nome in mapeamento_imagens:
                     img_pedido = mapeamento_imagens[nome]
-                    print(F'Procurando {img_pedido}')
-
+                    print(F'\n--- O item: {item_pedido} é igual ao item extraido: {txt_itensXML}')
+                    print(F'--- Lista onde encontrou: {nome}\n')
+                    print(F'--- Procurando a imagem: {img_pedido}')
+                    validou_itensXml = True
                 else:
                     if img_pedido == 0:
                         exit(bot.alert(f'Texto não padronizado, verificar script, texto: {txt_itensXML.strip()}'))
-
                 definiu_pedido = True
-                ''' #! Substituido pela logica informada acima.
-                if nome == PEDRA_1:
-                    img_pedido = 'PED_BRITA1.jpg'
-                elif nome == PO_PEDRA:
-                    img_pedido = 'PED_POPEDRA.png'
-                elif nome == BRITA_0:
-                    img_pedido = 'PED_BRITA0.jpg'
-                elif nome == CIMENTO_CP2:
-                    img_pedido = 'PED_CPIIE40.png'
-                elif nome == AREIA_RIO:
-                    img_pedido = 'PED_AREIARIO.png'
-                elif nome == CIMENTO_CP5:
-                    img_pedido = 'PED_CIMENTOCPV.png'
-                elif nome == AREIA_QUARTZO:
-                    img_pedido = 'PED_AREIAFINA.png'
-                elif nome == AREIA_PRIME:
-                    img_pedido = 'PED_AREIAPRIME.png'
-                elif nome == AREIA_BRITADA:
-                    img_pedido = 'PED_AREIABRITA.png'
-                elif nome == CIMENTO_CP3:
-                    img_pedido = 'PED_CPIII40.png'
-                else:
-                    if img_pedido == 0:
-                        exit(bot.alert(F'Texto não padronizado, verificar script, texto: {txt_itensXML.strip()}'))
-                '''
-                break
-            else:
-                #exit(bot.alert(F'Texto não padronizado, verificar script, texto: {txt_itensXML.strip()}'))
-                pass
-                #print(F'--- O item da lista: {item_pedido} NÃO é igual ao item extraido: {txt_itensXML}')
-            
-    print(F'--- Valor da variavel img_pedido: {img_pedido}')
-    
+        
+    #Caso não tenha encontrado o texto em nenhuma lista. 
+    if validou_itensXml is False:
+        exit(bot.alert(F'--- Não foi possivel encontrar: {txt_itensXML} em nenhuma lista.'))
+        
+        
 #* --------------------------------- Pedidos Encontrados ---------------------------------
     while tentativa <= 2:
-        vazio = ''
-        print(F'--- Tentativa: {tentativa}')
-        if tentativa > 0:
-            print('--- Baixando a lista dos pedidos')
-            bot.click(744, 230) #Clica para descer o menu e exibir o resto das opções 
+        time.sleep(0.5)
+        ahk.win_activate('Vinculação Itens da Nota', title_match_mode = 2)
+        vazio = '' 
         
-        #Tenta encontrar a imagem do pedido e salva as posições onde encontrar
-        posicoes = bot.locateAllOnScreen('img_pedidos/' + img_pedido, confidence= 0.90, grayscale=True, region=(0, 0, 850, 300))
+        #* Validação para saber se encontrou em algum local, caso não encontre, exibe um erro.
+        #*Tenta encontrar a imagem do pedido e salva as posições onde encontrar
+        print(F'--- Tentando localizar {img_pedido}')
+        posicoes = bot.locateAllOnScreen('img_pedidos/' + img_pedido, confidence= 0.85, grayscale=True, region=(0, 0, 850, 400))
 
-        #Verifica se encontrou em alguma posição.
-        qts_achou = 0
+        contagem = 0
         for pos in posicoes:
-            qts_achou += 1
-        if qts_achou == 0:
-            exit(bot.alert(F'Não encontrou {img_pedido} na tela, verificar.'))
+            print(pos)
+            contagem += 1
+        print(F'Encontrou em: {contagem} posições')
 
         #Verifica nas posições que encontrou
-        #print(F'--- Procurando nas: {len(list(posicoes))} posições os pedidos')
-        for pos in posicoes:  # Tenta em todos pedidos encontrados
+        for x in range(contagem):  # Tenta em todos pedidos encontrados
+            time.sleep(0.2)
+            #Caso já esteja na segunda tentativa, passa a tela para o lado
+            if tentativa > 0:
+                print('--- Baixando a lista dos pedidos')
+                bot.click(744, 230) #Clica para descer o menu e exibir o resto das opções
+            print(F'--- Tentativa: {tentativa}')
+            
             print(F'Achou o {txt_itensXML} na posição {pos}')
             bot.doubleClick(pos)  # Marca o pedido encontrado
             bot.click(procura_imagem(imagem='img_topcon/localizar.png'))
@@ -157,8 +135,9 @@ def valida_pedido(acabou_pedido=False):
                     print(F'--- Não ficou vazio, desmarcando pedido, tentativa {tentativa}')
                     bot.doubleClick(pos) # Clica novamente no mesmo pedido, para desmarcar
             else:
-                print(F'--- Pedido validado, saindo do loop dos pedidos encontrados, valor do campo: {vazio}')
+                print(F'Pedido validado, saindo do loop dos pedidos encontrados, valor do campo: {vazio}')
                 break
+            
             tentativa += 1
         
         #Marcou o pedido, saindo dos loop
