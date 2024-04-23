@@ -92,14 +92,15 @@ def valida_pedido(acabou_pedido=False):
         
 #* --------------------------------- Pedidos Encontrados ---------------------------------
     while tentativa <= 2:
-        time.sleep(0.5)
+        time.sleep(0.3)
         ahk.win_activate('Vinculação Itens da Nota', title_match_mode = 2)
+        time.sleep(0.5)
         vazio = '' 
         
         #* Validação para saber se encontrou em algum local, caso não encontre, exibe um erro.
         #*Tenta encontrar a imagem do pedido e salva as posições onde encontrar
         print(F'--- Tentando localizar {img_pedido}')
-        posicoes = bot.locateAllOnScreen('img_pedidos/' + img_pedido, confidence= 0.85, grayscale=True, region=(0, 0, 850, 400))
+        posicoes = bot.locateAllOnScreen('img_pedidos/' + img_pedido, confidence= 0.75, grayscale=True, region=(0, 0, 850, 400))
 
         contagem = 0
         for pos in posicoes:
@@ -108,7 +109,8 @@ def valida_pedido(acabou_pedido=False):
         print(F'Encontrou em: {contagem} posições')
 
         #Verifica nas posições que encontrou
-        for x in range(contagem):  # Tenta em todos pedidos encontrados
+        posicoes = bot.locateAllOnScreen('img_pedidos/' + img_pedido, confidence= 0.8, grayscale=True, region=(0, 0, 850, 400))
+        for pos in posicoes:  # Tenta em todos pedidos encontrados
             time.sleep(0.2)
             #Caso já esteja na segunda tentativa, passa a tela para o lado
             if tentativa > 0:

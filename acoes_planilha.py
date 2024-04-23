@@ -87,13 +87,14 @@ def valida_lancamento():
         
         #Clica na primeira linha (Campo RE), e pressiona seta para baixo
         bot.click(procura_imagem(imagem='img_planilha/titulo_re.png'))
+        time.sleep(1)
         bot.press('DOWN')
         
         for n in range(0, 7, 1):  # Copia dados dos 6 campos
             while True:
                 bot.hotkey('ctrl', 'c')
                 if 'Recuperando' in ahk.get_clipboard():
-                    time.sleep(0.3)
+                    time.sleep(0.2)
                 else:
                     break
             dados_planilha.append(ahk.get_clipboard())
@@ -130,7 +131,8 @@ def valida_lancamento():
         ahk.win_wait_active('TopCompras')
         tentativa = 0
         while tentativa < 10:
-            time.sleep(0.5)
+            time.sleep(0.5)                
+            #Verifica quais das telas apareceu. 
             if procura_imagem(imagem='img_topcon/botao_sim.jpg', limite_tentativa= 1, continuar_exec=True) is not False:
                 bot.click(procura_imagem(imagem='img_topcon/botao_sim.jpg', limite_tentativa=1, continuar_exec=True))
                 print('--- XML Validado, indo para verificação do pedido\n')
@@ -152,6 +154,11 @@ def valida_lancamento():
                 bot.press('ENTER')
                 marca_lancado(texto_marcacao='NFE_CANCELADA')
                 break
+            
+            # Verifica caso tenha travado e espera até que o topcom volte a responder
+            print('--- Aguardando TopCompras Retornar')
+            while ahk.win_exists('Não está respondendo'):
+                time.sleep(0.5)
             tentativa += 1
         if tentativa >= 15:
             exit('Rodou 10 verificações e não achou nenhuma tela, aumentar o tempo')
