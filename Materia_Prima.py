@@ -7,11 +7,11 @@
 import time
 import pytesseract
 from ahk import AHK
-from datetime import date
 from funcoes import marca_lancado, procura_imagem, extrai_txt_img
 from acoes_planilha import valida_lancamento
 from valida_pedido import valida_pedido
 import pyautogui as bot
+#from datetime import date
 #import sqlite3
 
 # --- Definição de parametros

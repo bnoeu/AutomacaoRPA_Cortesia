@@ -80,8 +80,6 @@ def valida_lancamento():
                 else:
                     print('--- Filtro das notas vazias aplicado!')
         
-        exit()
-        
         # * Coleta os dados da linha atual
         dados_planilha = []
         print('--- Copiando dados e formatando')
@@ -90,7 +88,6 @@ def valida_lancamento():
         #Clica na primeira linha (Campo RE), e pressiona seta para baixo
         bot.click(procura_imagem(imagem='img_planilha/titulo_re.png'))
         bot.press('DOWN')
-        exit()
         
         for n in range(0, 7, 1):  # Copia dados dos 6 campos
             while True:
@@ -126,10 +123,7 @@ def valida_lancamento():
         # Processo de lançamento
         bot.press('F2')
         bot.press('F3', presses=2, interval=0.5)
-        time.sleep(1.5)
-        exit()
-        
-        
+        time.sleep(1.5)       
         bot.doubleClick(558, 235, interval = 0.5)  # Clica dentro do campo para inserir a chave XML
         bot.write(chave_xml)
         bot.press('ENTER')
