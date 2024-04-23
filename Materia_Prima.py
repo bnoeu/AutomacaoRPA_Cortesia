@@ -11,7 +11,7 @@ from funcoes import marca_lancado, procura_imagem, extrai_txt_img
 from acoes_planilha import valida_lancamento
 from valida_pedido import valida_pedido
 import pyautogui as bot
-#from datetime import date
+from datetime import date
 #import sqlite3
 
 # --- Definição de parametros
@@ -87,11 +87,8 @@ def programa_principal():
         time.sleep(1.5)
 
         bot.click(1006, 345)  # Campo data da operação
-        #hoje = date.today()
-        #hoje = hoje.strftime("%d%m%y")  # dd/mm/YY
-        
-        #! Temporariamente preenche como 20/04
-        bot.write('200424')
+        hoje = date.today()
+        hoje = hoje.strftime("%d%m%y")  # dd/mm/YY
         bot.press('enter')
         time.sleep(0.5)
 

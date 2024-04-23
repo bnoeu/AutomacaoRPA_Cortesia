@@ -6,7 +6,7 @@ import cv2
 import pytesseract
 from ahk import AHK
 import pyautogui as bot
-# import datetime
+import datetime
 #import pygetwindow as gw
 import numpy as np
 
@@ -79,10 +79,12 @@ def marca_lancado(texto_marcacao='Lancado'):
         #Informa o texto recebido pela função e passa para a celula ao lado, para inserir a data
         bot.write(texto_marcacao)
         bot.press('RIGHT')
-        #hoje = datetime.date.today()
-        #bot.write(str(hoje))
+        hoje = datetime.date.today()
+        bot.write(str(hoje))
+        '''
         bot.write('20042024')
         bot.press("ENTER")
+        '''
         time.sleep(1.2)
 
         #Retorna a planilha para o modo "Somente Exibição (Botão Verde)"
