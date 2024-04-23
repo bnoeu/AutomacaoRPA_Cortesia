@@ -109,7 +109,7 @@ def valida_pedido(acabou_pedido=False):
         print(F'Encontrou em: {contagem} posições')
 
         #Verifica nas posições que encontrou
-        posicoes = bot.locateAllOnScreen('img_pedidos/' + img_pedido, confidence= 0.8, grayscale=True, region=(0, 0, 850, 400))
+        posicoes = bot.locateAllOnScreen('img_pedidos/' + img_pedido, confidence= 0.85, grayscale=True, region=(0, 0, 850, 400))
         for pos in posicoes:  # Tenta em todos pedidos encontrados
             time.sleep(0.2)
             #Caso já esteja na segunda tentativa, passa a tela para o lado
