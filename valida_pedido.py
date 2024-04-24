@@ -40,7 +40,7 @@ def valida_pedido(acabou_pedido=False):
     #Força a abertura da tela de vinculação de item versus nota
     ahk.win_activate('Vinculação Itens da Nota', title_match_mode = 2)
     ahk.win_wait_active('Vinculação Itens da Nota', title_match_mode = 2, timeout= 20)
-    time.sleep(1)
+    time.sleep(0.8)
 
     #Coleta o texto do campo "item XML", que é o item a constar na nota fiscal, e com base nisso, trata o dado
     txt_itensXML = extrai_txt_img(imagem='item_nota.png',area_tela=(170, 400, 280, 30))
@@ -94,7 +94,7 @@ def valida_pedido(acabou_pedido=False):
     while tentativa <= 2:
         time.sleep(0.3)
         ahk.win_activate('Vinculação Itens da Nota', title_match_mode = 2)
-        time.sleep(0.5)
+        time.sleep(0.3)
         vazio = '' 
         
         #* Validação para saber se encontrou em algum local, caso não encontre, exibe um erro.
@@ -133,7 +133,7 @@ def valida_pedido(acabou_pedido=False):
                 if procura_imagem('img_topcon/operacao_fiscal_configurada.png', continuar_exec=True, limite_tentativa=2):
                     bot.press('ENTER')
                 if verifica_ped_vazio(texto=txt_itensXML, pos=pos) is not True:
-                    time.sleep(0.5)
+                    time.sleep(0.3)
                     print(F'--- Não ficou vazio, desmarcando pedido, tentativa {tentativa}')
                     bot.doubleClick(pos) # Clica novamente no mesmo pedido, para desmarcar
             else:

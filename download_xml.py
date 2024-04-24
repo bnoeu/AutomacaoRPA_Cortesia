@@ -45,7 +45,7 @@ bot.doubleClick(procura_imagem(
 ahk.win_wait('Não está respondendo', title_match_mode=2, timeout=50)
 while ahk.win_exists('Não está respondendo', title_match_mode=2):
     print('Aguardando')
-    time.sleep(1)
+    time.sleep(0.8)
 
 # TODO --- TELA REJEIÇÃO
 while True:

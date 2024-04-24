@@ -18,7 +18,7 @@ bot.FAILSAFE = False
 tempo_inicio = time.time()
 chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
 pytesseract.pytesseract.tesseract_cmd = r"C:\Tesseract-OCR\tesseract.exe"
-bot.PAUSE = 1.5
+bot.PAUSE = 1.3
 
 
 def valida_lancamento():
@@ -26,11 +26,11 @@ def valida_lancamento():
         bot.PAUSE = 0.4
         print('--- Abrindo planilha - COLETA_PLANILHA')
         ahk.win_activate('db_alltrips', title_match_mode= 2)
-        time.sleep(0.5)
+        time.sleep(0.3)
 
         #Verifica se já está no modo de edição, caso esteja, muda para o modo "exibição"
         if procura_imagem(imagem='img_planilha/botao_exibicaoverde.png', continuar_exec=True) is False:
-            time.sleep(0.5)
+            time.sleep(0.3)
             print('--- Não está no modo exibição! Realizando alteração.')
                         
             #Espera até encontar o botão "Exibição" (Lapis bloqueado) e realiza um click nele
@@ -83,11 +83,11 @@ def valida_lancamento():
         # * Coleta os dados da linha atual
         dados_planilha = []
         print('--- Copiando dados e formatando')
-        time.sleep(1)
+        time.sleep(0.8)
         
         #Clica na primeira linha (Campo RE), e pressiona seta para baixo
         bot.click(procura_imagem(imagem='img_planilha/titulo_re.png'))
-        time.sleep(1)
+        time.sleep(0.8)
         bot.press('DOWN')
         
         for n in range(0, 7, 1):  # Copia dados dos 6 campos
@@ -131,7 +131,7 @@ def valida_lancamento():
         ahk.win_wait_active('TopCompras')
         tentativa = 0
         while tentativa < 10:
-            time.sleep(0.5)                
+            time.sleep(0.3)                
             #Verifica quais das telas apareceu. 
             if procura_imagem(imagem='img_topcon/botao_sim.jpg', limite_tentativa= 1, continuar_exec=True) is not False:
                 bot.click(procura_imagem(imagem='img_topcon/botao_sim.jpg', limite_tentativa=1, continuar_exec=True))
@@ -158,7 +158,7 @@ def valida_lancamento():
             # Verifica caso tenha travado e espera até que o topcom volte a responder
             print('--- Aguardando TopCompras Retornar')
             while ahk.win_exists('Não está respondendo'):
-                time.sleep(0.5)
+                time.sleep(0.3)
             tentativa += 1
         if tentativa >= 15:
             exit('Rodou 10 verificações e não achou nenhuma tela, aumentar o tempo')

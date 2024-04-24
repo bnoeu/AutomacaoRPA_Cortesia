@@ -23,7 +23,7 @@ tempo_inicio = time.time()
 
 chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
 pytesseract.pytesseract.tesseract_cmd = r"C:\Tesseract-OCR\tesseract.exe"
-bot.PAUSE = 1.5
+bot.PAUSE = 1.3
 
 '''
 #Cria a conexão com o banco de dados
@@ -84,12 +84,17 @@ def programa_principal():
 
         # Confirma a informação da nova filial de estoque
         bot.press('ENTER', presses=1)
-        time.sleep(1.5)
+        time.sleep(1)
 
         bot.click(1006, 345)  # Campo data da operação
         hoje = date.today()
         hoje = hoje.strftime("%d%m%y")  # dd/mm/YY
+<<<<<<< Updated upstream
         bot.press('enter')
+=======
+        bot.write(hoje)
+        bot.press('enter')       
+>>>>>>> Stashed changes
         time.sleep(0.5)
 
         # Altera o campo centro de custo, para o dado coletado
@@ -99,18 +104,18 @@ def programa_principal():
         # Aguarda aparecer o campo "cod_desc"
         print('--- Aguarda aparecer o campo cod_desc')
         while procura_imagem(imagem='img_topcon/cod_desc.png', continuar_exec=True) is False:
-            time.sleep(0.5)
+            time.sleep(0.3)
             
         bot.press('ENTER')
 
         # Aguarda até SUMIR o campo "cod_desc"
         print('--- Aguarda até SUMIR o campo "cod_desc"')
         while procura_imagem(imagem='img_topcon/cod_desc.png', continuar_exec=True) is not False:
-            time.sleep(0.5)
+            time.sleep(0.3)
             ahk.win_wait_active('TopCompras', title_match_mode= 2)
             ahk.win_activate('TopCompras', title_match_mode= 2)
         else: #Sumiu, continuando a execução
-            time.sleep(0.5)
+            time.sleep(0.3)
 
         # Clica no campo "Valores Totais"
         bot.doubleClick(105, 515, interval= 0.5)
@@ -119,14 +124,14 @@ def programa_principal():
         print(F'--- PREENCHENDO TRANSPORTADOR: {cracha_mot}')
         bot.click(317, 897)  # Campo transportador
         while procura_imagem(imagem='img_topcon/campo_re_0.png') is False:
-            time.sleep(0.5)
+            time.sleep(0.3)
         else:
             print('--- Campo RE habilitado, preenchendo.')
             
         #Preenche o campo do transportador e verifica se aconteceu algum erro.
         bot.write(cracha_mot)  # ID transportador
         bot.press('enter')
-        time.sleep(1)
+        time.sleep(0.8)
 
         #Verifica 15 vezes se apareceu a tela "transportador incorreto", caso apareça, tratar.
         if procura_imagem(imagem='img_topcon/transportador_incorreto.png', continuar_exec= True) is not False:
@@ -200,7 +205,7 @@ def programa_principal():
             bot.click(procura_imagem(imagem='img_topcon/confirma.png'))
             while procura_imagem(imagem='img_topcon/confirma.png', continuar_exec=True) is not False:
                 print('--- Aguardando fechamento da tela do botão "Alterar" ')
-                time.sleep(1)
+                time.sleep(0.8)
             
         # Conclui o lançamento
         bot.press('pagedown')  # Conclui o lançamento
@@ -208,8 +213,8 @@ def programa_principal():
         # Espera até que o topcom volte a responder
         print('--- Aguardando TopCompras Retornar')
         while ahk.win_exists('Não está respondendo'):
-            time.sleep(0.5)
-        time.sleep(1)
+            time.sleep(0.3)
+        time.sleep(0.8)
 
         # Verifica se a tela "Deseja processar" apareceu, caso sim, procede para emissão da NFE.
         ahk.win_wait_active('TopCom', timeout=10, title_match_mode=2)
@@ -217,7 +222,7 @@ def programa_principal():
         
         # Espera até aparecer a tela de operação realizada, e quando ela aparecer, clica no botão OK
         while procura_imagem(imagem='img_topcon/operacao_realizada.png', continuar_exec=True) is False:
-            time.sleep(1)
+            time.sleep(0.8)
             if procura_imagem(imagem='img_topcon/chave_invalida.png', limite_tentativa= 1, continuar_exec=True) is not False:
                 print('--- Nota já lançada, marcando planilha!')
                 bot.press('ENTER')
@@ -235,7 +240,7 @@ def programa_principal():
                 while True:  # Aguardar o .PDF
                     try:
                         ahk.win_wait('.pdf', title_match_mode=2, timeout=2)
-                        time.sleep(0.5)
+                        time.sleep(0.3)
                     except TimeoutError:
                         print('Aguardando .PDF')
                     else:
@@ -243,7 +248,7 @@ def programa_principal():
                         ahk.win_close('pdf - Google Chrome', title_match_mode=2)
                         print('Fechou o PDF')
                         break
-                time.sleep(1)
+                time.sleep(0.8)
                 ahk.win_activate('Transmissão', title_match_mode=2)
                 bot.click(procura_imagem(imagem='img_topcon/sair_tela.png'))
 
