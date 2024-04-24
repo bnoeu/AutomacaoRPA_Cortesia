@@ -83,11 +83,11 @@ def valida_lancamento():
         # * Coleta os dados da linha atual
         dados_planilha = []
         print('--- Copiando dados e formatando')
-        time.sleep(0.8)
+        time.sleep(1)
         
         #Clica na primeira linha (Campo RE), e pressiona seta para baixo
         bot.click(procura_imagem(imagem='img_planilha/titulo_re.png'))
-        time.sleep(0.8)
+        time.sleep(1)
         bot.press('DOWN')
         
         for n in range(0, 7, 1):  # Copia dados dos 6 campos

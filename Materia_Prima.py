@@ -89,12 +89,8 @@ def programa_principal():
         bot.click(1006, 345)  # Campo data da operação
         hoje = date.today()
         hoje = hoje.strftime("%d%m%y")  # dd/mm/YY
-<<<<<<< Updated upstream
-        bot.press('enter')
-=======
         bot.write(hoje)
         bot.press('enter')       
->>>>>>> Stashed changes
         time.sleep(0.5)
 
         # Altera o campo centro de custo, para o dado coletado
