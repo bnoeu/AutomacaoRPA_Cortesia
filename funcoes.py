@@ -119,25 +119,26 @@ def extrai_txt_img(imagem, area_tela):
     altura = int(img.shape[0] * porce_escala / 90)
     nova_dim = (largura, altura)
     img = cv2.resize(img, nova_dim, interpolation=cv2.INTER_AREA) # Redimensiona a imagem
-    kernel = np.ones((5,5),np.float32)/35
-    smooth = cv2.filter2D(img,-1,kernel)
-    blur = cv2.GaussianBlur(smooth,(5,5),0)
-    img_cinza = cv2.cvtColor(blur, cv2.COLOR_BGR2GRAY) # Converte a imagem para tons de cinza
-    img_thresh = cv2.threshold(img_cinza, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)[1] #OTSU threshold
-    #kernel = np.ones((5,5),np.uint8)
+    img_cinza = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY) # Converte a imagem para tons de cinza
+    
+    kernel = np.ones((5,5),np.float32)/30
+    smooth = cv2.filter2D(img_cinza,-1,kernel)
+    img_thresh = cv2.threshold(smooth, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)[1] #OTSU threshold
+    #blur = cv2.GaussianBlur(img_thresh,(5,5),0)
+    #kernel = np.ones((3,3),np.uint8)
     #erosion = cv2.erode(img_thresh,kernel,iterations = 1)
     
     
     
     # Utiliza o pytesseract para extrair texto da imagem binarizada
-    texto = pytesseract.image_to_string(img_thresh, lang='eng', config='--psm 7').strip()
+    texto = pytesseract.image_to_string(img_thresh, lang='eng', config='--psm 6').strip()
     cv2.imwrite('img_geradas\img_thresh.png', img_thresh)
     
     '''
     #Exibe as imagens em caso de debug
     cv2.imshow('img', img)
-    #cv2.imshow('img_cinza', img_cinza)
-    cv2.imshow('blur', blur)
+    cv2.imshow('img_cinza', img_cinza)
+    #cv2.imshow('blur', blur)
     cv2.imshow('thresh', img_thresh)
     cv2.imshow('smooth', smooth)
     #cv2.imshow('erosion', erosion)

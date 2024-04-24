@@ -24,7 +24,7 @@ def valida_pedido(acabou_pedido=False):
     item_pedido = ''
         
     #Nome dos itens que constarem no "Itens XML"
-    PEDRA_1 = ('PEDRA 01', 'PEDRA DI', 'BRITADA 01', 'PEDRA 1', 'PEDRA BRITADA 01', 'PEDRAT', 'PEDRA BRITADA 1', 'BRITADA 1', 'BRITA 01', 'BRITA 1', 'BRITA NR "01"', 'BRITA O01')
+    PEDRA_1 = ('BRITA1', 'PEDRA 01', 'PEDRA DI', 'BRITADA 01', 'PEDRA 1', 'PEDRA BRITADA 01', 'PEDRAT', 'PEDRA BRITADA 1', 'BRITADA 1', 'BRITA 01', 'BRITA 1', 'BRITA NR "01"', 'BRITA O01')
     PO_PEDRA = ('PO DE PEDRA', 'AREA INDUSTRIAL', 'INDUSTRIAL')
     BRITA_0 = ('BRITA 0', 'PEDRISCO LIMPO', 'BRITAD™')
     CIMENTO_CP3 = ('CP 111', 'teste')
@@ -100,7 +100,7 @@ def valida_pedido(acabou_pedido=False):
         #* Validação para saber se encontrou em algum local, caso não encontre, exibe um erro.
         #*Tenta encontrar a imagem do pedido e salva as posições onde encontrar
         print(F'--- Tentando localizar {img_pedido}')
-        posicoes = bot.locateAllOnScreen('img_pedidos/' + img_pedido, confidence= 0.75, grayscale=True, region=(0, 0, 850, 400))
+        posicoes = bot.locateAllOnScreen('img_pedidos/' + img_pedido, confidence= 0.9, grayscale=True, region=(0, 0, 850, 400))
 
         contagem = 0
         for pos in posicoes:
@@ -109,19 +109,16 @@ def valida_pedido(acabou_pedido=False):
         print(F'Encontrou em: {contagem} posições')
 
         #Verifica nas posições que encontrou
-        posicoes = bot.locateAllOnScreen('img_pedidos/' + img_pedido, confidence= 0.85, grayscale=True, region=(0, 0, 850, 400))
+        posicoes = bot.locateAllOnScreen('img_pedidos/' + img_pedido, confidence= 0.9, grayscale=True, region=(0, 0, 850, 400))
         for pos in posicoes:  # Tenta em todos pedidos encontrados
-            time.sleep(0.2)
+            time.sleep(0.4)
             #Caso já esteja na segunda tentativa, passa a tela para o lado
             if tentativa > 0:
                 print('--- Baixando a lista dos pedidos')
                 bot.click(744, 230) #Clica para descer o menu e exibir o resto das opções
-            print(F'--- Tentativa: {tentativa}')
-            
-            print(F'Achou o {txt_itensXML} na posição {pos}')
+            print(F'--- Tentativa: {tentativa}, achou o {txt_itensXML} na posição {pos}')
             bot.doubleClick(pos)  # Marca o pedido encontrado
             bot.click(procura_imagem(imagem='img_topcon/localizar.png'))
-
             vazio = verifica_ped_vazio(texto=txt_itensXML, pos=pos)
             print(F'--- Valor campo "vazio": {vazio}')
             if vazio is not True:
@@ -139,12 +136,12 @@ def valida_pedido(acabou_pedido=False):
             else:
                 print(F'Pedido validado, saindo do loop dos pedidos encontrados, valor do campo: {vazio}')
                 break
-            
-            tentativa += 1
         
         #Marcou o pedido, saindo dos loop
         if vazio is True: 
             break
+        else:
+            tentativa += 1
     else:
         if vazio is False:
             bot.click(procura_imagem(imagem='img_topcon/bt_cancela.png'))

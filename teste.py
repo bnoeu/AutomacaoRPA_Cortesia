@@ -34,13 +34,9 @@ centro_custo = filial_estoq
 cracha_mot = '112480'
 
 
-#ahk.win_activate('TopCompras', title_match_mode= 2)
+ahk.win_activate('TopCompras', title_match_mode= 2)
 #ahk.win_activate('db_alltrips', title_match_mode= 2)
 #! Utilizado apenas para estar trechos de codigo.
-'''
-txt_itensXML = extrai_txt_img(imagem='item_nota.png',area_tela=(170, 400, 280, 30))
-print(F'Texto extraido do campo Itens XML: {txt_itensXML}') 
-'''
 
 qtd_ton = extrai_txt_img(imagem='img_toneladas.png', area_tela=(895, 577, 70, 20)).strip()
 qtd_ton = qtd_ton.replace(",", ".")

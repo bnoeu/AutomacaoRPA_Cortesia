@@ -164,7 +164,7 @@ def programa_principal():
             #Verifica se abriu a tela com os detalhes do item que consta na NFE (Tela botão alterar)
             while procura_imagem(imagem='img_topcon/valor_cofins.png') is False:
                 print('--- Aguardando aparecer a tela "Itens nota fiscal de compra" ')
-                time.sleep(0.4)
+                time.sleep(0.2)
             else:
                 print('--- Apareceu a tela "Itens nota fiscal de compra" ')
                 # Aguardando aparecer o botão de "confirma", para prosseguir com as ações.
@@ -200,8 +200,11 @@ def programa_principal():
             #Após preencher ou não os silos, clica para confirmar as informações. 
             bot.click(procura_imagem(imagem='img_topcon/confirma.png'))
             while procura_imagem(imagem='img_topcon/confirma.png', continuar_exec=True) is not False:
+                tentativa += 1
                 print('--- Aguardando fechamento da tela do botão "Alterar" ')
                 time.sleep(0.8)
+                if tentativa > 10: #Executa o loop 10 vezes até dar erro.
+                    bot.alert('Apresentou algum erro.')
             
         # Conclui o lançamento
         bot.press('pagedown')  # Conclui o lançamento
