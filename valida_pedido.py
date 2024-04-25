@@ -24,7 +24,7 @@ def valida_pedido(acabou_pedido=False):
     item_pedido = ''
         
     #Nome dos itens que constarem no "Itens XML"
-    PEDRA_1 = ('BRITA1', 'PEDRA 01', 'PEDRA DI', 'BRITADA 01', 'PEDRA 1', 'PEDRA BRITADA 01', 'PEDRAT', 'PEDRA BRITADA 1', 'BRITADA 1', 'BRITA 01', 'BRITA 1', 'BRITA NR "01"', 'BRITA O01')
+    PEDRA_1 = ('BRITA]','BRITA1', 'PEDRA 01', 'PEDRA DI', 'BRITADA 01', 'PEDRA 1', 'PEDRA BRITADA 01', 'PEDRAT', 'PEDRA BRITADA 1', 'BRITADA 1', 'BRITA 01', 'BRITA 1', 'BRITA NR "01"', 'BRITA O01')
     PO_PEDRA = ('PO DE PEDRA', 'AREA INDUSTRIAL', 'INDUSTRIAL')
     BRITA_0 = ('BRITA 0', 'PEDRISCO LIMPO', 'BRITAD™')
     CIMENTO_CP3 = ('CP 111', 'teste')
