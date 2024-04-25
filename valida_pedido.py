@@ -99,8 +99,13 @@ def valida_pedido(acabou_pedido=False):
         
         #* Validação para saber se encontrou em algum local, caso não encontre, exibe um erro.
         #*Tenta encontrar a imagem do pedido e salva as posições onde encontrar
+        if tentativa >= 1:
+            print('--- Baixando a lista dos pedidos')
+            bot.click(744, 230) #Clica para descer o menu e exibir o resto das opções
+
+
         print(F'--- Tentando localizar {img_pedido}')
-        posicoes = bot.locateAllOnScreen('img_pedidos/' + img_pedido, confidence= 0.9, grayscale=True, region=(0, 0, 850, 400))
+        posicoes = bot.locateAllOnScreen('img_pedidos/' + img_pedido, confidence= 0.92, grayscale=True, region=(0, 0, 850, 400))
 
         contagem = 0
         for pos in posicoes:
@@ -109,13 +114,10 @@ def valida_pedido(acabou_pedido=False):
         print(F'Encontrou em: {contagem} posições')
 
         #Verifica nas posições que encontrou
-        posicoes = bot.locateAllOnScreen('img_pedidos/' + img_pedido, confidence= 0.9, grayscale=True, region=(0, 0, 850, 400))
+        posicoes = bot.locateAllOnScreen('img_pedidos/' + img_pedido, confidence= 0.92, grayscale=True, region=(0, 0, 850, 400))
         for pos in posicoes:  # Tenta em todos pedidos encontrados
             time.sleep(0.4)
             #Caso já esteja na segunda tentativa, passa a tela para o lado
-            if tentativa > 0:
-                print('--- Baixando a lista dos pedidos')
-                bot.click(744, 230) #Clica para descer o menu e exibir o resto das opções
             print(F'--- Tentativa: {tentativa}, achou o {txt_itensXML} na posição {pos}')
             bot.doubleClick(pos)  # Marca o pedido encontrado
             bot.click(procura_imagem(imagem='img_topcon/localizar.png'))
@@ -129,12 +131,14 @@ def valida_pedido(acabou_pedido=False):
                     bot.press('ENTER')
                 if procura_imagem('img_topcon/operacao_fiscal_configurada.png', continuar_exec=True, limite_tentativa=2):
                     bot.press('ENTER')
+                
+                #Confere se após clicar nos botões, ainda assim o campo ficou vazio.
                 if verifica_ped_vazio(texto=txt_itensXML, pos=pos) is not True:
                     time.sleep(0.3)
                     print(F'--- Não ficou vazio, desmarcando pedido, tentativa {tentativa}')
                     bot.doubleClick(pos) # Clica novamente no mesmo pedido, para desmarcar
             else:
-                print(F'Pedido validado, saindo do loop dos pedidos encontrados, valor do campo: {vazio}')
+                print(F'--- Pedido validado, saindo do loop dos pedidos encontrados, valor do campo: {vazio}')
                 break
         
         #Marcou o pedido, saindo dos loop

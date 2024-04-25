@@ -9,6 +9,7 @@ import pyautogui as bot
 import datetime
 #import pygetwindow as gw
 import numpy as np
+from colorama import Fore
 
 
 # --- Definição de parametros
@@ -28,13 +29,13 @@ def procura_imagem(imagem, limite_tentativa=6, area=(0, 0, 1920, 1080), continua
         time.sleep(0.7)
         posicao_img = bot.locateCenterOnScreen(imagem, grayscale= True, confidence= confianca, region= area)
         if posicao_img is not None:
-            print(F'Encontrou na posição: {posicao_img}')
+            print(F'--- Encontrou na posição: {posicao_img}')
             break
         tentativa += 1
 
     #Caso seja para continuar
     if (continuar_exec is True) and (posicao_img is None):
-        print('' + 'Não encontrada, continuando execução pois o parametro "continuar_exec" está habilitado')
+        print('' + '--- Não encontrada, continuando execução pois o parametro "continuar_exec" está habilitado')
         return False
     if tentativa >= limite_tentativa:
         print('--- FECHANDO PLANILHA PARA EVITAR ERROS')
@@ -150,14 +151,14 @@ def extrai_txt_img(imagem, area_tela):
 def verifica_ped_vazio(texto, pos):
     #Extrai o texto da imagem 
     texto_xml = extrai_txt_img(imagem='valida_itensxml.png', area_tela=(168, 400, 250, 30)).strip().replace('_','')
-    print(F'Item da nota: {texto}, texto que ainda ficou: {texto_xml}, tamanho do texto {len(texto_xml)}')
+    print(F'--- Item da nota: {texto}, texto que ainda ficou: {texto_xml}, tamanho do texto {len(texto_xml)}')
 
     #Verifica pelo tamanho do texto, se ainda ficou algum valor no campo "Itens do pedido"
     if len(texto_xml) > 6: 
-        print('Itens XML ainda tem informação!')
+        print('--- Itens XML ainda tem informação!')
         return False
     else:  # Caso fique vazio
-        print('Itens XML ficou vazio! prosseguindo')
+        print('--- Itens XML ficou vazio! prosseguindo')
         bot.click(procura_imagem(imagem='img_topcon/confirma.png', limite_tentativa= 10))
         bot.click(procura_imagem(imagem='img_topcon/botao_ok.jpg', limite_tentativa= 10))
         return True

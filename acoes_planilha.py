@@ -100,9 +100,11 @@ def valida_lancamento():
             dados_planilha.append(ahk.get_clipboard())
             bot.press('right')
         print(F'--- Dados copiados com sucesso: {dados_planilha}')
+        '''
         tempo_coleta = time.time() - tempo_inicio
         tempo_coleta = tempo_coleta / 60
         print(F'\n Tempo que levou: {tempo_coleta:0f}')
+        '''
         return dados_planilha
     
     #Realiza o processo de validação do lançamento.
