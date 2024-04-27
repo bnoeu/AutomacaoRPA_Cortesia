@@ -162,7 +162,7 @@ def programa_principal():
             bot.click(procura_imagem(imagem='img_topcon/botao_alterar.png', area=(100, 839, 300, 400)))
 
             #Verifica se abriu a tela com os detalhes do item que consta na NFE (Tela botão alterar)
-            while procura_imagem(imagem='img_topcon/valor_cofins.png') is False:
+            while procura_imagem(imagem='img_topcon/valor_cofins.png', limite_tentativa= 12) is False:
                 print('--- Aguardando aparecer a tela "Itens nota fiscal de compra" ')
                 time.sleep(0.2)
             else:

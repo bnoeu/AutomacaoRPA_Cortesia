@@ -132,7 +132,7 @@ def extrai_txt_img(imagem, area_tela):
     
     
     # Utiliza o pytesseract para extrair texto da imagem binarizada
-    texto = pytesseract.image_to_string(img_thresh, lang='eng', config='--psm 6').strip()
+    texto = pytesseract.image_to_string(img_thresh, lang='eng', config='--psm 7').strip()
     cv2.imwrite('img_geradas\img_thresh.png', img_thresh)
     
     '''
