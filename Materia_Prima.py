@@ -64,7 +64,7 @@ def programa_principal():
             
 #* -------------------------- PROSSEGUINDO COM O LANÇAMENTO DA NFE -------------------------- 
         ahk.win_activate('TopCompras', title_match_mode=2)
-        ahk.win_wait_active('TopCompras', title_match_mode=2)
+        ahk.win_wait_active('TopCompras', title_match_mode=2, timeout= 5)
         bot.click(900, 201)  # Clica no campo filial de estoque
         bot.write(filial_estoq)
 
@@ -85,18 +85,16 @@ def programa_principal():
 
         # Aguarda aparecer o campo "cod_desc"
         print('--- Aguarda aparecer o campo cod_desc')
-        while procura_imagem(imagem='img_topcon/cod_desc.png', continuar_exec=True) is False:
-            time.sleep(0.3)
+        while procura_imagem(imagem='img_topcon/cod_desc.png', limite_tentativa=1, continuar_exec=True) is False:
+            time.sleep(0.2)
         bot.press('ENTER')
 
         # Aguarda até SUMIR o campo "cod_desc"
         print('--- Aguarda até SUMIR o campo "cod_desc"')
-        while procura_imagem(imagem='img_topcon/cod_desc.png', continuar_exec=True) is not False:
-            time.sleep(0.3)
+        while procura_imagem(imagem='img_topcon/cod_desc.png', limite_tentativa=1, continuar_exec=True) is not False:
+            time.sleep(0.2)
             ahk.win_wait_active('TopCompras', title_match_mode= 2)
             ahk.win_activate('TopCompras', title_match_mode= 2)
-        else: #Sumiu, continuando a execução
-            time.sleep(0.3)
 
         # Clica no campo "Valores Totais"
         bot.doubleClick(105, 515, interval= 0.5)
@@ -104,17 +102,16 @@ def programa_principal():
         # * -------------------------------------- VALIDAÇÃO TRANSPORTADOR --------------------------------------
         print(F'--- PREENCHENDO TRANSPORTADOR: {cracha_mot}')
         bot.click(317, 897)  # Campo transportador
-        while procura_imagem(imagem='img_topcon/campo_re_0.png') is False:
+        while procura_imagem(imagem='img_topcon/campo_re_0.png', limite_tentativa= 1, continuar_exec= True) is False:
             time.sleep(0.3)
         else:
             print('--- Campo RE habilitado, preenchendo.')
             
         #Preenche o campo do transportador e verifica se aconteceu algum erro.
         bot.write(cracha_mot)  # ID transportador
-        bot.press('enter')
-        time.sleep(0.8)
-
-        #Verifica 15 vezes se apareceu a tela "transportador incorreto", caso apareça, tratar.
+        bot.press('enter', interval= 0.5)
+        
+        print('--- Aguardando validar o campo do transportador')
         if procura_imagem(imagem='img_topcon/transportador_incorreto.png', continuar_exec= True) is not False:
             print('--- Transportador incorreto!')
             bot.press('ENTER')
@@ -122,9 +119,9 @@ def programa_principal():
             programa_principal()
         else:
             print('--- Transportador validado! Prosseguindo para validação da placa')
+        bot.press('enter')
 
         # Verifica se o campo da placa ficou preenchido
-        bot.press('enter')
         if procura_imagem('img_topcon/campo_placa.png', continuar_exec=True) is not False:
             bot.click(procura_imagem('img_topcon/campo_placa.png', continuar_exec=True))
             bot.write('XXX0000')

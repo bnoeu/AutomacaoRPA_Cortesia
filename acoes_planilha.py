@@ -6,6 +6,7 @@ import time
 # import pygetwindow as gw
 import pytesseract
 from ahk import AHK
+from colorama import Fore, Style
 from funcoes import marca_lancado, procura_imagem
 import pyautogui as bot
 
@@ -23,14 +24,13 @@ bot.PAUSE = 1.3
 
 def valida_lancamento():
     def coleta_planilha():
-        bot.PAUSE = 0.4
+        bot.PAUSE = 0.2
         print('--- Abrindo planilha - COLETA_PLANILHA')
         ahk.win_activate('db_alltrips', title_match_mode= 2)
-        time.sleep(0.3)
+        ahk.win_wait('db_alltrips', title_match_mode= 2)
 
         #Verifica se já está no modo de edição, caso esteja, muda para o modo "exibição"
         if procura_imagem(imagem='img_planilha/botao_exibicaoverde.png', continuar_exec=True) is False:
-            time.sleep(0.3)
             print('--- Não está no modo exibição! Realizando alteração.')
                         
             #Espera até encontar o botão "Exibição" (Lapis bloqueado) e realiza um click nele
@@ -83,23 +83,22 @@ def valida_lancamento():
         # * Coleta os dados da linha atual
         dados_planilha = []
         print('--- Copiando dados e formatando')
-        time.sleep(1)
         
         #Clica na primeira linha (Campo RE), e pressiona seta para baixo
         bot.click(procura_imagem(imagem='img_planilha/titulo_re.png'))
-        time.sleep(1)
+        time.sleep(0.5)
         bot.press('DOWN')
         
         for n in range(0, 7, 1):  # Copia dados dos 6 campos
             while True:
                 bot.hotkey('ctrl', 'c')
                 if 'Recuperando' in ahk.get_clipboard():
-                    time.sleep(0.2)
+                    time.sleep(0.1)
                 else:
                     break
             dados_planilha.append(ahk.get_clipboard())
             bot.press('right')
-        print(F'--- Dados copiados com sucesso: {dados_planilha}')
+        print(Fore.GREEN +  F'--- Dados copiados com sucesso: {dados_planilha}' + Style.RESET_ALL + '\n')
         '''
         tempo_coleta = time.time() - tempo_inicio
         tempo_coleta = tempo_coleta / 60
@@ -118,21 +117,32 @@ def valida_lancamento():
         # -------------------------------------- Lançamento Topcon --------------------------------------
         print('--- Abrindo TopCompras para iniciar o lançamento')
         ahk.win_activate('TopCompras', title_match_mode=2)
-        ahk.win_wait('TopCompras', title_match_mode=2, timeout= 10)
-        if ahk.win_is_active('TopCompras', title_match_mode=2):
-            print('Tela compras está maximizada! Iniciando o programa')
-        else:
+        try:
+            ahk.win_wait('TopCompras', title_match_mode=2, timeout= 5)
+        except TimeoutError:
             exit(bot.alert('Tela de Compras não abriu.'))
+            #TODO --- Caso isso aconteça, tentar abrir a tela do Topcon.
+        else:
+            print('--- Tela compras está maximizada!')     
+        
         # Processo de lançamento
-        bot.press('F2')
-        bot.press('F3', presses=2, interval=0.5)
-        time.sleep(1.5)       
-        bot.doubleClick(558, 235, interval = 0.5)  # Clica dentro do campo para inserir a chave XML
+        bot.press('F2', interval= 0.2)
+        bot.press('F3', presses=2, interval= 0.2)
+        
+        #TODO --- Validar se entrou no modo "Inclui"
+        while procura_imagem(imagem='img_topcon/txt_inclui.png', continuar_exec= True) is False:
+            print('--- Aguardando entrar no modo inclusão')
+            time.sleep(0.2)
+        else:
+            print(Fore.GREEN + '--- Entrou no modo inclusão! iniciando lançamento' + Style.RESET_ALL)
+               
+        bot.doubleClick(558, 235, interval = 0.2)  # Clica dentro do campo para inserir a chave XML
         bot.write(chave_xml)
         bot.press('ENTER')
         ahk.win_wait_active('TopCompras')
+        
         tentativa = 0
-        while tentativa < 10:
+        while tentativa < 10: #* Aguarda até aparecer uma das telas que podem ser exibidas nesse processo.
             time.sleep(0.3)                
             #Verifica quais das telas apareceu. 
             if procura_imagem(imagem='img_topcon/botao_sim.jpg', limite_tentativa= 1, continuar_exec=True) is not False:
@@ -160,7 +170,7 @@ def valida_lancamento():
             # Verifica caso tenha travado e espera até que o topcom volte a responder
             print('--- Aguardando TopCompras Retornar')
             while ahk.win_exists('Não está respondendo'):
-                time.sleep(0.3)
+                time.sleep(0.2)
             tentativa += 1
-        if tentativa >= 15:
-            exit('Rodou 10 verificações e não achou nenhuma tela, aumentar o tempo')
+            if tentativa >= 10:
+                exit('Rodou 10 verificações e não achou nenhuma tela, verificar!')
