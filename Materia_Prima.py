@@ -184,7 +184,7 @@ def programa_principal():
             while procura_imagem(imagem='img_topcon/confirma.png', continuar_exec=True) is not False:
                 tentativa += 1
                 print('--- Aguardando fechamento da tela do botão "Alterar" ')
-                time.sleep(0.8)
+                time.sleep(0.4)
                 if tentativa > 10: #Executa o loop 10 vezes até dar erro.
                     bot.alert('Apresentou algum erro.')
             
@@ -195,7 +195,7 @@ def programa_principal():
         print('--- Aguardando TopCompras Retornar')
         while ahk.win_exists('Não está respondendo'):
             time.sleep(0.3)
-        time.sleep(0.8)
+        time.sleep(0.4)
 
         # Verifica se a tela "Deseja processar" apareceu, caso sim, procede para emissão da NFE.
         ahk.win_wait_active('TopCom', timeout=10, title_match_mode=2)

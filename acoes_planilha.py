@@ -86,7 +86,7 @@ def valida_lancamento():
         
         #Clica na primeira linha (Campo RE), e pressiona seta para baixo
         bot.click(procura_imagem(imagem='img_planilha/titulo_re.png'))
-        time.sleep(0.5)
+        time.sleep(0.2)
         bot.press('DOWN')
         
         for n in range(0, 7, 1):  # Copia dados dos 6 campos
