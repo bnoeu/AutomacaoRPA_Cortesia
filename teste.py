@@ -34,6 +34,20 @@ centro_custo = filial_estoq
 cracha_mot = '112480'
 
 
+'''
+#Cria a conexão com o banco de dados
+con = sqlite3.connect("informacoes.db")
+
+#Cursor para realizar comandos dentro do banco de dados
+cur = con.cursor()
+
+#Utilizando o cursor, executa a ação da criação da tabela informacoes, com as seguintes colunas: XML, CRACHA, TEMPO
+#cur.execute("CREATE TABLE informacoes(xml, cracha, tempo)")
+#! Continuar tutorial de banco de dados https://docs.python.org/3/library/sqlite3.html
+exit()
+'''
+
+
 ahk.win_activate('TopCompras', title_match_mode= 2)
 #ahk.win_activate('db_alltrips', title_match_mode= 2)
 #! Utilizado apenas para estar trechos de codigo.

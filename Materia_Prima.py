@@ -7,36 +7,22 @@
 import time
 import pytesseract
 from ahk import AHK
-from funcoes import marca_lancado, procura_imagem, extrai_txt_img
-from acoes_planilha import valida_lancamento
-from valida_pedido import valida_pedido
 import pyautogui as bot
 from datetime import date
+from valida_pedido import valida_pedido
+from acoes_planilha import valida_lancamento
+from funcoes import marca_lancado, procura_imagem, extrai_txt_img
 #import sqlite3
 
 # --- Definição de parametros
 ahk = AHK()
-posicao_img = 0  # Define a variavel para utilização global dela.
+bot.PAUSE = 1.3
+posicao_img = 0
 continuar = True
 bot.FAILSAFE = False
 tempo_inicio = time.time()
-
 chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
 pytesseract.pytesseract.tesseract_cmd = r"C:\Tesseract-OCR\tesseract.exe"
-bot.PAUSE = 1.3
-
-'''
-#Cria a conexão com o banco de dados
-con = sqlite3.connect("informacoes.db")
-
-#Cursor para realizar comandos dentro do banco de dados
-cur = con.cursor()
-
-#Utilizando o cursor, executa a ação da criação da tabela informacoes, com as seguintes colunas: XML, CRACHA, TEMPO
-#cur.execute("CREATE TABLE informacoes(xml, cracha, tempo)")
-#! Continuar tutorial de banco de dados https://docs.python.org/3/library/sqlite3.html
-exit()
-'''
 
 # * ---------------------------------------------------------------------------------------------------
 # *                                        Inicio do Programa
@@ -101,7 +87,6 @@ def programa_principal():
         print('--- Aguarda aparecer o campo cod_desc')
         while procura_imagem(imagem='img_topcon/cod_desc.png', continuar_exec=True) is False:
             time.sleep(0.3)
-            
         bot.press('ENTER')
 
         # Aguarda até SUMIR o campo "cod_desc"
@@ -256,3 +241,5 @@ def programa_principal():
 programa_principal()
 
 # TODO --- Caso o pedido acabe, avisar ao Mateus
+# TODO --- Caso NFE Faturada no final do mes, lançar com qual data? 
+# TODO --- Chave_XML não está baixando via gerenciador, agora é tudo pelo OBJ
