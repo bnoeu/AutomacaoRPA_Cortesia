@@ -48,9 +48,17 @@ exit()
 '''
 
 
-ahk.win_activate('TopCompras', title_match_mode= 2)
+#ahk.win_activate('TopCompras', title_match_mode= 2)
 time.sleep(1)
 #ahk.win_activate('db_alltrips', title_match_mode= 2)
 #! Utilizado apenas para estar trechos de codigo.
 
+<<<<<<< HEAD
 ahk.win_kill('db_alltrips', title_match_mode= 2)
+=======
+
+for tela in ahk.list_windows():
+    print(tela.title)
+    ahk.win_kill('Segurança do Windows', title_match_mode= 2)
+    ahk.win_kill('RemoteApp', title_match_mode= 2)
+>>>>>>> dd0d9c4acffd6eba72320063094df79dab1d25bb
