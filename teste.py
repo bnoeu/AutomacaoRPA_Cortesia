@@ -53,5 +53,4 @@ time.sleep(1)
 #ahk.win_activate('db_alltrips', title_match_mode= 2)
 #! Utilizado apenas para estar trechos de codigo.
 
-print(bot.pixelMatchesColor(395, 895, (0, 120, 215), tolerance=10))
-bot.click(bot.pixelMatchesColor(395, 895, (0, 120, 215), tolerance=10))
+ahk.win_kill('db_alltrips', title_match_mode= 2)

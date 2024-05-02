@@ -16,7 +16,7 @@ from funcoes import marca_lancado, procura_imagem, extrai_txt_img
 
 # --- Definição de parametros
 ahk = AHK()
-bot.PAUSE = 1.3
+bot.PAUSE = 1.7
 posicao_img = 0
 continuar = True
 bot.FAILSAFE = False
@@ -77,7 +77,7 @@ def programa_principal():
         hoje = hoje.strftime("%d%m%y")  # dd/mm/YY
         bot.write(hoje)
         bot.press('enter')       
-        time.sleep(0.5)
+        time.sleep(0.6)
 
         # Altera o campo centro de custo, para o dado coletado
         print(F'--- Trocando o centro de custo para {centro_custo}')
@@ -86,13 +86,13 @@ def programa_principal():
         # Aguarda aparecer o campo "cod_desc"
         print('--- Aguarda aparecer o campo cod_desc')
         while procura_imagem(imagem='img_topcon/cod_desc.png', limite_tentativa=1, continuar_exec=True) is False:
-            time.sleep(0.2)
+            time.sleep(0.3)
         bot.press('ENTER')
 
         # Aguarda até SUMIR o campo "cod_desc"
         print('--- Aguarda até SUMIR o campo "cod_desc"')
         while procura_imagem(imagem='img_topcon/cod_desc.png', limite_tentativa=1, continuar_exec=True) is not False:
-            time.sleep(0.2)
+            time.sleep(0.3)
             ahk.win_wait_active('TopCompras', title_match_mode= 2)
             ahk.win_activate('TopCompras', title_match_mode= 2)
 
@@ -103,7 +103,7 @@ def programa_principal():
         print(F'--- PREENCHENDO TRANSPORTADOR: {cracha_mot}')
         bot.click(317, 897)  # Campo transportador
         while procura_imagem(imagem='img_topcon/campo_re_0.png', limite_tentativa= 1, continuar_exec= True) is False:
-            time.sleep(0.3)
+            time.sleep(0.4)
         else:
             print('--- Campo RE habilitado, preenchendo.')
             
@@ -132,10 +132,11 @@ def programa_principal():
 
         # * -------------------------------------- Aba Pedido --------------------------------------
         bot.doubleClick(procura_imagem(imagem='img_topcon/produtos_servicos.png'))
+        time.sleep(0.4)
 
         if '38953477000164' not in chave_xml: #Caso não tenha o CNPJ da Consmar
             # Realiza a extração da quantidade de toneladas
-            qtd_ton = extrai_txt_img(imagem='img_toneladas.png', area_tela=(895, 577, 70, 20)).strip()
+            qtd_ton = extrai_txt_img(imagem='img_toneladas.png', area_tela=(892, 577, 70, 20)).strip()
             qtd_ton = qtd_ton.replace(",", ".")
             qtd_ton = float(qtd_ton)
             print(F'--- Texto coletado da quantidade: {qtd_ton}')
@@ -146,7 +147,7 @@ def programa_principal():
             #Verifica se abriu a tela com os detalhes do item que consta na NFE (Tela botão alterar)
             while procura_imagem(imagem='img_topcon/valor_cofins.png', limite_tentativa= 12) is False:
                 print('--- Aguardando aparecer a tela "Itens nota fiscal de compra" ')
-                time.sleep(0.2)
+                time.sleep(0.3)
             else:
                 print('--- Apareceu a tela "Itens nota fiscal de compra" ')
                 # Aguardando aparecer o botão de "confirma", para prosseguir com as ações.
@@ -184,7 +185,7 @@ def programa_principal():
             while procura_imagem(imagem='img_topcon/confirma.png', continuar_exec=True) is not False:
                 tentativa += 1
                 print('--- Aguardando fechamento da tela do botão "Alterar" ')
-                time.sleep(0.4)
+                time.sleep(0.6)
                 if tentativa > 10: #Executa o loop 10 vezes até dar erro.
                     bot.alert('Apresentou algum erro.')
             
@@ -194,8 +195,8 @@ def programa_principal():
         # Espera até que o topcom volte a responder
         print('--- Aguardando TopCompras Retornar')
         while ahk.win_exists('Não está respondendo'):
-            time.sleep(0.3)
-        time.sleep(0.4)
+            time.sleep(0.4)
+        time.sleep(0.6)
 
         # Verifica se a tela "Deseja processar" apareceu, caso sim, procede para emissão da NFE.
         ahk.win_wait_active('TopCom', timeout=10, title_match_mode=2)
@@ -221,7 +222,7 @@ def programa_principal():
                 while True:  # Aguardar o .PDF
                     try:
                         ahk.win_wait('.pdf', title_match_mode=2, timeout=2)
-                        time.sleep(0.3)
+                        time.sleep(0.4)
                     except TimeoutError:
                         print('Aguardando .PDF')
                     else:

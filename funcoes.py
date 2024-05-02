@@ -26,7 +26,7 @@ def procura_imagem(imagem, limite_tentativa=6, area=(0, 0, 1920, 1080), continua
     tentativa = 0   
     print(F'--- Tentando encontrar: {imagem}', end= ' ')
     while tentativa < limite_tentativa:
-        time.sleep(0.7)
+        time.sleep(0.5)
         posicao_img = bot.locateCenterOnScreen(imagem, grayscale= True, confidence= confianca, region= area)
         if posicao_img is not None:
             print(F'--- Encontrou na posição: {posicao_img}')
@@ -96,7 +96,7 @@ def marca_lancado(texto_marcacao='Lancado'):
             print('--- Não está filtrado, executando o filtro!')
             bot.click(procura_imagem(imagem='img_planilha/bt_setabaixo.png', area=(1529, 459, 75, 75)))
             while procura_imagem(imagem='img_planilha/botao_selecionartudo.png') is None:
-                time.sleep(0.4)
+                time.sleep(0.6)
             bot.click(procura_imagem(imagem='img_planilha/botao_selecionartudo.png'))
             bot.click(procura_imagem(imagem='img_planilha/bt_vazias.png'))
             bot.click(procura_imagem(imagem='img_planilha/bt_aplicar.png'))
@@ -159,6 +159,6 @@ def verifica_ped_vazio(texto, pos):
         return False
     else:  # Caso fique vazio
         print('--- Itens XML ficou vazio! prosseguindo')
-        bot.click(procura_imagem(imagem='img_topcon/confirma.png', limite_tentativa= 10))
-        bot.click(procura_imagem(imagem='img_topcon/botao_ok.jpg', limite_tentativa= 10))
+        bot.click(procura_imagem(imagem='img_topcon/confirma.png', limite_tentativa= 100))
+        bot.click(procura_imagem(imagem='img_topcon/botao_ok.jpg', limite_tentativa= 100))
         return True

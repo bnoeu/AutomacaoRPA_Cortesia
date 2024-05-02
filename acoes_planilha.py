@@ -19,12 +19,12 @@ bot.FAILSAFE = False
 tempo_inicio = time.time()
 chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
 pytesseract.pytesseract.tesseract_cmd = r"C:\Tesseract-OCR\tesseract.exe"
-bot.PAUSE = 1.3
+bot.PAUSE = 1.7
 
 
 def valida_lancamento():
     def coleta_planilha():
-        bot.PAUSE = 0.2
+        bot.PAUSE = 0.4
         print('--- Abrindo planilha - COLETA_PLANILHA')
         ahk.win_activate('db_alltrips', title_match_mode= 2)
         ahk.win_wait('db_alltrips', title_match_mode= 2)
@@ -36,7 +36,7 @@ def valida_lancamento():
             #Espera até encontar o botão "Exibição" (Lapis bloqueado) e realiza um click nele
             print('--- Alterando para o modo exibição ')
             while procura_imagem(imagem='img_planilha/txt_exibicao.png', continuar_exec= True) is False:
-                time.sleep(0.4)
+                time.sleep(0.6)
                 #Clica no botão da edição (lapis branco), para mostrar o dropdown com as opções
                 bot.click(procura_imagem(imagem='img_planilha/txt_edicao.png', continuar_exec= True))
             else:
@@ -46,11 +46,11 @@ def valida_lancamento():
                 #Aguarda sumir o botão
                 while procura_imagem(imagem='img_planilha/botao_exibicaoverde.png', continuar_exec=True) is False:
                     print('--- Aguardando entrar no modo de exibição ')
-                    time.sleep(0.4)
+                    time.sleep(0.6)
 
             #Aguarda até aparecer o botão do modo "exibição"
             while procura_imagem(imagem='img_planilha/botao_exibicaoverde.png', continuar_exec=True) is False: #Aguarda enquanto não achar o botão
-                time.sleep(0.3)
+                time.sleep(0.4)
             else:
                 print('--- Alterado para o modo exibição, continuando.')
         else: #Caso não esteja no modo "Edição"
@@ -76,7 +76,7 @@ def valida_lancamento():
                 #Aguarda aparecer o botão do filtro, para confirmar que está filtrado! 
                 while procura_imagem(imagem='img_planilha/bt_filtro.png', limite_tentativa= 10, area= (1468, 400, 200, 200)) is False:
                     print('--- Aguardando o botão do filtro na coluna "Status" ')
-                    time.sleep(0.4)
+                    time.sleep(0.6)
                 else:
                     print('--- Filtro das notas vazias aplicado!')
         
@@ -86,14 +86,14 @@ def valida_lancamento():
         
         #Clica na primeira linha (Campo RE), e pressiona seta para baixo
         bot.click(procura_imagem(imagem='img_planilha/titulo_re.png'))
-        time.sleep(0.2)
+        time.sleep(0.3)
         bot.press('DOWN')
         
         for n in range(0, 7, 1):  # Copia dados dos 6 campos
             while True:
                 bot.hotkey('ctrl', 'c')
                 if 'Recuperando' in ahk.get_clipboard():
-                    time.sleep(0.1)
+                    time.sleep(0.3)
                 else:
                     break
             dados_planilha.append(ahk.get_clipboard())
@@ -132,7 +132,7 @@ def valida_lancamento():
         #TODO --- Validar se entrou no modo "Inclui"
         while procura_imagem(imagem='img_topcon/txt_inclui.png', continuar_exec= True) is False:
             print('--- Aguardando entrar no modo inclusão')
-            time.sleep(0.2)
+            time.sleep(0.3)
         else:
             print(Fore.GREEN + '--- Entrou no modo inclusão! iniciando lançamento' + Style.RESET_ALL)
                
@@ -143,7 +143,7 @@ def valida_lancamento():
         
         tentativa = 0
         while tentativa < 10: #* Aguarda até aparecer uma das telas que podem ser exibidas nesse processo.
-            time.sleep(0.3)                
+            time.sleep(0.4)                
             #Verifica quais das telas apareceu. 
             if procura_imagem(imagem='img_topcon/botao_sim.jpg', limite_tentativa= 1, continuar_exec=True) is not False:
                 bot.click(procura_imagem(imagem='img_topcon/botao_sim.jpg', limite_tentativa=1, continuar_exec=True))
@@ -170,7 +170,7 @@ def valida_lancamento():
             # Verifica caso tenha travado e espera até que o topcom volte a responder
             print('--- Aguardando TopCompras Retornar')
             while ahk.win_exists('Não está respondendo'):
-                time.sleep(0.2)
+                time.sleep(0.3)
             tentativa += 1
             if tentativa >= 10:
                 exit('Rodou 10 verificações e não achou nenhuma tela, verificar!')

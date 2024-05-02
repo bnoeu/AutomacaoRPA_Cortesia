@@ -19,7 +19,7 @@ chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
 validou_itensXml = False
 
 def valida_pedido(acabou_pedido=False):
-    bot.PAUSE = 0.8
+    bot.PAUSE = 1.2
     tentativa = 0
     item_pedido = ''
         
@@ -40,7 +40,7 @@ def valida_pedido(acabou_pedido=False):
     #Força a abertura da tela de vinculação de item versus nota
     ahk.win_activate('Vinculação Itens da Nota', title_match_mode = 2)
     ahk.win_wait_active('Vinculação Itens da Nota', title_match_mode = 2, timeout= 20)
-    time.sleep(0.2)
+    time.sleep(0.3)
 
     #Coleta o texto do campo "item XML", que é o item a constar na nota fiscal, e com base nisso, trata o dado
     txt_itensXML = extrai_txt_img(imagem='item_nota.png',area_tela=(170, 400, 280, 30))
@@ -50,7 +50,7 @@ def valida_pedido(acabou_pedido=False):
     definiu_pedido = False
     img_pedido = 0
     for nome in nome_pedido: #Para cada item na lista.
-        time.sleep(0.2)
+        time.sleep(0.3)
         if definiu_pedido is True:
             break
         for item_pedido in nome: #Para cada item dentro das linhas.          
@@ -87,11 +87,10 @@ def valida_pedido(acabou_pedido=False):
     if validou_itensXml is False:
         exit(bot.alert(F'--- Não foi possivel encontrar: {txt_itensXML} em nenhuma lista.'))
         
-        
 #* --------------------------------- Pedidos Encontrados ---------------------------------
     while tentativa <= 2:
         ahk.win_activate('Vinculação Itens da Nota', title_match_mode = 2)
-        time.sleep(0.3)
+        time.sleep(0.4)
         vazio = '' 
         
         #* Validação para saber se encontrou em algum local, caso não encontre, exibe um erro.
@@ -112,7 +111,7 @@ def valida_pedido(acabou_pedido=False):
         #Verifica nas posições que encontrou
         posicoes = bot.locateAllOnScreen('img_pedidos/' + img_pedido, confidence= 0.92, grayscale=True, region=(0, 0, 850, 400))
         for pos in posicoes:  # Tenta em todos pedidos encontrados
-            time.sleep(0.2)
+            time.sleep(0.3)
             #Caso já esteja na segunda tentativa, passa a tela para o lado
             print(F'--- Tentativa: {tentativa}, achou o {txt_itensXML} na posição {pos}')
             bot.doubleClick(pos)  # Marca o pedido encontrado
@@ -130,7 +129,7 @@ def valida_pedido(acabou_pedido=False):
                 
                 #Confere se após clicar nos botões, ainda assim o campo ficou vazio.
                 if verifica_ped_vazio(texto=txt_itensXML, pos=pos) is not True:
-                    time.sleep(0.2)
+                    time.sleep(0.3)
                     print(F'--- Não ficou vazio, desmarcando pedido, tentativa {tentativa}')
                     bot.doubleClick(pos) # Clica novamente no mesmo pedido, para desmarcar
             else:
