@@ -159,6 +159,6 @@ def verifica_ped_vazio(texto, pos):
         return False
     else:  # Caso fique vazio
         print('--- Itens XML ficou vazio! prosseguindo')
-        bot.click(procura_imagem(imagem='img_topcon/confirma.png', limite_tentativa= 10))
-        bot.click(procura_imagem(imagem='img_topcon/botao_ok.jpg', limite_tentativa= 10))
+        bot.click(procura_imagem(imagem='img_topcon/confirma.png', limite_tentativa= 1000))
+        bot.click(procura_imagem(imagem='img_topcon/botao_ok.jpg', limite_tentativa= 1000))
         return True

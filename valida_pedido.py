@@ -40,7 +40,7 @@ def valida_pedido(acabou_pedido=False):
     #Força a abertura da tela de vinculação de item versus nota
     ahk.win_activate('Vinculação Itens da Nota', title_match_mode = 2)
     ahk.win_wait_active('Vinculação Itens da Nota', title_match_mode = 2, timeout= 20)
-    time.sleep(0.2)
+    time.sleep(0.6)
 
     #Coleta o texto do campo "item XML", que é o item a constar na nota fiscal, e com base nisso, trata o dado
     txt_itensXML = extrai_txt_img(imagem='item_nota.png',area_tela=(170, 400, 280, 30))
@@ -50,6 +50,7 @@ def valida_pedido(acabou_pedido=False):
     definiu_pedido = False
     img_pedido = 0
     for nome in nome_pedido: #Para cada item na lista.
+        
         time.sleep(0.2)
         if definiu_pedido is True:
             break
@@ -79,6 +80,7 @@ def valida_pedido(acabou_pedido=False):
                     print(F'--- Procurando a imagem: {img_pedido}')
                     validou_itensXml = True
                 else:
+                    validou_itensXml = False
                     if img_pedido == 0:
                         exit(bot.alert(f'Texto não padronizado, verificar script, texto: {txt_itensXML.strip()}'))
                 definiu_pedido = True
