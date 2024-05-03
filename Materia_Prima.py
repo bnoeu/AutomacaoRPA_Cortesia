@@ -124,9 +124,9 @@ def programa_principal():
         time.sleep(1)
 
         bot.click(1006, 345)  # Campo data da operação
-        #hoje = date.today()
-        #hoje = hoje.strftime("%d%m%y")  # dd/mm/YY
-        bot.write('30042024')
+        hoje = date.today()
+        hoje = hoje.strftime("%d%m%y")  # dd/mm/YY
+        bot.write(hoje)
         bot.press('enter')       
         time.sleep(0.6)
 

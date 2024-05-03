@@ -16,7 +16,6 @@ bot.FAILSAFE = False
 numero_nf = "965999"
 transportador = "111594"
 chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
-validou_itensXml = False
 
 def valida_pedido(acabou_pedido=False):
     bot.PAUSE = 1.2
