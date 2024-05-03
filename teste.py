@@ -53,12 +53,24 @@ time.sleep(1)
 #ahk.win_activate('db_alltrips', title_match_mode= 2)
 #! Utilizado apenas para estar trechos de codigo.
 
-<<<<<<< HEAD
-ahk.win_kill('db_alltrips', title_match_mode= 2)
-=======
-
-for tela in ahk.list_windows():
-    print(tela.title)
-    ahk.win_kill('Segurança do Windows', title_match_mode= 2)
-    ahk.win_kill('RemoteApp', title_match_mode= 2)
->>>>>>> dd0d9c4acffd6eba72320063094df79dab1d25bb
+bot.click(procura_imagem(imagem='img_topcon/botao_ok.jpg', continuar_exec=True))
+#Verifica se apareceu a tela de transferencia 
+if procura_imagem('img_topcon/txt_transfMateriaPrima.png', continuar_exec=True) is not False:
+    if procura_imagem('img_topcon/deseja_processar.png', continuar_exec=True) is not False:
+        bot.click(procura_imagem('img_topcon/bt_sim.png',
+                continuar_exec=True, limite_tentativa=4))
+        while True:  # Aguardar o .PDF
+            try:
+                ahk.win_wait('.pdf', title_match_mode=2, timeout=2)
+                time.sleep(0.4)
+            except TimeoutError:
+                print('Aguardando .PDF')
+            else:
+                ahk.win_activate('.pdf', title_match_mode=2)
+                ahk.win_close('pdf - Google Chrome', title_match_mode=2)
+                print('Fechou o PDF')
+                break
+        time.sleep(0.8)
+        ahk.win_activate('Transmissão', title_match_mode=2)
+        bot.click(procura_imagem(imagem='img_topcon/sair_tela.png'))
+        time.sleep(1)

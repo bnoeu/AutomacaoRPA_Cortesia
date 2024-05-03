@@ -19,7 +19,7 @@ bot.FAILSAFE = False
 tempo_inicio = time.time()
 chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
 pytesseract.pytesseract.tesseract_cmd = r"C:\Tesseract-OCR\tesseract.exe"
-bot.PAUSE = 1.7
+bot.PAUSE = 1.6
 
 
 def valida_lancamento():
@@ -115,7 +115,7 @@ def valida_lancamento():
             exit(bot.alert('chave_xml invalida'))
         
         # -------------------------------------- Lançamento Topcon --------------------------------------
-        print('--- Abrindo TopCompras para iniciar o lançamento')
+        print(Fore.GREEN +  '--- Abrindo TopCompras para iniciar o lançamento' + Style.RESET_ALL)
         ahk.win_activate('TopCompras', title_match_mode=2)
         try:
             ahk.win_wait('TopCompras', title_match_mode=2, timeout= 5)
@@ -123,7 +123,8 @@ def valida_lancamento():
             exit(bot.alert('Tela de Compras não abriu.'))
             #TODO --- Caso isso aconteça, tentar abrir a tela do Topcon.
         else:
-            print('--- Tela compras está maximizada!')     
+            print('--- Tela compras está maximizada!')
+            time.sleep(0.4)    
         
         # Processo de lançamento
         bot.press('F2', interval= 0.2)
@@ -133,9 +134,8 @@ def valida_lancamento():
         while procura_imagem(imagem='img_topcon/txt_inclui.png', continuar_exec= True) is False:
             print('--- Aguardando entrar no modo inclusão')
             time.sleep(0.3)
-        else:
-            print(Fore.GREEN + '--- Entrou no modo inclusão! iniciando lançamento' + Style.RESET_ALL)
-               
+        
+        bot.click(procura_imagem(imagem='img_topcon/txt_chaveNfe.png'))
         bot.doubleClick(558, 235, interval = 0.2)  # Clica dentro do campo para inserir a chave XML
         bot.write(chave_xml)
         bot.press('ENTER')

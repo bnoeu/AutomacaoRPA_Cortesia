@@ -3,14 +3,13 @@
 
 import time
 import cv2
+import datetime
 import pytesseract
+import numpy as np
 from ahk import AHK
 import pyautogui as bot
-import datetime
 #import pygetwindow as gw
-import numpy as np
-from colorama import Fore
-
+from colorama import Fore, Style
 
 # --- Definição de parametros
 ahk = AHK()
@@ -57,7 +56,7 @@ def verifica_tela(nome_tela, manual=False):
 
 
 def marca_lancado(texto_marcacao='Lancado'):
-    print(F'--- Abrindo planilha - MARCA_LANCADO, com parametro: {texto_marcacao}')
+    print(Fore.LIGHTGREEN_EX + F'--- Abrindo planilha - MARCA_LANCADO, com parametro: {texto_marcacao}' + Style.RESET_ALL)
     time.sleep(2)
     ahk.win_activate('db_alltrips', title_match_mode= 2)
     ahk.win_wait_active('db_alltrips', title_match_mode= 2, timeout= 5)
@@ -101,7 +100,9 @@ def marca_lancado(texto_marcacao='Lancado'):
             bot.click(procura_imagem(imagem='img_planilha/bt_vazias.png'))
             bot.click(procura_imagem(imagem='img_planilha/bt_aplicar.png'))
     else: #Caso já esteja no modo "Edição"
-        exit('--- Planilha no modo edição! Necessario scriptar essa parte')
+            exit(bot.alert('Já está no modo edição'))
+        
+        
     print(F'\033[2;37;42m --------------------- Processou NFE, situação: {texto_marcacao} --------------------- \033[0;0m')
     print('')
 
