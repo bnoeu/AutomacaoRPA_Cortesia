@@ -38,10 +38,10 @@ def valida_lancamento():
             while procura_imagem(imagem='img_planilha/txt_exibicao.png', continuar_exec= True) is False:
                 time.sleep(0.6)
                 #Clica no botão da edição (lapis branco), para mostrar o dropdown com as opções
-                bot.click(procura_imagem(imagem='img_planilha/txt_edicao.png', continuar_exec= True))
+                bot.click(procura_imagem(imagem='img_planilha/bt_edicao.png', continuar_exec= True))
             else:
-                print('--- Clicou no botão "Exibição" ')
                 bot.click(procura_imagem(imagem='img_planilha/txt_exibicao.png', continuar_exec= True))
+                print('--- Clicou no botão "Exibição" ')
                 
                 #Aguarda sumir o botão
                 while procura_imagem(imagem='img_planilha/botao_exibicaoverde.png', continuar_exec=True) is False:
@@ -89,7 +89,7 @@ def valida_lancamento():
         bot.press('DOWN')
         time.sleep(0.4)
         for n in range(0, 7, 1):  # Copia dados dos 6 campos
-            bot.PAUSE = 0.2
+            bot.PAUSE = 0.3
             while True:
                 bot.hotkey('ctrl', 'c')
                 if 'Recuperando' in ahk.get_clipboard():
@@ -178,5 +178,5 @@ def valida_lancamento():
             while ahk.win_exists('Não está respondendo'):
                 time.sleep(0.3)
             tentativa += 1
-            if tentativa >= 10:
+            if tentativa >= 15:
                 exit('Rodou 10 verificações e não achou nenhuma tela, verificar!')

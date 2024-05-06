@@ -52,29 +52,6 @@ ahk.win_activate('TopCompras', title_match_mode= 2)
 time.sleep(1)
 #! Utilizado apenas para estar trechos de codigo.
 
-<<<<<<< HEAD
-bot.click(procura_imagem(imagem='img_topcon/botao_ok.jpg', continuar_exec=True))
-#Verifica se apareceu a tela de transferencia 
-if procura_imagem('img_topcon/txt_transfMateriaPrima.png', continuar_exec=True) is not False:
-    if procura_imagem('img_topcon/deseja_processar.png', continuar_exec=True) is not False:
-        bot.click(procura_imagem('img_topcon/bt_sim.png',
-                continuar_exec=True, limite_tentativa=4))
-        while True:  # Aguardar o .PDF
-            try:
-                ahk.win_wait('.pdf', title_match_mode=2, timeout=2)
-                time.sleep(0.4)
-            except TimeoutError:
-                print('Aguardando .PDF')
-            else:
-                ahk.win_activate('.pdf', title_match_mode=2)
-                ahk.win_close('pdf - Google Chrome', title_match_mode=2)
-                print('Fechou o PDF')
-                break
-        time.sleep(0.8)
-        ahk.win_activate('Transmissão', title_match_mode=2)
-        bot.click(procura_imagem(imagem='img_topcon/sair_tela.png'))
-        time.sleep(1)
-=======
 '''
 for tela in ahk.list_windows():
     print(tela.title)
@@ -82,5 +59,6 @@ for tela in ahk.list_windows():
     ahk.win_kill('RemoteApp', title_match_mode= 2)
 '''
 
-bot.click(900, 201)  # Clica no campo filial de estoque
->>>>>>> d10f246276aed9b570099b25996ca95c392655c5
+if procura_imagem(imagem='img_topcon/botao_sim.jpg', limite_tentativa= 1, continuar_exec=True) is not False:
+    bot.click(procura_imagem(imagem='img_topcon/botao_sim.jpg', limite_tentativa=1, continuar_exec=True))
+    print('--- XML Validado, indo para verificação do pedido\n')

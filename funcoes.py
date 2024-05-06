@@ -96,8 +96,6 @@ def marca_lancado(texto_marcacao='Lancado'):
         bot.click(procura_imagem(imagem='img_planilha/bt_vazias.png'))
         bot.click(procura_imagem(imagem='img_planilha/bt_aplicar.png'))
 
-
-
     print(Fore.GREEN + F'--------------------- Processou NFE, situação: {texto_marcacao} ---------------------\n' + Style.RESET_ALL)
 
 def extrai_txt_img(imagem, area_tela):

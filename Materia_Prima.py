@@ -4,7 +4,7 @@
 #! Link da planilha
 # https://cortesiaconcreto-my.sharepoint.com/:x:/g/personal/bi_cortesiaconcreto_com_br/EU6ahKCIVdxFjiB_rViPfN0Bo9SGYGReQ7VTqbKDjMXyLQ?e=QrTGT0
 
-#import os
+import os
 import time
 #import subprocess
 import pytesseract
@@ -31,7 +31,6 @@ pytesseract.pytesseract.tesseract_cmd = r"C:\Tesseract-OCR\tesseract.exe"
 # *                                        Inicio do Programa
 # * ---------------------------------------------------------------------------------------------------
 def abre_topcon():
-    '''
     #Primeiro força o fechamento das telas, para evitar erros de validações.
     ahk.win_kill('Segurança do Windows', title_match_mode= 2)
     ahk.win_kill('RemoteApp', title_match_mode= 2)
@@ -67,7 +66,6 @@ def abre_topcon():
 
     #Abre o modulo de compras e navega até a tela de lançamento
     bot.click(procura_imagem(imagem='img_topcon/icone_compras.png'))
-    '''
     ahk.win_activate('TopCompras - Versão', title_match_mode= 2)
     bot.press('ENTER')
     exit()
@@ -186,7 +184,7 @@ def programa_principal():
 
         # * -------------------------------------- Aba Pedido --------------------------------------
         bot.doubleClick(procura_imagem(imagem='img_topcon/produtos_servicos.png'))
-        time.sleep(0.4)
+        time.sleep(0.8)
 
         if '38953477000164' not in chave_xml: #Caso não tenha o CNPJ da Consmar
             # Realiza a extração da quantidade de toneladas
