@@ -9,7 +9,9 @@ import numpy as np
 from ahk import AHK
 import pyautogui as bot
 #import pygetwindow as gw
+import numpy as np
 from colorama import Fore, Style
+
 
 # --- Definição de parametros
 ahk = AHK()
@@ -56,56 +58,47 @@ def verifica_tela(nome_tela, manual=False):
 
 
 def marca_lancado(texto_marcacao='Lancado'):
-    print(Fore.LIGHTGREEN_EX + F'--- Abrindo planilha - MARCA_LANCADO, com parametro: {texto_marcacao}' + Style.RESET_ALL)
-    time.sleep(2)
+    print(Fore.GREEN + F'\n--- Abrindo planilha - MARCA_LANCADO, com parametro: {texto_marcacao}' + Style.RESET_ALL)
     ahk.win_activate('db_alltrips', title_match_mode= 2)
-    ahk.win_wait_active('db_alltrips', title_match_mode= 2, timeout= 5)
+    ahk.win_wait_active('db_alltrips', title_match_mode= 2, timeout= 10)
+    time.sleep(1)
 
     #Verifica se está no modo "Apenas exibição", caso esteja, altera para permitir edição.
     if procura_imagem(imagem='img_planilha/botao_exibicaoverde.png', continuar_exec=True) is not False:
-        bot.click(procura_imagem(imagem='img_planilha/botao_exibicaoverde.png', confianca = 0.8))
-        bot.click(procura_imagem(imagem='img_planilha/botao_iniciaredicao.png'))
-        
+        bot.click(procura_imagem(imagem='img_planilha/botao_exibicaoverde.png', limite_tentativa= 50))
+        bot.click(procura_imagem(imagem='img_planilha/botao_iniciaredicao.png', limite_tentativa= 50))
         #Caso apareça a tela informando que houve alteração durante esse periodo, confirma que quer atualizar e prossegue.
-        if procura_imagem(imagem='img_planilha/txt_modificada.png', continuar_exec=True, limite_tentativa= 4) is not False: 
-            print('--- Planilha atualizada, confirmando alterações..')
+        if procura_imagem(imagem='img_planilha/txt_modificada.png', continuar_exec=True, limite_tentativa= 10) is not False: 
             bot.click(procura_imagem(imagem='img_planilha/bt_sim.png', limite_tentativa= 10, area= (751, 521, 429, 218)))
-        
-        #Clica na coluna Status
-        bot.click(procura_imagem(imagem='img_planilha/txt_status.png'))
-        #Seta para baixo
-        bot.press('DOWN')
+    else:
+        print(F'--- Planilha já no modo edição, continuando a inserção do texto: {texto_marcacao}')
 
-        #Informa o texto recebido pela função e passa para a celula ao lado, para inserir a data
-        bot.write(texto_marcacao)
-        bot.press('RIGHT')
-        hoje = datetime.date.today()
-        bot.write(str(hoje))
-        '''
-        bot.write('20042024')
-        bot.press("ENTER")
-        '''
-        time.sleep(1.2)
+    #Clica no campo status, e move para baixo, para permitir inserir o texto passado na função.
+    bot.click(procura_imagem(imagem='img_planilha/txt_status.png'))
+    bot.press('DOWN')
+    #Informa o texto recebido pela função e passa para a celula ao lado, para inserir a data
+    bot.write(texto_marcacao)
+    bot.press('RIGHT')
+    hoje = datetime.date.today()
+    bot.write(str(hoje))
+    time.sleep(1.4)
 
-        #Retorna a planilha para o modo "Somente Exibição (Botão Verde)"
-        if procura_imagem(imagem='img_planilha/bt_filtro.png', continuar_exec=True, limite_tentativa=8, area = (1468, 400, 200, 200)) is not False:
-            bot.click(procura_imagem(imagem='img_planilha/bt_filtro.png', continuar_exec=True, limite_tentativa=8, area= (1468, 400, 200, 200)))
-            bot.click(procura_imagem(imagem='img_planilha/bt_aplicar.png'))
-        else:
-            print('--- Não está filtrado, executando o filtro!')
-            bot.click(procura_imagem(imagem='img_planilha/bt_setabaixo.png', area=(1529, 459, 75, 75)))
-            while procura_imagem(imagem='img_planilha/botao_selecionartudo.png') is None:
-                time.sleep(0.6)
-            bot.click(procura_imagem(imagem='img_planilha/botao_selecionartudo.png'))
-            bot.click(procura_imagem(imagem='img_planilha/bt_vazias.png'))
-            bot.click(procura_imagem(imagem='img_planilha/bt_aplicar.png'))
-    else: #Caso já esteja no modo "Edição"
-            exit(bot.alert('Já está no modo edição'))
-        
-        
-    print(F'\033[2;37;42m --------------------- Processou NFE, situação: {texto_marcacao} --------------------- \033[0;0m')
-    print('')
+    #Retorna a planilha para o modo "Somente Exibição (Botão Verde)"
+    if procura_imagem(imagem='img_planilha/bt_filtro.png', continuar_exec=True, limite_tentativa=8, area = (1468, 400, 200, 200)) is not False:
+        bot.click(procura_imagem(imagem='img_planilha/bt_filtro.png', continuar_exec=True, limite_tentativa=8, area= (1468, 400, 200, 200)))
+        bot.click(procura_imagem(imagem='img_planilha/bt_aplicar.png'))
+    else:
+        print('--- Não está filtrado, executando o filtro!')
+        bot.click(procura_imagem(imagem='img_planilha/bt_setabaixo.png', area=(1529, 459, 75, 75)))
+        while procura_imagem(imagem='img_planilha/botao_selecionartudo.png') is None:
+            time.sleep(0.6)
+        bot.click(procura_imagem(imagem='img_planilha/botao_selecionartudo.png'))
+        bot.click(procura_imagem(imagem='img_planilha/bt_vazias.png'))
+        bot.click(procura_imagem(imagem='img_planilha/bt_aplicar.png'))
 
+
+
+    print(Fore.GREEN + F'--------------------- Processou NFE, situação: {texto_marcacao} ---------------------\n' + Style.RESET_ALL)
 
 def extrai_txt_img(imagem, area_tela):
     # Captura uma screenshot da área especificada da tela

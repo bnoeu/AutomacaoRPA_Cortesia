@@ -23,7 +23,7 @@ tempo_inicio = time.time()
 
 chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
 pytesseract.pytesseract.tesseract_cmd = r"C:\Tesseract-OCR\tesseract.exe"
-bot.PAUSE = 1.7
+bot.PAUSE = 1.6
 
 #Executa o RemoteApp
 os.startfile("RemoteApp-Cortesia.rdp")

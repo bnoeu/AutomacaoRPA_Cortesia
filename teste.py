@@ -47,12 +47,12 @@ cur = con.cursor()
 exit()
 '''
 
-
-#ahk.win_activate('TopCompras', title_match_mode= 2)
-time.sleep(1)
+ahk.win_activate('TopCompras', title_match_mode= 2)
 #ahk.win_activate('db_alltrips', title_match_mode= 2)
+time.sleep(1)
 #! Utilizado apenas para estar trechos de codigo.
 
+<<<<<<< HEAD
 bot.click(procura_imagem(imagem='img_topcon/botao_ok.jpg', continuar_exec=True))
 #Verifica se apareceu a tela de transferencia 
 if procura_imagem('img_topcon/txt_transfMateriaPrima.png', continuar_exec=True) is not False:
@@ -74,3 +74,13 @@ if procura_imagem('img_topcon/txt_transfMateriaPrima.png', continuar_exec=True) 
         ahk.win_activate('Transmissão', title_match_mode=2)
         bot.click(procura_imagem(imagem='img_topcon/sair_tela.png'))
         time.sleep(1)
+=======
+'''
+for tela in ahk.list_windows():
+    print(tela.title)
+    ahk.win_kill('Segurança do Windows', title_match_mode= 2)
+    ahk.win_kill('RemoteApp', title_match_mode= 2)
+'''
+
+bot.click(900, 201)  # Clica no campo filial de estoque
+>>>>>>> d10f246276aed9b570099b25996ca95c392655c5

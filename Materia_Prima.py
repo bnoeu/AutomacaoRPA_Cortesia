@@ -117,12 +117,14 @@ def programa_principal():
 #* -------------------------- PROSSEGUINDO COM O LANÇAMENTO DA NFE -------------------------- 
         ahk.win_activate('TopCompras', title_match_mode=2)
         ahk.win_wait_active('TopCompras', title_match_mode=2, timeout= 5)
+        time.sleep(0.4)
         bot.click(900, 201)  # Clica no campo filial de estoque
         bot.write(filial_estoq)
+        time.sleep(0.2)
 
         # Confirma a informação da nova filial de estoque
         bot.press('ENTER', presses=1)
-        time.sleep(1)
+        time.sleep(1.2)
 
         bot.click(1006, 345)  # Campo data da operação
         hoje = date.today()
@@ -239,16 +241,13 @@ def programa_principal():
                 print('--- Aguardando fechamento da tela do botão "Alterar" ')
                 time.sleep(0.6)
                 if tentativa > 10: #Executa o loop 10 vezes até dar erro.
-                    bot.alert('Apresentou algum erro.')
+                    exit(bot.alert('Apresentou algum erro.'))
             
         # Conclui o lançamento
         bot.press('pagedown')  # Conclui o lançamento
-
-        # Espera até que o topcom volte a responder
         print('--- Aguardando TopCompras Retornar')
         while ahk.win_exists('Não está respondendo'):
             time.sleep(0.4)
-        time.sleep(0.6)
 
         # Verifica se a tela "Deseja processar" apareceu, caso sim, procede para emissão da NFE.
         ahk.win_wait_active('TopCom', timeout=10, title_match_mode=2)
@@ -256,40 +255,36 @@ def programa_principal():
         
         # Espera até aparecer a tela de operação realizada, e quando ela aparecer, clica no botão OK
         while procura_imagem(imagem='img_topcon/operacao_realizada.png', continuar_exec=True) is False:
-            time.sleep(0.4)
             if procura_imagem(imagem='img_topcon/chave_invalida.png', limite_tentativa= 1, continuar_exec=True) is not False:
                 print('--- Nota já lançada, marcando planilha!')
                 bot.press('ENTER')
                 marca_lancado(texto_marcacao='Lancado_Manual')
                 programa_principal()
-        else:
-            bot.click(procura_imagem(imagem='img_topcon/botao_ok.jpg', continuar_exec=True))
-            #Verifica se apareceu a tela de transferencia 
-            if procura_imagem('img_topcon/txt_transfMateriaPrima.png', continuar_exec=True) is not False:
-                if procura_imagem('img_topcon/deseja_processar.png', continuar_exec=True) is not False:
-                    bot.click(procura_imagem('img_topcon/bt_sim.png',
-                            continuar_exec=True, limite_tentativa=4))
-                    while True:  # Aguardar o .PDF
-                        try:
-                            ahk.win_wait('.pdf', title_match_mode=2, timeout=2)
-                            time.sleep(0.4)
-                        except TimeoutError:
-                            print('Aguardando .PDF')
-                        else:
-                            ahk.win_activate('.pdf', title_match_mode=2)
-                            ahk.win_close('pdf - Google Chrome', title_match_mode=2)
-                            print('Fechou o PDF')
-                            break
-                    time.sleep(0.8)
-                    ahk.win_activate('Transmissão', title_match_mode=2)
-                    bot.click(procura_imagem(imagem='img_topcon/sair_tela.png'))
-                    time.sleep(1)
 
-                    # * -------------------------------------- Marca planilha --------------------------------------
-                    marca_lancado(texto_marcacao='Lancado_RPA')
+        bot.click(procura_imagem(imagem='img_topcon/botao_ok.jpg', continuar_exec=True))
 
-if __name__ == '__main__':
-    programa_principal()
+        #Verifica se apareceu a tela de transferencia 
+        if procura_imagem('img_topcon/deseja_processar.png', continuar_exec=True, limite_tentativa= 10) is not False:
+            bot.click(procura_imagem('img_topcon/bt_sim.png', continuar_exec=True))
+            while True:  # Aguardar o .PDF
+                try:
+                    ahk.win_wait('.pdf', title_match_mode=2, timeout=2)
+                    time.sleep(0.6)
+                except TimeoutError:
+                    print('--- Aguardando .PDF da transferencia')
+                else:
+                    ahk.win_activate('.pdf', title_match_mode=2)
+                    ahk.win_close('pdf - Google Chrome', title_match_mode=2)
+                    print('--- Fechou o PDF da transferencia')
+                    break
+            time.sleep(0.8)
+            ahk.win_activate('Transmissão', title_match_mode=2)
+            bot.click(procura_imagem(imagem='img_topcon/sair_tela.png'))
+
+        # * -------------------------------------- Marca planilha --------------------------------------
+        marca_lancado(texto_marcacao='Lancado_RPA')
+#abre_topcon()
+programa_principal()
 
 # TODO --- Caso o pedido acabe, avisar ao Mateus
 # TODO --- Caso NFE Faturada no final do mes, lançar com qual data? 

@@ -24,7 +24,7 @@ bot.PAUSE = 1.6
 
 def valida_lancamento():
     def coleta_planilha():
-        bot.PAUSE = 0.4
+        bot.PAUSE = 0.8
         print('--- Abrindo planilha - COLETA_PLANILHA')
         ahk.win_activate('db_alltrips', title_match_mode= 2)
         ahk.win_wait('db_alltrips', title_match_mode= 2)
@@ -86,10 +86,10 @@ def valida_lancamento():
         
         #Clica na primeira linha (Campo RE), e pressiona seta para baixo
         bot.click(procura_imagem(imagem='img_planilha/titulo_re.png'))
-        time.sleep(0.3)
         bot.press('DOWN')
-        
+        time.sleep(0.4)
         for n in range(0, 7, 1):  # Copia dados dos 6 campos
+            bot.PAUSE = 0.2
             while True:
                 bot.hotkey('ctrl', 'c')
                 if 'Recuperando' in ahk.get_clipboard():
@@ -98,6 +98,7 @@ def valida_lancamento():
                     break
             dados_planilha.append(ahk.get_clipboard())
             bot.press('right')
+        bot.PAUSE = 1.6
         print(Fore.GREEN +  F'--- Dados copiados com sucesso: {dados_planilha}' + Style.RESET_ALL + '\n')
         '''
         tempo_coleta = time.time() - tempo_inicio
@@ -134,11 +135,16 @@ def valida_lancamento():
         while procura_imagem(imagem='img_topcon/txt_inclui.png', continuar_exec= True) is False:
             print('--- Aguardando entrar no modo inclusão')
             time.sleep(0.3)
-        
-        bot.click(procura_imagem(imagem='img_topcon/txt_chaveNfe.png'))
-        bot.doubleClick(558, 235, interval = 0.2)  # Clica dentro do campo para inserir a chave XML
+        else:
+            print(Fore.GREEN + '--- Entrou no modo inclusão! iniciando lançamento' + Style.RESET_ALL)
+               
+        bot.doubleClick(558, 235)  # Clica dentro do campo para inserir a chave XML
+        time.sleep(0.4)
         bot.write(chave_xml)
+        time.sleep(0.4)
         bot.press('ENTER')
+        time.sleep(0.4)
+
         ahk.win_wait_active('TopCompras')
         
         tentativa = 0
