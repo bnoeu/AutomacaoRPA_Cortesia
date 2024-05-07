@@ -4,6 +4,8 @@
 #! Link da planilha
 # https://cortesiaconcreto-my.sharepoint.com/:x:/g/personal/bi_cortesiaconcreto_com_br/EU6ahKCIVdxFjiB_rViPfN0Bo9SGYGReQ7VTqbKDjMXyLQ?e=QrTGT0
 
+
+
 import os
 import time
 #import sqlite3

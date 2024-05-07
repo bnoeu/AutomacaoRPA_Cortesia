@@ -16,19 +16,30 @@ import os
 
 # --- Definição de parametros
 ahk = AHK()
+bot.PAUSE = 1
 posicao_img = 0  # Define a variavel para utilização global dela.
 continuar = True
 bot.FAILSAFE = False
 tempo_inicio = time.time()
-
 chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
 pytesseract.pytesseract.tesseract_cmd = r"C:\Tesseract-OCR\tesseract.exe"
-bot.PAUSE = 1
 
-#Executa o RemoteApp
-os.startfile("RemoteApp-Cortesia.rdp")
+#! Dados para acesso ao remoteApp
+login_rdp = 'bruno.s'
+senha_rdp = ''
 
-#Clica no campo da senha para inserção
-bot.click(procura_imagem('img_topcon/campo_senha.png', continuar_exec=True))
-bot.write('C0rtesi@01')
-bot.press('ENTER')
+
+#* ---------------- PROGRAMA PRINCIPAL ------------
+
+
+if __name__ == '__main__':
+    #Executa o RemoteApp
+    os.startfile("RemoteApp-Cortesia.rdp")
+
+    #TODO --- Detectar se é o login da barbara.k ou bruno.s
+    #TODO --- Conforme o login, determinar qual senha utilizar
+    
+    #Clica no campo da senha para inserção
+    bot.click(procura_imagem('img_topcon/campo_senha.png', continuar_exec=True))
+    bot.write('C0rtesi@01')
+    bot.press('ENTER')
