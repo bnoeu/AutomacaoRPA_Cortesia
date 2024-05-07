@@ -5,7 +5,6 @@
 # https://cortesiaconcreto-my.sharepoint.com/:x:/g/personal/bi_cortesiaconcreto_com_br/EU6ahKCIVdxFjiB_rViPfN0Bo9SGYGReQ7VTqbKDjMXyLQ?e=QrTGT0
 
 
-
 import os
 import time
 #import sqlite3
@@ -182,6 +181,7 @@ def programa_principal():
             bot.press('ENTER')
         else:
             print('--- Não achou o campo ou já está preenchido')
+            time.sleep(0.5)
 
 
         # * -------------------------------------- Aba Pedido --------------------------------------
@@ -239,7 +239,14 @@ def programa_principal():
             while procura_imagem(imagem='img_topcon/confirma.png', continuar_exec=True) is not False:
                 tentativa += 1
                 print('--- Aguardando fechamento da tela do botão "Alterar" ')
-                time.sleep(0.6)
+                time.sleep(0.3)
+                #TODO --- VerificaR se apareceu a tela "quantidade atribuida aos locais"
+                if procura_imagem(imagem='img_topcon/txt_ErroAtribuida.png', continuar_exec=True):
+                    #TODO --- Clicar no botão ok
+                    #TODO --- 
+                    #TODO --- 
+                    pass
+
                 if tentativa > 10: #Executa o loop 10 vezes até dar erro.
                     exit(bot.alert('Apresentou algum erro.'))
             # TODO --- CASO O REMOTE APP DESCONECTE, RODAR O ABRE TOPCON

@@ -62,8 +62,8 @@ def marca_lancado(texto_marcacao='Lancado'):
     ahk.win_wait_active('db_alltrips', title_match_mode= 2, timeout= 10)
 
     #Verifica se está no modo "Apenas exibição", caso esteja, altera para permitir edição.
-    if procura_imagem(imagem='img_planilha/botao_exibicaoverde.png', continuar_exec=True) is not False:
-        bot.click(procura_imagem(imagem='img_planilha/botao_exibicaoverde.png', limite_tentativa= 50))
+    if procura_imagem(imagem='img_planilha/bt_exibicaoverde.png', continuar_exec=True) is not False:
+        bot.click(procura_imagem(imagem='img_planilha/bt_exibicaoverde.png', limite_tentativa= 50))
         bot.click(procura_imagem(imagem='img_planilha/botao_iniciaredicao.png', limite_tentativa= 50))
         print('--- Aguardando entrar no modo edição')
         while procura_imagem(imagem='img_planilha/bt_edicao.png', continuar_exec= True) is False: #Aguarda até entrar no modo Edição

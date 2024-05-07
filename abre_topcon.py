@@ -26,7 +26,7 @@ pytesseract.pytesseract.tesseract_cmd = r"C:\Tesseract-OCR\tesseract.exe"
 
 #! Dados para acesso ao remoteApp
 login_rdp = 'bruno.s'
-senha_rdp = ''
+senha_rdp = 'C0rtesi@'
 
 
 #* ---------------- PROGRAMA PRINCIPAL ------------
@@ -38,7 +38,7 @@ if __name__ == '__main__':
 
     #TODO --- Detectar se é o login da barbara.k ou bruno.s
     #TODO --- Conforme o login, determinar qual senha utilizar
-    
+
     #Clica no campo da senha para inserção
     bot.click(procura_imagem('img_topcon/campo_senha.png', continuar_exec=True))
     bot.write('C0rtesi@01')

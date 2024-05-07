@@ -27,7 +27,7 @@ def coleta_planilha():
     ahk.win_wait('db_alltrips', title_match_mode= 2)
 
     #Verifica se já está no modo de edição, caso esteja, muda para o modo "exibição"
-    if procura_imagem(imagem='img_planilha/botao_exibicaoverde.png', continuar_exec=True) is False:
+    if procura_imagem(imagem='img_planilha/bt_exibicaoverde.png', continuar_exec=True) is False:
         print('--- Não está no modo exibição! Realizando alteração.')
         
         #Espera até encontar o botão "Exibição" (Lapis bloqueado) e realiza um click nele
@@ -36,9 +36,9 @@ def coleta_planilha():
             
         #Clica no botão da edição (lapis branco), para mostrar o dropdown com as opções, e clica no botão "lapis bloqueado"
         bot.click(procura_imagem(imagem='img_planilha/bt_edicao.png', continuar_exec= True))
-        bot.click(procura_imagem(imagem='img_planilha/botao_exibicao.png', confianca= 0.90, continuar_exec= True))
+        bot.click(procura_imagem(imagem='img_planilha/bt_exibicao.png', confianca= 0.90, continuar_exec= True))
         #Aguarda até aparecer o botão do modo "exibição"
-        while procura_imagem(imagem='img_planilha/botao_exibicaoverde.png', continuar_exec=True) is False:
+        while procura_imagem(imagem='img_planilha/bt_exibicaoverde.png', continuar_exec=True) is False:
             time.sleep(0.2)
         print('--- Alterado para o modo exibição, continuando.')
         
@@ -46,7 +46,7 @@ def coleta_planilha():
         print('--- A planilha já está no modo "Exibição", continuando processo')
 
     #Altera o filtro para "vazio", para iniciar a coleta de dados.
-    if procura_imagem(imagem='img_planilha/bt_filtro.png', continuar_exec=True, area= (1468, 400, 200, 200)) is not False:
+    if procura_imagem(imagem='img_planilha/bt_filtro.png', confianca= 0.75, continuar_exec=True, area= (1468, 400, 200, 200)) is not False:
         print('--- Já está filtrado, continuando!')
     else:
         print('--- Não está filtrado, executando o filtro!')
