@@ -95,7 +95,7 @@ def valida_lancamento():
             while ahk.win_exists('Não está respondendo'):
                 time.sleep(0.3)
             tentativa += 1
-            if tentativa >= 10:
+            if tentativa >= 15:
                 exit('Rodou 10 verificações e não achou nenhuma tela, verificar!')
 if __name__ == '__main__':
     valida_lancamento()
