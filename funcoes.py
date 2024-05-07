@@ -9,7 +9,6 @@ import numpy as np
 from ahk import AHK
 import pyautogui as bot
 #import pygetwindow as gw
-import numpy as np
 from colorama import Fore, Style
 
 
@@ -23,7 +22,7 @@ chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
 pytesseract.pytesseract.tesseract_cmd = r"C:\Tesseract-OCR\tesseract.exe"
 bot.useImageNotFoundException(False)
 
-def procura_imagem(imagem, limite_tentativa=6, area=(0, 0, 1920, 1080), continuar_exec=False, confianca = 0.75):
+def procura_imagem(imagem, limite_tentativa=6, area=(0, 0, 1920, 1080), continuar_exec=False, confianca = 0.78):
     tentativa = 0   
     print(F'--- Tentando encontrar: {imagem}', end= ' ')
     while tentativa < limite_tentativa:
@@ -61,15 +60,16 @@ def marca_lancado(texto_marcacao='Lancado'):
     print(Fore.GREEN + F'\n--- Abrindo planilha - MARCA_LANCADO, com parametro: {texto_marcacao}' + Style.RESET_ALL)
     ahk.win_activate('db_alltrips', title_match_mode= 2)
     ahk.win_wait_active('db_alltrips', title_match_mode= 2, timeout= 10)
-    time.sleep(1)
 
     #Verifica se está no modo "Apenas exibição", caso esteja, altera para permitir edição.
     if procura_imagem(imagem='img_planilha/botao_exibicaoverde.png', continuar_exec=True) is not False:
         bot.click(procura_imagem(imagem='img_planilha/botao_exibicaoverde.png', limite_tentativa= 50))
         bot.click(procura_imagem(imagem='img_planilha/botao_iniciaredicao.png', limite_tentativa= 50))
-        #Caso apareça a tela informando que houve alteração durante esse periodo, confirma que quer atualizar e prossegue.
-        if procura_imagem(imagem='img_planilha/txt_modificada.png', continuar_exec=True, limite_tentativa= 10) is not False: 
-            bot.click(procura_imagem(imagem='img_planilha/bt_sim.png', limite_tentativa= 10, area= (751, 521, 429, 218)))
+        print('--- Aguardando entrar no modo edição')
+        while procura_imagem(imagem='img_planilha/bt_edicao.png', continuar_exec= True) is False: #Aguarda até entrar no modo Edição
+            #Caso apareça a tela informando que houve alteração durante esse periodo, confirma que quer atualizar e prossegue.
+            if procura_imagem(imagem='img_planilha/txt_modificada.png', continuar_exec=True, limite_tentativa= 10) is not False: 
+                bot.click(procura_imagem(imagem='img_planilha/bt_sim.png', limite_tentativa= 10, area= (751, 521, 429, 218)))
     else:
         print(F'--- Planilha já no modo edição, continuando a inserção do texto: {texto_marcacao}')
 
@@ -81,7 +81,6 @@ def marca_lancado(texto_marcacao='Lancado'):
     bot.press('RIGHT')
     hoje = datetime.date.today()
     bot.write(str(hoje))
-    time.sleep(1.4)
 
     #Retorna a planilha para o modo "Somente Exibição (Botão Verde)"
     if procura_imagem(imagem='img_planilha/bt_filtro.png', continuar_exec=True, limite_tentativa=8, area = (1468, 400, 200, 200)) is not False:
@@ -95,8 +94,6 @@ def marca_lancado(texto_marcacao='Lancado'):
         bot.click(procura_imagem(imagem='img_planilha/botao_selecionartudo.png'))
         bot.click(procura_imagem(imagem='img_planilha/bt_vazias.png'))
         bot.click(procura_imagem(imagem='img_planilha/bt_aplicar.png'))
-
-
 
     print(Fore.GREEN + F'--------------------- Processou NFE, situação: {texto_marcacao} ---------------------\n' + Style.RESET_ALL)
 
@@ -156,3 +153,8 @@ def verifica_ped_vazio(texto, pos):
         bot.click(procura_imagem(imagem='img_topcon/confirma.png', limite_tentativa= 100))
         bot.click(procura_imagem(imagem='img_topcon/botao_ok.jpg', limite_tentativa= 100))
         return True
+
+
+
+if __name__ == '__main__':
+    marca_lancado('Teste')

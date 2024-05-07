@@ -6,20 +6,20 @@
 
 #import os
 import time
+#import sqlite3
 #import subprocess
 import pytesseract
 from ahk import AHK
 import pyautogui as bot
-from colorama import Back, Style
 from datetime import date
+from colorama import Back, Style
 from valida_pedido import valida_pedido
 from acoes_planilha import valida_lancamento
 from funcoes import marca_lancado, procura_imagem, extrai_txt_img
-#import sqlite3
 
 # --- Definição de parametros
 ahk = AHK()
-bot.PAUSE = 1.6
+bot.PAUSE = 1
 posicao_img = 0
 continuar = True
 bot.FAILSAFE = False
@@ -117,7 +117,7 @@ def programa_principal():
 #* -------------------------- PROSSEGUINDO COM O LANÇAMENTO DA NFE -------------------------- 
         ahk.win_activate('TopCompras', title_match_mode=2)
         ahk.win_wait_active('TopCompras', title_match_mode=2, timeout= 5)
-        time.sleep(0.4)
+        time.sleep(0.4) 
         bot.click(900, 201)  # Clica no campo filial de estoque
         bot.write(filial_estoq)
         time.sleep(0.2)
@@ -131,7 +131,7 @@ def programa_principal():
         hoje = hoje.strftime("%d%m%y")  # dd/mm/YY
         bot.write(hoje)
         bot.press('enter')       
-        time.sleep(0.6)
+        time.sleep(1)
 
         # Altera o campo centro de custo, para o dado coletado
         print(F'--- Trocando o centro de custo para {centro_custo}')
@@ -140,24 +140,24 @@ def programa_principal():
         # Aguarda aparecer o campo "cod_desc"
         print('--- Aguarda aparecer o campo cod_desc')
         while procura_imagem(imagem='img_topcon/cod_desc.png', limite_tentativa=1, continuar_exec=True) is False:
-            time.sleep(0.3)
+            time.sleep(0.2)
         bot.press('ENTER')
 
         # Aguarda até SUMIR o campo "cod_desc"
         print('--- Aguarda até SUMIR o campo "cod_desc"')
         while procura_imagem(imagem='img_topcon/cod_desc.png', limite_tentativa=1, continuar_exec=True) is not False:
-            time.sleep(0.3)
+            time.sleep(0.2)
             ahk.win_wait_active('TopCompras', title_match_mode= 2)
             ahk.win_activate('TopCompras', title_match_mode= 2)
 
         # Clica no campo "Valores Totais"
-        bot.doubleClick(105, 515, interval= 0.5)
+        bot.doubleClick(105, 515, interval= 0.2)
 
         # * -------------------------------------- VALIDAÇÃO TRANSPORTADOR --------------------------------------
         print(F'--- PREENCHENDO TRANSPORTADOR: {cracha_mot}')
         bot.click(317, 897)  # Campo transportador
-        while procura_imagem(imagem='img_topcon/campo_re_0.png', limite_tentativa= 1, continuar_exec= True) is False:
-            time.sleep(0.4)
+        while procura_imagem(imagem='img_topcon/campo_re_0.png', continuar_exec= True) is False:
+            time.sleep(0.2)
         else:
             print('--- Campo RE habilitado, preenchendo.')
             
@@ -242,6 +242,7 @@ def programa_principal():
                 time.sleep(0.6)
                 if tentativa > 10: #Executa o loop 10 vezes até dar erro.
                     exit(bot.alert('Apresentou algum erro.'))
+            # TODO --- CASO O REMOTE APP DESCONECTE, RODAR O ABRE TOPCON
             
         # Conclui o lançamento
         bot.press('pagedown')  # Conclui o lançamento
