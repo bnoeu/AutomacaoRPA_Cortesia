@@ -183,10 +183,10 @@ def programa_principal():
             print('--- Não achou o campo ou já está preenchido')
             time.sleep(0.5)
 
-
         # * -------------------------------------- Aba Pedido --------------------------------------
         bot.doubleClick(procura_imagem(imagem='img_topcon/produtos_servicos.png'))
         time.sleep(0.8)
+
 
         if '38953477000164' not in chave_xml: #Caso não tenha o CNPJ da Consmar
             # Realiza a extração da quantidade de toneladas
@@ -194,7 +194,7 @@ def programa_principal():
             qtd_ton = qtd_ton.replace(",", ".")
             qtd_ton = float(qtd_ton)
             print(F'--- Texto coletado da quantidade: {qtd_ton}')
-            
+
             #Clica no alterar para exibir a tela 
             bot.click(procura_imagem(imagem='img_topcon/botao_alterar.png', area=(100, 839, 300, 400)))
 
@@ -207,7 +207,6 @@ def programa_principal():
                 # Aguardando aparecer o botão de "confirma", para prosseguir com as ações.
                 procura_imagem(imagem='img_topcon/confirma.png')
                 print('--- Preenchendo SILO e quantidade')
-
 
             if (silo1 != '') or (silo2 != ''):
                 bot.click(851, 443)  # Clica na linha para informar o primeiro silo
@@ -235,17 +234,17 @@ def programa_principal():
                 print('--- Nenhum silo coletado, nota de agregado!')
 
             #Após preencher ou não os silos, clica para confirmar as informações. 
-            bot.click(procura_imagem(imagem='img_topcon/confirma.png'))
+            bot.click(procura_imagem(imagem='img_topcon/confirma.png'))            
+            if procura_imagem(imagem='img_topcon/txt_ErroAtribuida.png', continuar_exec=True):
+                #TODO --- Clicar no botão ok
+                #TODO --- Tira printo do campo "quantidade" e extrai o texto para saber a quantidade
+                #TODO --- Preenche novamente a quantidade
+                pass
             while procura_imagem(imagem='img_topcon/confirma.png', continuar_exec=True) is not False:
                 tentativa += 1
                 print('--- Aguardando fechamento da tela do botão "Alterar" ')
                 time.sleep(0.3)
                 #TODO --- VerificaR se apareceu a tela "quantidade atribuida aos locais"
-                if procura_imagem(imagem='img_topcon/txt_ErroAtribuida.png', continuar_exec=True):
-                    #TODO --- Clicar no botão ok
-                    #TODO --- 
-                    #TODO --- 
-                    pass
 
                 if tentativa > 10: #Executa o loop 10 vezes até dar erro.
                     exit(bot.alert('Apresentou algum erro.'))
