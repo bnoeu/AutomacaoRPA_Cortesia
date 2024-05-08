@@ -52,11 +52,12 @@ ahk.win_activate('TopCompras', title_match_mode= 2)
 time.sleep(1)
 #! Utilizado apenas para estar trechos de codigo.
 
-'''
+
 for tela in ahk.list_windows():
     print(tela.title)
+    '''
     ahk.win_kill('Segurança do Windows', title_match_mode= 2)
     ahk.win_kill('RemoteApp', title_match_mode= 2)
-'''
+    '''
 
-bot.click(900, 201)  # Clica no campo filial de estoque
+

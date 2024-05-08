@@ -31,52 +31,7 @@ pytesseract.pytesseract.tesseract_cmd = r"C:\Tesseract-OCR\tesseract.exe"
 # * ---------------------------------------------------------------------------------------------------
 # *                                        Inicio do Programa
 # * ---------------------------------------------------------------------------------------------------
-def abre_topcon():
-    #Primeiro força o fechamento das telas, para evitar erros de validações.
-    ahk.win_kill('Segurança do Windows', title_match_mode= 2)
-    ahk.win_kill('RemoteApp', title_match_mode= 2)
-    ahk.win_kill('RemoteApp', title_match_mode= 2)
-    ahk.win_kill('TopCon', title_match_mode= 2)
-    
-    os.startfile('RemoteApp-Cortesia.rdp')
-    
-    #Realiza o login no RDP, que deve utilizar as informações de login do usuario "CORTESIA\BARBARA.K"
-    ahk.win_activate('Segurança do Windows')
-    ahk.win_wait_active('Segurança do Windows')
-    bot.click(procura_imagem(imagem='img_windows/txt_seguranca.png'))
-    bot.write('C0rtesi@01') #Senha BARBARA.K
-    bot.press('TAB', presses= 3, interval= 0.02)
-    bot.press('ENTER')
-    print('--- Login realizado no RemoteApp-Cortesia.rdp')
-    
-    #Realiza login no TopCon
-    while procura_imagem(imagem='img_topcon/txt_ServidorAplicacao.png') is False: #Aguarda até aparecer o campo do servidor preenchido
-        time.sleep(0.2)
-    else:
-        bot.click(procura_imagem(imagem='img_topcon/txt_ServidorAplicacao.png'))
-        print('--- Tela de login do topcon aberta')
-        bot.press('tab', presses= 2, interval= 0.005)
-        bot.press('backspace')
-        
-        #Insere os dados de login do usuario BRUNO.S
-        bot.write('BRUNO.S')
-        bot.press('tab')
-        bot.write('rockie')
-        bot.press('tab')
-        bot.press('enter')
 
-    #Abre o modulo de compras e navega até a tela de lançamento
-    bot.click(procura_imagem(imagem='img_topcon/icone_compras.png'))
-    ahk.win_activate('TopCompras - Versão', title_match_mode= 2)
-    bot.press('ENTER')
-    exit()
-    while procura_imagem(imagem='img_topcon/txt_interveniente.png', continuar_exec= True) is False:
-        print('--- Aguardando modulo de compras abrir.')
-    else:
-        ahk.win_activate('TopCompras - Versão', title_match_mode= 2)
-        #bot.click(procura_imagem(imagem='img_topcon/txt_interveniente.png'))
- 
- 
 def programa_principal():
     while True:  # ! Programa principal.
         acabou_pedido = True
