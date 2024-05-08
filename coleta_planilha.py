@@ -46,7 +46,7 @@ def coleta_planilha():
         print('--- A planilha já está no modo "Exibição", continuando processo')
 
     #Altera o filtro para "vazio", para iniciar a coleta de dados.
-    if procura_imagem(imagem='img_planilha/bt_filtro.png', confianca= 0.75, continuar_exec=True, area= (1468, 400, 200, 200)) is not False:
+    if procura_imagem(imagem='img_planilha/bt_filtro.png', confianca= 0.70, continuar_exec=True, area= (1468, 400, 200, 200)) is not False:
         print('--- Já está filtrado, continuando!')
     else:
         print('--- Não está filtrado, executando o filtro!')
