@@ -136,7 +136,7 @@ def programa_principal():
             bot.press('ENTER')
         else:
             print('--- Não achou o campo ou já está preenchido')
-            time.sleep(0.5)
+            time.sleep(1)
 
         # * -------------------------------------- Aba Pedido --------------------------------------
         bot.doubleClick(procura_imagem(imagem='img_topcon/produtos_servicos.png'))
