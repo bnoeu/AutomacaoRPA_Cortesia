@@ -102,31 +102,31 @@ def programa_principal():
             time.sleep(0.2)
             ahk.win_wait_active('TopCompras', title_match_mode= 2)
             ahk.win_activate('TopCompras', title_match_mode= 2)
-
+        
         # Clica no campo "Valores Totais"
-        bot.doubleClick(105, 515, interval= 0.2)
+        bot.click(procura_imagem(imagem='img_topcon/txt_ValoresTotais.png', continuar_exec= True))
 
         # * -------------------------------------- VALIDAÇÃO TRANSPORTADOR --------------------------------------
-        print(F'--- PREENCHENDO TRANSPORTADOR: {cracha_mot}')
-        bot.click(317, 897)  # Campo transportador
+        print(F'--- Preenchendo transportador: {cracha_mot}')
+        bot.click(procura_imagem(imagem='img_topcon/campo_000.png', continuar_exec= True))
+        bot.press('tab')
         while procura_imagem(imagem='img_topcon/campo_re_0.png', continuar_exec= True) is False:
-            time.sleep(0.2)
+            time.sleep(0.1)
         else:
             print('--- Campo RE habilitado, preenchendo.')
-            
-        #Preenche o campo do transportador e verifica se aconteceu algum erro.
-        bot.write(cracha_mot)  # ID transportador
-        bot.press('enter', interval= 0.5)
-        
+            #Preenche o campo do transportador e verifica se aconteceu algum erro.
+            bot.write(cracha_mot)  # ID transportador
+            bot.press('enter')
+
         print('--- Aguardando validar o campo do transportador')
         if procura_imagem(imagem='img_topcon/transportador_incorreto.png', continuar_exec= True) is not False:
             print('--- Transportador incorreto!')
             bot.press('ENTER')
             marca_lancado(texto_marcacao='RE_incorreto')
-            programa_principal()
+            #programa_principal()
         else:
             print('--- Transportador validado! Prosseguindo para validação da placa')
-        bot.press('enter')
+            bot.press('enter')
 
         # Verifica se o campo da placa ficou preenchido
         if procura_imagem('img_topcon/campo_placa.png', continuar_exec=True) is not False:
@@ -244,8 +244,9 @@ def programa_principal():
 
         # * -------------------------------------- Marca planilha --------------------------------------
         marca_lancado(texto_marcacao='Lancado_RPA')
-#abre_topcon()
-programa_principal()
+
+if __name__ == '__main__':
+    programa_principal()
 
 # TODO --- Caso o pedido acabe, avisar ao Mateus
 # TODO --- Caso NFE Faturada no final do mes, lançar com qual data? 
