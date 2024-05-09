@@ -58,6 +58,3 @@ for tela in ahk.list_windows():
 
 '''
 
-
-
-exit()

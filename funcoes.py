@@ -26,7 +26,7 @@ def procura_imagem(imagem, limite_tentativa=6, area=(0, 0, 1920, 1080), continua
     tentativa = 0   
     print(F'--- Tentando encontrar: {imagem}', end= ' ')
     while tentativa < limite_tentativa:
-        time.sleep(0.5)
+        time.sleep(0.25)
         posicao_img = bot.locateCenterOnScreen(imagem, grayscale= True, confidence= confianca, region= area)
         if posicao_img is not None:
             print(F'--- Encontrou na posição: {posicao_img}')
@@ -39,7 +39,7 @@ def procura_imagem(imagem, limite_tentativa=6, area=(0, 0, 1920, 1080), continua
         return False
     if tentativa >= limite_tentativa:
         print('--- FECHANDO PLANILHA PARA EVITAR ERROS')
-        #ahk.win_kill('db_alltrips')
+        ahk.win_kill('db_alltrips')
         exit(bot.alert(text=F'Não foi possivel encontrar: {imagem}', title='Erro!', button='Fechar'))
     return posicao_img
 
@@ -84,12 +84,12 @@ def marca_lancado(texto_marcacao='Lancado'):
     bot.write(str(hoje))
 
     #Retorna a planilha para o modo "Somente Exibição (Botão Verde)"
-    if procura_imagem(imagem='img_planilha/bt_filtro.png', continuar_exec=True, limite_tentativa=8, area = (1468, 400, 200, 200)) is not False:
+    if procura_imagem(imagem='img_planilha/bt_filtro.png', continuar_exec=True, area = (1468, 400, 200, 200)) is not False:
         bot.click(procura_imagem(imagem='img_planilha/bt_filtro.png', continuar_exec=True, limite_tentativa=8, area= (1468, 400, 200, 200)))
         bot.click(procura_imagem(imagem='img_planilha/bt_aplicar.png'))
     else:
         print('--- Não está filtrado, executando o filtro!')
-        bot.click(procura_imagem(imagem='img_planilha/bt_setabaixo.png', area=(1529, 459, 75, 75)))
+        bot.click(procura_imagem(imagem='img_planilha/bt_setabaixo.png', confianca= 0.6, area=(1529, 459, 75, 75)))
         while procura_imagem(imagem='img_planilha/botao_selecionartudo.png') is None:
             time.sleep(0.6)
         bot.click(procura_imagem(imagem='img_planilha/botao_selecionartudo.png'))
@@ -98,7 +98,7 @@ def marca_lancado(texto_marcacao='Lancado'):
 
     print(Fore.GREEN + F'--------------------- Processou NFE, situação: {texto_marcacao} ---------------------\n' + Style.RESET_ALL)
 
-def extrai_txt_img(imagem, area_tela):
+def extrai_txt_img(imagem, area_tela, porce_escala = 400):
     # Captura uma screenshot da área especificada da tela
     img = bot.screenshot('img_geradas/' + imagem, region=area_tela)
     print(F'--- Tirou print da imagem: {imagem} ----')
@@ -107,7 +107,7 @@ def extrai_txt_img(imagem, area_tela):
     img = cv2.imread('img_geradas/' + imagem)
 
     # Define uma porcentagem de escala para redimensionar a imagem
-    porce_escala = 500
+    porce_escala = porce_escala
     largura = int(img.shape[1] * porce_escala / 90)
     altura = int(img.shape[0] * porce_escala / 90)
     nova_dim = (largura, altura)
@@ -116,12 +116,7 @@ def extrai_txt_img(imagem, area_tela):
     
     kernel = np.ones((5,5),np.float32)/30
     smooth = cv2.filter2D(img_cinza,-1,kernel)
-    img_thresh = cv2.threshold(smooth, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)[1] #OTSU threshold
-    #blur = cv2.GaussianBlur(img_thresh,(5,5),0)
-    #kernel = np.ones((3,3),np.uint8)
-    #erosion = cv2.erode(img_thresh,kernel,iterations = 1)
-    
-    
+    img_thresh = cv2.threshold(smooth, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)[1] #OTSU threshold    
     
     # Utiliza o pytesseract para extrair texto da imagem binarizada
     texto = pytesseract.image_to_string(img_thresh, lang='eng', config='--psm 7').strip()
@@ -142,8 +137,10 @@ def extrai_txt_img(imagem, area_tela):
 
 def verifica_ped_vazio(texto, pos):
     #Extrai o texto da imagem 
-    texto_xml = extrai_txt_img(imagem='valida_itensxml.png', area_tela=(168, 400, 250, 30)).strip().replace('_','')
+    #texto_xml = extrai_txt_img(imagem='valida_itensxml.png', area_tela=(168, 400, 250, 30)).strip().replace('_','')
+    texto_xml = extrai_txt_img(imagem='valida_itensxml.png', area_tela=(168, 407, 250, 20))
     print(F'--- Item da nota: {texto}, texto que ainda ficou: {texto_xml}, tamanho do texto {len(texto_xml)}')
+    exit()
 
     #Verifica pelo tamanho do texto, se ainda ficou algum valor no campo "Itens do pedido"
     if len(texto_xml) > 6: 
@@ -158,4 +155,4 @@ def verifica_ped_vazio(texto, pos):
 
 
 if __name__ == '__main__':
-    marca_lancado('Teste')
+    verifica_ped_vazio()

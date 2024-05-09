@@ -45,7 +45,7 @@ mapeamento_imagens = {
 
 
 def valida_pedido(acabou_pedido=False):
-    bot.PAUSE = 1
+    bot.PAUSE = 0.8
     tentativa = 0
     img_pedido = 0
     item_pedido = ''
@@ -56,9 +56,8 @@ def valida_pedido(acabou_pedido=False):
     ahk.win_wait_active('Vinculação Itens da Nota', title_match_mode = 2, timeout= 20)
 
     #Coleta o texto do campo "item XML", que é o item a constar na nota fiscal, e com base nisso, trata o dado
-    txt_itensXML = extrai_txt_img(imagem='item_nota.png',area_tela=(170, 400, 280, 30))
+    txt_itensXML = extrai_txt_img(imagem='item_nota.png',area_tela=(170, 407, 280, 20))
     print(F'Texto extraido do campo Itens XML: {txt_itensXML}') 
-
     #Indentifica qual o item que consta na extração.
     for nome in nome_pedido: #Para cada item na lista.
         for item_pedido in nome: #Para cada item dentro das linhas.          
@@ -81,7 +80,7 @@ def valida_pedido(acabou_pedido=False):
 #* --------------------------------- Pedidos Encontrados ---------------------------------
     while tentativa < 2:
         ahk.win_activate('Vinculação Itens da Nota', title_match_mode = 2)
-        time.sleep(0.4)
+        time.sleep(0.2)
         vazio = '' 
         
         #* Validação para saber se encontrou em algum local, caso não encontre, exibe um erro.
@@ -137,7 +136,6 @@ def valida_pedido(acabou_pedido=False):
             else:
                 print(F'--- Pedido validado, saindo do loop dos pedidos encontrados, valor do campo: {vazio}')
                 break
-        
         
         #Marcou o pedido, saindo dos loop
         if vazio is True: 

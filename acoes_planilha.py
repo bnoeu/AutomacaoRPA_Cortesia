@@ -14,7 +14,7 @@ from funcoes import marca_lancado, procura_imagem
 
 # --- Definição de parametros
 ahk = AHK()
-bot.PAUSE = 1
+bot.PAUSE = 0.5
 posicao_img = 0  # Define a variavel para utilização global dela.
 continuar = True
 bot.FAILSAFE = False
@@ -45,23 +45,18 @@ def valida_lancamento():
             time.sleep(0.4)    
         
         # Processo de lançamento
-        bot.press('F2', interval= 0.2)
-        bot.press('F3', presses=2, interval= 0.2)
+        bot.press('F2', presses=2, interval= 0.1)
+        bot.press('F3', presses=2, interval= 0.1)
         
         #TODO --- Validar se entrou no modo "Inclui"
         while procura_imagem(imagem='img_topcon/txt_inclui.png', continuar_exec= True) is False:
             print('--- Aguardando entrar no modo inclusão')
-            time.sleep(0.3)
         else:
-            print(Fore.GREEN + '--- Entrou no modo inclusão! iniciando lançamento' + Style.RESET_ALL)
+            print('--- Entrou no modo inclusão! iniciando lançamento')
                
         bot.doubleClick(558, 235)  # Clica dentro do campo para inserir a chave XML
-        time.sleep(0.4)
         bot.write(chave_xml)
-        time.sleep(0.4)
         bot.press('ENTER')
-        time.sleep(0.4)
-
         ahk.win_wait_active('TopCompras')
         
         tentativa = 0
@@ -70,7 +65,7 @@ def valida_lancamento():
             #Verifica quais das telas apareceu. 
             if procura_imagem(imagem='img_topcon/botao_sim.jpg', limite_tentativa= 1, continuar_exec=True) is not False:
                 bot.click(procura_imagem(imagem='img_topcon/botao_sim.jpg', limite_tentativa=1, continuar_exec=True))
-                print('--- XML Validado, indo para verificação do pedido\n')
+                print('--- XML Validado, indo para validação do pedido\n')
                 return dados_planilha
             elif procura_imagem(imagem='img_topcon/chave_invalida.png', limite_tentativa= 1, continuar_exec=True) is not False:
                 print('--- Nota já lançada, marcando planilha!')
