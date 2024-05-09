@@ -28,12 +28,12 @@ senha_rdp = 'C0rtesi@'
 #* ---------------- PROGRAMA PRINCIPAL ------------
 
 if __name__ == '__main__':
-    '''
     #Primeiro força o fechamento das telas, para evitar erros de validações, e depois abre o RDP
     ahk.win_kill('Segurança do Windows', title_match_mode= 2)
     ahk.win_kill('RemoteApp', title_match_mode= 2)
     ahk.win_kill('RemoteApp', title_match_mode= 2)
     ahk.win_kill('TopCon', title_match_mode= 2)
+    os.close()
     os.startfile('RemoteApp-Cortesia.rdp')
     time.sleep(3)
     if ahk.win_exists('Segurança do Windows', title_match_mode= 2):
@@ -64,7 +64,6 @@ if __name__ == '__main__':
         bot.write('rockie')
         bot.press('tab')
         bot.press('enter')
-    '''
 
     #Abre o modulo de compras e navega até a tela de lançamento
     print('--- Abrindo modulo de compras')
@@ -73,10 +72,8 @@ if __name__ == '__main__':
     ahk.win_activate('TopCompras - Versão', title_match_mode= 2)
     bot.press('ENTER')
     
-    while procura_imagem(imagem='img_topcon/txt_interveniente.png', continuar_exec= True) is False:
-        print('--- Aguardando modulo de compras abrir.')
-    else:
-        ahk.win_activate('TopCompras - Versão', title_match_mode= 2)
-        #bot.click(procura_imagem(imagem='img_topcon/txt_interveniente.png'))
+    #Verifica se aparece a tela "interveniente"
+    procura_imagem(imagem='img_topcon/txt_interveniente.png', continuar_exec= True)
+    ahk.win_activate('TopCompras - Versão', title_match_mode= 2)
 
     exit()
