@@ -223,7 +223,7 @@ def programa_principal():
             bot.press('ENTER')
             marca_lancado(texto_marcacao='Lancado_Manual')
             programa_principal()
-    exit()
+
     bot.click(procura_imagem(imagem='img_topcon/botao_ok.jpg', continuar_exec=True))
 
     #Verifica se apareceu a tela de transferencia 

@@ -140,7 +140,6 @@ def verifica_ped_vazio(texto, pos):
     #texto_xml = extrai_txt_img(imagem='valida_itensxml.png', area_tela=(168, 400, 250, 30)).strip().replace('_','')
     texto_xml = extrai_txt_img(imagem='valida_itensxml.png', area_tela=(168, 407, 250, 20))
     print(F'--- Item da nota: {texto}, texto que ainda ficou: {texto_xml}, tamanho do texto {len(texto_xml)}')
-    exit()
 
     #Verifica pelo tamanho do texto, se ainda ficou algum valor no campo "Itens do pedido"
     if len(texto_xml) > 6: 
