@@ -39,7 +39,7 @@ def procura_imagem(imagem, limite_tentativa=6, area=(0, 0, 1920, 1080), continua
         return False
     if tentativa >= limite_tentativa:
         print('--- FECHANDO PLANILHA PARA EVITAR ERROS')
-        ahk.win_kill('db_alltrips')
+        #ahk.win_kill('db_alltrips')
         exit(bot.alert(text=F'Não foi possivel encontrar: {imagem}', title='Erro!', button='Fechar'))
     return posicao_img
 
@@ -89,7 +89,7 @@ def marca_lancado(texto_marcacao='Lancado'):
         bot.click(procura_imagem(imagem='img_planilha/bt_aplicar.png'))
     else:
         print('--- Não está filtrado, executando o filtro!')
-        bot.click(procura_imagem(imagem='img_planilha/bt_setabaixo.png', confianca= 0.6, area=(1529, 459, 75, 75)))
+        bot.click(procura_imagem(imagem='img_planilha/bt_setabaixo.png', confianca= 0.3, area=(1529, 459, 75, 75)))
         while procura_imagem(imagem='img_planilha/botao_selecionartudo.png') is None:
             time.sleep(0.6)
         bot.click(procura_imagem(imagem='img_planilha/botao_selecionartudo.png'))

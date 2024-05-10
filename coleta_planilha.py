@@ -50,7 +50,7 @@ def coleta_planilha():
         print('--- Já está filtrado, continuando!')
     else:
         print('--- Não está filtrado, executando o filtro!')
-        bot.click(procura_imagem(imagem='img_planilha/bt_setabaixo.png', area=(1529, 459, 75, 75)))
+        bot.click(procura_imagem(imagem='img_planilha/bt_setabaixo.png', confianca= 0.3, area=(1529, 459, 75, 75)))
         #Caso não apareça o botão "Selecionar tudo" clica em "limpar filtro" e executa tudo novamente.
         if procura_imagem(imagem='img_planilha/botao_selecionartudo.png', continuar_exec= True) is False:
             bot.click(procura_imagem(imagem='img_planilha/bt_limparFiltro.png'))
