@@ -18,7 +18,7 @@ bot.FAILSAFE = False
 tempo_inicio = time.time()
 chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
 pytesseract.pytesseract.tesseract_cmd = r"C:\Tesseract-OCR\tesseract.exe"
-bot.PAUSE = 1
+bot.PAUSE = 0.8
 
 def coleta_planilha():
     bot.PAUSE = 0.8
@@ -29,29 +29,34 @@ def coleta_planilha():
     #Verifica se já está no modo de edição, caso esteja, muda para o modo "exibição"
     if procura_imagem(imagem='img_planilha/bt_exibicaoverde.png', continuar_exec=True) is False:
         print('--- Não está no modo exibição! Realizando alteração.')
-        
-        #Espera até encontar o botão "Exibição" (Lapis bloqueado) e realiza um click nele
-        while procura_imagem(imagem='img_planilha/bt_edicao.png', continuar_exec= True) is False:
-            time.sleep(0.2)
+        while procura_imagem(imagem='img_planilha/bt_edicao.png', limite_tentativa= 1, continuar_exec= True) is False: #Espera até encontar o botão "Exibição" (Lapis bloqueado)
+            time.sleep(0.1)
             
-        #Clica no botão da edição (lapis branco), para mostrar o dropdown com as opções, e clica no botão "lapis bloqueado"
-        bot.click(procura_imagem(imagem='img_planilha/bt_edicao.png', continuar_exec= True))
-        bot.click(procura_imagem(imagem='img_planilha/bt_exibicao.png', confianca= 0.90, continuar_exec= True))
+        if procura_imagem(imagem='img_planilha/bt_TresPontos.png', continuar_exec= True) is not False:
+            bot.click(procura_imagem(imagem='img_planilha/bt_TresPontos.png', continuar_exec= True))
+            
+        bot.click(procura_imagem(imagem='img_planilha/bt_edicao.png', continuar_exec= True))  
+        time.sleep(0.5)
+        bot.click(procura_imagem(imagem='img_planilha/txt_exibicao.png', continuar_exec= True)) 
+
         #Aguarda até aparecer o botão do modo "exibição"
-        while procura_imagem(imagem='img_planilha/bt_exibicaoverde.png', continuar_exec=True) is False:
-            time.sleep(0.2)
+        while procura_imagem(imagem='img_planilha/bt_exibicaoverde.png', limite_tentativa = 1, continuar_exec=True) is False:
+            time.sleep(0.1)
         print('--- Alterado para o modo exibição, continuando.')
         
     else: #Caso não esteja no modo "Edição"
         print('--- A planilha já está no modo "Exibição", continuando processo')
-    exit()
-    
+
     #Altera o filtro para "vazio", para iniciar a coleta de dados.
-    if procura_imagem(imagem='img_planilha/bt_filtro.png', confianca= 0.5, continuar_exec=True, area= (1468, 400, 200, 200)) is not False:
+    if procura_imagem(imagem='img_planilha/bt_filtro.png', continuar_exec=True, area= (1468, 400, 200, 200)) is not False:
         print('--- Já está filtrado, continuando!')
     else:
         print('--- Não está filtrado, executando o filtro!')
-        bot.click(procura_imagem(imagem='img_planilha/bt_setabaixo.png', confianca= 0.3, area=(1529, 459, 75, 75)))
+        #bot.click(procura_imagem(imagem='img_planilha/bt_setabaixo.png', confianca= 0.75, area=(1529, 459, 75, 75)))
+        bot.click(procura_imagem(imagem='img_planilha/txt_status.png'))
+        bot.move(500, 500)
+        bot.hotkey('alt', 'down')
+        
         #Caso não apareça o botão "Selecionar tudo" clica em "limpar filtro" e executa tudo novamente.
         if procura_imagem(imagem='img_planilha/botao_selecionartudo.png', continuar_exec= True) is False:
             bot.click(procura_imagem(imagem='img_planilha/bt_limparFiltro.png'))
@@ -63,7 +68,7 @@ def coleta_planilha():
             print('--- Filtrado pelas notas vazias!')
 
             #Aguarda aparecer o botão do filtro, para confirmar que está filtrado! 
-            while procura_imagem(imagem='img_planilha/bt_filtro.png', limite_tentativa= 10, area= (1468, 400, 200, 200)) is False:
+            while procura_imagem(imagem='img_planilha/bt_filtro.png', limite_tentativa= 1, area= (1468, 400, 200, 200)) is False:
                 print('--- Aguardando o botão do filtro na coluna "Status" ')
                 time.sleep(0.6)
             else:
@@ -78,11 +83,11 @@ def coleta_planilha():
     bot.press('DOWN')
     time.sleep(0.2)
     for n in range(0, 7, 1):  # Copia dados dos 6 campos
-        time.sleep(0.2)
         while True:
+            time.sleep(0.1)
             bot.hotkey('ctrl', 'c')
             if 'Recuperando' in ahk.get_clipboard():
-                time.sleep(0.2)
+                time.sleep(0.1)
             else:
                 break
         dados_planilha.append(ahk.get_clipboard())

@@ -82,7 +82,7 @@ def programa_principal():
     hoje = date.today()
     hoje = hoje.strftime("%d%m%y")  # dd/mm/YY
     bot.write(hoje)
-    bot.press('enter')       
+    bot.press('enter')  
     time.sleep(1)
 
     # Altera o campo centro de custo, para o dado coletado

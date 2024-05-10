@@ -22,7 +22,7 @@ chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
 pytesseract.pytesseract.tesseract_cmd = r"C:\Tesseract-OCR\tesseract.exe"
 bot.useImageNotFoundException(False)
 
-def procura_imagem(imagem, limite_tentativa=6, area=(0, 0, 1920, 1080), continuar_exec=False, confianca = 0.78):
+def procura_imagem(imagem, limite_tentativa=6, area=(0, 0, 1920, 1080), continuar_exec=False, confianca = 0.8):
     tentativa = 0   
     print(F'--- Tentando encontrar: {imagem}', end= ' ')
     while tentativa < limite_tentativa:
@@ -57,10 +57,10 @@ def verifica_tela(nome_tela, manual=False):
 
 
 def marca_lancado(texto_marcacao='Lancado'):
-    time.sleep(0.5)
     print(Fore.GREEN + F'\n--- Abrindo planilha - MARCA_LANCADO, com parametro: {texto_marcacao}' + Style.RESET_ALL)
     ahk.win_activate('db_alltrips', title_match_mode= 2)
     ahk.win_wait_active('db_alltrips', title_match_mode= 2, timeout= 10)
+    time.sleep(0.5)
 
     #Verifica se está no modo "Apenas exibição", caso esteja, altera para permitir edição.
     if procura_imagem(imagem='img_planilha/bt_exibicaoverde.png', continuar_exec=True) is not False:
@@ -88,10 +88,13 @@ def marca_lancado(texto_marcacao='Lancado'):
         bot.click(procura_imagem(imagem='img_planilha/bt_filtro.png', continuar_exec=True, limite_tentativa=8, area= (1468, 400, 200, 200)))
         bot.click(procura_imagem(imagem='img_planilha/bt_aplicar.png'))
     else:
-        print('--- Não está filtrado, executando o filtro!')
-        bot.click(procura_imagem(imagem='img_planilha/bt_setabaixo.png', confianca= 0.3, area=(1529, 459, 75, 75)))
-        while procura_imagem(imagem='img_planilha/botao_selecionartudo.png') is None:
-            time.sleep(0.6)
+        print('--- Não está filtrado, executando o filtro!')        
+        bot.click(procura_imagem(imagem='img_planilha/txt_status.png'))
+        bot.move(500, 500)
+        bot.hotkey('alt', 'down')        
+        
+        while procura_imagem(imagem='img_planilha/botao_selecionartudo.png', limite_tentativa= 1) is None:
+            time.sleep(0.1)
         bot.click(procura_imagem(imagem='img_planilha/botao_selecionartudo.png'))
         bot.click(procura_imagem(imagem='img_planilha/bt_vazias.png'))
         bot.click(procura_imagem(imagem='img_planilha/bt_aplicar.png'))

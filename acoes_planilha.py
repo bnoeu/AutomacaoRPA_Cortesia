@@ -41,12 +41,11 @@ def valida_lancamento():
             exit(bot.alert('Tela de Compras não abriu.'))
             #TODO --- Caso isso aconteça, tentar abrir a tela do Topcon.
         else:
-            print('--- Tela compras está maximizada!')
-            time.sleep(0.4)    
+            print('--- Tela compras está maximizada!')  
         
         # Processo de lançamento
-        bot.press('F2', presses=2, interval= 0.1)
-        bot.press('F3', presses=2, interval= 0.1)
+        bot.press('F2', presses=1, interval= 0.1)
+        bot.press('F3', presses=1, interval= 0.1)
         
         #TODO --- Validar se entrou no modo "Inclui"
         while procura_imagem(imagem='img_topcon/txt_inclui.png', continuar_exec= True) is False:

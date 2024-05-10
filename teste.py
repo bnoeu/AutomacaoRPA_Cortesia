@@ -7,10 +7,15 @@ import pytesseract
 #import cv2
 from ahk import AHK
 import pyautogui as bot
-#from selenium import webdriver
 from funcoes import procura_imagem, extrai_txt_img, marca_lancado
 from acoes_planilha import valida_lancamento
 from valida_pedido import valida_pedido
+#*Selenium
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.chrome.service import Service
+from webdriver_manager.chrome import ChromeDriverManager
+
 #import winsound
 #import pygetwindow as gw
 
@@ -25,6 +30,7 @@ transportador = "111594"
 chave_xml, silo2, silo1 = '', '', ''
 pytesseract.pytesseract.tesseract_cmd = r"C:\Tesseract-OCR\tesseract.exe"
 time.sleep(0.8)
+
 
 
 #! Variavel de teste
@@ -47,7 +53,7 @@ cur = con.cursor()
 exit()
 '''
 
-ahk.win_activate('TopCompras', title_match_mode= 2)
+#ahk.win_activate('TopCompras', title_match_mode= 2)
 #ahk.win_activate('db_alltrips', title_match_mode= 2)
 time.sleep(0.2)
 #! Utilizado apenas para estar trechos de codigo.
@@ -58,3 +64,22 @@ for tela in ahk.list_windows():
 
 '''
 
+def inicia_navegador():
+    #Definições Chrome Driver
+    options = webdriver.ChromeOptions()
+    options.add_experimental_option("detach", True)
+    servico = Service(ChromeDriverManager().install())
+    navegador = webdriver.Chrome(options=options,service=servico)
+    navegador.implicitly_wait(15)
+    return navegador
+
+navegador = inicia_navegador()
+navegador.get("https://cortesiaconcreto-my.sharepoint.com/:x:/g/personal/bi_cortesiaconcreto_com_br/EU6ahKCIVdxFjiB_rViPfN0Bo9SGYGReQ7VTqbKDjMXyLQ?e=QrTGT0")
+navegador.maximize_window()
+time.sleep(1)
+
+while True:
+    try:
+        navegador.find_element(By.ID, 'Insert').click()
+    except Exception:
+        print('--- Não foi possivel localizar o botão, recarregando pagina.')
