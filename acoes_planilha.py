@@ -48,7 +48,7 @@ def valida_lancamento():
         bot.press('F3', presses=1, interval= 0.1)
         
         #TODO --- Validar se entrou no modo "Inclui"
-        while procura_imagem(imagem='img_topcon/txt_inclui.png', continuar_exec= True) is False:
+        while procura_imagem(imagem='img_topcon/txt_inclui.png', limite_tentativa= 100) is False:
             print('--- Aguardando entrar no modo inclusão')
         else:
             print('--- Entrou no modo inclusão! iniciando lançamento')

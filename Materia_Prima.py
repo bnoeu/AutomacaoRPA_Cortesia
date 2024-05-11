@@ -91,13 +91,13 @@ def programa_principal():
 
     # Aguarda aparecer o campo "cod_desc"
     print('--- Aguarda aparecer o campo cod_desc')
-    while procura_imagem(imagem='img_topcon/cod_desc.png', limite_tentativa=1, continuar_exec=True) is False:
+    while procura_imagem(imagem='img_topcon/cod_desc.png', continuar_exec=True) is False:
         time.sleep(0.2)
     bot.press('ENTER')
 
     # Aguarda até SUMIR o campo "cod_desc"
     print('--- Aguarda até SUMIR o campo "cod_desc"')
-    while procura_imagem(imagem='img_topcon/cod_desc.png', limite_tentativa=1, continuar_exec=True) is not False:
+    while procura_imagem(imagem='img_topcon/cod_desc.png', continuar_exec=True) is not False:
         time.sleep(0.2)
         ahk.win_wait_active('TopCompras', title_match_mode= 2)
         ahk.win_activate('TopCompras', title_match_mode= 2)
