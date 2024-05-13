@@ -14,7 +14,7 @@ from funcoes import marca_lancado, procura_imagem
 
 # --- Definição de parametros
 ahk = AHK()
-bot.PAUSE = 0.5
+bot.PAUSE = 0.2
 posicao_img = 0  # Define a variavel para utilização global dela.
 continuar = True
 bot.FAILSAFE = False
@@ -43,15 +43,11 @@ def valida_lancamento():
         else:
             print('--- Tela compras está maximizada!')  
         
-        # Processo de lançamento
-        bot.press('F2', presses=1, interval= 0.1)
-        bot.press('F3', presses=1, interval= 0.1)
-        
-        #TODO --- Validar se entrou no modo "Inclui"
-        while procura_imagem(imagem='img_topcon/txt_inclui.png', limite_tentativa= 100) is False:
-            print('--- Aguardando entrar no modo inclusão')
-        else:
-            print('--- Entrou no modo inclusão! iniciando lançamento')
+        print('--- Alterando para o modo alteração')
+        bot.press('F2', presses=1)
+        bot.press('F3', presses=1)
+        while procura_imagem(imagem='img_topcon/txt_inclui.png') is False:
+            time.sleep(0.1)
                
         bot.doubleClick(558, 235)  # Clica dentro do campo para inserir a chave XML
         bot.write(chave_xml)
@@ -59,12 +55,11 @@ def valida_lancamento():
         ahk.win_wait_active('TopCompras')
         
         tentativa = 0
-        while tentativa < 10: #* Aguarda até aparecer uma das telas que podem ser exibidas nesse processo.
-            time.sleep(0.4)                
+        while tentativa < 15: #* Aguarda até aparecer uma das telas que podem ser exibidas nesse processo.              
             #Verifica quais das telas apareceu. 
             if procura_imagem(imagem='img_topcon/botao_sim.jpg', limite_tentativa= 1, continuar_exec=True) is not False:
                 bot.click(procura_imagem(imagem='img_topcon/botao_sim.jpg', limite_tentativa=1, continuar_exec=True))
-                print('--- XML Validado, indo para validação do pedido\n')
+                print('--- XML Validado, indo para validação do pedido')
                 return dados_planilha
             elif procura_imagem(imagem='img_topcon/chave_invalida.png', limite_tentativa= 1, continuar_exec=True) is not False:
                 print('--- Nota já lançada, marcando planilha!')
@@ -86,10 +81,12 @@ def valida_lancamento():
             
             # Verifica caso tenha travado e espera até que o topcom volte a responder
             print('--- Aguardando TopCompras Retornar')
-            while ahk.win_exists('Não está respondendo'):
-                time.sleep(0.3)
+            while ahk.win_exists('Não está respondendo', title_match_mode= 2):
+                time.sleep(0.2)
             tentativa += 1
-            if tentativa >= 15:
-                exit('Rodou 10 verificações e não achou nenhuma tela, verificar!')
+        else:
+            exit('Rodou 10 verificações e não achou nenhuma tela, verificar!')
+            #TODO --- Validar se o topcon ainda está aberto, caso não esteja, reiniciar o processo do zero.
+
 if __name__ == '__main__':
     valida_lancamento()

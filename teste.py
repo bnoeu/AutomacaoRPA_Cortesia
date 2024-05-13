@@ -53,33 +53,41 @@ cur = con.cursor()
 exit()
 '''
 
-#ahk.win_activate('TopCompras', title_match_mode= 2)
+ahk.win_activate('TopCompras', title_match_mode= 2)
 #ahk.win_activate('db_alltrips', title_match_mode= 2)
 time.sleep(0.2)
 #! Utilizado apenas para estar trechos de codigo.
 
-'''
-for tela in ahk.list_windows():
-    print(tela.title)
+while procura_imagem(imagem='img_topcon/operacao_realizada.png', continuar_exec=True) is False:
+    while ahk.win_exists('Não está respondendo', title_match_mode= 2):
+        time.sleep(0.4)
+        ahk.win_activate('TopCompras', title_match_mode= 2)
+        
+    if procura_imagem(imagem='img_topcon/chave_invalida.png', limite_tentativa= 1, continuar_exec=True) is not False:
+        print('--- Nota já lançada, marcando planilha!')
+        bot.press('ENTER')
+        marca_lancado(texto_marcacao='Lancado_Manual')
+        #programa_principal()
 
-'''
+bot.click(procura_imagem(imagem='img_topcon/botao_ok.jpg', continuar_exec=True))
 
-def inicia_navegador():
-    #Definições Chrome Driver
-    options = webdriver.ChromeOptions()
-    options.add_experimental_option("detach", True)
-    servico = Service(ChromeDriverManager().install())
-    navegador = webdriver.Chrome(options=options,service=servico)
-    navegador.implicitly_wait(15)
-    return navegador
+#Verifica se apareceu a tela de transferencia 
+if procura_imagem('img_topcon/deseja_processar.png', continuar_exec=True, limite_tentativa= 10) is not False:
+    bot.click(procura_imagem('img_topcon/bt_sim.png', continuar_exec=True))
+    while True:  # Aguardar o .PDF
+        try:
+            ahk.win_wait('.pdf', title_match_mode=2, timeout=2)
+            time.sleep(0.6)
+        except TimeoutError:
+            print('--- Aguardando .PDF da transferencia')
+        else:
+            ahk.win_activate('.pdf', title_match_mode=2)
+            ahk.win_close('pdf - Google Chrome', title_match_mode=2)
+            print('--- Fechou o PDF da transferencia')
+            break
+    time.sleep(0.8)
+    ahk.win_activate('Transmissão', title_match_mode=2)
+    bot.click(procura_imagem(imagem='img_topcon/sair_tela.png'))
 
-navegador = inicia_navegador()
-navegador.get("https://cortesiaconcreto-my.sharepoint.com/:x:/g/personal/bi_cortesiaconcreto_com_br/EU6ahKCIVdxFjiB_rViPfN0Bo9SGYGReQ7VTqbKDjMXyLQ?e=QrTGT0")
-navegador.maximize_window()
-time.sleep(1)
-
-while True:
-    try:
-        navegador.find_element(By.ID, 'Insert').click()
-    except Exception:
-        print('--- Não foi possivel localizar o botão, recarregando pagina.')
+# * -------------------------------------- Marca planilha --------------------------------------
+marca_lancado(texto_marcacao='Lancado_RPA')

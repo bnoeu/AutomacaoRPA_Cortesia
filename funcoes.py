@@ -24,21 +24,21 @@ bot.useImageNotFoundException(False)
 
 def procura_imagem(imagem, limite_tentativa=6, area=(0, 0, 1920, 1080), continuar_exec=False, confianca = 0.8):
     tentativa = 0   
-    print(F'--- Tentando encontrar: {imagem}', end= ' ')
+    #print(F'--- Tentando encontrar: {imagem}', end= ' ')
     while tentativa < limite_tentativa:
         time.sleep(0.25)
         posicao_img = bot.locateCenterOnScreen(imagem, grayscale= True, confidence= confianca, region= area)
         if posicao_img is not None:
-            print(F'--- Encontrou na posição: {posicao_img}')
+            print(F'--- Encontrou {imagem} na posição: {posicao_img}')
             break
         tentativa += 1
 
     #Caso seja para continuar
     if (continuar_exec is True) and (posicao_img is None):
-        print('' + '--- Não encontrada, continuando execução pois o parametro "continuar_exec" está habilitado')
+        print('' + F'--- {imagem} não foi encontrada, continuando execução pois o parametro "continuar_exec" está habilitado')
         return False
     if tentativa >= limite_tentativa:
-        print('--- FECHANDO PLANILHA PARA EVITAR ERROS')
+        #print('--- FECHANDO PLANILHA PARA EVITAR ERROS')
         #ahk.win_kill('db_alltrips')
         exit(bot.alert(text=F'Não foi possivel encontrar: {imagem}', title='Erro!', button='Fechar'))
     return posicao_img
@@ -57,9 +57,10 @@ def verifica_tela(nome_tela, manual=False):
 
 
 def marca_lancado(texto_marcacao='Lancado'):
+    time.sleep(0.5)
     print(Fore.GREEN + F'\n--- Abrindo planilha - MARCA_LANCADO, com parametro: {texto_marcacao}' + Style.RESET_ALL)
     ahk.win_activate('db_alltrips', title_match_mode= 2)
-    ahk.win_wait_active('db_alltrips', title_match_mode= 2, timeout= 10)
+    ahk.win_wait_active('db_alltrips', title_match_mode= 2, timeout= 15)
     time.sleep(0.5)
 
     #Verifica se está no modo "Apenas exibição", caso esteja, altera para permitir edição.
@@ -116,7 +117,6 @@ def extrai_txt_img(imagem, area_tela, porce_escala = 400):
     nova_dim = (largura, altura)
     img = cv2.resize(img, nova_dim, interpolation=cv2.INTER_AREA) # Redimensiona a imagem
     img_cinza = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY) # Converte a imagem para tons de cinza
-    
     kernel = np.ones((5,5),np.float32)/30
     smooth = cv2.filter2D(img_cinza,-1,kernel)
     img_thresh = cv2.threshold(smooth, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)[1] #OTSU threshold    
@@ -133,8 +133,8 @@ def extrai_txt_img(imagem, area_tela, porce_escala = 400):
     cv2.imshow('thresh', img_thresh)
     cv2.imshow('smooth', smooth)
     #cv2.imshow('erosion', erosion)
-    '''
     cv2.waitKey()
+    '''
 
     return texto
 
@@ -145,11 +145,10 @@ def verifica_ped_vazio(texto, pos):
     print(F'--- Item da nota: {texto}, texto que ainda ficou: {texto_xml}, tamanho do texto {len(texto_xml)}')
 
     #Verifica pelo tamanho do texto, se ainda ficou algum valor no campo "Itens do pedido"
-    if len(texto_xml) > 6: 
+    if len(texto_xml) > 5: 
         print('--- Itens XML ainda tem informação!')
         return False
     else:  # Caso fique vazio
-        print('--- Itens XML ficou vazio! prosseguindo')
         bot.click(procura_imagem(imagem='img_topcon/confirma.png', limite_tentativa= 100))
         bot.click(procura_imagem(imagem='img_topcon/botao_ok.jpg', limite_tentativa= 100))
         return True

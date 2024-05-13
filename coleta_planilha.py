@@ -18,10 +18,9 @@ bot.FAILSAFE = False
 tempo_inicio = time.time()
 chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
 pytesseract.pytesseract.tesseract_cmd = r"C:\Tesseract-OCR\tesseract.exe"
-bot.PAUSE = 0.8
+bot.PAUSE = 0.2
 
 def coleta_planilha():
-    bot.PAUSE = 0.8
     print(Fore.CYAN + '--- Abrindo planilha - COLETA_PLANILHA' + Style.RESET_ALL)
     ahk.win_activate('db_alltrips', title_match_mode= 2)
     ahk.win_wait('db_alltrips', title_match_mode= 2)
@@ -46,7 +45,7 @@ def coleta_planilha():
         
     else: #Caso não esteja no modo "Edição"
         print('--- A planilha já está no modo "Exibição", continuando processo')
-
+    
     #Altera o filtro para "vazio", para iniciar a coleta de dados.
     if procura_imagem(imagem='img_planilha/bt_filtro.png', continuar_exec=True, area= (1468, 400, 200, 200)) is not False:
         print('--- Já está filtrado, continuando!')
@@ -78,13 +77,12 @@ def coleta_planilha():
     dados_planilha = []
     print('--- Copiando dados e formatando')
     #Clica na primeira linha (Campo RE), e pressiona seta para baixo
-    bot.PAUSE = 0.3
+    bot.PAUSE = 0.5
     bot.click(procura_imagem(imagem='img_planilha/titulo_re.png'))
     bot.press('DOWN')
-    time.sleep(0.2)
+    time.sleep(0.5)
     for n in range(0, 7, 1):  # Copia dados dos 6 campos
         while True:
-            time.sleep(0.1)
             bot.hotkey('ctrl', 'c')
             if 'Recuperando' in ahk.get_clipboard():
                 time.sleep(0.1)
@@ -92,11 +90,10 @@ def coleta_planilha():
                 break
         dados_planilha.append(ahk.get_clipboard())
         bot.press('right')
-    bot.PAUSE = 1
     tempo_coleta = time.time() - tempo_inicio
     tempo_coleta = tempo_coleta
     print(F'--- Tempo que levou: {tempo_coleta:0f} segundos')
-    print(Fore.GREEN +  F'--- Dados copiados com sucesso: {dados_planilha}' + Style.RESET_ALL + '\n')
+    print(F'--- Dados copiados com sucesso: {dados_planilha}\n')
     return dados_planilha
 
 if __name__ == '__main__':

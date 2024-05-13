@@ -20,14 +20,14 @@ chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
 #Nome dos itens que constarem no "Itens XML"
 PEDRA_1 = ('BRITA]','BRITA1', 'PEDRA 01', 'PEDRA DI', 'BRITADA 01', 'PEDRA 1', 'PEDRA BRITADA 01', 'PEDRAT', 'PEDRA BRITADA 1', 'BRITADA 1', 'BRITA 01', 'BRITA 1', 'BRITA NR "01"', 'BRITA O01')
 PO_PEDRA = ('PO DE PEDRA', 'AREA INDUSTRIAL', 'INDUSTRIAL')
-BRITA_0 = ('BRITA 0', 'PEDRISCO LIMPO', 'BRITAD™')
+BRITA_0 = ('BRITA 0', 'PEDRISCO LIMPO', 'BRITAD™', 'BRITAO')
 CIMENTO_CP3 = ('CP 111', 'teste')
-CIMENTO_CP2 = ('E-40', '£-40', 'II-E-40', 'CIMENTO PORTLAND CP II-E-40 RS |', 'CIMENTO PORTLAND CP IIE-40 RS', 'CIMENTO PORTLAND CP IIE-40 RS |', "CIMENTO PORTLAND CP I'E-40 RS.", "CIMENTO PORTLAND CP IE-40 RS")
-AREIA_RIO = ('AREIA LAVADA MEDIA', 'AREIA MEDIA', 'ARE A LAVADA MEDIA')
+CIMENTO_CP2 = ('CP II-E-40', '£-40', 'CIMENTO PORTLAND CP IIE-40 RS |', "CIMENTO PORTLAND CP I'E-40 RS.", "CIMENTO PORTLAND CP IE-40 RS")
+AREIA_RIO = ('AREIA LAVADA MEDIA', 'AREIA MEDIA', 'ARE A LAVADA MEDIA', 'AREA LAVADA MEDIA', 'AREIA LAVADA')
 CIMENTO_CP5 = ('CPV', 'TESTE')
-AREIA_QUARTZO = ('AREIA DE QUARTZO VERMELHA', 'AREA QUARTZD', 'AREIA DE QUARTZ0 VERMELHA', 'P2 AREIA')
-AREIA_PRIME = ('AREA PRIME', 'TESTE', 'AREIA PRIME')
-AREIA_BRITADA = ('AR EIA ARTIF ClaL', 'AR EIA AR TIFICIAL', 'teste', 'AREIA ARTIFICIAL')
+AREIA_QUARTZO = ('AREIA DE QUARTZO VERMELHA', 'AREA QUARTZD', 'AREIA DE QUARTZ0 VERMELHA', 'P2 AREIA', 'AREI|A DE QUARTZ0')
+AREIA_PRIME = ('AREA PRIME', 'AREIA PRIME')
+AREIA_BRITADA = ('AR EIA ARTIF ClaL', 'AR EIA AR TIFICIAL', 'AREIA ARTIFICIAL')
 nome_pedido = [PEDRA_1, PO_PEDRA, BRITA_0, CIMENTO_CP2, CIMENTO_CP3, CIMENTO_CP5, AREIA_RIO, AREIA_QUARTZO, AREIA_PRIME, AREIA_BRITADA]
 # Mapeamento de nomes para imagens
 mapeamento_imagens = {
@@ -45,7 +45,7 @@ mapeamento_imagens = {
 
 
 def valida_pedido(acabou_pedido=False):
-    bot.PAUSE = 0.8
+    bot.PAUSE = 0.2
     tentativa = 0
     img_pedido = 0
     item_pedido = ''
@@ -54,6 +54,10 @@ def valida_pedido(acabou_pedido=False):
     #Aguarda a abertura da tela de vinculação de item versus nota
     ahk.win_activate('Vinculação Itens da Nota', title_match_mode = 2)
     ahk.win_wait_active('Vinculação Itens da Nota', title_match_mode = 2, timeout= 20)
+
+    #Aguarda aparecer o botão "confirma" para poder continuar o processo.
+    while procura_imagem(imagem='img_topcon/confirma.png') is False:
+        time.sleep(0.2)
 
     #Coleta o texto do campo "item XML", que é o item a constar na nota fiscal, e com base nisso, trata o dado
     txt_itensXML = extrai_txt_img(imagem='item_nota.png',area_tela=(170, 407, 280, 20))
@@ -76,7 +80,7 @@ def valida_pedido(acabou_pedido=False):
         bot.click(procura_imagem(imagem='img_topcon/bt_cancela.png'))
         marca_lancado(texto_marcacao='Padronizar_Item')
         return acabou_pedido
-        
+
 #* --------------------------------- Pedidos Encontrados ---------------------------------
     while tentativa < 2:
         ahk.win_activate('Vinculação Itens da Nota', title_match_mode = 2)
@@ -94,9 +98,9 @@ def valida_pedido(acabou_pedido=False):
 
         contagem = 0
         for pos in posicoes:
-            print(pos)
+            #print(pos)
             contagem += 1
-        print(F'Encontrou em: {contagem} posições')
+        print(F'--- Encontrou em: {contagem} posições')
         
         if contagem == 0:
             bot.click(procura_imagem(imagem='img_topcon/bt_cancela.png'))
@@ -124,6 +128,8 @@ def valida_pedido(acabou_pedido=False):
                 bot.click(procura_imagem('img_topcon/vinc_xml_pedido.png',continuar_exec=True, limite_tentativa=2))
                 vazio = verifica_ped_vazio(texto=txt_itensXML, pos=pos)
                 print(F'--- Valor campo "vazio": {vazio}')
+                if vazio is True:
+                    break
                 if procura_imagem('img_topcon/dife_valor.png', continuar_exec=True, limite_tentativa=2):
                     bot.press('ENTER')
                 if procura_imagem('img_topcon/operacao_fiscal_configurada.png', continuar_exec=True, limite_tentativa=2):
