@@ -24,7 +24,7 @@ pytesseract.pytesseract.tesseract_cmd = r"C:\Tesseract-OCR\tesseract.exe"
 
 
 #Realiza o processo de validação do lançamento.
-def valida_lancamento():    
+def valida_lancamento():
     while True:
         # Trata os dados coletados em "dados_planilha"
         while True:
@@ -48,11 +48,11 @@ def valida_lancamento():
             print('--- Tela compras está maximizada!')  
         
         print('--- Alterando para o modo alteração')
-        bot.press('F2', presses=1)
-        bot.press('F3', presses=1)
+        bot.press('F2')
+        bot.press('F3')
         while procura_imagem(imagem='img_topcon/txt_inclui.png') is False:
             time.sleep(0.1)
-               
+
         bot.doubleClick(558, 235)  # Clica dentro do campo para inserir a chave XML
         bot.write(chave_xml)
         bot.press('ENTER')
