@@ -17,7 +17,7 @@ ahk = AHK()
 bot.PAUSE = 0.5
 posicao_img = 0  # Define a variavel para utilização global dela.
 continuar = True
-bot.FAILSAFE = False
+bot.FAILSAFE = True
 tempo_inicio = time.time()
 chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
 pytesseract.pytesseract.tesseract_cmd = r"C:\Tesseract-OCR\tesseract.exe"
@@ -31,11 +31,13 @@ def valida_lancamento():
             dados_planilha = coleta_planilha()
             chave_xml = dados_planilha[4].strip()
             if len(chave_xml) < 10:
-                marca_lancado('Chave_Invalida')
+                marca_lancado('Chave Invalida')
                 #exit(bot.alert('chave_xml invalida'))
+            elif (len(dados_planilha[0]) < 4) or (len(dados_planilha[0]) == 5):
+                marca_lancado('RE Inexistente')
             else:
                 break
-        
+
         # -------------------------------------- Lançamento Topcon --------------------------------------
         print(Fore.GREEN +  '--- Abrindo TopCompras para iniciar o lançamento' + Style.RESET_ALL)
         ahk.win_activate('TopCompras', title_match_mode=2)

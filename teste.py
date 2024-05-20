@@ -23,7 +23,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 ahk = AHK()
 posicao_img = 0  # Define a variavel para utilização global dela.
 continuar = True
-bot.FAILSAFE = False
+bot.FAILSAFE = True
 acabou_pedido = ''
 numero_nf = "965999"
 transportador = "111594"
@@ -69,15 +69,15 @@ if data_NfeFaturada < '11':
     print('Data menor que 11')
     bot.write('11052024')
     bot.press('enter')
-    time.sleep(2)
+    time.sleep(0.5)
     if procura_imagem(imagem='img_topcon/txt_NaoPermitidoData.png', continuar_exec=True, limite_tentativa= 12):
         print('Precisa mudar a data')
         bot.press('enter')
         bot.write(hoje)
         bot.press('enter')
-        time.sleep(2)
+        time.sleep(0.5)
 else:
     bot.write(hoje)
     bot.press('enter')
-    time.sleep(2)
+    time.sleep(0.5)
 

@@ -23,7 +23,7 @@ ahk = AHK()
 bot.PAUSE = 0.5
 posicao_img = 0
 continuar = True
-bot.FAILSAFE = False
+bot.FAILSAFE = True
 tempo_inicio = time.time()
 chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
 pytesseract.pytesseract.tesseract_cmd = r"C:\Tesseract-OCR\tesseract.exe"
@@ -70,32 +70,37 @@ def programa_principal():
     print('--- Preenchendo dados na tela principal do lançamento')
     ahk.win_activate('TopCompras', title_match_mode=2)
     ahk.win_wait_active('TopCompras', title_match_mode=2, timeout= 25)
-    time.sleep(2)
-    bot.click(900, 201)  # Clica no campo filial de estoque
+    
+    while procura_imagem(imagem='img_topcon/txt_15-NF_ELETRO.png', limite_tentativa= 200) is False:
+        time.sleep(0.1)
+    
+    bot.press('up')
     bot.write(filial_estoq)
     bot.press('ENTER') # Confirma a informação da nova filial de estoque
-
-    bot.click(1006, 345)  # Campo data da operação150524
+    
+    #* --- Alteração da data
+    bot.press('down')
+    #bot.click(1006, 345)  # Campo data da operação
     time.sleep(1)
     hoje = date.today()
     hoje = hoje.strftime("%d%m%y")  # dd/mm/YY
-    print(F'--- Alterando a data para {hoje}')
     data_NfeFaturada = extrai_txt_img(imagem='valida_itensxml.png', area_tela=(895, 299, 20, 20))
-    if data_NfeFaturada < '11':
-        print('Data menor que 11')
-        bot.write('11052024')
+    if data_NfeFaturada < '20':
+        print(Back.RED + '--- Data de faturamento menor que 20' + Style.RESET_ALL)
+        bot.write('18052024')
         bot.press('enter')
-        time.sleep(2)
+        time.sleep(0.5)
         if procura_imagem(imagem='img_topcon/txt_NaoPermitidoData.png', continuar_exec=True, limite_tentativa= 12):
             print('Precisa mudar a data')
             bot.press('enter')
             bot.write(hoje)
             bot.press('enter')
-            time.sleep(2)
+            time.sleep(0.5)
     else:
+        print(F'--- Alterando a data para {hoje}')
         bot.write(hoje)
         bot.press('enter')
-        time.sleep(2)
+        time.sleep(0.5)
 
     # Altera o campo centro de custo, para o dado coletado
     print(F'--- Trocando o centro de custo para {centro_custo}')
@@ -104,19 +109,18 @@ def programa_principal():
     # Aguarda aparecer o campo "cod_desc"
     print('--- Aguarda aparecer o campo cod_desc')
     while procura_imagem(imagem='img_topcon/cod_desc.png', limite_tentativa= 200, continuar_exec=True) is False:
-        time.sleep(0.2)
+        time.sleep(0.1)
 
     # Pressiona enter, e aguarda sumir o campo "cod_desc"
     bot.press('ENTER')
     print('--- Aguarda até SUMIR o campo "cod_desc"')
     while procura_imagem(imagem='img_topcon/cod_desc.png', continuar_exec=True) is not False:
-        time.sleep(0.5)
+        time.sleep(0.1)
         ahk.win_wait_active('TopCompras', title_match_mode= 2)
         ahk.win_activate('TopCompras', title_match_mode= 2)
     
     # Clica no campo "Valores Totais"
     bot.click(procura_imagem(imagem='img_topcon/txt_ValoresTotais.png', continuar_exec= True))
-
     # * -------------------------------------- VALIDAÇÃO TRANSPORTADOR --------------------------------------
     print(F'--- Preenchendo transportador: {cracha_mot}')
     bot.click(procura_imagem(imagem='img_topcon/campo_000.png', continuar_exec= True))
@@ -146,7 +150,7 @@ def programa_principal():
         bot.press('ENTER')
     else:
         print('--- Não achou o campo ou já está preenchido')
-        time.sleep(1)
+        time.sleep(0.5)
 
  
     # * -------------------------------------- Aba Produtos e serviços --------------------------------------
