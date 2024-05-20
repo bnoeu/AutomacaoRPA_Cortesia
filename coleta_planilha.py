@@ -14,7 +14,7 @@ import pyautogui as bot
 ahk = AHK()
 posicao_img = 0  # Define a variavel para utilização global dela.
 continuar = True
-bot.FAILSAFE = False
+bot.FAILSAFE = True
 tempo_inicio = time.time()
 chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
 pytesseract.pytesseract.tesseract_cmd = r"C:\Tesseract-OCR\tesseract.exe"
@@ -77,15 +77,15 @@ def coleta_planilha():
     dados_planilha = []
     print('--- Copiando dados e formatando')
     #Clica na primeira linha (Campo RE), e pressiona seta para baixo
-    bot.PAUSE = 0.5
     bot.click(procura_imagem(imagem='img_planilha/titulo_re.png'))
     bot.press('DOWN')
-    time.sleep(0.5)
+    time.sleep(0.25)
+    bot.PAUSE = 0.1
     for n in range(0, 7, 1):  # Copia dados dos 6 campos
         while True:
             bot.hotkey('ctrl', 'c')
             if 'Recuperando' in ahk.get_clipboard():
-                time.sleep(0.1)
+                time.sleep(0.25)
             else:
                 break
         dados_planilha.append(ahk.get_clipboard())

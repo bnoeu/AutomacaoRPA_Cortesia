@@ -13,7 +13,7 @@ from funcoes import marca_lancado, procura_imagem, extrai_txt_img, verifica_ped_
 ahk = AHK()
 posicao_img = 0  # Define a variavel para utilização global dela.
 continuar = True
-bot.FAILSAFE = False
+bot.FAILSAFE = True
 numero_nf = "965999"
 transportador = "111594"
 chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
@@ -47,7 +47,7 @@ mapeamento_imagens = {
 
 
 def valida_pedido(acabou_pedido=False):
-    bot.PAUSE = 0.5
+    bot.PAUSE = 0.25
     tentativa = 0
     img_pedido = 0
     item_pedido = ''
