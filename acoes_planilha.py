@@ -14,7 +14,7 @@ from funcoes import marca_lancado, procura_imagem
 
 # --- Definição de parametros
 ahk = AHK()
-bot.PAUSE = 0.2
+bot.PAUSE = 0.5
 posicao_img = 0  # Define a variavel para utilização global dela.
 continuar = True
 bot.FAILSAFE = False
@@ -27,10 +27,14 @@ pytesseract.pytesseract.tesseract_cmd = r"C:\Tesseract-OCR\tesseract.exe"
 def valida_lancamento():    
     while True:
         # Trata os dados coletados em "dados_planilha"
-        dados_planilha = coleta_planilha()
-        chave_xml = dados_planilha[4].strip()
-        if len(chave_xml) < 10:
-            exit(bot.alert('chave_xml invalida'))
+        while True:
+            dados_planilha = coleta_planilha()
+            chave_xml = dados_planilha[4].strip()
+            if len(chave_xml) < 10:
+                marca_lancado('Chave_Invalida')
+                #exit(bot.alert('chave_xml invalida'))
+            else:
+                break
         
         # -------------------------------------- Lançamento Topcon --------------------------------------
         print(Fore.GREEN +  '--- Abrindo TopCompras para iniciar o lançamento' + Style.RESET_ALL)

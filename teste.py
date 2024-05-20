@@ -2,7 +2,7 @@
 # Para utilização na Cortesia Concreto.
 
 import time
-#import datetime
+from datetime import date
 import pytesseract
 #import cv2
 from ahk import AHK
@@ -55,39 +55,29 @@ exit()
 
 ahk.win_activate('TopCompras', title_match_mode= 2)
 #ahk.win_activate('db_alltrips', title_match_mode= 2)
-time.sleep(0.2)
+time.sleep(0.5)
 #! Utilizado apenas para estar trechos de codigo.
 
-while procura_imagem(imagem='img_topcon/operacao_realizada.png', continuar_exec=True) is False:
-    while ahk.win_exists('Não está respondendo', title_match_mode= 2):
-        time.sleep(0.4)
-        ahk.win_activate('TopCompras', title_match_mode= 2)
-        
-    if procura_imagem(imagem='img_topcon/chave_invalida.png', limite_tentativa= 1, continuar_exec=True) is not False:
-        print('--- Nota já lançada, marcando planilha!')
-        bot.press('ENTER')
-        marca_lancado(texto_marcacao='Lancado_Manual')
-        #programa_principal()
 
-bot.click(procura_imagem(imagem='img_topcon/botao_ok.jpg', continuar_exec=True))
+bot.click(1006, 345)  # Campo data da operação150524
+time.sleep(1)
+hoje = date.today()
+hoje = hoje.strftime("%d%m%y")  # dd/mm/YY
+print(F'--- Alterando a data para {hoje}')
+data_NfeFaturada = extrai_txt_img(imagem='valida_itensxml.png', area_tela=(895, 299, 20, 20))
+if data_NfeFaturada < '11':
+    print('Data menor que 11')
+    bot.write('11052024')
+    bot.press('enter')
+    time.sleep(2)
+    if procura_imagem(imagem='img_topcon/txt_NaoPermitidoData.png', continuar_exec=True, limite_tentativa= 12):
+        print('Precisa mudar a data')
+        bot.press('enter')
+        bot.write(hoje)
+        bot.press('enter')
+        time.sleep(2)
+else:
+    bot.write(hoje)
+    bot.press('enter')
+    time.sleep(2)
 
-#Verifica se apareceu a tela de transferencia 
-if procura_imagem('img_topcon/deseja_processar.png', continuar_exec=True, limite_tentativa= 10) is not False:
-    bot.click(procura_imagem('img_topcon/bt_sim.png', continuar_exec=True))
-    while True:  # Aguardar o .PDF
-        try:
-            ahk.win_wait('.pdf', title_match_mode=2, timeout=2)
-            time.sleep(0.6)
-        except TimeoutError:
-            print('--- Aguardando .PDF da transferencia')
-        else:
-            ahk.win_activate('.pdf', title_match_mode=2)
-            ahk.win_close('pdf - Google Chrome', title_match_mode=2)
-            print('--- Fechou o PDF da transferencia')
-            break
-    time.sleep(0.8)
-    ahk.win_activate('Transmissão', title_match_mode=2)
-    bot.click(procura_imagem(imagem='img_topcon/sair_tela.png'))
-
-# * -------------------------------------- Marca planilha --------------------------------------
-marca_lancado(texto_marcacao='Lancado_RPA')

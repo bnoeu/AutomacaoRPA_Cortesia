@@ -22,11 +22,11 @@ chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
 pytesseract.pytesseract.tesseract_cmd = r"C:\Tesseract-OCR\tesseract.exe"
 bot.useImageNotFoundException(False)
 
-def procura_imagem(imagem, limite_tentativa=6, area=(0, 0, 1920, 1080), continuar_exec=False, confianca = 0.8):
+def procura_imagem(imagem, limite_tentativa=6, area=(0, 0, 1920, 1080), continuar_exec=False, confianca = 0.75):
     tentativa = 0   
     #print(F'--- Tentando encontrar: {imagem}', end= ' ')
     while tentativa < limite_tentativa:
-        time.sleep(0.25)
+        time.sleep(0.3)
         posicao_img = bot.locateCenterOnScreen(imagem, grayscale= True, confidence= confianca, region= area)
         if posicao_img is not None:
             print(F'--- Encontrou {imagem} na posição: {posicao_img}')
@@ -39,7 +39,7 @@ def procura_imagem(imagem, limite_tentativa=6, area=(0, 0, 1920, 1080), continua
         return False
     if tentativa >= limite_tentativa:
         #print('--- FECHANDO PLANILHA PARA EVITAR ERROS')
-        #ahk.win_kill('db_alltrips')
+        ahk.win_kill('db_alltrips')
         exit(bot.alert(text=F'Não foi possivel encontrar: {imagem}', title='Erro!', button='Fechar'))
     return posicao_img
 
@@ -76,7 +76,7 @@ def marca_lancado(texto_marcacao='Lancado'):
         print(F'--- Planilha já no modo edição, continuando a inserção do texto: {texto_marcacao}')
 
     #Clica no campo status, e move para baixo, para permitir inserir o texto passado na função.
-    bot.click(procura_imagem(imagem='img_planilha/txt_status.png'))
+    bot.click(procura_imagem(imagem='img_planilha/txt_status.png', confianca= 0.75))
     bot.press('DOWN')
     #Informa o texto recebido pela função e passa para a celula ao lado, para inserir a data
     bot.write(texto_marcacao)
