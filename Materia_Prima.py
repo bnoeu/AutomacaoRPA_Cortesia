@@ -2,7 +2,8 @@
 # Para utilização na Cortesia Concreto.
 
 #! Link da planilha
-# https://cortesiaconcreto-my.sharepoint.com/:x:/g/personal/bi_cortesiaconcreto_com_br/EW_8FZwWFYVAol4MpV1GglkBJEaJaDx6cfuClnesIu60Ng?e=Z0zCHy
+# https://cortesiaconcreto-my.sharepoint.com/:x:/g/personal/bi_cortesiaconcreto_com_br/EU6ahKCIVdxFjiB_rViPfN0Bo9SGYGReQ7VTqbKDjMXyLQ?e=QrTGT0
+# https://cortesiaconcreto-my.sharepoint.com/:x:/g/personal/bi_cortesiaconcreto_com_br/EW_8FZwWFYVAol4MpV1GglkBJEaJaDx6cfuClnesIu60Ng?e=pveECF
 
 import os
 import time
@@ -19,7 +20,7 @@ from funcoes import marca_lancado, procura_imagem, extrai_txt_img
 
 # --- Definição de parametros
 ahk = AHK()
-bot.PAUSE = 0.2
+bot.PAUSE = 0.5
 posicao_img = 0
 continuar = True
 bot.FAILSAFE = False
@@ -74,14 +75,27 @@ def programa_principal():
     bot.write(filial_estoq)
     bot.press('ENTER') # Confirma a informação da nova filial de estoque
 
-    bot.click(1006, 345)  # Campo data da operação
+    bot.click(1006, 345)  # Campo data da operação150524
     time.sleep(1)
     hoje = date.today()
+    hoje = hoje.strftime("%d%m%y")  # dd/mm/YY
     print(F'--- Alterando a data para {hoje}')
-    #hoje = hoje.strftime("%d%m%y")  # dd/mm/YY
-    bot.write('11052024')
-    bot.press('enter')  
-    time.sleep(2)
+    data_NfeFaturada = extrai_txt_img(imagem='valida_itensxml.png', area_tela=(895, 299, 20, 20))
+    if data_NfeFaturada < '11':
+        print('Data menor que 11')
+        bot.write('11052024')
+        bot.press('enter')
+        time.sleep(2)
+        if procura_imagem(imagem='img_topcon/txt_NaoPermitidoData.png', continuar_exec=True, limite_tentativa= 12):
+            print('Precisa mudar a data')
+            bot.press('enter')
+            bot.write(hoje)
+            bot.press('enter')
+            time.sleep(2)
+    else:
+        bot.write(hoje)
+        bot.press('enter')
+        time.sleep(2)
 
     # Altera o campo centro de custo, para o dado coletado
     print(F'--- Trocando o centro de custo para {centro_custo}')
@@ -89,13 +103,14 @@ def programa_principal():
 
     # Aguarda aparecer o campo "cod_desc"
     print('--- Aguarda aparecer o campo cod_desc')
-    while procura_imagem(imagem='img_topcon/cod_desc.png', continuar_exec=True) is False:
+    while procura_imagem(imagem='img_topcon/cod_desc.png', limite_tentativa= 200, continuar_exec=True) is False:
         time.sleep(0.2)
 
     # Pressiona enter, e aguarda sumir o campo "cod_desc"
     bot.press('ENTER')
     print('--- Aguarda até SUMIR o campo "cod_desc"')
     while procura_imagem(imagem='img_topcon/cod_desc.png', continuar_exec=True) is not False:
+        time.sleep(0.5)
         ahk.win_wait_active('TopCompras', title_match_mode= 2)
         ahk.win_activate('TopCompras', title_match_mode= 2)
     
@@ -135,75 +150,77 @@ def programa_principal():
 
  
     # * -------------------------------------- Aba Produtos e serviços --------------------------------------
+    ahk.win_activate('TopCompras', title_match_mode=2)
+    ahk.win_wait_active('TopCompras', title_match_mode=2, timeout= 25)    
     bot.doubleClick(procura_imagem(imagem='img_topcon/produtos_servicos.png'))
-    time.sleep(0.8)
 
+    if '38953477000164' in chave_xml: #Caso não tenha o CNPJ da Consmar
+        exit(bot.alert('CNPJ da consmar, necessario scriptar'))
+ 
 
-    if '38953477000164' not in chave_xml: #Caso não tenha o CNPJ da Consmar
-        # Realiza a extração da quantidade de toneladas
-        valor_escala = 200
-        while True:
-            try:
-                qtd_ton = extrai_txt_img(imagem='img_toneladas.png', area_tela=(892, 577, 70, 20), porce_escala= valor_escala).strip()
-                qtd_ton = qtd_ton.replace(",", ".")
-                qtd_ton = float(qtd_ton)
-            except ValueError:
-                valor_escala += 15
-            else:
-                print(F'--- Texto coletado da quantidade: {qtd_ton}')
-                break
-            
-        #Clica no alterar para exibir a tela
-        bot.click(procura_imagem(imagem='img_topcon/botao_alterar.png', area=(100, 839, 300, 400)))
-        while procura_imagem(imagem='img_topcon/valor_cofins.png', limite_tentativa= 20) is False:
-            print('--- Aguardando aparecer a tela "Itens nota fiscal de compra" ')
-        else:  # Aguardando aparecer o botão de "confirma", para prosseguir com as ações.
-            procura_imagem(imagem='img_topcon/confirma.png')
-            print('--- Apareceu a tela "Itens nota fiscal de compra" ')
-            
-        print('--- Preenchendo SILO e quantidade')
-        if (silo1 != '') or (silo2 != ''):
-            bot.click(851, 443)  # Clica na linha para informar o primeiro silo
-            if silo2 != '':  # realiza a divisão da quantidade de cimento
-                qtd_ton = str((qtd_ton / 2))
-                qtd_ton = qtd_ton.replace(".", ",")
-                print(F'--- Foi informado dois silos, preenchendo... {silo1} e {silo2}, quantidade: {qtd_ton}')
-                bot.write(silo1)
-                bot.press('ENTER')
-                bot.write(str(qtd_ton))
-                bot.press('ENTER')
-                bot.write(silo2)
-                bot.press('ENTER')
-                bot.write(str(qtd_ton))
-                bot.press('ENTER')
-            elif silo1 != '':
-                print(F'--- Foi informado UM silo, preenchendo... {silo1}, quantidade: {qtd_ton}')
-                qtd_ton = str(qtd_ton)
-                qtd_ton = qtd_ton.replace(".", ",")
-                bot.write(silo1)
-                bot.press('ENTER')
-                bot.write(str(qtd_ton))
-                bot.press('ENTER')
+    #* Realiza a extração da quantidade de toneladas
+    valor_escala = 200
+    while True:
+        try:
+            qtd_ton = extrai_txt_img(imagem='img_toneladas.png', area_tela=(892, 577, 70, 20), porce_escala= valor_escala).strip()
+            qtd_ton = qtd_ton.replace(",", ".")
+            qtd_ton = float(qtd_ton)
+        except ValueError:
+            valor_escala += 15
         else:
-            print('--- Nenhum silo coletado, nota de agregado!')
-            
-        #Após preencher ou não os silos, clica para confirmar as informações. 
-        bot.click(procura_imagem(imagem='img_topcon/confirma.png'))            
-        if procura_imagem(imagem='img_topcon/txt_ErroAtribuida.png', continuar_exec=True):
-            #TODO --- Clicar no botão ok
-            bot.press('tab')
-            #TODO --- Tira printo do campo "quantidade" e extrai o texto para saber a quantidade
-            #TODO --- Preenche novamente a quantidade
-            pass
-        while procura_imagem(imagem='img_topcon/confirma.png', continuar_exec=True) is not False:
-            tentativa += 1
-            print('--- Aguardando fechamento da tela do botão "Alterar" ')
-            time.sleep(0.3)
-            #TODO --- VerificaR se apareceu a tela "quantidade atribuida aos locais"
+            print(F'--- Texto coletado da quantidade: {qtd_ton}')
+            break
+        
+    #Clica no alterar para exibir a tela
+    bot.click(procura_imagem(imagem='img_topcon/botao_alterar.png', area=(100, 839, 300, 400)))
+    while procura_imagem(imagem='img_topcon/valor_cofins.png', limite_tentativa= 15, continuar_exec= True) is False:
+        print('--- Aguardando aparecer a tela "Itens nota fiscal de compra" ')
 
-            if tentativa > 10: #Executa o loop 10 vezes até dar erro.
-                exit(bot.alert('Apresentou algum erro.'))
-        # TODO --- CASO O REMOTE APP DESCONECTE, RODAR O ABRE TOPCON
+    procura_imagem(imagem='img_topcon/confirma.png', limite_tentativa= 15)
+    print('--- Apareceu a tela "Itens nota fiscal de compra" ')
+    print('--- Preenchendo SILO e quantidade')
+    if (silo1 != '') or (silo2 != ''):
+        bot.click(851, 443)  # Clica na linha para informar o primeiro silo
+        if silo2 != '':  # realiza a divisão da quantidade de cimento
+            qtd_ton = str((qtd_ton / 2))
+            qtd_ton = qtd_ton.replace(".", ",")
+            print(F'--- Foi informado dois silos, preenchendo... {silo1} e {silo2}, quantidade: {qtd_ton}')
+            bot.write(silo1)
+            bot.press('ENTER')
+            bot.write(str(qtd_ton))
+            bot.press('ENTER')
+            bot.write(silo2)
+            bot.press('ENTER')
+            bot.write(str(qtd_ton))
+            bot.press('ENTER')
+        elif silo1 != '':
+            print(F'--- Foi informado UM silo, preenchendo... {silo1}, quantidade: {qtd_ton}')
+            qtd_ton = str(qtd_ton)
+            qtd_ton = qtd_ton.replace(".", ",")
+            bot.write(silo1)
+            bot.press('ENTER')
+            bot.write(str(qtd_ton))
+            bot.press('ENTER')
+    else:
+        print('--- Nenhum silo coletado, nota de agregado!')
+        
+    #Após preencher ou não os silos, clica para confirmar as informações. 
+    bot.click(procura_imagem(imagem='img_topcon/confirma.png'))            
+    if procura_imagem(imagem='img_topcon/txt_ErroAtribuida.png', continuar_exec=True):
+        #TODO --- Clicar no botão ok
+        bot.press('tab')
+        #TODO --- Tira printo do campo "quantidade" e extrai o texto para saber a quantidade
+        #TODO --- Preenche novamente a quantidade
+        pass
+    while procura_imagem(imagem='img_topcon/confirma.png', continuar_exec=True) is not False:
+        tentativa += 1
+        print('--- Aguardando fechamento da tela do botão "Alterar" ')
+        time.sleep(0.3)
+        #TODO --- VerificaR se apareceu a tela "quantidade atribuida aos locais"
+
+        if tentativa > 10: #Executa o loop 10 vezes até dar erro.
+            exit(bot.alert('Apresentou algum erro.'))
+    # TODO --- CASO O REMOTE APP DESCONECTE, RODAR O ABRE TOPCON
         
     # Conclui o lançamento
     bot.press('pagedown')  # Conclui o lançamento
@@ -229,32 +246,31 @@ def programa_principal():
         while ahk.win_exists('Não está respondendo', title_match_mode= 2):
             time.sleep(0.4)
             
-        ahk.win_activate('TopCompras', title_match_mode= 2)
+    else:
+        bot.click(procura_imagem(imagem='img_topcon/operacao_realizada.png', continuar_exec=True))
     
+    ahk.win_activate('TopCompras', title_match_mode= 2)
+    ahk.win_wait_active('TopCompras', timeout=10, title_match_mode=2)
     bot.click(procura_imagem(imagem='img_topcon/botao_ok.jpg', continuar_exec=True))
     ahk.win_activate('TopCompras', title_match_mode= 2)
     #Verifica se apareceu a tela de transferencia 
-    while procura_imagem(imagem='img_topcon/produtos_servicos.png') is False:
+    if procura_imagem('img_topcon/deseja_processar.png', continuar_exec=True, limite_tentativa= 12, confianca= 0.7) is not False:
+        bot.click(procura_imagem('img_topcon/bt_sim.png', continuar_exec=True))
+        while True:  # Aguardar o .PDF
+            try:
+                ahk.win_wait('.pdf', title_match_mode=2, timeout= 15)
+            except TimeoutError:
+                print('--- Aguardando .PDF da transferencia')
+            else:
+                ahk.win_activate('.pdf', title_match_mode=2)
+                ahk.win_close('pdf - Google Chrome', title_match_mode=2)
+                print('--- Fechou o PDF da transferencia')
+                break
+        time.sleep(0.4)
+        ahk.win_activate('Transmissão', title_match_mode=2)
+        bot.click(procura_imagem(imagem='img_topcon/sair_tela.png'))
         ahk.win_wait_active('TopCom', timeout=10, title_match_mode=2)
         ahk.win_activate('TopCom', title_match_mode=2)
-
-        if procura_imagem('img_topcon/deseja_processar.png', continuar_exec=True) is not False:
-            bot.click(procura_imagem('img_topcon/bt_sim.png', continuar_exec=True))
-            while True:  # Aguardar o .PDF
-                try:
-                    ahk.win_wait('.pdf', title_match_mode=2, timeout= 15)
-                except TimeoutError:
-                    print('--- Aguardando .PDF da transferencia')
-                else:
-                    ahk.win_activate('.pdf', title_match_mode=2)
-                    ahk.win_close('pdf - Google Chrome', title_match_mode=2)
-                    print('--- Fechou o PDF da transferencia')
-                    break
-            time.sleep(0.4)
-            ahk.win_activate('Transmissão', title_match_mode=2)
-            bot.click(procura_imagem(imagem='img_topcon/sair_tela.png'))
-            ahk.win_wait_active('TopCom', timeout=10, title_match_mode=2)
-            ahk.win_activate('TopCom', title_match_mode=2)
 
     # * -------------------------------------- Marca planilha --------------------------------------
     marca_lancado(texto_marcacao='Lancado_RPA')

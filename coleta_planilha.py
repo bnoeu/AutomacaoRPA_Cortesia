@@ -18,7 +18,7 @@ bot.FAILSAFE = False
 tempo_inicio = time.time()
 chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
 pytesseract.pytesseract.tesseract_cmd = r"C:\Tesseract-OCR\tesseract.exe"
-bot.PAUSE = 0.2
+bot.PAUSE = 0.5
 
 def coleta_planilha():
     print(Fore.CYAN + '--- Abrindo planilha - COLETA_PLANILHA' + Style.RESET_ALL)
@@ -52,7 +52,7 @@ def coleta_planilha():
     else:
         print('--- Não está filtrado, executando o filtro!')
         #bot.click(procura_imagem(imagem='img_planilha/bt_setabaixo.png', confianca= 0.75, area=(1529, 459, 75, 75)))
-        bot.click(procura_imagem(imagem='img_planilha/txt_status.png'))
+        bot.click(procura_imagem(imagem='img_planilha/txt_status.png', confianca= 0.75))
         bot.move(500, 500)
         bot.hotkey('alt', 'down')
         
