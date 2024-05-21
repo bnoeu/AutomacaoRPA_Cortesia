@@ -80,12 +80,12 @@ def coleta_planilha():
     bot.click(procura_imagem(imagem='img_planilha/titulo_re.png'))
     bot.press('DOWN')
     time.sleep(0.25)
-    bot.PAUSE = 0.1
+    bot.PAUSE = 0.2
     for n in range(0, 7, 1):  # Copia dados dos 6 campos
         while True:
             bot.hotkey('ctrl', 'c')
             if 'Recuperando' in ahk.get_clipboard():
-                time.sleep(0.25)
+                time.sleep(0.3)
             else:
                 break
         dados_planilha.append(ahk.get_clipboard())

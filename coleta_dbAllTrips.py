@@ -56,25 +56,15 @@ if __name__ == "__main__":
     
     navegador = inicia_navegador()
     navegador.get("https://cortesiaconcreto-my.sharepoint.com/:x:/g/personal/bruno_silva_cortesiaconcreto_com_br/EeKEw02Y8wxNsUl20Ye6AXEBI6hSgj_U9zmkYI5O9pN6Lw?e=ouNo7U")
+    #navegador.get("https://g1.globo.com/")
     navegador.maximize_window()
     
-    
-    while True:
-        try:
-            #navegador.find_element('xpath', '//*[@id="PeripheralOverflowRoot"]/span/i/svg').click()
-            navegador.find_element('CSS_SELECTOR ', '#ModeSwitcher').click()
-            #//*[@id="ModeSwitcher-container"]
-            
-            #navegador.find_element('xpath', '//*[@id="FarPeripheralControls-ModeSwitcherDropdown"]/div/ul/li/div/ul/li[2]/div/button').click()
-        except Exception:
-            print('--- Não foi possivel localizar o botão, recarregando pagina.')
-            navegador.refresh()
-        else:
-            break
-    exit()
-    
     #Preencher a senha
-    navegador.find_element('xpath', '//*[@id="passwd"]').send_keys('Alemanha@2024')
+    while True:
+        
+        navegador.find_element('xpath', '//*[@id="ModeSwitcher-container"]').click()
+    
+    exit()
     #Clica no botão de login
     navegador.find_element('xpath', '//*[@id="loginBtn"]').click()
     time.sleep(1.5)
