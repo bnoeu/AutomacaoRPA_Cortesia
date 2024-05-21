@@ -61,28 +61,27 @@ def valida_lancamento():
         ahk.win_wait_active('TopCompras')
         
         tentativa = 0
-        while tentativa < 15: #* Aguarda até aparecer uma das telas que podem ser exibidas nesse processo.              
+        maximo_tentativas = 20
+        texto_erro = ""
+        while tentativa < maximo_tentativas: #* Aguarda até aparecer uma das telas que podem ser exibidas nesse processo.              
             #Verifica quais das telas apareceu. 
             if procura_imagem(imagem='img_topcon/botao_sim.jpg', limite_tentativa= 1, continuar_exec=True) is not False:
                 bot.click(procura_imagem(imagem='img_topcon/botao_sim.jpg', limite_tentativa=1, continuar_exec=True))
                 print('--- XML Validado, indo para validação do pedido')
                 return dados_planilha
-            elif procura_imagem(imagem='img_topcon/chave_invalida.png', limite_tentativa= 1, continuar_exec=True) is not False:
-                print('--- Nota já lançada, marcando planilha!')
+            else:
+                if procura_imagem(imagem='img_topcon/chave_invalida.png', limite_tentativa= 1, continuar_exec=True) is not False:
+                    texto_erro = "Lancado_Manual"                    
+                elif procura_imagem(imagem='img_topcon/naoencontrado_xml.png', limite_tentativa= 1, continuar_exec=True) is not False:
+                    texto_erro = "Aguardando_SEFAZ"
+                elif procura_imagem(imagem='img_topcon/chave_44digitos.png', limite_tentativa= 1, continuar_exec=True) is not False:
+                    texto_erro = "Chave_invalida"
+                elif procura_imagem(imagem='img_topcon/nfe_cancelada.png', limite_tentativa= 1, continuar_exec=True) is not False:
+                    texto_erro = "NFE_Cancelada"
+            
+            if texto_erro != "":
                 bot.press('ENTER')
-                marca_lancado(texto_marcacao='Lancado_Manual')
-                break
-            elif procura_imagem(imagem='img_topcon/naoencontrado_xml.png', limite_tentativa= 1, continuar_exec=True) is not False:
-                bot.press('ENTER')
-                marca_lancado(texto_marcacao='Aguardando_SEFAZ')
-                break
-            elif procura_imagem(imagem='img_topcon/chave_44digitos.png', limite_tentativa= 1, continuar_exec=True) is not False:
-                bot.press('ENTER')
-                marca_lancado(texto_marcacao='Chave_invalida')
-                break
-            elif procura_imagem(imagem='img_topcon/nfe_cancelada.png', limite_tentativa= 1, continuar_exec=True) is not False:
-                bot.press('ENTER')
-                marca_lancado(texto_marcacao='NFE_CANCELADA')
+                marca_lancado(texto_marcacao = texto_erro)
                 break
             
             # Verifica caso tenha travado e espera até que o topcom volte a responder
@@ -91,7 +90,7 @@ def valida_lancamento():
                 time.sleep(0.2)
             tentativa += 1
         else:
-            exit('Rodou 10 verificações e não achou nenhuma tela, verificar!')
+            exit(Fore.RED + '--- Rodou 10 verificações e não achou nenhuma tela, verificar!' + Style.RESET_ALL)
             #TODO --- Validar se o topcon ainda está aberto, caso não esteja, reiniciar o processo do zero.
 
 if __name__ == '__main__':

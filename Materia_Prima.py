@@ -161,7 +161,6 @@ def programa_principal():
     if '38953477000164' in chave_xml: #Caso não tenha o CNPJ da Consmar
         exit(bot.alert('CNPJ da consmar, necessario scriptar'))
  
-
     #* Realiza a extração da quantidade de toneladas
     valor_escala = 200
     while True:
@@ -238,25 +237,25 @@ def programa_principal():
     # Verifica se a tela "Deseja processar" apareceu, caso sim, procede para emissão da NFE.
     ahk.win_wait_active('TopCom', timeout=10, title_match_mode=2)
     ahk.win_activate('TopCom', title_match_mode=2)
-    
+     
     # Espera até aparecer a tela de operação realizada, e quando ela aparecer, clica no botão OK
     while procura_imagem(imagem='img_topcon/operacao_realizada.png', continuar_exec=True) is False:
         if procura_imagem(imagem='img_topcon/chave_invalida.png', limite_tentativa= 1, continuar_exec=True) is not False:
             print('--- Nota já lançada, marcando planilha!')
             bot.press('ENTER')
             marca_lancado(texto_marcacao='Lancado_Manual')
-            programa_principal()
             
         while ahk.win_exists('Não está respondendo', title_match_mode= 2):
-            time.sleep(0.4)
-            
+            time.sleep(0.4)  
     else:
+        ahk.win_activate('TopCompras', title_match_mode= 2)
+        ahk.win_wait_active('TopCompras', timeout=10, title_match_mode=2)
         bot.click(procura_imagem(imagem='img_topcon/operacao_realizada.png', continuar_exec=True))
-    
+
+
     ahk.win_activate('TopCompras', title_match_mode= 2)
     ahk.win_wait_active('TopCompras', timeout=10, title_match_mode=2)
     bot.click(procura_imagem(imagem='img_topcon/botao_ok.jpg', continuar_exec=True))
-    ahk.win_activate('TopCompras', title_match_mode= 2)
     #Verifica se apareceu a tela de transferencia 
     if procura_imagem('img_topcon/deseja_processar.png', continuar_exec=True, limite_tentativa= 12, confianca= 0.7) is not False:
         bot.click(procura_imagem('img_topcon/bt_sim.png', continuar_exec=True))
@@ -275,6 +274,7 @@ def programa_principal():
         bot.click(procura_imagem(imagem='img_topcon/sair_tela.png'))
         ahk.win_wait_active('TopCom', timeout=10, title_match_mode=2)
         ahk.win_activate('TopCom', title_match_mode=2)
+
 
     # * -------------------------------------- Marca planilha --------------------------------------
     marca_lancado(texto_marcacao='Lancado_RPA')

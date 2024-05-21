@@ -58,26 +58,3 @@ ahk.win_activate('TopCompras', title_match_mode= 2)
 time.sleep(0.5)
 #! Utilizado apenas para estar trechos de codigo.
 
-
-bot.click(1006, 345)  # Campo data da operação150524
-time.sleep(1)
-hoje = date.today()
-hoje = hoje.strftime("%d%m%y")  # dd/mm/YY
-print(F'--- Alterando a data para {hoje}')
-data_NfeFaturada = extrai_txt_img(imagem='valida_itensxml.png', area_tela=(895, 299, 20, 20))
-if data_NfeFaturada < '11':
-    print('Data menor que 11')
-    bot.write('11052024')
-    bot.press('enter')
-    time.sleep(0.5)
-    if procura_imagem(imagem='img_topcon/txt_NaoPermitidoData.png', continuar_exec=True, limite_tentativa= 12):
-        print('Precisa mudar a data')
-        bot.press('enter')
-        bot.write(hoje)
-        bot.press('enter')
-        time.sleep(0.5)
-else:
-    bot.write(hoje)
-    bot.press('enter')
-    time.sleep(0.5)
-
