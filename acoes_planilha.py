@@ -44,9 +44,8 @@ def valida_lancamento():
         try:
             ahk.win_wait('TopCompras', title_match_mode=2, timeout= 5)
         except TimeoutError:
-            bot.click(procura_imagem(imagem='img_topcon/icone_topcon.png', continuar_exec=True))
-            exit()
-            #exit(bot.alert('Tela de Compras não abriu.'))
+            #bot.click(procura_imagem(imagem='img_topcon/icone_topcon.png', continuar_exec=True))
+            exit(bot.alert('Tela de Compras não abriu.'))
             #TODO --- Caso isso aconteça, tentar abrir a tela do Topcon.
         else:
             print('--- Tela compras está maximizada!')  
