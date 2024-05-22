@@ -58,13 +58,11 @@ if __name__ == "__main__":
     navegador.get("https://cortesiaconcreto-my.sharepoint.com/:x:/g/personal/bruno_silva_cortesiaconcreto_com_br/EeKEw02Y8wxNsUl20Ye6AXEBI6hSgj_U9zmkYI5O9pN6Lw?e=ouNo7U")
     #navegador.get("https://g1.globo.com/")
     navegador.maximize_window()
-    
-    #Preencher a senha
-    while True:
-        
-        navegador.find_element('xpath', '//*[@id="ModeSwitcher-container"]').click()
-    
+    navegador.find_element('xpath', '//*[@id="ModeSwitcher"]/span[1]').click()
     exit()
+    #Preencher a senha
+
+        
     #Clica no botão de login
     navegador.find_element('xpath', '//*[@id="loginBtn"]').click()
     time.sleep(1.5)
