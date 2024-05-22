@@ -15,6 +15,7 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
+from pynfe.processamento.comunicacao import ComunicacaoSefaz
 
 #import winsound
 #import pygetwindow as gw
@@ -40,7 +41,7 @@ centro_custo = filial_estoq
 cracha_mot = '112480'
 
 
-'''
+''' #* Cria banco de dados
 #Cria a conexão com o banco de dados
 con = sqlite3.connect("informacoes.db")
 
@@ -53,34 +54,16 @@ cur = con.cursor()
 exit()
 '''
 
+''' #* Consulta as telas abertas
 for telas in ahk.list_windows():
     print(telas.text)
+'''
 
 
 #ahk.win_activate('TopCompras', title_match_mode= 2)
 #ahk.win_activate('db_alltrips', title_match_mode= 2)
 time.sleep(0.5)
 #! Utilizado apenas para estar trechos de codigo.
-
-'''
-if procura_imagem('img_topcon/deseja_processar.png', continuar_exec=True, limite_tentativa= 12, confianca= 0.7) is not False:
-    bot.click(procura_imagem('img_topcon/bt_sim.png', continuar_exec=True))
-    while True:  # Aguardar o .PDF
-        try:
-            ahk.win_wait('.pdf', title_match_mode=2, timeout= 15)
-        except TimeoutError:
-            print('--- Aguardando .PDF da transferencia')
-        else:
-            ahk.win_activate('.pdf', title_match_mode=2)
-            ahk.win_close('pdf - Google Chrome', title_match_mode=2)
-            print('--- Fechou o PDF da transferencia')
-            break
-    time.sleep(0.4)
-    ahk.win_activate('Transmissão', title_match_mode=2)
-    bot.click(procura_imagem(imagem='img_topcon/sair_tela.png'))
-    ahk.win_wait_active('TopCom', timeout=10, title_match_mode=2)
-    ahk.win_activate('TopCom', title_match_mode=2)
-'''
 
 '''
 while True:
@@ -92,3 +75,12 @@ while True:
     bot.press('e')
 
 '''
+
+certificado = "/certificado_nfe/certificado.pfx"
+senha = '123456'
+uf = 'sp'
+homologacao = True
+
+con = ComunicacaoSefaz(uf, certificado, senha, homologacao)
+xml = con.status_servico('nfe')
+print(xml.text)
