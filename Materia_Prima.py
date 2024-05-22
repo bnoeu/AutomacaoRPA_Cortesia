@@ -224,6 +224,7 @@ def programa_principal():
         if tentativa > 10: #Executa o loop 10 vezes até dar erro.
             exit(bot.alert('Apresentou algum erro.'))
     # TODO --- CASO O REMOTE APP DESCONECTE, RODAR O ABRE TOPCON
+
         
     # Conclui o lançamento
     bot.press('pagedown')  # Conclui o lançamento
