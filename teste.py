@@ -53,11 +53,16 @@ cur = con.cursor()
 exit()
 '''
 
-ahk.win_activate('TopCompras', title_match_mode= 2)
+for telas in ahk.list_windows():
+    print(telas.text)
+
+
+#ahk.win_activate('TopCompras', title_match_mode= 2)
 #ahk.win_activate('db_alltrips', title_match_mode= 2)
 time.sleep(0.5)
 #! Utilizado apenas para estar trechos de codigo.
 
+'''
 if procura_imagem('img_topcon/deseja_processar.png', continuar_exec=True, limite_tentativa= 12, confianca= 0.7) is not False:
     bot.click(procura_imagem('img_topcon/bt_sim.png', continuar_exec=True))
     while True:  # Aguardar o .PDF
@@ -75,7 +80,7 @@ if procura_imagem('img_topcon/deseja_processar.png', continuar_exec=True, limite
     bot.click(procura_imagem(imagem='img_topcon/sair_tela.png'))
     ahk.win_wait_active('TopCom', timeout=10, title_match_mode=2)
     ahk.win_activate('TopCom', title_match_mode=2)
-
+'''
 
 '''
 while True:

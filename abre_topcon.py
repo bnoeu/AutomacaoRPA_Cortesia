@@ -14,7 +14,7 @@ import os
 
 # --- Definição de parametros
 ahk = AHK()
-bot.PAUSE = 1
+bot.PAUSE = 0.5
 posicao_img = 0
 continuar = True
 bot.FAILSAFE = True
@@ -26,16 +26,15 @@ login_rdp = 'bruno.s'
 senha_rdp = 'C0rtesi@'
 
 #* ---------------- PROGRAMA PRINCIPAL ------------
-
-if __name__ == '__main__':
+def abre_topcon():
     #Primeiro força o fechamento das telas, para evitar erros de validações, e depois abre o RDP
     ahk.win_kill('Segurança do Windows', title_match_mode= 2)
     ahk.win_kill('RemoteApp', title_match_mode= 2)
     ahk.win_kill('RemoteApp', title_match_mode= 2)
     ahk.win_kill('TopCon', title_match_mode= 2)
-    os.close()
+    ahk.win_close('VM-CortesiaApli.CORTESIA.com', title_match_mode= 2)
+    #os.close()
     os.startfile('RemoteApp-Cortesia.rdp')
-    time.sleep(3)
     if ahk.win_exists('Segurança do Windows', title_match_mode= 2):
         print('--- Abriu a tela "Segurança do Windows, realizando o login" ')
         #Realiza o login no RDP, que deve utilizar as informações de login do usuario "CORTESIA\BARBARA.K"
@@ -76,4 +75,5 @@ if __name__ == '__main__':
     procura_imagem(imagem='img_topcon/txt_interveniente.png', continuar_exec= True)
     ahk.win_activate('TopCompras - Versão', title_match_mode= 2)
 
-    exit()
+if __name__ == '__main__':
+    abre_topcon()
