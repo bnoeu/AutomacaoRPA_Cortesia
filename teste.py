@@ -10,11 +10,13 @@ import pyautogui as bot
 from funcoes import procura_imagem, extrai_txt_img, marca_lancado
 from acoes_planilha import valida_lancamento
 from valida_pedido import valida_pedido
+'''
 #*Selenium
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
+'''
 
 #import winsound
 #import pygetwindow as gw
