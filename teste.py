@@ -10,13 +10,14 @@ import pyautogui as bot
 from funcoes import procura_imagem, extrai_txt_img, marca_lancado
 from acoes_planilha import valida_lancamento
 from valida_pedido import valida_pedido
+'''
 #*Selenium
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 from pynfe.processamento.comunicacao import ComunicacaoSefaz
-
+'''
 #import winsound
 #import pygetwindow as gw
 
@@ -31,7 +32,6 @@ transportador = "111594"
 chave_xml, silo2, silo1 = '', '', ''
 pytesseract.pytesseract.tesseract_cmd = r"C:\Tesseract-OCR\tesseract.exe"
 time.sleep(0.8)
-
 
 
 #! Variavel de teste
@@ -64,6 +64,9 @@ for telas in ahk.list_windows():
 #ahk.win_activate('db_alltrips', title_match_mode= 2)
 time.sleep(0.5)
 #! Utilizado apenas para estar trechos de codigo.
+bot.click(procura_imagem(imagem='img_topcon/icone_topcon.png', continuar_exec=True))
+
+
 
 '''
 while True:
@@ -73,9 +76,10 @@ while True:
     bot.press('m')
     #Habilita a opção: Exibição
     bot.press('e')
-
 '''
 
+
+'''
 certificado = "/certificado_nfe/certificado.pfx"
 senha = '123456'
 uf = 'sp'
@@ -84,3 +88,4 @@ homologacao = True
 con = ComunicacaoSefaz(uf, certificado, senha, homologacao)
 xml = con.status_servico('nfe')
 print(xml.text)
+'''
