@@ -32,6 +32,7 @@ transportador = "111594"
 chave_xml, silo2, silo1 = '', '', ''
 pytesseract.pytesseract.tesseract_cmd = r"C:\Tesseract-OCR\tesseract.exe"
 time.sleep(0.8)
+start = time.time()
 
 
 #! Variavel de teste
@@ -64,9 +65,7 @@ for telas in ahk.list_windows():
 #ahk.win_activate('db_alltrips', title_match_mode= 2)
 time.sleep(0.5)
 #! Utilizado apenas para estar trechos de codigo.
-bot.click(procura_imagem(imagem='img_topcon/icone_topcon.png', continuar_exec=True))
-
-
+#bot.click(procura_imagem(imagem='img_topcon/icone_topcon.png', continuar_exec=True))
 
 '''
 while True:
