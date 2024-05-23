@@ -174,49 +174,45 @@ def programa_principal():
             valor_escala += 15
         else:
             print(F'--- Texto coletado da quantidade: {qtd_ton}')
+
+        #* ----------------------- Parte "Itens nota fiscal de compra" -----------------------         
+        print('--- Abrindo a tela "Itens nota fiscal de compra" ')
+        bot.click(procura_imagem(imagem='img_topcon/botao_alterar.png', area=(100, 839, 300, 400)))
+        while procura_imagem(imagem='img_topcon/valor_cofins.png', limite_tentativa= 1, continuar_exec= True) is False:
+            print('--- Aguardando aparecer a tela "Itens nota fiscal de compra" ')
+
+        print('--- Preenchendo SILO e quantidade')
+        if (silo1 != '') or (silo2 != ''):
+            bot.click(851, 443)  # Clica na linha para informar o primeiro silo
+            if silo2 != '':  # realiza a divisão da quantidade de cimento
+                qtd_ton = str((qtd_ton / 2))
+                qtd_ton = qtd_ton.replace(".", ",")
+                print(F'--- Foi informado dois silos, preenchendo... {silo1} e {silo2}, quantidade: {qtd_ton}')
+                bot.write(silo1)
+                bot.press('ENTER')
+                bot.write(str(qtd_ton))
+                bot.press('ENTER')
+                bot.write(silo2)
+                bot.press('ENTER')
+                bot.write(str(qtd_ton))
+                bot.press('ENTER')
+            elif silo1 != '':
+                print(F'--- Foi informado UM silo, preenchendo... {silo1}, quantidade: {qtd_ton}')
+                qtd_ton = str(qtd_ton)
+                qtd_ton = qtd_ton.replace(".", ",")
+                bot.write(silo1)
+                bot.press('ENTER')
+                bot.write(str(qtd_ton))
+                bot.press('ENTER')
+        else:
+            print('--- Nenhum silo coletado, nota de agregado!')
             break
-
-#* ----------------------- Parte "Itens nota fiscal de compra" -----------------------         
-    print('--- Abrindo a tela "Itens nota fiscal de compra" ')
-    bot.click(procura_imagem(imagem='img_topcon/botao_alterar.png', area=(100, 839, 300, 400)))
-    while procura_imagem(imagem='img_topcon/valor_cofins.png', limite_tentativa= 1, continuar_exec= True) is False:
-        print('--- Aguardando aparecer a tela "Itens nota fiscal de compra" ')
-
-    print('--- Preenchendo SILO e quantidade')
-    if (silo1 != '') or (silo2 != ''):
-        bot.click(851, 443)  # Clica na linha para informar o primeiro silo
-        if silo2 != '':  # realiza a divisão da quantidade de cimento
-            qtd_ton = str((qtd_ton / 2))
-            qtd_ton = qtd_ton.replace(".", ",")
-            print(F'--- Foi informado dois silos, preenchendo... {silo1} e {silo2}, quantidade: {qtd_ton}')
-            bot.write(silo1)
-            bot.press('ENTER')
-            bot.write(str(qtd_ton))
-            bot.press('ENTER')
-            bot.write(silo2)
-            bot.press('ENTER')
-            bot.write(str(qtd_ton))
-            bot.press('ENTER')
-        elif silo1 != '':
-            print(F'--- Foi informado UM silo, preenchendo... {silo1}, quantidade: {qtd_ton}')
-            qtd_ton = str(qtd_ton)
-            qtd_ton = qtd_ton.replace(".", ",")
-            bot.write(silo1)
-            bot.press('ENTER')
-            bot.write(str(qtd_ton))
-            bot.press('ENTER')
-    else:
-        print('--- Nenhum silo coletado, nota de agregado!')
+            
+        bot.click(procura_imagem(imagem='img_topcon/confirma.png'))            
+        if procura_imagem(imagem='img_topcon/txt_ErroAtribuida.png', continuar_exec=True) is not False:
+            break
+            
         
-    #Após preencher ou não os silos, clica para confirmar as informações. 
-    bot.click(procura_imagem(imagem='img_topcon/confirma.png'))            
-    if procura_imagem(imagem='img_topcon/txt_ErroAtribuida.png', continuar_exec=True):
-        exit(bot.alert('Scriptar essa parte do codigo'))
-        #TODO --- Clicar no botão ok
-        bot.press('tab')
-        #TODO --- Tira printo do campo "quantidade" e extrai o texto para saber a quantidade
-        #TODO --- Preenche novamente a quantidade
-        pass
     while procura_imagem(imagem='img_topcon/confirma.png', continuar_exec=True) is not False:
         tentativa += 1
         print('--- Aguardando fechamento da tela do botão "Alterar" ')

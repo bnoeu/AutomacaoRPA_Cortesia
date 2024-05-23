@@ -36,7 +36,7 @@ start = time.time()
 
 
 #! Variavel de teste
-silo1 = 'SILO 6'
+silo1 = 'SILO 1'
 filial_estoq = 'JAGUARE'
 centro_custo = filial_estoq
 cracha_mot = '112480'
@@ -61,7 +61,7 @@ for telas in ahk.list_windows():
 '''
 
 
-#ahk.win_activate('TopCompras', title_match_mode= 2)
+ahk.win_activate('TopCompras', title_match_mode= 2)
 #ahk.win_activate('db_alltrips', title_match_mode= 2)
 time.sleep(0.5)
 #! Utilizado apenas para estar trechos de codigo.
@@ -77,7 +77,6 @@ while True:
     bot.press('e')
 '''
 
-
 '''
 certificado = "/certificado_nfe/certificado.pfx"
 senha = '123456'
@@ -88,3 +87,66 @@ con = ComunicacaoSefaz(uf, certificado, senha, homologacao)
 xml = con.status_servico('nfe')
 print(xml.text)
 '''
+tentativa = 0
+valor_escala = 200
+while True:
+    try:
+        qtd_ton = extrai_txt_img(imagem='img_toneladas.png', area_tela=(892, 577, 70, 20), porce_escala= valor_escala).strip()
+        qtd_ton = qtd_ton.replace(",", ".")
+        qtd_ton = float(qtd_ton)
+    except ValueError:
+        valor_escala += 15
+    else:
+        print(F'--- Texto coletado da quantidade: {qtd_ton}')
+
+    #* ----------------------- Parte "Itens nota fiscal de compra" -----------------------         
+    print('--- Abrindo a tela "Itens nota fiscal de compra" ')
+    bot.click(procura_imagem(imagem='img_topcon/botao_alterar.png', area=(100, 839, 300, 400)))
+    while procura_imagem(imagem='img_topcon/valor_cofins.png', limite_tentativa= 1, continuar_exec= True) is False:
+        print('--- Aguardando aparecer a tela "Itens nota fiscal de compra" ')
+
+    print('--- Preenchendo SILO e quantidade')
+    if (silo1 != '') or (silo2 != ''):
+        bot.click(851, 443)  # Clica na linha para informar o primeiro silo
+        if silo2 != '':  # realiza a divisão da quantidade de cimento
+            qtd_ton = str((qtd_ton / 2))
+            qtd_ton = qtd_ton.replace(".", ",")
+            print(F'--- Foi informado dois silos, preenchendo... {silo1} e {silo2}, quantidade: {qtd_ton}')
+            bot.write(silo1)
+            bot.press('ENTER')
+            bot.write(str(qtd_ton))
+            bot.press('ENTER')
+            bot.write(silo2)
+            bot.press('ENTER')
+            bot.write(str(qtd_ton))
+            bot.press('ENTER')
+        elif silo1 != '':
+            print(F'--- Foi informado UM silo, preenchendo... {silo1}, quantidade: {qtd_ton}')
+            qtd_ton = str(qtd_ton)
+            qtd_ton = qtd_ton.replace(".", ",")
+            bot.write(silo1)
+            bot.press('ENTER')
+            bot.write(str(qtd_ton))
+            bot.press('ENTER')
+    else:
+        print('--- Nenhum silo coletado, nota de agregado!')
+        break
+        
+    bot.click(procura_imagem(imagem='img_topcon/confirma.png'))            
+    if procura_imagem(imagem='img_topcon/txt_ErroAtribuida.png', continuar_exec=True) is not False:
+        bot.press('enter')
+        bot.press('esc')
+        time.sleep(2)
+    else:
+        break
+        
+    
+while procura_imagem(imagem='img_topcon/confirma.png', continuar_exec=True) is not False:
+    tentativa += 1
+    print('--- Aguardando fechamento da tela do botão "Alterar" ')
+    time.sleep(0.3)
+    #TODO --- VerificaR se apareceu a tela "quantidade atribuida aos locais"
+
+    if tentativa > 10: #Executa o loop 10 vezes até dar erro.
+        exit(bot.alert('Apresentou algum erro.'))
+# TODO --- CASO O REMOTE APP DESCONECTE, RODAR O ABRE TOPCON
