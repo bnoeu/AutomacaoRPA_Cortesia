@@ -86,9 +86,8 @@ def valida_lancamento():
                 break
             
             # Verifica caso tenha travado e espera até que o topcom volte a responder
-            print('--- Aguardando TopCompras Retornar')
             while ahk.win_exists('Não está respondendo', title_match_mode= 2):
-                time.sleep(0.2)
+                time.sleep(0.1)
             tentativa += 1
         else:
             exit(Fore.RED + '--- Rodou 10 verificações e não achou nenhuma tela, verificar!' + Style.RESET_ALL)

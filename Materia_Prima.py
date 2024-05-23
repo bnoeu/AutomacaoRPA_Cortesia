@@ -13,7 +13,7 @@ import pytesseract
 from ahk import AHK
 import pyautogui as bot
 from datetime import date
-from colorama import Back, Style
+from colorama import Back, Style, Fore
 from valida_pedido import valida_pedido
 from acoes_planilha import valida_lancamento
 from funcoes import marca_lancado, procura_imagem, extrai_txt_img
@@ -171,11 +171,10 @@ def programa_principal():
             qtd_ton = qtd_ton.replace(",", ".")
             qtd_ton = float(qtd_ton)
         except ValueError:
-            valor_escala += 15
+            valor_escala -= 10
         else:
             print(F'--- Texto coletado da quantidade: {qtd_ton}')
-
-        #* ----------------------- Parte "Itens nota fiscal de compra" -----------------------         
+            
         print('--- Abrindo a tela "Itens nota fiscal de compra" ')
         bot.click(procura_imagem(imagem='img_topcon/botao_alterar.png', area=(100, 839, 300, 400)))
         while procura_imagem(imagem='img_topcon/valor_cofins.png', limite_tentativa= 1, continuar_exec= True) is False:
@@ -206,51 +205,57 @@ def programa_principal():
                 bot.press('ENTER')
         else:
             print('--- Nenhum silo coletado, nota de agregado!')
+            bot.click(procura_imagem(imagem='img_topcon/confirma.png'))
             break
             
         bot.click(procura_imagem(imagem='img_topcon/confirma.png'))            
-        if procura_imagem(imagem='img_topcon/txt_ErroAtribuida.png', continuar_exec=True) is not False:
+        if procura_imagem(imagem='img_topcon/txt_ErroAtribuida.png', limite_tentativa = 12, continuar_exec = True) is False:
+            print(Fore.GREEN + '--- Preenchimento das tonelas + Silo correto.' + Style.RESET_ALL)
             break
+        else:
+            print(Fore.RED + F'--- Falha, executando novamente a coleta das toneladas. Escala atual: {valor_escala}' + Style.RESET_ALL)
+            bot.press('ENTER')
+            bot.press('ESC')
+            time.sleep(2)
             
-        
-    while procura_imagem(imagem='img_topcon/confirma.png', continuar_exec=True) is not False:
-        tentativa += 1
-        print('--- Aguardando fechamento da tela do botão "Alterar" ')
-        time.sleep(0.3)
-        #TODO --- VerificaR se apareceu a tela "quantidade atribuida aos locais"
+        while procura_imagem(imagem='img_topcon/confirma.png', continuar_exec=True) is not False:
+            tentativa += 1
+            print('--- Aguardando fechamento da tela do botão "Alterar" ')
+            time.sleep(0.3)
+            #TODO --- VerificaR se apareceu a tela "quantidade atribuida aos locais"
 
-        if tentativa > 10: #Executa o loop 10 vezes até dar erro.
-            exit(bot.alert('Apresentou algum erro.'))
-    # TODO --- CASO O REMOTE APP DESCONECTE, RODAR O ABRE TOPCON
+            if tentativa > 10: #Executa o loop 10 vezes até dar erro.
+                exit(bot.alert('Apresentou algum erro.'))
+        # TODO --- CASO O REMOTE APP DESCONECTE, RODAR O ABRE TOPCON
 
-        
     # Conclui o lançamento
     bot.press('pagedown')  # Conclui o lançamento
-    time.sleep(1)
-    bot.click(procura_imagem(imagem='img_topcon/txt_ValoresTotais.png', continuar_exec=True))
+    time.sleep(2)
+    '''
     print('--- Aguardando TopCompras Retornar')
-    while ahk.win_exists('Não está respondendo', title_match_mode= 2):
-        time.sleep(0.2)
+    while ahk.win_exists('Não está respondendo', title_match_mode= 2) is False:
+        bot.click(procura_imagem(imagem='img_topcon/txt_ValoresTotais.png', limite_tentativa= 12, continuar_exec=True))
+        
+    while ahk.win_exists('Não está respondendo', title_match_mode= 2) is True:
         ahk.win_wait_active('TopCom', timeout=10, title_match_mode=2)
         ahk.win_activate('TopCom', title_match_mode=2)
-
+        time.sleep(0.2)
+    '''
     # Espera até aparecer a tela de operação realizada ou chave_invalida
-    while procura_imagem(imagem='img_topcon/operacao_realizada.png', limite_tentativa = 1, continuar_exec=True) is False:
-        ahk.win_activate('TopCompras', title_match_mode= 2)
-        while ahk.win_exists('Não está respondendo', title_match_mode= 2):
-            time.sleep(0.2)
-        if procura_imagem(imagem='img_topcon/chave_invalida.png', limite_tentativa = 1, continuar_exec=True) is not False:
+    while procura_imagem(imagem='img_topcon/operacao_realizada.png', limite_tentativa = 3, continuar_exec=True) is False:
+        if procura_imagem(imagem='img_topcon/chave_invalida.png', limite_tentativa = 3, continuar_exec=True) is not False:
             print('--- Nota já lançada, marcando planilha!')
             bot.press('ENTER')
             bot.press('F2', presses = 2)
             marca_lancado(texto_marcacao='Lancado_Manual')
+    else:
+        ahk.win_activate('TopCompras', title_match_mode= 2)
+        ahk.win_wait_active('TopCompras', timeout=50, title_match_mode=2)
+        bot.click(procura_imagem(imagem='img_topcon/operacao_realizada.png'))
+        bot.click(procura_imagem(imagem='img_topcon/botao_ok.jpg'))
                  
-    ahk.win_activate('TopCompras', title_match_mode= 2)
-    ahk.win_wait_active('TopCompras', timeout=50, title_match_mode=2)
-    bot.click(procura_imagem(imagem='img_topcon/operacao_realizada.png', continuar_exec=True))
-    bot.click(procura_imagem(imagem='img_topcon/botao_ok.jpg', continuar_exec=True))
-    time.sleep(1)
     #Verifica se apareceu a tela de transferencia 
+    time.sleep(2)
     if procura_imagem('img_topcon/deseja_processar.png', continuar_exec=True, limite_tentativa= 12, confianca= 0.7) is not False:
         bot.click(procura_imagem('img_topcon/bt_sim.png', continuar_exec=True))
         while True:  # Aguardar o .PDF
@@ -269,7 +274,10 @@ def programa_principal():
         ahk.win_wait_active('TopCom', timeout=10, title_match_mode=2)
         ahk.win_activate('TopCom', title_match_mode=2)
 
-
+    while procura_imagem(imagem='img_topcon/produtos_servicos.png') is False:
+        time.sleep(0.2)
+    else:
+        print('--- Lançamento concluido com sucesso')
     # * -------------------------------------- Marca planilha --------------------------------------
     marca_lancado(texto_marcacao='Lancado_RPA')
     return True
@@ -277,6 +285,4 @@ if __name__ == '__main__':
     while True:
         programa_principal()
 
-# TODO --- Caso o pedido acabe, avisar ao Mateus
 # TODO --- Caso NFE Faturada no final do mes, lançar com qual data? 
-# TODO --- Chave_XML não está baixando via gerenciador, agora é tudo pelo OBJ

@@ -83,9 +83,11 @@ def coleta_planilha():
     bot.PAUSE = 0.2
     for n in range(0, 7, 1):  # Copia dados dos 6 campos
         while True:
+            pausa_copia = 0.1
             bot.hotkey('ctrl', 'c')
             if 'Recuperando' in ahk.get_clipboard():
-                time.sleep(0.3)
+                time.sleep(pausa_copia)
+                pausa_copia += 0.1
             else:
                 break
         dados_planilha.append(ahk.get_clipboard())
