@@ -28,7 +28,7 @@ def coleta_planilha():
     #Verifica se já está no modo de edição, caso esteja, muda para o modo "exibição"
     if procura_imagem(imagem='img_planilha/bt_exibicaoverde.png', continuar_exec=True) is False:
         print('--- Não está no modo exibição! Realizando alteração.')
-        while procura_imagem(imagem='img_planilha/bt_edicao.png', limite_tentativa= 1, continuar_exec= True) is False: #Espera até encontar o botão "Exibição" (Lapis bloqueado)
+        while procura_imagem(imagem='img_planilha/bt_edicao.png', limite_tentativa= 3, continuar_exec= True) is False: #Espera até encontar o botão "Exibição" (Lapis bloqueado)
             time.sleep(0.1)
             
         if procura_imagem(imagem='img_planilha/bt_TresPontos.png', continuar_exec= True) is not False:
@@ -79,15 +79,15 @@ def coleta_planilha():
     #Clica na primeira linha (Campo RE), e pressiona seta para baixo
     bot.click(procura_imagem(imagem='img_planilha/titulo_re.png'))
     bot.press('DOWN')
-    time.sleep(0.25)
-    bot.PAUSE = 0.2
+    time.sleep(0.3)
+    bot.PAUSE = 0.3
     for n in range(0, 7, 1):  # Copia dados dos 6 campos
         while True:
             pausa_copia = 0.1
             bot.hotkey('ctrl', 'c')
             if 'Recuperando' in ahk.get_clipboard():
                 time.sleep(pausa_copia)
-                pausa_copia += 0.1
+                pausa_copia += 0.15
             else:
                 break
         dados_planilha.append(ahk.get_clipboard())

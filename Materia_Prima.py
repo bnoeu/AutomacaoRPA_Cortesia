@@ -20,7 +20,7 @@ from funcoes import marca_lancado, procura_imagem, extrai_txt_img
 
 # --- Definição de parametros
 ahk = AHK()
-bot.PAUSE = 0.5
+bot.PAUSE = 0.8
 posicao_img = 0
 continuar = True
 bot.FAILSAFE = True
@@ -68,6 +68,7 @@ def programa_principal():
 
 #* -------------------------- PROSSEGUINDO COM O LANÇAMENTO DA NFE -------------------------- 
     print('--- Preenchendo dados na tela principal do lançamento')
+    time.sleep(1)
     ahk.win_activate('TopCompras', title_match_mode=2)
     ahk.win_wait_active('TopCompras', title_match_mode=2, timeout= 25)
     
@@ -230,17 +231,9 @@ def programa_principal():
 
     # Conclui o lançamento
     bot.press('pagedown')  # Conclui o lançamento
+    print('--- Enviado pagedown, aguardando tela de operação realizada')
     time.sleep(2)
-    '''
-    print('--- Aguardando TopCompras Retornar')
-    while ahk.win_exists('Não está respondendo', title_match_mode= 2) is False:
-        bot.click(procura_imagem(imagem='img_topcon/txt_ValoresTotais.png', limite_tentativa= 12, continuar_exec=True))
-        
-    while ahk.win_exists('Não está respondendo', title_match_mode= 2) is True:
-        ahk.win_wait_active('TopCom', timeout=10, title_match_mode=2)
-        ahk.win_activate('TopCom', title_match_mode=2)
-        time.sleep(0.2)
-    '''
+    
     # Espera até aparecer a tela de operação realizada ou chave_invalida
     while procura_imagem(imagem='img_topcon/operacao_realizada.png', limite_tentativa = 3, continuar_exec=True) is False:
         if procura_imagem(imagem='img_topcon/chave_invalida.png', limite_tentativa = 3, continuar_exec=True) is not False:
@@ -249,13 +242,16 @@ def programa_principal():
             bot.press('F2', presses = 2)
             marca_lancado(texto_marcacao='Lancado_Manual')
     else:
-        ahk.win_activate('TopCompras', title_match_mode= 2)
-        ahk.win_wait_active('TopCompras', timeout=50, title_match_mode=2)
-        bot.click(procura_imagem(imagem='img_topcon/operacao_realizada.png'))
-        bot.click(procura_imagem(imagem='img_topcon/botao_ok.jpg'))
+        while procura_imagem(imagem='img_topcon/operacao_realizada.png', continuar_exec= True) is not False:
+            ahk.win_activate('TopCompras', title_match_mode= 2)
+            ahk.win_wait_active('TopCompras', timeout=50, title_match_mode=2)
+            bot.click(procura_imagem(imagem='img_topcon/operacao_realizada.png'))
+            bot.click(procura_imagem(imagem='img_topcon/botao_ok.jpg'))
+            
                  
     #Verifica se apareceu a tela de transferencia 
     time.sleep(2)
+    print('--- Realizando ')
     if procura_imagem('img_topcon/deseja_processar.png', continuar_exec=True, limite_tentativa= 12, confianca= 0.7) is not False:
         bot.click(procura_imagem('img_topcon/bt_sim.png', continuar_exec=True))
         while True:  # Aguardar o .PDF
