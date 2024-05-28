@@ -11,6 +11,7 @@ import pyautogui as bot
 from datetime import date
 from selenium import webdriver
 from funcoes import procura_imagem
+from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 #from baixa_controle import download_registros, inicia_navegador
@@ -54,10 +55,15 @@ if __name__ == "__main__":
         return navegador
 
     navegador = inicia_navegador()
-    navegador.get("https://cortesiaconcreto-my.sharepoint.com/:x:/g/personal/bruno_silva_cortesiaconcreto_com_br/EeKEw02Y8wxNsUl20Ye6AXEBI6hSgj_U9zmkYI5O9pN6Lw?e=ouNo7U")
+    #navegador.get("https://cortesiaconcreto-my.sharepoint.com/:x:/g/personal/bruno_silva_cortesiaconcreto_com_br/EeKEw02Y8wxNsUl20Ye6AXEBI6hSgj_U9zmkYI5O9pN6Lw?e=ouNo7U")
+    navegador.get("https://www.nfe.fazenda.gov.br/portal/consultaRecaptcha.aspx?tipoConsulta=resumo&tipoConteudo=7PhJ+gAVw2g=")
     #navegador.get("https://g1.globo.com/")
     navegador.maximize_window()
-    navegador.find_element('xpath', '//*[@id="ModeSwitcher"]/span[1]').click()
+    time.sleep(2)
+    chave_xml = '123'
+    navegador.find_element(By.XPATH, '//*[@id="ctl00_ContentPlaceHolder1_txtChaveAcessoResumo"]').send_keys(chave_xml)
+    time.sleep(2)
+    navegador.find_element(By.XPATH, '//*[@id="checkbox"]').click()
     exit()
     #Preencher a senha
 
