@@ -61,7 +61,7 @@ for telas in ahk.list_windows():
 '''
 
 
-ahk.win_activate('TopCompras', title_match_mode= 2)
+#ahk.win_activate('TopCompras', title_match_mode= 2)
 #ahk.win_activate('db_alltrips', title_match_mode= 2)
 time.sleep(0.5)
 #! Utilizado apenas para estar trechos de codigo.
@@ -88,8 +88,4 @@ xml = con.status_servico('nfe')
 print(xml.text)
 '''
 
-
-'''
-
-'''
-
+print(ahk.win_get_title())

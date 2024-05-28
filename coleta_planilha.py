@@ -28,15 +28,15 @@ def coleta_planilha():
     #Verifica se já está no modo de edição, caso esteja, muda para o modo "exibição"
     if procura_imagem(imagem='img_planilha/bt_exibicaoverde.png', continuar_exec=True) is False:
         print('--- Não está no modo exibição! Realizando alteração.')
-        while procura_imagem(imagem='img_planilha/bt_edicao.png', limite_tentativa= 3, continuar_exec= True) is False: #Espera até encontar o botão "Exibição" (Lapis bloqueado)
+        while procura_imagem(imagem='img_planilha/bt_edicao.png', continuar_exec= True) is False: #Espera até encontar o botão "Exibição" (Lapis bloqueado)
             time.sleep(0.1)
             
         if procura_imagem(imagem='img_planilha/bt_TresPontos.png', continuar_exec= True) is not False:
-            bot.click(procura_imagem(imagem='img_planilha/bt_TresPontos.png', continuar_exec= True))
+            bot.click(procura_imagem(imagem='img_planilha/bt_TresPontos.png'))
             
-        bot.click(procura_imagem(imagem='img_planilha/bt_edicao.png', continuar_exec= True))  
+        bot.click(procura_imagem(imagem='img_planilha/bt_edicao.png'))  
         time.sleep(0.5)
-        bot.click(procura_imagem(imagem='img_planilha/txt_exibicao.png', continuar_exec= True)) 
+        bot.click(procura_imagem(imagem='img_planilha/txt_exibicao.png'))
 
         #Aguarda até aparecer o botão do modo "exibição"
         while procura_imagem(imagem='img_planilha/bt_exibicaoverde.png', limite_tentativa = 1, continuar_exec=True) is False:
