@@ -20,7 +20,7 @@ from funcoes import marca_lancado, procura_imagem, extrai_txt_img
 
 # --- Definição de parametros
 ahk = AHK()
-bot.PAUSE = 0.8
+bot.PAUSE = 0.5
 posicao_img = 0
 continuar = True
 bot.FAILSAFE = True
@@ -63,14 +63,13 @@ def programa_principal():
         else:
             exit(F'Filial de estoque não padronizada {filial_estoq}')
         chave_xml = dados_planilha[4]
-        #print(Back.GREEN + F'Crachá: {cracha_mot} Silo1: {silo1} Silo2: {silo2}, {filial_estoq}, {chave_xml}' + Style.RESET_ALL)
         acabou_pedido = valida_pedido(acabou_pedido=False)
 
 #* -------------------------- PROSSEGUINDO COM O LANÇAMENTO DA NFE -------------------------- 
     print('--- Preenchendo dados na tela principal do lançamento')
-    time.sleep(1)
     ahk.win_activate('TopCompras', title_match_mode=2)
     ahk.win_wait_active('TopCompras', title_match_mode=2, timeout= 25)
+    time.sleep(1)
     
     while procura_imagem(imagem='img_topcon/txt_15-NF_ELETRO.png', limite_tentativa= 200) is False:
         time.sleep(0.1)
@@ -236,12 +235,14 @@ def programa_principal():
     
     # Espera até aparecer a tela de operação realizada ou chave_invalida
     while procura_imagem(imagem='img_topcon/operacao_realizada.png', limite_tentativa = 3, continuar_exec=True) is False:
+        print('--- Achou a tela de operação realizada')
         if procura_imagem(imagem='img_topcon/chave_invalida.png', limite_tentativa = 3, continuar_exec=True) is not False:
             print('--- Nota já lançada, marcando planilha!')
             bot.press('ENTER')
             bot.press('F2', presses = 2)
             marca_lancado(texto_marcacao='Lancado_Manual')
     else:
+        print('--- Encontrou a tela de operação realizada, fechando e marcando a planilha')
         while procura_imagem(imagem='img_topcon/operacao_realizada.png', continuar_exec= True) is not False:
             ahk.win_activate('TopCompras', title_match_mode= 2)
             ahk.win_wait_active('TopCompras', timeout=50, title_match_mode=2)
@@ -251,7 +252,14 @@ def programa_principal():
                  
     #Verifica se apareceu a tela de transferencia 
     time.sleep(2)
-    print('--- Realizando ')
+    print('--- Realizando processo de transferencia')
+    
+    '''
+    #! Enquanto botão "incluir"
+    while procura_imagem(imagem='img_topcon/txt_inclui.png') is False:
+        time.sleep(0.1)
+    '''
+    
     if procura_imagem('img_topcon/deseja_processar.png', continuar_exec=True, limite_tentativa= 12, confianca= 0.7) is not False:
         bot.click(procura_imagem('img_topcon/bt_sim.png', continuar_exec=True))
         while True:  # Aguardar o .PDF
@@ -277,6 +285,8 @@ def programa_principal():
     # * -------------------------------------- Marca planilha --------------------------------------
     marca_lancado(texto_marcacao='Lancado_RPA')
     return True
+
+
 if __name__ == '__main__':
     while True:
         programa_principal()

@@ -14,7 +14,7 @@ from funcoes import marca_lancado, procura_imagem
 
 # --- Definição de parametros
 ahk = AHK()
-bot.PAUSE = 0.5
+bot.PAUSE = 0.8
 posicao_img = 0  # Define a variavel para utilização global dela.
 continuar = True
 bot.FAILSAFE = True
@@ -44,7 +44,7 @@ def valida_lancamento():
         try:
             ahk.win_wait('TopCompras', title_match_mode=2, timeout= 5)
         except TimeoutError:
-            #bot.click(procura_imagem(imagem='img_topcon/icone_topcon.png', continuar_exec=True))
+            bot.click(procura_imagem(imagem='img_topcon/icone_topcon.png', continuar_exec=True))
             exit(bot.alert('Tela de Compras não abriu.'))
             #TODO --- Caso isso aconteça, tentar abrir a tela do Topcon.
         else:
