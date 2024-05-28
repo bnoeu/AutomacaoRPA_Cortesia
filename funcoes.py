@@ -17,12 +17,13 @@ ahk = AHK()
 posicao_img = 0  # Define a variavel para utilização global dela.
 continuar = True
 bot.FAILSAFE = True
+bot.PAUSE = 0.5
 # tempo_inicio = time.time()
 chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
 pytesseract.pytesseract.tesseract_cmd = r"C:\Tesseract-OCR\tesseract.exe"
 bot.useImageNotFoundException(False)
 
-def procura_imagem(imagem, limite_tentativa=12, area=(0, 0, 1920, 1080), continuar_exec=False, confianca = 0.75):
+def procura_imagem(imagem, limite_tentativa=12, area=(0, 0, 1920, 1080), continuar_exec=False, confianca = 0.72):
     tentativa = 0   
     #print(F'--- Tentando encontrar: {imagem}', end= ' ')
     while tentativa < limite_tentativa:

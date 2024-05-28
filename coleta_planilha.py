@@ -21,7 +21,7 @@ pytesseract.pytesseract.tesseract_cmd = r"C:\Tesseract-OCR\tesseract.exe"
 bot.PAUSE = 0.5
 
 def coleta_planilha():
-    print(Fore.CYAN + '--- Abrindo planilha - COLETA_PLANILHA' + Style.RESET_ALL)
+    print(Fore.GREEN + '--- Abrindo planilha - COLETA_PLANILHA' + Style.RESET_ALL)
     ahk.win_activate('db_alltrips', title_match_mode= 2)
     ahk.win_wait('db_alltrips', title_match_mode= 2)
 
@@ -39,7 +39,7 @@ def coleta_planilha():
         bot.click(procura_imagem(imagem='img_planilha/txt_exibicao.png'))
 
         #Aguarda até aparecer o botão do modo "exibição"
-        while procura_imagem(imagem='img_planilha/bt_exibicaoverde.png', limite_tentativa = 1, continuar_exec=True) is False:
+        while procura_imagem(imagem='img_planilha/bt_exibicaoverde.png', continuar_exec=True) is False:
             time.sleep(0.1)
         print('--- Alterado para o modo exibição, continuando.')
         
@@ -55,7 +55,6 @@ def coleta_planilha():
         bot.click(procura_imagem(imagem='img_planilha/txt_status.png', confianca= 0.75))
         bot.move(500, 500)
         bot.hotkey('alt', 'down')
-        
         #Caso não apareça o botão "Selecionar tudo" clica em "limpar filtro" e executa tudo novamente.
         if procura_imagem(imagem='img_planilha/botao_selecionartudo.png', continuar_exec= True) is False:
             bot.click(procura_imagem(imagem='img_planilha/bt_limparFiltro.png'))
@@ -79,8 +78,7 @@ def coleta_planilha():
     #Clica na primeira linha (Campo RE), e pressiona seta para baixo
     bot.click(procura_imagem(imagem='img_planilha/titulo_re.png'))
     bot.press('DOWN')
-    time.sleep(0.3)
-    bot.PAUSE = 0.3
+    time.sleep(0.5)
     for n in range(0, 7, 1):  # Copia dados dos 6 campos
         while True:
             pausa_copia = 0.1
@@ -95,7 +93,7 @@ def coleta_planilha():
     tempo_coleta = time.time() - tempo_inicio
     tempo_coleta = tempo_coleta
     print(F'--- Tempo que levou: {tempo_coleta:0f} segundos')
-    print(F'--- Dados copiados com sucesso: {dados_planilha}\n')
+    print(Fore.GREEN + F'--- Dados copiados com sucesso: {dados_planilha}\n' + Style.RESET_ALL)
     return dados_planilha
 
 if __name__ == '__main__':

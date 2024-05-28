@@ -14,7 +14,7 @@ import os
 
 # --- Definição de parametros
 ahk = AHK()
-bot.PAUSE = 0.5
+bot.PAUSE = 0.8
 posicao_img = 0
 continuar = True
 bot.FAILSAFE = True
@@ -26,30 +26,37 @@ login_rdp = 'bruno.s'
 senha_rdp = 'C0rtesi@'
 
 #* ---------------- PROGRAMA PRINCIPAL ------------
-def abre_topcon():
+def fecha_execucoes():
     #Primeiro força o fechamento das telas, para evitar erros de validações, e depois abre o RDP
+    print('--- Fechando as execuções atuais.')
+    os.system('taskkill /im mstsc.exe')
     ahk.win_kill('Segurança do Windows', title_match_mode= 2)
+    ahk.win_kill('mstsc', title_match_mode= 2)
     ahk.win_kill('RemoteApp', title_match_mode= 2)
     ahk.win_kill('RemoteApp', title_match_mode= 2)
     ahk.win_kill('TopCon', title_match_mode= 2)
     ahk.win_close('VM-CortesiaApli.CORTESIA.com', title_match_mode= 2)
-    #os.close()
+    print('--- Iniciando o Topcon')
+
+def abre_topcon():
     os.startfile('RemoteApp-Cortesia.rdp')
+    ahk.win_wait_active('Segurança do Windows', title_match_mode= 2, timeout = 30)
     if ahk.win_exists('Segurança do Windows', title_match_mode= 2):
         print('--- Abriu a tela "Segurança do Windows, realizando o login" ')
         #Realiza o login no RDP, que deve utilizar as informações de login do usuario "CORTESIA\BARBARA.K"
-        ahk.win_activate('Segurança do Windows')
-        ahk.win_wait_active('Segurança do Windows')
+        ahk.win_activate('Segurança do Windows', title_match_mode= 2)
+        ahk.win_wait_active('Segurança do Windows', title_match_mode= 2, timeout = 30)
         bot.click(procura_imagem(imagem='img_windows/txt_seguranca.png'))
-        bot.write('C0rtesi@01') #Senha BARBARA.K
+        #bot.write('C0rtesi@01') #Senha BARBARA.K
+        bot.write('C0rtesi@') #Senha BRUNO.S  
         bot.press('TAB', presses= 3, interval= 0.02)
         bot.press('ENTER')
         print('--- Login realizado no RemoteApp-Cortesia.rdp')
-    elif ahk.win_exists('TopCon (VM-CortesiaApli.CORTESIA.com)'): 
+    elif ahk.win_exists('TopCon (VM-CortesiaApli.CORTESIA.com)', title_match_mode= 2): 
         print('--- Tela de login do Topcon já está aberta, prosseguindo para o login')
 
     #Realiza login no TopCon
-    while procura_imagem(imagem='img_topcon/txt_ServidorAplicacao.png') is False: #Aguarda até aparecer o campo do servidor preenchido
+    while procura_imagem(imagem='img_topcon/txt_ServidorAplicacao.png', limite_tentativa= 24, continuar_exec= True) is False: #Aguarda até aparecer o campo do servidor preenchido
         time.sleep(0.2)
     else:
         bot.click(procura_imagem(imagem='img_topcon/txt_ServidorAplicacao.png'))
@@ -72,8 +79,14 @@ def abre_topcon():
     bot.press('ENTER')
     
     #Verifica se aparece a tela "interveniente"
-    procura_imagem(imagem='img_topcon/txt_interveniente.png', continuar_exec= True)
+    if procura_imagem(imagem='img_topcon/txt_interveniente.png', continuar_exec= True):
+        bot.press('ENTER')
     ahk.win_activate('TopCompras - Versão', title_match_mode= 2)
+    bot.press('ALT')
+    bot.press('RIGHT', presses= 2, interval= 0.05)
+    bot.press('DOWN', presses= 7, interval= 0.05)
+    bot.press('ENTER')
 
 if __name__ == '__main__':
+    fecha_execucoes()
     abre_topcon()
