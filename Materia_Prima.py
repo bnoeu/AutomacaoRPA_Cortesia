@@ -236,7 +236,7 @@ def programa_principal():
     
     # Espera até aparecer a tela de operação realizada ou chave_invalida
     while procura_imagem(imagem='img_topcon/operacao_realizada.png', limite_tentativa = 3, continuar_exec=True) is False:
-        print('--- Achou a tela de operação realizada')
+        print('--- Não achou a tela de operação realizada')
         if procura_imagem(imagem='img_topcon/chave_invalida.png', limite_tentativa = 3, continuar_exec=True) is not False:
             print('--- Nota já lançada, marcando planilha!')
             bot.press('ENTER')
@@ -245,8 +245,8 @@ def programa_principal():
     else:
         print('--- Encontrou a tela de operação realizada, fechando e marcando a planilha')
         while procura_imagem(imagem='img_topcon/operacao_realizada.png', continuar_exec= True) is not False:
-            #ahk.win_activate('TopCompras', title_match_mode= 2)
-            #ahk.win_wait_active('TopCompras', timeout=50, title_match_mode=2)
+            ahk.win_activate('TopCompras', title_match_mode= 2)
+            ahk.win_wait_active('TopCompras', timeout=50, title_match_mode=2)
             bot.click(procura_imagem(imagem='img_topcon/operacao_realizada.png'))
             bot.click(procura_imagem(imagem='img_topcon/botao_ok.jpg'))
             
