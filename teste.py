@@ -4,7 +4,6 @@
 import time
 from datetime import date
 import pytesseract
-import os
 #import cv2
 from ahk import AHK
 import pyautogui as bot
@@ -12,15 +11,16 @@ import pandas as pd
 from funcoes import procura_imagem, extrai_txt_img, marca_lancado
 from acoes_planilha import valida_lancamento
 from valida_pedido import valida_pedido
-''' #*Selenium
+'''
+#*Selenium
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 from pynfe.processamento.comunicacao import ComunicacaoSefaz
+'''
 #import winsound
 #import pygetwindow as gw
-'''
 
 # --- Definição de parametros
 ahk = AHK()
@@ -35,11 +35,13 @@ pytesseract.pytesseract.tesseract_cmd = r"C:\Tesseract-OCR\tesseract.exe"
 time.sleep(0.8)
 start = time.time()
 
+
 #! Variavel de teste
 silo1 = 'SILO 1'
 filial_estoq = 'JAGUARE'
 centro_custo = filial_estoq
 cracha_mot = '112480'
+
 
 ''' #* Cria banco de dados
 #Cria a conexão com o banco de dados
@@ -54,11 +56,11 @@ cur = con.cursor()
 exit()
 '''
 
-
 ''' #* Consulta as telas abertas
 for telas in ahk.list_windows():
     print(telas.text)
 '''
+
 
 #ahk.win_activate('TopCompras', title_match_mode= 2)
 #ahk.win_activate('db_alltrips', title_match_mode= 2)
@@ -66,7 +68,7 @@ time.sleep(0.5)
 #! Utilizado apenas para estar trechos de codigo.
 #bot.click(procura_imagem(imagem='img_topcon/icone_topcon.png', continuar_exec=True))
 
-''' #* Novo metodo de alteração de edição/exibição
+'''
 while True:
     bot.press('alt') #Ativa os atalhos
     #Clica no botão para alterar Edição / Exibição

@@ -85,9 +85,9 @@ def programa_principal():
     hoje = date.today()
     hoje = hoje.strftime("%d%m%y")  # dd/mm/YY
     data_NfeFaturada = extrai_txt_img(imagem='valida_itensxml.png', area_tela=(895, 299, 20, 20))
-    if data_NfeFaturada < '20':
+    if data_NfeFaturada < '26':
         print(Back.RED + '--- Data de faturamento menor que 20' + Style.RESET_ALL)
-        bot.write('18052024')
+        bot.write('26052024')
         bot.press('enter')
         time.sleep(0.5)
         if procura_imagem(imagem='img_topcon/txt_NaoPermitidoData.png', continuar_exec=True, limite_tentativa= 12):
@@ -137,7 +137,7 @@ def programa_principal():
     if procura_imagem(imagem='img_topcon/transportador_incorreto.png', continuar_exec= True) is not False:
         print('--- Transportador incorreto!')
         bot.press('ENTER')
-        marca_lancado(texto_marcacao='RE_incorreto')
+        marca_lancado(texto_marcacao='RE_Invalido')
         #programa_principal()
     else:
         print('--- Transportador validado! Prosseguindo para validação da placa')
@@ -166,6 +166,7 @@ def programa_principal():
     #* Realiza a extração da quantidade de toneladas
     valor_escala = 200
     while True:
+        valor_escala -= 10
         try:
             qtd_ton = extrai_txt_img(imagem='img_toneladas.png', area_tela=(892, 577, 70, 20), porce_escala= valor_escala).strip()
             qtd_ton = qtd_ton.replace(",", ".")
@@ -244,8 +245,8 @@ def programa_principal():
     else:
         print('--- Encontrou a tela de operação realizada, fechando e marcando a planilha')
         while procura_imagem(imagem='img_topcon/operacao_realizada.png', continuar_exec= True) is not False:
-            ahk.win_activate('TopCompras', title_match_mode= 2)
-            ahk.win_wait_active('TopCompras', timeout=50, title_match_mode=2)
+            #ahk.win_activate('TopCompras', title_match_mode= 2)
+            #ahk.win_wait_active('TopCompras', timeout=50, title_match_mode=2)
             bot.click(procura_imagem(imagem='img_topcon/operacao_realizada.png'))
             bot.click(procura_imagem(imagem='img_topcon/botao_ok.jpg'))
             
@@ -253,14 +254,7 @@ def programa_principal():
     #Verifica se apareceu a tela de transferencia 
     time.sleep(2)
     print('--- Realizando processo de transferencia')
-    
-    '''
-    #! Enquanto botão "incluir"
-    while procura_imagem(imagem='img_topcon/txt_inclui.png') is False:
-        time.sleep(0.1)
-    '''
-    
-    if procura_imagem('img_topcon/deseja_processar.png', continuar_exec=True, limite_tentativa= 12, confianca= 0.7) is not False:
+    if procura_imagem('img_topcon/deseja_processar.png', continuar_exec=True, limite_tentativa= 12, confianca= 0.7):
         bot.click(procura_imagem('img_topcon/bt_sim.png', continuar_exec=True))
         while True:  # Aguardar o .PDF
             try:

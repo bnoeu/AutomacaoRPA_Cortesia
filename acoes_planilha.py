@@ -30,23 +30,30 @@ def valida_lancamento():
         while True:
             dados_planilha = coleta_planilha()
             chave_xml = dados_planilha[4].strip()
+            if len(dados_planilha[6]) <= 0:
+                print(F'--- Aguardando 30 para aparecer novas notas, tamanho do status: {len(dados_planilha[6])}')
+                time.sleep(600)
             if len(chave_xml) < 10:
                 marca_lancado('Chave Invalida')
                 #exit(bot.alert('chave_xml invalida'))
             elif (len(dados_planilha[0]) < 4) or (len(dados_planilha[0]) == 5):
-                marca_lancado('RE Inexistente')
+                marca_lancado('RE_Invalido')
             else:
                 break
-
+        
         # -------------------------------------- Lançamento Topcon --------------------------------------
         print(Fore.GREEN +  '--- Abrindo TopCompras para iniciar o lançamento' + Style.RESET_ALL)
         ahk.win_activate('TopCompras', title_match_mode=2)
         try:
             ahk.win_wait('TopCompras', title_match_mode=2, timeout= 5)
         except TimeoutError:
-            bot.click(procura_imagem(imagem='img_topcon/icone_topcon.png', continuar_exec=True))
-            exit(bot.alert('Tela de Compras não abriu.'))
-            #TODO --- Caso isso aconteça, tentar abrir a tela do Topcon.
+            icone_carrinho = procura_imagem(imagem='img_topcon/icone_topcon.png', continuar_exec=True)
+            if icone_carrinho is not False: #Caso encontre o icone
+                bot.click(icone_carrinho)
+                ahk.win_set_title('TopCompras')
+            else:
+                exit(bot.alert('Tela de Compras não abriu.'))
+                #TODO --- Caso isso aconteça, tentar abrir a tela do Topcon.
         else:
             print('--- Tela compras está maximizada!')  
         

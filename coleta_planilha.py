@@ -32,11 +32,11 @@ def coleta_planilha():
             time.sleep(0.1)
             
         if procura_imagem(imagem='img_planilha/bt_TresPontos.png', continuar_exec= True) is not False:
-            bot.click(procura_imagem(imagem='img_planilha/bt_TresPontos.png', continuar_exec= True))
+            bot.click(procura_imagem(imagem='img_planilha/bt_TresPontos.png'))
             
-        bot.click(procura_imagem(imagem='img_planilha/bt_edicao.png', continuar_exec= True))  
+        bot.click(procura_imagem(imagem='img_planilha/bt_edicao.png'))  
         time.sleep(0.5)
-        bot.click(procura_imagem(imagem='img_planilha/txt_exibicao.png', continuar_exec= True)) 
+        bot.click(procura_imagem(imagem='img_planilha/txt_exibicao.png'))
 
         #Aguarda até aparecer o botão do modo "exibição"
         while procura_imagem(imagem='img_planilha/bt_exibicaoverde.png', continuar_exec=True) is False:
