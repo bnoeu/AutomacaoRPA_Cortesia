@@ -18,9 +18,9 @@ bot.FAILSAFE = True
 tempo_inicio = time.time()
 chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
 pytesseract.pytesseract.tesseract_cmd = r"C:\Tesseract-OCR\tesseract.exe"
-bot.PAUSE = 0.5
 
 def coleta_planilha():
+    bot.PAUSE = 0.08
     print(Fore.GREEN + '--- Abrindo planilha - COLETA_PLANILHA' + Style.RESET_ALL)
     ahk.win_activate('db_alltrips', title_match_mode= 2)
     ahk.win_wait('db_alltrips', title_match_mode= 2)
@@ -66,7 +66,7 @@ def coleta_planilha():
             print('--- Filtrado pelas notas vazias!')
 
             #Aguarda aparecer o botão do filtro, para confirmar que está filtrado! 
-            while procura_imagem(imagem='img_planilha/bt_filtro.png', limite_tentativa= 1, area= (1468, 400, 200, 200)) is False:
+            while procura_imagem(imagem='img_planilha/bt_filtro.png', area= (1468, 400, 200, 200)) is False:
                 print('--- Aguardando o botão do filtro na coluna "Status" ')
                 time.sleep(0.6)
             else:

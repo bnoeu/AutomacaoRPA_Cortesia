@@ -14,7 +14,6 @@ from funcoes import marca_lancado, procura_imagem
 
 # --- Definição de parametros
 ahk = AHK()
-bot.PAUSE = 0.8
 posicao_img = 0  # Define a variavel para utilização global dela.
 continuar = True
 bot.FAILSAFE = True
@@ -25,13 +24,14 @@ pytesseract.pytesseract.tesseract_cmd = r"C:\Tesseract-OCR\tesseract.exe"
 
 #Realiza o processo de validação do lançamento.
 def valida_lancamento():
+    time.sleep(0.5)
     while True:
         # Trata os dados coletados em "dados_planilha"
         while True:
             dados_planilha = coleta_planilha()
             chave_xml = dados_planilha[4].strip()
-            if len(dados_planilha[6]) <= 0:
-                print(F'--- Aguardando 30 para aparecer novas notas, tamanho do status: {len(dados_planilha[6])}')
+            if len(dados_planilha[6]) > 0:
+                print(F'--- Aguardando 30s para aparecer novas notas, campo preenchido com: {dados_planilha[6]}, tamanho do status: {len(dados_planilha[6])}')
                 time.sleep(600)
             if len(chave_xml) < 10:
                 marca_lancado('Chave Invalida')
@@ -40,9 +40,10 @@ def valida_lancamento():
                 marca_lancado('RE_Invalido')
             else:
                 break
-        
+
         # -------------------------------------- Lançamento Topcon --------------------------------------
         print(Fore.GREEN +  '--- Abrindo TopCompras para iniciar o lançamento' + Style.RESET_ALL)
+        tempo_inicio = time.time() #* Tempo inicial do lançamento
         ahk.win_activate('TopCompras', title_match_mode=2)
         try:
             ahk.win_wait('TopCompras', title_match_mode=2, timeout= 5)
@@ -50,24 +51,28 @@ def valida_lancamento():
             icone_carrinho = procura_imagem(imagem='img_topcon/icone_topcon.png', continuar_exec=True)
             if icone_carrinho is not False: #Caso encontre o icone
                 bot.click(icone_carrinho)
-                ahk.win_set_title('TopCompras')
+                ahk.win_set_title(new_title= 'TopCompras', title= ' (VM-CortesiaApli.CORTESIA.com)', title_match_mode= 1, detect_hidden_windows= True)
             else:
-                exit(bot.alert('Tela de Compras não abriu.'))
-                #TODO --- Caso isso aconteça, tentar abrir a tela do Topcon.
-        else:
-            print('--- Tela compras está maximizada!')  
-        
-        print('--- Alterando para o modo alteração')
-        bot.press('F2')
-        bot.press('F3')
-        while procura_imagem(imagem='img_topcon/txt_inclui.png') is False:
-            time.sleep(0.1)
+                exit(bot.alert('---Tela de Compras não abriu.'))
 
+        print('--- Alterando para o modo alteração')
+        ahk.win_activate('TopCompras', title_match_mode=2)
+        time.sleep(2)
+        
+        while procura_imagem(imagem='img_topcon/txt_inclui.png', continuar_exec= True, area= (852, 956, 1368, 1045)) is False:
+            bot.press('F2', presses= 2)
+            bot.press('F3', presses= 2)
+            time.sleep(0.1)
+        else:
+            print('--- Entrou no modo incluir, continuando inserção da NFE')
+
+        time.sleep(1)
         bot.doubleClick(558, 235)  # Clica dentro do campo para inserir a chave XML
+        time.sleep(1)
         bot.write(chave_xml)
         bot.press('ENTER')
         ahk.win_wait_active('TopCompras')
-        
+
         tentativa = 0
         maximo_tentativas = 20
         texto_erro = ""
@@ -75,7 +80,10 @@ def valida_lancamento():
             #Verifica quais das telas apareceu. 
             if procura_imagem(imagem='img_topcon/botao_sim.jpg', limite_tentativa= 1, continuar_exec=True) is not False:
                 bot.click(procura_imagem(imagem='img_topcon/botao_sim.jpg', limite_tentativa=1, continuar_exec=True))
-                print('--- XML Validado, indo para validação do pedido')
+                tempo_coleta = time.time() - tempo_inicio
+                tempo_coleta = tempo_coleta
+                print(F'--- Tempo que levou: {tempo_coleta:0f} segundos')
+                print(Fore.GREEN + '--- XML Validado, indo para validação do pedido' + Style.RESET_ALL)
                 return dados_planilha
             else:
                 if procura_imagem(imagem='img_topcon/chave_invalida.png', limite_tentativa= 1, continuar_exec=True) is not False:
@@ -94,7 +102,7 @@ def valida_lancamento():
             
             # Verifica caso tenha travado e espera até que o topcom volte a responder
             while ahk.win_exists('Não está respondendo', title_match_mode= 2):
-                time.sleep(0.1)
+                time.sleep(0.4)
             tentativa += 1
         else:
             exit(Fore.RED + '--- Rodou 10 verificações e não achou nenhuma tela, verificar!' + Style.RESET_ALL)

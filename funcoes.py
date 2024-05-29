@@ -17,13 +17,13 @@ ahk = AHK()
 posicao_img = 0  # Define a variavel para utilização global dela.
 continuar = True
 bot.FAILSAFE = True
-bot.PAUSE = 0.5
+bot.PAUSE = 0.8
 # tempo_inicio = time.time()
 chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
 pytesseract.pytesseract.tesseract_cmd = r"C:\Tesseract-OCR\tesseract.exe"
 bot.useImageNotFoundException(False)
 
-def procura_imagem(imagem, limite_tentativa=12, area=(0, 0, 1920, 1080), continuar_exec=False, confianca = 0.72):
+def procura_imagem(imagem, limite_tentativa=12, area=(0, 0, 1920, 1080), continuar_exec=False, confianca = 0.75):
     tentativa = 0   
     #print(F'--- Tentando encontrar: {imagem}', end= ' ')
     while tentativa < limite_tentativa:
@@ -41,6 +41,7 @@ def procura_imagem(imagem, limite_tentativa=12, area=(0, 0, 1920, 1080), continu
         return False
     if tentativa >= limite_tentativa:
         #print('--- FECHANDO PLANILHA PARA EVITAR ERROS')
+        bot.screenshot('img_geradas/ERRO_' + imagem)
         ahk.win_kill('db_alltrips')
         exit(bot.alert(text=F'Não foi possivel encontrar: {imagem}', title='Erro!', button='Fechar'))
     return posicao_img
@@ -88,7 +89,7 @@ def marca_lancado(texto_marcacao='Lancado'):
 
     #Retorna a planilha para o modo "Somente Exibição (Botão Verde)"
     if procura_imagem(imagem='img_planilha/bt_filtro.png', continuar_exec=True, area = (1468, 400, 200, 200)) is not False:
-        bot.click(procura_imagem(imagem='img_planilha/bt_filtro.png', continuar_exec=True, limite_tentativa=8, area= (1468, 400, 200, 200)))
+        bot.click(procura_imagem(imagem='img_planilha/bt_filtro.png', continuar_exec=True, area= (1468, 400, 200, 200)))
         bot.click(procura_imagem(imagem='img_planilha/bt_aplicar.png'))
     else:
         print('--- Não está filtrado, executando o filtro!')        
@@ -137,6 +138,7 @@ def extrai_txt_img(imagem, area_tela, porce_escala = 400):
     #cv2.imshow('erosion', erosion)
     cv2.waitKey()
     '''
+
 
     return texto
 
