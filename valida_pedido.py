@@ -47,7 +47,7 @@ mapeamento_imagens = {
 
 
 def valida_pedido(acabou_pedido=False):
-    bot.PAUSE = 0.1
+    bot.PAUSE = 0.4
     tentativa = 0
     img_pedido = 0
     item_pedido = ''
@@ -58,12 +58,13 @@ def valida_pedido(acabou_pedido=False):
     ahk.win_wait_active('Vinculação Itens da Nota', title_match_mode = 2, timeout= 20)
 
     #Aguarda aparecer o botão "confirma" para poder continuar o processo.
-    while procura_imagem(imagem='img_topcon/confirma.png') is False:
+    while procura_imagem(imagem='img_topcon/confirma.png', continuar_exec= True) is False:
         time.sleep(0.2)
 
     #Coleta o texto do campo "item XML", que é o item a constar na nota fiscal, e com base nisso, trata o dado
     txt_itensXML = extrai_txt_img(imagem='item_nota.png',area_tela=(170, 407, 280, 20))
-    print(F'Texto extraido do campo Itens XML: {txt_itensXML}') 
+    print(F'--- Texto extraido do campo Itens XML: {txt_itensXML}') 
+
     #Indentifica qual o item que consta na extração.
     for nome in nome_pedido: #Para cada item na lista.
         for item_pedido in nome: #Para cada item dentro das linhas.          
@@ -84,7 +85,8 @@ def valida_pedido(acabou_pedido=False):
         return acabou_pedido
 
 #* --------------------------------- Pedidos Encontrados ---------------------------------
-    while tentativa < 2:
+    vazio = False
+    while (tentativa < 2) and (vazio is False):
         ahk.win_activate('Vinculação Itens da Nota', title_match_mode = 2)
         time.sleep(0.2)
         vazio = '' 
@@ -103,25 +105,21 @@ def valida_pedido(acabou_pedido=False):
             #print(pos)
             contagem += 1
         print(F'--- Encontrou em: {contagem} posições')
-        
-        if contagem == 0:
-            bot.click(procura_imagem(imagem='img_topcon/bt_cancela.png'))
-            marca_lancado(texto_marcacao= 'Erro_Pedido')
-            vazio = False
-            acabou_pedido = True
-            return acabou_pedido
 
-        #Caso não encontre em nenhuma posição.
         if contagem == 0:
             print(F'--- Não encontrou {img_pedido}, saindo do processo.')
+            bot.click(procura_imagem(imagem='img_topcon/bt_cancela.png'))
+            marca_lancado(texto_marcacao= 'Pedido_Inexistente')
             vazio = False
             tentativa = 3
+            acabou_pedido = True
+            return acabou_pedido
         else:
             posicoes = bot.locateAllOnScreen('img_pedidos/' + img_pedido, confidence= 0.92, grayscale=True, region=(0, 0, 850, 400))
 
         #Verifica nas posições que encontrou
         for pos in posicoes:  # Tenta em todos pedidos encontrados
-            print(F'--- Tentativa: {tentativa}, achou o {txt_itensXML} na posição {pos}')
+            print(Fore.CYAN + F'--- Tentativa: {tentativa}, achou o {txt_itensXML} na posição {pos}' + Style.RESET_ALL)
             bot.doubleClick(pos)  # Marca o pedido encontrado
             bot.click(procura_imagem(imagem='img_topcon/localizar.png'))
             vazio = verifica_ped_vazio(texto=txt_itensXML, pos=pos)
@@ -131,6 +129,7 @@ def valida_pedido(acabou_pedido=False):
                 vazio = verifica_ped_vazio(texto=txt_itensXML, pos=pos)
                 print(F'--- Valor campo "vazio": {vazio}')
                 if vazio is True:
+                    tentativa = 3
                     break
                 if procura_imagem('img_topcon/dife_valor.png', continuar_exec=True, limite_tentativa=2):
                     bot.press('ENTER')
@@ -139,19 +138,16 @@ def valida_pedido(acabou_pedido=False):
                 
                 #Confere se após clicar nos botões, ainda assim o campo ficou vazio.
                 if verifica_ped_vazio(texto=txt_itensXML, pos=pos) is not True:
-                    print(F'--- Não ficou vazio, desmarcando pedido, tentativa {tentativa}')
+                    tentativa += 1
+                    print(F'--- Não ficou vazio, desmarcando pedido, indo para proxima tentativa {tentativa}')
                     bot.doubleClick(pos) # Clica novamente no mesmo pedido, para desmarcar
             else:
-                print(F'--- Pedido validado, saindo do loop dos pedidos encontrados, valor do campo: {vazio}')
+                print(Fore.GREEN + F'--- Pedido validado, saindo do loop dos pedidos encontrados, valor do campo: {vazio}\n' + Style.RESET_ALL)
                 break
-        
-        #Marcou o pedido, saindo dos loop
-        if vazio is True: 
-            break
-        else:
-            tentativa += 1
+
     else:
         if vazio is False:
+            print(Fore.RED + '--- Acabou o pedido, marcando informação na planilha' + Style.RESET_ALL)
             bot.click(procura_imagem(imagem='img_topcon/bt_cancela.png'))
             marca_lancado('Erro_Pedido_' + img_pedido)
             acabou_pedido = True

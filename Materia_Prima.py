@@ -20,7 +20,7 @@ from funcoes import marca_lancado, procura_imagem, extrai_txt_img
 
 # --- Definição de parametros
 ahk = AHK()
-bot.PAUSE = 0.5
+bot.PAUSE = 1
 posicao_img = 0
 continuar = True
 bot.FAILSAFE = True
@@ -73,7 +73,7 @@ def programa_principal():
     
     while procura_imagem(imagem='img_topcon/txt_15-NF_ELETRO.png', limite_tentativa= 200) is False:
         time.sleep(0.1)
-    
+
     bot.press('up')
     bot.write(filial_estoq)
     bot.press('ENTER') # Confirma a informação da nova filial de estoque
@@ -166,16 +166,17 @@ def programa_principal():
     #* Realiza a extração da quantidade de toneladas
     valor_escala = 200
     while True:
-        valor_escala -= 10
-        try:
-            qtd_ton = extrai_txt_img(imagem='img_toneladas.png', area_tela=(892, 577, 70, 20), porce_escala= valor_escala).strip()
-            qtd_ton = qtd_ton.replace(",", ".")
-            qtd_ton = float(qtd_ton)
-        except ValueError:
-            valor_escala -= 10
-        else:
-            print(F'--- Texto coletado da quantidade: {qtd_ton}')
-            
+        while True:
+            try:
+                qtd_ton = extrai_txt_img(imagem='img_toneladas.png', area_tela=(892, 577, 70, 20), porce_escala= valor_escala).strip()
+                qtd_ton = qtd_ton.replace(",", ".")
+                qtd_ton = float(qtd_ton)
+            except ValueError:
+                valor_escala += 10
+            else:
+                print(F'--- Texto coletado da quantidade: {qtd_ton}')
+                break
+
         print('--- Abrindo a tela "Itens nota fiscal de compra" ')
         bot.click(procura_imagem(imagem='img_topcon/botao_alterar.png', area=(100, 839, 300, 400)))
         while procura_imagem(imagem='img_topcon/valor_cofins.png', limite_tentativa= 1, continuar_exec= True) is False:
@@ -211,14 +212,16 @@ def programa_principal():
             
         bot.click(procura_imagem(imagem='img_topcon/confirma.png'))            
         if procura_imagem(imagem='img_topcon/txt_ErroAtribuida.png', limite_tentativa = 12, continuar_exec = True) is False:
-            print(Fore.GREEN + '--- Preenchimento das tonelas + Silo correto.' + Style.RESET_ALL)
+            print(Fore.GREEN + '--- Preenchimento completo, saindo do loop.' + Style.RESET_ALL)
             break
         else:
             print(Fore.RED + F'--- Falha, executando novamente a coleta das toneladas. Escala atual: {valor_escala}' + Style.RESET_ALL)
-            bot.press('ENTER')
-            bot.press('ESC')
-            time.sleep(2)
+            while procura_imagem(imagem='img_topcon/confirma.png', continuar_exec=True) is not False:
+                bot.press('ENTER')
+                bot.press('ESC')
+                time.sleep(2)
             
+        exit()
         while procura_imagem(imagem='img_topcon/confirma.png', continuar_exec=True) is not False:
             tentativa += 1
             print('--- Aguardando fechamento da tela do botão "Alterar" ')

@@ -14,7 +14,7 @@ import os
 
 # --- Definição de parametros
 ahk = AHK()
-bot.PAUSE = 0.8
+bot.PAUSE = 1
 posicao_img = 0
 continuar = True
 bot.FAILSAFE = True

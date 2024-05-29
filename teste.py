@@ -7,6 +7,7 @@ import pytesseract
 #import cv2
 from ahk import AHK
 import pyautogui as bot
+import pandas as pd
 from funcoes import procura_imagem, extrai_txt_img, marca_lancado
 from acoes_planilha import valida_lancamento
 from valida_pedido import valida_pedido
@@ -55,14 +56,16 @@ cur = con.cursor()
 exit()
 '''
 
-''' #* Consulta as telas abertas
+'''
+ #* Consulta as telas abertas
 for telas in ahk.list_windows():
-    print(telas.text)
+    print(telas.title)
 '''
 
+#ahk.win_set_title(new_title= 'TopCompras', title= ' (VM-CortesiaApli.CORTESIA.com)', title_match_mode= 1, detect_hidden_windows= True)
 
 #ahk.win_activate('TopCompras', title_match_mode= 2)
-#ahk.win_activate('db_alltrips', title_match_mode= 2)
+ahk.win_activate('db_alltrips', title_match_mode= 2)
 time.sleep(0.5)
 #! Utilizado apenas para estar trechos de codigo.
 #bot.click(procura_imagem(imagem='img_topcon/icone_topcon.png', continuar_exec=True))
@@ -88,4 +91,36 @@ xml = con.status_servico('nfe')
 print(xml.text)
 '''
 
-print(ahk.win_get_title())
+'''#* Pandas
+#Coloca a planilha dentro do "dataframe"
+dataframe = pd.read_excel('produtos.xlsx', engine='openpyxl', dtype=object)
+
+#print(dataframe.head())
+
+#Converte o dataframe numa lista, para pegar o ultimo valor
+lista_alltrips = dataframe.values.tolist()
+ultimo_registro = len(dataframe)
+
+dataframe.at[ultimo_registro, 'produtos'] = 'Bruno'
+dataframe.at[ultimo_registro, 'produtos'] = 'Bruno'
+
+#dataframe.loc[2716:2716, ['Status']] = ['Teste_pandas1']
+
+print(type(dataframe))
+#print(lista_alltrips)
+dataframe.to_excel('produtos.xlsx', index= False)
+
+'''
+
+bot.click(procura_imagem(imagem='img_planilha/txt_status.png', confianca= 0.75))
+bot.move(500, 500)
+bot.hotkey('alt', 'down')
+#Caso não apareça o botão "Selecionar tudo" clica em "limpar filtro" e executa tudo novamente.
+if procura_imagem(imagem='img_planilha/botao_selecionartudo.png', continuar_exec= True) is False:
+    bot.click(procura_imagem(imagem='img_planilha/bt_limparFiltro.png'))
+    #coleta_planilha()
+else: #Se tudo estiver ok, prossegue aplicando o filtro nas notas vazias. 
+    bot.click(procura_imagem(imagem='img_planilha/botao_selecionartudo.png'))
+    bot.click(procura_imagem(imagem='img_planilha/bt_vazias.png'))
+    bot.click(procura_imagem(imagem='img_planilha/bt_aplicar.png'))
+    print('--- Filtrado pelas notas vazias!')
