@@ -8,6 +8,7 @@ import os
 #import cv2
 from ahk import AHK
 import pyautogui as bot
+import pandas as pd
 from funcoes import procura_imagem, extrai_txt_img, marca_lancado
 from acoes_planilha import valida_lancamento
 from valida_pedido import valida_pedido
@@ -87,19 +88,20 @@ print(xml.text)
 '''
 
 
-while procura_imagem(imagem='img_topcon/operacao_realizada.png', continuar_exec=True) is False:
-    print('--- Achou a tela de operação realizada')
-    if procura_imagem(imagem='img_topcon/chave_invalida.png', continuar_exec=True) is not False:
-        print('--- Nota já lançada, marcando planilha!')
-        bot.press('ENTER')
-        bot.press('F2', presses = 2)
-        marca_lancado(texto_marcacao='Lancado_Manual')
-else:
-    print('--- Encontrou a tela de operação realizada, fechando e marcando a planilha')
-    exit()
-    while procura_imagem(imagem='img_topcon/operacao_realizada.png', continuar_exec= True) is not False:
-        ahk.win_activate('TopCompras', title_match_mode= 2)
-        ahk.win_wait_active('TopCompras', timeout=50, title_match_mode=2)
-        bot.click(procura_imagem(imagem='img_topcon/operacao_realizada.png'))
-        bot.click(procura_imagem(imagem='img_topcon/botao_ok.jpg'))
-            
+#Coloca a planilha dentro do "dataframe"
+dataframe = pd.read_excel('produtos.xlsx', engine='openpyxl', dtype=object)
+
+#print(dataframe.head())
+
+#Converte o dataframe numa lista, para pegar o ultimo valor
+lista_alltrips = dataframe.values.tolist()
+ultimo_registro = len(dataframe)
+
+dataframe.at[ultimo_registro, 'produtos'] = 'Bruno'
+dataframe.at[ultimo_registro, 'produtos'] = 'Bruno'
+
+#dataframe.loc[2716:2716, ['Status']] = ['Teste_pandas1']
+
+print(type(dataframe))
+#print(lista_alltrips)
+dataframe.to_excel('produtos.xlsx', index= False)
