@@ -41,7 +41,7 @@ def procura_imagem(imagem, limite_tentativa=12, area=(0, 0, 1920, 1080), continu
         return False
     if tentativa >= limite_tentativa:
         #print('--- FECHANDO PLANILHA PARA EVITAR ERROS')
-        bot.screenshot('img_geradas/ERRO_' + imagem)
+        bot.screenshot('img_geradas/' + 'ERRO_' + imagem)
         ahk.win_kill('db_alltrips')
         exit(bot.alert(text=F'Não foi possivel encontrar: {imagem}', title='Erro!', button='Fechar'))
     return posicao_img
