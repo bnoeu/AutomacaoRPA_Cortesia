@@ -85,9 +85,10 @@ def programa_principal():
     hoje = date.today()
     hoje = hoje.strftime("%d%m%y")  # dd/mm/YY
     data_NfeFaturada = extrai_txt_img(imagem='valida_itensxml.png', area_tela=(895, 299, 20, 20))
-    if data_NfeFaturada < '26':
-        print(Back.RED + '--- Data de faturamento menor que 20' + Style.RESET_ALL)
-        bot.write('26052024')
+    if data_NfeFaturada < '31':
+        print(Back.RED + F'--- Data de faturamento menor que 20, data faturada: {data_NfeFaturada}' + Style.RESET_ALL)
+        bot.write(F'{data_NfeFaturada}' + '052024')
+        #bot.write('31052024')
         bot.press('enter')
         time.sleep(0.5)
         if procura_imagem(imagem='img_topcon/txt_NaoPermitidoData.png', continuar_exec=True, limite_tentativa= 12):
@@ -116,9 +117,9 @@ def programa_principal():
     print('--- Aguarda até SUMIR o campo "cod_desc"')
     while procura_imagem(imagem='img_topcon/cod_desc.png', continuar_exec=True) is not False:
         time.sleep(0.1)
-        ahk.win_wait_active('TopCompras', title_match_mode= 2)
-        ahk.win_activate('TopCompras', title_match_mode= 2)
     
+    ahk.win_wait_active('TopCompras', title_match_mode= 2)
+    ahk.win_activate('TopCompras', title_match_mode= 2)
     # Clica no campo "Valores Totais"
     bot.click(procura_imagem(imagem='img_topcon/txt_ValoresTotais.png', continuar_exec= True))
     # * -------------------------------------- VALIDAÇÃO TRANSPORTADOR --------------------------------------
@@ -238,26 +239,25 @@ def programa_principal():
     time.sleep(2)
     
     # Espera até aparecer a tela de operação realizada ou chave_invalida
-    while procura_imagem(imagem='img_topcon/operacao_realizada.png', limite_tentativa = 3, continuar_exec=True) is False:
-        print('--- Achou a tela de operação realizada')
-        if procura_imagem(imagem='img_topcon/chave_invalida.png', limite_tentativa = 3, continuar_exec=True) is not False:
+    while procura_imagem(imagem='img_topcon/operacao_realizada.png', continuar_exec=True) is False:
+        print('--- Aguardando a tela de operação realizada')
+        if procura_imagem(imagem='img_topcon/chave_invalida.png', continuar_exec=True) is not False:
             print('--- Nota já lançada, marcando planilha!')
             bot.press('ENTER')
             bot.press('F2', presses = 2)
             marca_lancado(texto_marcacao='Lancado_Manual')
     else:
         print('--- Encontrou a tela de operação realizada, fechando e marcando a planilha')
-        while procura_imagem(imagem='img_topcon/operacao_realizada.png', continuar_exec= True) is not False:
-            #ahk.win_activate('TopCompras', title_match_mode= 2)
-            #ahk.win_wait_active('TopCompras', timeout=50, title_match_mode=2)
-            bot.click(procura_imagem(imagem='img_topcon/operacao_realizada.png'))
-            bot.click(procura_imagem(imagem='img_topcon/botao_ok.jpg'))
+        ahk.win_activate('TopCompras', title_match_mode= 2)
+        ahk.win_wait_active('TopCompras', timeout=50, title_match_mode=2)
+        bot.click(procura_imagem(imagem='img_topcon/operacao_realizada.png'))
+        bot.click(procura_imagem(imagem='img_topcon/botao_ok.jpg'))
             
-                 
     #Verifica se apareceu a tela de transferencia 
     time.sleep(2)
-    print('--- Realizando processo de transferencia')
     if procura_imagem('img_topcon/deseja_processar.png', continuar_exec=True, limite_tentativa= 12, confianca= 0.7):
+        print('--- Encontrou a tela do processo de transferencia')
+        exit()
         bot.click(procura_imagem('img_topcon/bt_sim.png', continuar_exec=True))
         while True:  # Aguardar o .PDF
             try:

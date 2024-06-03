@@ -89,4 +89,5 @@ def abre_topcon():
 
 if __name__ == '__main__':
     fecha_execucoes()
+    exit()
     abre_topcon()

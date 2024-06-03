@@ -47,7 +47,7 @@ mapeamento_imagens = {
 
 
 def valida_pedido(acabou_pedido=False):
-    bot.PAUSE = 0.4
+    bot.PAUSE = 0.8
     tentativa = 0
     img_pedido = 0
     item_pedido = ''
@@ -55,8 +55,16 @@ def valida_pedido(acabou_pedido=False):
 
     #Aguarda a abertura da tela de vinculação de item versus nota
     ahk.win_activate('Vinculação Itens da Nota', title_match_mode = 2)
-    ahk.win_wait_active('Vinculação Itens da Nota', title_match_mode = 2, timeout= 20)
-
+    try:
+        ahk.win_wait_active('Vinculação Itens da Nota', title_match_mode = 2, timeout= 10)
+    except TimeoutError:
+        txt_vinculacao = procura_imagem('img_topcon/vinc_xml_pedido.png',continuar_exec=True, limite_tentativa=2)
+        if txt_vinculacao is not False: #Caso encontre o icone
+            bot.click(txt_vinculacao)
+            ahk.win_set_title(new_title= 'Vinculação Itens da Nota', title= ' (VM-CortesiaApli.CORTESIA.com)', title_match_mode= 1, detect_hidden_windows= True)
+        else:
+            exit(bot.alert('---Tela de vinculação não abriu.'))   
+    
     #Aguarda aparecer o botão "confirma" para poder continuar o processo.
     while procura_imagem(imagem='img_topcon/confirma.png', continuar_exec= True) is False:
         time.sleep(0.2)
@@ -86,7 +94,7 @@ def valida_pedido(acabou_pedido=False):
 
 #* --------------------------------- Pedidos Encontrados ---------------------------------
     vazio = False
-    while (tentativa < 2) and (vazio is False):
+    while (tentativa < 3) and (vazio is False):
         ahk.win_activate('Vinculação Itens da Nota', title_match_mode = 2)
         time.sleep(0.2)
         vazio = '' 
@@ -125,7 +133,7 @@ def valida_pedido(acabou_pedido=False):
             vazio = verifica_ped_vazio(texto=txt_itensXML, pos=pos)
             print(F'--- Valor campo "item XML": {vazio}')
             if vazio is not True:
-                bot.click(procura_imagem('img_topcon/vinc_xml_pedido.png',continuar_exec=True, limite_tentativa=2))
+                bot.click(procura_imagem('img_topcon/vinc_xml_pedido.png',continuar_exec=True))
                 vazio = verifica_ped_vazio(texto=txt_itensXML, pos=pos)
                 print(F'--- Valor campo "vazio": {vazio}')
                 if vazio is True:

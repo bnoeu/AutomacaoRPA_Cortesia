@@ -20,7 +20,7 @@ chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
 pytesseract.pytesseract.tesseract_cmd = r"C:\Tesseract-OCR\tesseract.exe"
 
 def coleta_planilha():
-    bot.PAUSE = 0.08
+    bot.PAUSE = 0.3
     print(Fore.GREEN + '--- Abrindo planilha - COLETA_PLANILHA' + Style.RESET_ALL)
     ahk.win_activate('db_alltrips', title_match_mode= 2)
     ahk.win_wait('db_alltrips', title_match_mode= 2)
@@ -78,14 +78,14 @@ def coleta_planilha():
     #Clica na primeira linha (Campo RE), e pressiona seta para baixo
     bot.click(procura_imagem(imagem='img_planilha/titulo_re.png'))
     bot.press('DOWN')
-    time.sleep(0.5)
+    time.sleep(1)
     for n in range(0, 7, 1):  # Copia dados dos 6 campos
         while True:
             pausa_copia = 0.1
             bot.hotkey('ctrl', 'c')
             if 'Recuperando' in ahk.get_clipboard():
                 time.sleep(pausa_copia)
-                pausa_copia += 0.15
+                pausa_copia += 0.2
             else:
                 break
         dados_planilha.append(ahk.get_clipboard())

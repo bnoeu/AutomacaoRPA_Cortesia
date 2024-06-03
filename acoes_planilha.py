@@ -57,7 +57,6 @@ def valida_lancamento():
 
         print('--- Alterando para o modo alteração')
         ahk.win_activate('TopCompras', title_match_mode=2)
-        time.sleep(2)
         
         while procura_imagem(imagem='img_topcon/txt_inclui.png', continuar_exec= True, area= (852, 956, 1368, 1045)) is False:
             bot.press('F2', presses= 2)
@@ -65,13 +64,13 @@ def valida_lancamento():
             time.sleep(0.1)
         else:
             print('--- Entrou no modo incluir, continuando inserção da NFE')
+            time.sleep(3)
 
-        time.sleep(1)
-        bot.doubleClick(558, 235)  # Clica dentro do campo para inserir a chave XML
-        time.sleep(1)
+        bot.press('TAB', presses= 2, interval = 0.5)
+        #bot.doubleClick(558, 235)  # Clica dentro do campo para inserir a chave XML
         bot.write(chave_xml)
-        bot.press('ENTER')
-        ahk.win_wait_active('TopCompras')
+        time.sleep(1)
+        bot.press('TAB')
 
         tentativa = 0
         maximo_tentativas = 20
