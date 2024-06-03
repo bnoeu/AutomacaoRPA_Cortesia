@@ -222,7 +222,6 @@ def programa_principal():
                 bot.press('ESC')
                 time.sleep(2)
             
-        exit()
         while procura_imagem(imagem='img_topcon/confirma.png', continuar_exec=True) is not False:
             tentativa += 1
             print('--- Aguardando fechamento da tela do botão "Alterar" ')
