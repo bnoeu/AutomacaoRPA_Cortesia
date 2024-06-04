@@ -58,17 +58,16 @@ cur = con.cursor()
 exit()
 '''
 
-'''
-  #* Consulta as telas abertas
+''' #* Consulta as telas abertas
 for telas in ahk.list_windows():
     print(telas.title)
 '''
 
-#ahk.win_set_title(new_title= 'TopCompras', title= ' (VM-CortesiaApli.CORTESIA.com)', title_match_mode= 1, detect_hidden_windows= True)
+
 
 #ahk.win_activate('TopCompras', title_match_mode= 2)
 #ahk.win_activate('db_alltrips', title_match_mode= 2)
-time.sleep(0.5)
+#time.sleep(0.5)
 #! Utilizado apenas para estar trechos de codigo.
 #bot.click(procura_imagem(imagem='img_topcon/icone_topcon.png', continuar_exec=True))
 
@@ -94,28 +93,3 @@ print(xml.text)
 '''
 
 
-#* Pandas
-'''
-ln = "https://cortesiaconcreto-my.sharepoint.com/:x:/g/personal/bi_cortesiaconcreto_com_br/EW_8FZwWFYVAol4MpV1GglkBJEaJaDx6cfuClnesIu60Ng?e=pveECF"
-one_download(ln, filename="db_alltrips")
-
-
-#Coloca a planilha dentro do "dataframe"
-db_alltrips = pd.read_excel('db_alltrips/db_alltrips.xlsx', engine='openpyxl', dtype=object, date_format= "dd/mm/yyyy" )
-
-print(db_alltrips.head(10))
-#Converte o dataframe numa lista, para pegar o ultimo valor
-lista_alltrips = db_alltrips.values.tolist()
-ultimo_registro = len(db_alltrips)
-print(len(lista_alltrips))
-
-db_alltrips.at[ultimo_registro, 'Status'] = 'Bruno'
-#db_alltrips.at[ultimo_registro, 'produtos'] = 'Bruno'
-#db_alltrips.loc[2716:2716, ['Status']] = ['Teste_pandas1']
-#print(type(db_alltrips))
-#print(lista_alltrips[1])
-#db_alltrips.to_excel('db_alltrips/db_producao.xlsx', index= True)
-'''
-
-
-print(datetime.datetime.now())
