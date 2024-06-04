@@ -17,7 +17,7 @@ ahk = AHK()
 posicao_img = 0  # Define a variavel para utilização global dela.
 continuar = True
 bot.FAILSAFE = True
-bot.PAUSE = 0.5
+bot.PAUSE = 1
 # tempo_inicio = time.time()
 chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
 pytesseract.pytesseract.tesseract_cmd = r"C:\Tesseract-OCR\tesseract.exe"
@@ -28,7 +28,7 @@ def procura_imagem(imagem, limite_tentativa=6, area=(0, 0, 1920, 1080), continua
     tentativa = 0   
     print(F'--- Tentando encontrar: {imagem}', end= ' ')
     while tentativa < limite_tentativa:
-        time.sleep(0.25)
+        time.sleep(0.35)
         posicao_img = bot.locateCenterOnScreen(imagem, grayscale= True, confidence= confianca, region= area)
         if posicao_img is not None:
             print(F'--- Encontrou {imagem} na posição: {posicao_img}')
@@ -43,7 +43,8 @@ def procura_imagem(imagem, limite_tentativa=6, area=(0, 0, 1920, 1080), continua
     if tentativa >= limite_tentativa:
         #print('--- FECHANDO PLANILHA PARA EVITAR ERROS')
         ahk.win_kill('db_alltrips')
-        caminho_erro = 'img_geradas/' + 'erro' + str(datetime.datetime.now()) + '.png'
+        time_atual = str(datetime.datetime.now()).replace(":","_").replace(".","_")
+        caminho_erro = 'img_geradas/' + 'erro' + time_atual + '.png'
         img_erro = bot.screenshot()
         img_erro.save(fp= caminho_erro)
         exit(bot.alert(text=F'Não foi possivel encontrar: {imagem}', title='Erro!', button='Fechar'))

@@ -20,7 +20,7 @@ chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
 pytesseract.pytesseract.tesseract_cmd = r"C:\Tesseract-OCR\tesseract.exe"
 
 def coleta_planilha():
-    bot.PAUSE = 0.3
+    bot.PAUSE = 0.5
     print(Fore.GREEN + '--- Abrindo planilha - COLETA_PLANILHA' + Style.RESET_ALL)
     ahk.win_activate('db_alltrips', title_match_mode= 2)
     ahk.win_wait('db_alltrips', title_match_mode= 2)
