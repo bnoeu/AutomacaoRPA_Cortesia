@@ -20,7 +20,7 @@ from funcoes import marca_lancado, procura_imagem, extrai_txt_img
 
 # --- Definição de parametros
 ahk = AHK()
-bot.PAUSE = 0.5
+bot.PAUSE = 1
 posicao_img = 0
 continuar = True
 bot.FAILSAFE = True
@@ -137,7 +137,7 @@ def programa_principal():
         bot.press('enter')
 
     print('--- Aguardando validar o campo do transportador')
-    if procura_imagem(imagem='img_topcon/transportador_incorreto.png', continuar_exec= True) is not False:
+    if procura_imagem(imagem='img_topcon/transportador_incorreto.png', limite_tentativa= 12, continuar_exec= True) is not False:
         print('--- Transportador incorreto!')
         bot.press('ENTER')
         marca_lancado(texto_marcacao='RE_Invalido')

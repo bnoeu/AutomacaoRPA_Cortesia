@@ -8,8 +8,8 @@ import datetime
 #import cv2
 from ahk import AHK
 import pyautogui as bot
-import pandas as pd
-from onedrivedownloader import download as one_download
+#import pandas as pd
+#from onedrivedownloader import download as one_download
 from funcoes import procura_imagem, extrai_txt_img, marca_lancado
 from acoes_planilha import valida_lancamento
 from valida_pedido import valida_pedido
@@ -93,7 +93,9 @@ xml = con.status_servico('nfe')
 print(xml.text)
 '''
 
+time_atual = str(datetime.datetime.now()).replace(":","_").replace(".","_")
 
+print(time_atual)
 #* Pandas
 '''
 ln = "https://cortesiaconcreto-my.sharepoint.com/:x:/g/personal/bi_cortesiaconcreto_com_br/EW_8FZwWFYVAol4MpV1GglkBJEaJaDx6cfuClnesIu60Ng?e=pveECF"
@@ -118,4 +120,4 @@ db_alltrips.at[ultimo_registro, 'Status'] = 'Bruno'
 '''
 
 
-print(datetime.datetime.now())
+#print(datetime.datetime.now())
