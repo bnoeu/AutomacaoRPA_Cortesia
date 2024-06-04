@@ -73,11 +73,18 @@ def abre_topcon():
 
     #Abre o modulo de compras e navega até a tela de lançamento
     print('--- Abrindo modulo de compras')
-    bot.click(procura_imagem(imagem='img_topcon/icone_compras.png'))
-    ahk.win_wait('TopCompras - Versão', title_match_mode= 2, timeout= 100)
     ahk.win_activate('TopCompras - Versão', title_match_mode= 2)
+    try:
+        ahk.win_wait('TopCompras', title_match_mode=2, timeout= 10)
+    except TimeoutError:
+        icone_carrinho = procura_imagem(imagem='img_topcon/icone_topcon.png', continuar_exec=True)
+        if icone_carrinho is not False: #Caso encontre o icone
+            bot.click(icone_carrinho)
+            ahk.win_set_title(new_title= 'TopCompras', title= ' (VM-CortesiaApli.CORTESIA.com)', title_match_mode= 1, detect_hidden_windows= True)
+        else:
+            exit(bot.alert('---Tela de Compras não abriu.'))
+ 
     bot.press('ENTER')
-    
     #Verifica se aparece a tela "interveniente"
     if procura_imagem(imagem='img_topcon/txt_interveniente.png', continuar_exec= True):
         bot.press('ENTER')
@@ -89,5 +96,4 @@ def abre_topcon():
 
 if __name__ == '__main__':
     fecha_execucoes()
-    exit()
     abre_topcon()

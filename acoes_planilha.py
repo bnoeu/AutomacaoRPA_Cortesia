@@ -24,7 +24,10 @@ pytesseract.pytesseract.tesseract_cmd = r"C:\Tesseract-OCR\tesseract.exe"
 
 #Realiza o processo de validação do lançamento.
 def valida_lancamento():
-    time.sleep(0.5)
+    tentativa = 0
+    maximo_tentativas = 20
+    texto_erro = ""
+
     while True:
         # Trata os dados coletados em "dados_planilha"
         while True:
@@ -59,22 +62,22 @@ def valida_lancamento():
         ahk.win_activate('TopCompras', title_match_mode=2)
         
         while procura_imagem(imagem='img_topcon/txt_inclui.png', continuar_exec= True, area= (852, 956, 1368, 1045)) is False:
+            ahk.win_activate('TopCompras', title_match_mode= 2)
             bot.press('F2', presses= 2)
             bot.press('F3', presses= 2)
             time.sleep(0.1)
         else:
+            ahk.win_activate('TopCompras', title_match_mode = 2)
+            bot.press('F3', presses= 2)
             print('--- Entrou no modo incluir, continuando inserção da NFE')
             time.sleep(3)
 
         bot.press('TAB', presses= 2, interval = 0.5)
         #bot.doubleClick(558, 235)  # Clica dentro do campo para inserir a chave XML
         bot.write(chave_xml)
-        time.sleep(1)
         bot.press('TAB')
+        time.sleep(1)
 
-        tentativa = 0
-        maximo_tentativas = 20
-        texto_erro = ""
         while tentativa < maximo_tentativas: #* Aguarda até aparecer uma das telas que podem ser exibidas nesse processo.              
             #Verifica quais das telas apareceu. 
             if procura_imagem(imagem='img_topcon/botao_sim.jpg', limite_tentativa= 1, continuar_exec=True) is not False:
@@ -86,7 +89,7 @@ def valida_lancamento():
                 return dados_planilha
             else:
                 if procura_imagem(imagem='img_topcon/chave_invalida.png', limite_tentativa= 1, continuar_exec=True) is not False:
-                    texto_erro = "Lancado_Manual"                    
+                    texto_erro = "Lancado_Manual"              
                 elif procura_imagem(imagem='img_topcon/naoencontrado_xml.png', limite_tentativa= 1, continuar_exec=True) is not False:
                     texto_erro = "Aguardando_SEFAZ"
                 elif procura_imagem(imagem='img_topcon/chave_44digitos.png', limite_tentativa= 1, continuar_exec=True) is not False:
@@ -95,6 +98,7 @@ def valida_lancamento():
                     texto_erro = "NFE_Cancelada"
             
             if texto_erro != "":
+                print(Fore.RED + F'Apresentou um erro: {texto_erro} ' + Style.RESET_ALL)
                 bot.press('ENTER')
                 marca_lancado(texto_marcacao = texto_erro)
                 break

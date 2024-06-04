@@ -47,7 +47,7 @@ mapeamento_imagens = {
 
 
 def valida_pedido(acabou_pedido=False):
-    bot.PAUSE = 0.8
+    bot.PAUSE = 0.3
     tentativa = 0
     img_pedido = 0
     item_pedido = ''

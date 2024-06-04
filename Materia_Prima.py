@@ -20,7 +20,7 @@ from funcoes import marca_lancado, procura_imagem, extrai_txt_img
 
 # --- Definição de parametros
 ahk = AHK()
-bot.PAUSE = 1
+bot.PAUSE = 0.5
 posicao_img = 0
 continuar = True
 bot.FAILSAFE = True
@@ -67,60 +67,62 @@ def programa_principal():
 
 #* -------------------------- PROSSEGUINDO COM O LANÇAMENTO DA NFE -------------------------- 
     print('--- Preenchendo dados na tela principal do lançamento')
-    ahk.win_activate('TopCompras', title_match_mode=2)
-    ahk.win_wait_active('TopCompras', title_match_mode=2, timeout= 25)
     time.sleep(1)
-    
     while procura_imagem(imagem='img_topcon/txt_15-NF_ELETRO.png', limite_tentativa= 200) is False:
         time.sleep(0.1)
 
     bot.press('up')
     bot.write(filial_estoq)
     bot.press('ENTER') # Confirma a informação da nova filial de estoque
-    
     #* --- Alteração da data
     bot.press('down')
-    #bot.click(1006, 345)  # Campo data da operação
     time.sleep(1)
     hoje = date.today()
     hoje = hoje.strftime("%d%m%y")  # dd/mm/YY
-    data_NfeFaturada = extrai_txt_img(imagem='valida_itensxml.png', area_tela=(895, 299, 20, 20))
-    if data_NfeFaturada < '31':
+    #dias_fatura = ['23', '29', '30', '31', '01']
+    #data_NfeFaturada = extrai_txt_img(imagem='valida_itensxml.png', area_tela=(895, 299, 20, 20))
+    bot.press('ENTER')
+    if procura_imagem(imagem='img_topcon/txt_NaoPermitidoData.png', continuar_exec=True, limite_tentativa= 12):
+        print(Fore.RED + '--- Precisa mudar a data' + Style.RESET_ALL)
+        bot.press('enter')
+        bot.write(hoje)
+        bot.press('enter')
+        time.sleep(0.5)
+
+    ''' #! Depreciado por: Não estava coletando a data de faturamento de forma correta, sendo assim o codigo acima substitui essa logica. 
+    if data_NfeFaturada in dias_fatura:
         print(Back.RED + F'--- Data de faturamento menor que 20, data faturada: {data_NfeFaturada}' + Style.RESET_ALL)
-        bot.write(F'{data_NfeFaturada}' + '052024')
-        #bot.write('31052024')
+        #bot.write(F'{data_NfeFaturada}' + '052024')
+        #bot.write(hoje)
         bot.press('enter')
         time.sleep(0.5)
         if procura_imagem(imagem='img_topcon/txt_NaoPermitidoData.png', continuar_exec=True, limite_tentativa= 12):
-            print('Precisa mudar a data')
+            print(Fore.RED + '--- Precisa mudar a data' + Style.RESET_ALL)
             bot.press('enter')
             bot.write(hoje)
             bot.press('enter')
             time.sleep(0.5)
     else:
-        print(F'--- Alterando a data para {hoje}')
+        print(F'--- Alterando a data para {hoje}, data NFE coletada {data_NfeFaturada}')
         bot.write(hoje)
         bot.press('enter')
         time.sleep(0.5)
+    '''
 
-    # Altera o campo centro de custo, para o dado coletado
     print(F'--- Trocando o centro de custo para {centro_custo}')
     bot.write(centro_custo)
 
-    # Aguarda aparecer o campo "cod_desc"
     print('--- Aguarda aparecer o campo cod_desc')
-    while procura_imagem(imagem='img_topcon/cod_desc.png', limite_tentativa= 200, continuar_exec=True) is False:
-        time.sleep(0.1)
+    while procura_imagem(imagem='img_topcon/cod_desc.png', limite_tentativa= 50, continuar_exec=True) is False:
+        time.sleep(0.2)
+    else:
+        print('--- Apareceu o campo COD_DESC')
 
-    # Pressiona enter, e aguarda sumir o campo "cod_desc"
-    bot.press('ENTER')
+    bot.press('ENTER') # Pressiona enter, e aguarda sumir o campo "cod_desc"
     print('--- Aguarda até SUMIR o campo "cod_desc"')
     while procura_imagem(imagem='img_topcon/cod_desc.png', continuar_exec=True) is not False:
         time.sleep(0.1)
-    
-    ahk.win_wait_active('TopCompras', title_match_mode= 2)
-    ahk.win_activate('TopCompras', title_match_mode= 2)
-    # Clica no campo "Valores Totais"
+
     bot.click(procura_imagem(imagem='img_topcon/txt_ValoresTotais.png', continuar_exec= True))
     # * -------------------------------------- VALIDAÇÃO TRANSPORTADOR --------------------------------------
     print(F'--- Preenchendo transportador: {cracha_mot}')

@@ -4,6 +4,7 @@
 import time
 from datetime import date
 import pytesseract
+import datetime
 #import cv2
 from ahk import AHK
 import pyautogui as bot
@@ -35,7 +36,7 @@ chave_xml, silo2, silo1 = '', '', ''
 pytesseract.pytesseract.tesseract_cmd = r"C:\Tesseract-OCR\tesseract.exe"
 time.sleep(0.8)
 start = time.time()
-
+hoje = datetime.date.today()
 
 #! Variavel de teste
 silo1 = 'SILO 1'
@@ -115,3 +116,6 @@ db_alltrips.at[ultimo_registro, 'Status'] = 'Bruno'
 #print(lista_alltrips[1])
 #db_alltrips.to_excel('db_alltrips/db_producao.xlsx', index= True)
 '''
+
+
+print(datetime.datetime.now())

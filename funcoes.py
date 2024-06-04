@@ -17,17 +17,18 @@ ahk = AHK()
 posicao_img = 0  # Define a variavel para utilização global dela.
 continuar = True
 bot.FAILSAFE = True
-bot.PAUSE = 1
+bot.PAUSE = 0.5
 # tempo_inicio = time.time()
 chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
 pytesseract.pytesseract.tesseract_cmd = r"C:\Tesseract-OCR\tesseract.exe"
 bot.useImageNotFoundException(False)
 
-def procura_imagem(imagem, limite_tentativa=12, area=(0, 0, 1920, 1080), continuar_exec=False, confianca = 0.75):
+def procura_imagem(imagem, limite_tentativa=6, area=(0, 0, 1920, 1080), continuar_exec=False, confianca = 0.75):
+    hoje = datetime.date.today()
     tentativa = 0   
     print(F'--- Tentando encontrar: {imagem}', end= ' ')
     while tentativa < limite_tentativa:
-        time.sleep(0.4)
+        time.sleep(0.25)
         posicao_img = bot.locateCenterOnScreen(imagem, grayscale= True, confidence= confianca, region= area)
         if posicao_img is not None:
             print(F'--- Encontrou {imagem} na posição: {posicao_img}')
@@ -41,11 +42,10 @@ def procura_imagem(imagem, limite_tentativa=12, area=(0, 0, 1920, 1080), continu
         return False
     if tentativa >= limite_tentativa:
         #print('--- FECHANDO PLANILHA PARA EVITAR ERROS')
-        bot.screenshot('img_geradas/' + imagem)
-        caminho_erro = 'img_geradas/' + imagem
+        ahk.win_kill('db_alltrips')
+        caminho_erro = 'img_geradas/' + 'erro' + str(datetime.datetime.now()) + '.png'
         img_erro = bot.screenshot()
         img_erro.save(fp= caminho_erro)
-        ahk.win_kill('db_alltrips')
         exit(bot.alert(text=F'Não foi possivel encontrar: {imagem}', title='Erro!', button='Fechar'))
     return posicao_img
 
@@ -156,6 +156,7 @@ def verifica_ped_vazio(texto, pos):
         print('--- Itens XML ainda tem informação!')
         return False
     else:  # Caso fique vazio
+        print('--- Itens XML ficou vazio! saindo da tela de vinculação') 
         bot.click(procura_imagem(imagem='img_topcon/confirma.png', limite_tentativa= 100))
         bot.click(procura_imagem(imagem='img_topcon/botao_ok.jpg', limite_tentativa= 100))
         return True
