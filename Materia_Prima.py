@@ -140,8 +140,9 @@ def programa_principal():
     if procura_imagem(imagem='img_topcon/transportador_incorreto.png', limite_tentativa= 12, continuar_exec= True) is not False:
         print('--- Transportador incorreto!')
         bot.press('ENTER')
+        bot.press('F2')
         marca_lancado(texto_marcacao='RE_Invalido')
-        #programa_principal()
+        programa_principal()
     else:
         print('--- Transportador validado! Prosseguindo para validação da placa')
         bot.press('enter')

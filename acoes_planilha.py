@@ -25,7 +25,7 @@ pytesseract.pytesseract.tesseract_cmd = r"C:\Tesseract-OCR\tesseract.exe"
 #Realiza o processo de validação do lançamento.
 def valida_lancamento():
     tentativa = 0
-    maximo_tentativas = 20
+    maximo_tentativas = 15
     texto_erro = ""
 
     while True:
