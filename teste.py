@@ -8,8 +8,8 @@ import datetime
 #import cv2
 from ahk import AHK
 import pyautogui as bot
-import pandas as pd
-from onedrivedownloader import download as one_download
+#import pandas as pd
+#from onedrivedownloader import download as one_download
 from funcoes import procura_imagem, extrai_txt_img, marca_lancado
 from acoes_planilha import valida_lancamento
 from valida_pedido import valida_pedido
@@ -34,7 +34,6 @@ numero_nf = "965999"
 transportador = "111594"
 chave_xml, silo2, silo1 = '', '', ''
 pytesseract.pytesseract.tesseract_cmd = r"C:\Tesseract-OCR\tesseract.exe"
-time.sleep(0.8)
 start = time.time()
 hoje = datetime.date.today()
 
@@ -66,7 +65,7 @@ for telas in ahk.list_windows():
 
 
 #ahk.win_activate('TopCompras', title_match_mode= 2)
-#ahk.win_activate('db_alltrips', title_match_mode= 2)
+ahk.win_activate('db_alltrips', title_match_mode= 2)
 #time.sleep(0.5)
 #! Utilizado apenas para estar trechos de codigo.
 #bot.click(procura_imagem(imagem='img_topcon/icone_topcon.png', continuar_exec=True))
@@ -92,4 +91,4 @@ xml = con.status_servico('nfe')
 print(xml.text)
 '''
 
-
+marca_lancado()
