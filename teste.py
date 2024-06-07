@@ -93,3 +93,4 @@ print(xml.text)
 '''
 
 
+bot.click(500, 500)
