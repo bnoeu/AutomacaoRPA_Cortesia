@@ -1,4 +1,5 @@
 import openpyxl
+import pandas as pd
 import time
 import os
 from onedrivedownloader import download as one_download
@@ -17,9 +18,6 @@ def baixa_planilha():
     ln = "https://cortesiaconcreto-my.sharepoint.com/:x:/g/personal/bi_cortesiaconcreto_com_br/EW_8FZwWFYVAol4MpV1GglkBJEaJaDx6cfuClnesIu60Ng?e=pveECF"
     one_download(ln, filename="db_alltrips")
 
-baixa_planilha()
-exit()
-
 def verifica_status_vazio(ultima_linha = 0):
     linha_atual = []
     conta_linha = 1
@@ -34,6 +32,18 @@ def verifica_status_vazio(ultima_linha = 0):
     print(F'Ultima linha com campo status vazio: {conta_linha}')
     return linha_atual, conta_linha    
 #* --------------------------------------------------- PROGRAMA PRINCIPAL ---------------------------------------------------
+
+# Reorganiza o arquivo.
+def reorganiza_arquivo(nome = ""):
+    dataframe = pd.read_excel('db_alltrips/' + nome, date_format= "dd/mm/yyyy") #Insere o arquivo no dataframe
+    dataframe['D. Insercao'] = pd.to_datetime(dataframe["D. Insercao"], errors= 'coerce', format= '%d/%m/%Y') # Converte a coluna para o tipo "datetime"
+    #! Vou precisar deletar as linhas sem a data de insercao?!
+    #dataframe = dataframe.dropna(subset=["D. Insercao"])
+    dataframe = dataframe.sort_values(by = "D. Insercao") # Reordena o arquivo, com base na coluna "D. Insercao"
+    dataframe.to_excel('db_alltrips/ordenado_' + nome, index= False)
+
+reorganiza_arquivo(nome = "db_alltrips.xlsx")
+exit()
 # Carrega os arquivos
 book = openpyxl.load_workbook("db_alltrips/db_alltrips.xlsx")
 try:
