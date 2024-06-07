@@ -52,8 +52,11 @@ def coleta_planilha():
     else:
         print('--- Não está filtrado, executando o filtro!')
         #bot.click(procura_imagem(imagem='img_planilha/bt_setabaixo.png', confianca= 0.75, area=(1529, 459, 75, 75)))
-        bot.click(procura_imagem(imagem='img_planilha/txt_status.png', confianca= 0.75))
-        bot.move(500, 500)
+        #Clica no RE para limpar o campo do status 
+        bot.click(procura_imagem(imagem='img_planilha/titulo_re.png'))
+        bot.hotkey('CTRL', 'HOME')
+        bot.press('RIGHT', presses= 6)
+        #bot.move(500, 500)
         bot.hotkey('alt', 'down')
         #Caso não apareça o botão "Selecionar tudo" clica em "limpar filtro" e executa tudo novamente.
         if procura_imagem(imagem='img_planilha/botao_selecionartudo.png', continuar_exec= True) is False:
@@ -77,6 +80,8 @@ def coleta_planilha():
     print('--- Copiando dados e formatando')
     #Clica na primeira linha (Campo RE), e pressiona seta para baixo
     bot.click(procura_imagem(imagem='img_planilha/titulo_re.png'))
+    bot.hotkey('CTRL', 'UP')
+    bot.hotkey('CTRL', 'LEFT')
     bot.press('DOWN')
     time.sleep(1)
     for n in range(0, 7, 1):  # Copia dados dos 6 campos

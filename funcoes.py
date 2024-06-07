@@ -42,11 +42,11 @@ def procura_imagem(imagem, limite_tentativa=6, area=(0, 0, 1920, 1080), continua
         return False
     if tentativa >= limite_tentativa:
         #print('--- FECHANDO PLANILHA PARA EVITAR ERROS')
-        ahk.win_kill('db_alltrips')
         time_atual = str(datetime.datetime.now()).replace(":","_").replace(".","_")
         caminho_erro = 'img_geradas/' + 'erro' + time_atual + '.png'
         img_erro = bot.screenshot()
         img_erro.save(fp= caminho_erro)
+        ahk.win_kill('db_alltrips')
         exit(bot.alert(text=F'Não foi possivel encontrar: {imagem}', title='Erro!', button='Fechar'))
     return posicao_img
 
@@ -68,7 +68,7 @@ def marca_lancado(texto_marcacao='Lancado'):
     print(Fore.GREEN + F'\n--- Abrindo planilha - MARCA_LANCADO, com parametro: {texto_marcacao}' + Style.RESET_ALL)
     ahk.win_activate('db_alltrips', title_match_mode= 2)
     ahk.win_wait_active('db_alltrips', title_match_mode= 2, timeout= 15)
-    time.sleep(0.5)
+    time.sleep(1)
 
     #Verifica se está no modo "Apenas exibição", caso esteja, altera para permitir edição.
     if procura_imagem(imagem='img_planilha/bt_exibicaoverde.png', continuar_exec=True) is not False:
@@ -82,8 +82,10 @@ def marca_lancado(texto_marcacao='Lancado'):
     else:
         print(F'--- Planilha já no modo edição, continuando a inserção do texto: {texto_marcacao}')
 
-    #Clica no campo status, e move para baixo, para permitir inserir o texto passado na função.
-    bot.click(procura_imagem(imagem='img_planilha/txt_status.png', confianca= 0.75))
+    #Clica no campo do RE para "limpar", depois navega até A1 em seguida coluna "Status"
+    bot.click(procura_imagem(imagem='img_planilha/titulo_re.png'))
+    bot.hotkey('CTRL', 'HOME')
+    bot.press('RIGHT', presses= 6)
     bot.press('DOWN')
     #Informa o texto recebido pela função e passa para a celula ao lado, para inserir a data
     bot.write(texto_marcacao)
@@ -97,7 +99,11 @@ def marca_lancado(texto_marcacao='Lancado'):
         bot.click(procura_imagem(imagem='img_planilha/bt_aplicar.png'))
     else:
         print('--- Não está filtrado, executando o filtro!')        
-        bot.click(procura_imagem(imagem='img_planilha/txt_status.png'))
+        bot.click(procura_imagem(imagem='img_planilha/titulo_re.png'))
+        bot.hotkey('CTRL', 'HOME')
+        #! Aqui está dando erro
+        bot.press('RIGHT', presses= 6)
+        #bot.click(procura_imagem(imagem='img_planilha/txt_status.png', confianca= 60))
         bot.move(500, 500)
         bot.hotkey('alt', 'down')        
         
