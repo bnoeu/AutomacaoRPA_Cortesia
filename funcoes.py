@@ -70,17 +70,18 @@ def marca_lancado(texto_marcacao='Lancado'):
     ahk.win_wait_active('db_alltrips', title_match_mode= 2, timeout= 15)
     time.sleep(1)
 
-    #Verifica se está no modo "Apenas exibição", caso esteja, altera para permitir edição.
-    if procura_imagem(imagem='img_planilha/bt_exibicaoverde.png', continuar_exec=True) is not False:
-        bot.click(procura_imagem(imagem='img_planilha/bt_exibicaoverde.png', limite_tentativa= 50))
-        bot.click(procura_imagem(imagem='img_planilha/botao_iniciaredicao.png', limite_tentativa= 50))
-        print('--- Aguardando entrar no modo edição')
-        while procura_imagem(imagem='img_planilha/bt_edicao.png', continuar_exec= True) is False: #Aguarda até entrar no modo Edição
-            #Caso apareça a tela informando que houve alteração durante esse periodo, confirma que quer atualizar e prossegue.
-            if procura_imagem(imagem='img_planilha/txt_modificada.png', continuar_exec=True, limite_tentativa= 10) is not False: 
-                bot.click(procura_imagem(imagem='img_planilha/bt_sim.png', limite_tentativa= 10, area= (751, 521, 429, 218)))
-    else:
-        print(F'--- Planilha já no modo edição, continuando a inserção do texto: {texto_marcacao}')
+    if ahk.win_exists('debug_db_alltrips', title_match_mode= 2) is False:
+        #Verifica se está no modo "Apenas exibição", caso esteja, altera para permitir edição.
+        if procura_imagem(imagem='img_planilha/bt_exibicaoverde.png', continuar_exec=True) is not False:
+            bot.click(procura_imagem(imagem='img_planilha/bt_exibicaoverde.png', limite_tentativa= 50))
+            bot.click(procura_imagem(imagem='img_planilha/botao_iniciaredicao.png', limite_tentativa= 50))
+            print('--- Aguardando entrar no modo edição')
+            while procura_imagem(imagem='img_planilha/bt_edicao.png', continuar_exec= True) is False: #Aguarda até entrar no modo Edição
+                #Caso apareça a tela informando que houve alteração durante esse periodo, confirma que quer atualizar e prossegue.
+                if procura_imagem(imagem='img_planilha/txt_modificada.png', continuar_exec=True, limite_tentativa= 10) is not False: 
+                    bot.click(procura_imagem(imagem='img_planilha/bt_sim.png', limite_tentativa= 10, area= (751, 521, 429, 218)))
+        else:
+            print(F'--- Planilha já no modo edição, continuando a inserção do texto: {texto_marcacao}')
 
     #Clica no campo do RE para "limpar", depois navega até A1 em seguida coluna "Status"
     bot.click(procura_imagem(imagem='img_planilha/titulo_re.png'))

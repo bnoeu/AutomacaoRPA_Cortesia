@@ -26,7 +26,7 @@ pytesseract.pytesseract.tesseract_cmd = r"C:\Tesseract-OCR\tesseract.exe"
 def valida_lancamento():
     tentativa = 0
     maximo_tentativas = 15
-    texto_erro = ""
+    texto_erro = False
 
     while True:
         # Trata os dados coletados em "dados_planilha"
@@ -78,7 +78,7 @@ def valida_lancamento():
         bot.press('TAB')
         time.sleep(1)
 
-        while tentativa < maximo_tentativas: #* Aguarda até aparecer uma das telas que podem ser exibidas nesse processo.              
+        while tentativa < maximo_tentativas: #* Aguarda até aparecer uma das telas que podem ser exibidas nesse processo.             
             #Verifica quais das telas apareceu. 
             if procura_imagem(imagem='img_topcon/botao_sim.jpg', limite_tentativa= 1, continuar_exec=True) is not False:
                 bot.click(procura_imagem(imagem='img_topcon/botao_sim.jpg', limite_tentativa=1, continuar_exec=True))
@@ -96,8 +96,10 @@ def valida_lancamento():
                     texto_erro = "Chave_invalida"
                 elif procura_imagem(imagem='img_topcon/nfe_cancelada.png', limite_tentativa= 1, continuar_exec=True) is not False:
                     texto_erro = "NFE_Cancelada"
+                else:
+                    texto_erro = False
             
-            if texto_erro != "":
+            if texto_erro is not False:
                 print(Fore.RED + F'Apresentou um erro: {texto_erro} ' + Style.RESET_ALL)
                 bot.press('ENTER')
                 marca_lancado(texto_marcacao = texto_erro)

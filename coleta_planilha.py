@@ -20,31 +20,36 @@ chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
 pytesseract.pytesseract.tesseract_cmd = r"C:\Tesseract-OCR\tesseract.exe"
 
 def coleta_planilha():
-    bot.PAUSE = 0.5
+    bot.PAUSE = 0.25
     print(Fore.GREEN + '--- Abrindo planilha - COLETA_PLANILHA' + Style.RESET_ALL)
-    ahk.win_activate('db_alltrips', title_match_mode= 2)
-    ahk.win_wait('db_alltrips', title_match_mode= 2)
-
-    #Verifica se já está no modo de edição, caso esteja, muda para o modo "exibição"
-    if procura_imagem(imagem='img_planilha/bt_exibicaoverde.png', continuar_exec=True) is False:
-        print('--- Não está no modo exibição! Realizando alteração.')
-        while procura_imagem(imagem='img_planilha/bt_edicao.png', continuar_exec= True) is False: #Espera até encontar o botão "Exibição" (Lapis bloqueado)
-            time.sleep(0.1)
-            
-        if procura_imagem(imagem='img_planilha/bt_TresPontos.png', continuar_exec= True) is not False:
-            bot.click(procura_imagem(imagem='img_planilha/bt_TresPontos.png'))
-            
-        bot.click(procura_imagem(imagem='img_planilha/bt_edicao.png'))  
-        time.sleep(0.5)
-        bot.click(procura_imagem(imagem='img_planilha/txt_exibicao.png'))
-
-        #Aguarda até aparecer o botão do modo "exibição"
-        while procura_imagem(imagem='img_planilha/bt_exibicaoverde.png', continuar_exec=True) is False:
-            time.sleep(0.1)
-        print('--- Alterado para o modo exibição, continuando.')
+    if ahk.win_exists('debug_db_alltrips', title_match_mode= 2):
+        ahk.win_activate('debug_db_alltrips', title_match_mode= 2)
+        ahk.win_wait('debug_db_alltrips', title_match_mode= 2)
+    else:
+        ahk.win_activate('db_alltrips', title_match_mode= 2)
+        ahk.win_wait('db_alltrips', title_match_mode= 2)
         
-    else: #Caso não esteja no modo "Edição"
-        print('--- A planilha já está no modo "Exibição", continuando processo')
+    if ahk.win_exists('debug_db_alltrips', title_match_mode= 2) is False:
+        #Verifica se já está no modo de edição, caso esteja, muda para o modo "exibição"
+        if procura_imagem(imagem='img_planilha/bt_exibicaoverde.png', continuar_exec=True) is False:
+            print('--- Não está no modo exibição! Realizando alteração.')
+            while procura_imagem(imagem='img_planilha/bt_edicao.png', continuar_exec= True) is False: #Espera até encontar o botão "Exibição" (Lapis bloqueado)
+                time.sleep(0.1)
+                
+            if procura_imagem(imagem='img_planilha/bt_TresPontos.png', continuar_exec= True) is not False:
+                bot.click(procura_imagem(imagem='img_planilha/bt_TresPontos.png'))
+                
+            bot.click(procura_imagem(imagem='img_planilha/bt_edicao.png'))  
+            time.sleep(0.5)
+            bot.click(procura_imagem(imagem='img_planilha/txt_exibicao.png'))
+
+            #Aguarda até aparecer o botão do modo "exibição"
+            while procura_imagem(imagem='img_planilha/bt_exibicaoverde.png', continuar_exec=True) is False:
+                time.sleep(0.1)
+            print('--- Alterado para o modo exibição, continuando.')
+            
+        else: #Caso não esteja no modo "Edição"
+            print('--- A planilha já está no modo "Exibição", continuando processo')
     
     #Altera o filtro para "vazio", para iniciar a coleta de dados.
     if procura_imagem(imagem='img_planilha/bt_filtro.png', continuar_exec=True, area= (1468, 400, 200, 200)) is not False:
@@ -83,14 +88,14 @@ def coleta_planilha():
     bot.hotkey('CTRL', 'UP')
     bot.hotkey('CTRL', 'LEFT')
     bot.press('DOWN')
-    time.sleep(1)
+    time.sleep(0.5)
     for n in range(0, 7, 1):  # Copia dados dos 6 campos
         while True:
             pausa_copia = 0.1
             bot.hotkey('ctrl', 'c')
             if 'Recuperando' in ahk.get_clipboard():
                 time.sleep(pausa_copia)
-                pausa_copia += 0.2
+                pausa_copia += 0.1
             else:
                 break
         dados_planilha.append(ahk.get_clipboard())
