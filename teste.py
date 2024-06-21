@@ -28,13 +28,13 @@ from pynfe.processamento.comunicacao import ComunicacaoSefaz
 ahk = AHK()
 posicao_img = 0  # Define a variavel para utilização global dela.
 continuar = True
-bot.FAILSAFE = True
+bot.FAILSAFE = False
 acabou_pedido = ''
 numero_nf = "965999"
 transportador = "111594"
 chave_xml, silo2, silo1 = '', '', ''
 pytesseract.pytesseract.tesseract_cmd = r"C:\Tesseract-OCR\tesseract.exe"
-time.sleep(0.8)
+time.sleep(1)
 start = time.time()
 hoje = datetime.date.today()
 
@@ -58,10 +58,10 @@ cur = con.cursor()
 exit()
 '''
 
-''' #* Consulta as telas abertas
+ #* Consulta as telas abertas
 for telas in ahk.list_windows():
     print(telas.title)
-'''
+
 
 
 
@@ -91,6 +91,3 @@ con = ComunicacaoSefaz(uf, certificado, senha, homologacao)
 xml = con.status_servico('nfe')
 print(xml.text)
 '''
-
-
-bot.click(500, 500)

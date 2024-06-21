@@ -19,9 +19,9 @@ from webdriver_manager.chrome import ChromeDriverManager
 # --- Definição de parametros
 ahk = AHK()
 posicao_img = 0 
-bot.PAUSE = 1
+bot.PAUSE = 1.2
 continuar = True
-bot.FAILSAFE = True
+bot.FAILSAFE = False
 tempo_inicio = time.time()
 chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
 pytesseract.pytesseract.tesseract_cmd = r"C:\Tesseract-OCR\tesseract.exe"

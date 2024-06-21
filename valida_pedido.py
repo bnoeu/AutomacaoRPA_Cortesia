@@ -13,7 +13,7 @@ from funcoes import marca_lancado, procura_imagem, extrai_txt_img, verifica_ped_
 ahk = AHK()
 posicao_img = 0  # Define a variavel para utilização global dela.
 continuar = True
-bot.FAILSAFE = True
+bot.FAILSAFE = False
 numero_nf = "965999"
 transportador = "111594"
 chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
@@ -52,18 +52,9 @@ def valida_pedido(acabou_pedido=False):
     img_pedido = 0
     item_pedido = ''
     validou_itensXml = False
-
+    time.sleep(1)
     #Aguarda a abertura da tela de vinculação de item versus nota
     ahk.win_activate('Vinculação Itens da Nota', title_match_mode = 2)
-    try:
-        ahk.win_wait_active('Vinculação Itens da Nota', title_match_mode = 2, timeout= 10)
-    except TimeoutError:
-        txt_vinculacao = procura_imagem('img_topcon/vinc_xml_pedido.png',continuar_exec=True, limite_tentativa=2)
-        if txt_vinculacao is not False: #Caso encontre o icone
-            bot.click(txt_vinculacao)
-            ahk.win_set_title(new_title= 'Vinculação Itens da Nota', title= ' (VM-CortesiaApli.CORTESIA.com)', title_match_mode= 1, detect_hidden_windows= True)
-        else:
-            exit(bot.alert('---Tela de vinculação não abriu.'))   
     
     #Aguarda aparecer o botão "confirma" para poder continuar o processo.
     while procura_imagem(imagem='img_topcon/confirma.png', continuar_exec= True) is False:

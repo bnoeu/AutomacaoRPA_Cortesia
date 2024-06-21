@@ -16,7 +16,7 @@ from colorama import Fore, Style
 ahk = AHK()
 posicao_img = 0  # Define a variavel para utilização global dela.
 continuar = True
-bot.FAILSAFE = True
+bot.FAILSAFE = False
 bot.PAUSE = 1
 # tempo_inicio = time.time()
 chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
@@ -28,7 +28,7 @@ def procura_imagem(imagem, limite_tentativa=6, area=(0, 0, 1920, 1080), continua
     tentativa = 0   
     print(F'--- Tentando encontrar: {imagem}', end= ' ')
     while tentativa < limite_tentativa:
-        time.sleep(0.35)
+        time.sleep(0.3)
         posicao_img = bot.locateCenterOnScreen(imagem, grayscale= True, confidence= confianca, region= area)
         if posicao_img is not None:
             print(F'--- Encontrou {imagem} na posição: {posicao_img}')
@@ -96,8 +96,15 @@ def marca_lancado(texto_marcacao='Lancado'):
 
     #Retorna a planilha para o modo "Somente Exibição (Botão Verde)"
     if procura_imagem(imagem='img_planilha/bt_filtro.png', continuar_exec=True, area = (1468, 400, 200, 200)) is not False:
-        bot.click(procura_imagem(imagem='img_planilha/bt_filtro.png', continuar_exec=True, area= (1468, 400, 200, 200)))
-        bot.click(procura_imagem(imagem='img_planilha/bt_aplicar.png'))
+        print('--- Navegando no menu do filtro')
+        bot.press('UP')
+        bot.press('LEFT')
+        bot.hotkey('ALT', 'DOWN')
+        bot.press('TAB', presses= 10)
+        bot.press('ENTER')
+        print('--- Saindo do menu do filtro')
+        #bot.click(procura_imagem(imagem='img_planilha/bt_filtro.png', continuar_exec=True, area= (1468, 400, 200, 200)))
+        #bot.click(procura_imagem(imagem='img_planilha/bt_aplicar.png'))
     else:
         print('--- Não está filtrado, executando o filtro!')        
         bot.click(procura_imagem(imagem='img_planilha/titulo_re.png'))

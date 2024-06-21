@@ -14,16 +14,16 @@ import os
 
 # --- Definição de parametros
 ahk = AHK()
-bot.PAUSE = 1
+bot.PAUSE = 1.2
 posicao_img = 0
 continuar = True
-bot.FAILSAFE = True
+bot.FAILSAFE = False
 tempo_inicio = time.time()
 chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
 pytesseract.pytesseract.tesseract_cmd = r"C:\Tesseract-OCR\tesseract.exe"
 #! Dados para acesso ao remoteApp
 login_rdp = 'bruno.s'
-senha_rdp = 'C0rtesi@'
+senha_rdp = 'C0ncret0'
 
 #* ---------------- PROGRAMA PRINCIPAL ------------
 def fecha_execucoes():
@@ -40,15 +40,15 @@ def fecha_execucoes():
 
 def abre_topcon():
     os.startfile('RemoteApp-Cortesia.rdp')
-    ahk.win_wait_active('Segurança do Windows', title_match_mode= 2, timeout = 30)
-    if ahk.win_exists('Segurança do Windows', title_match_mode= 2):
-        print('--- Abriu a tela "Segurança do Windows, realizando o login" ')
+    ahk.win_wait_active('Windows Security', title_match_mode= 2, timeout = 15)
+    if ahk.win_exists('Windows Security', title_match_mode= 2):
+        print('--- Abriu a tela "Windows Security, realizando o login" ')
         #Realiza o login no RDP, que deve utilizar as informações de login do usuario "CORTESIA\BARBARA.K"
-        ahk.win_activate('Segurança do Windows', title_match_mode= 2)
-        ahk.win_wait_active('Segurança do Windows', title_match_mode= 2, timeout = 30)
-        bot.click(procura_imagem(imagem='img_windows/txt_seguranca.png'))
+        ahk.win_activate('Windows Security', title_match_mode= 2)
+        ahk.win_wait_active('Windows Security', title_match_mode= 2, timeout = 30)
+        #bot.click(procura_imagem(imagem='img_windows/txt_seguranca.png'))
         #bot.write('C0rtesi@01') #Senha BARBARA.K
-        bot.write('C0rtesi@') #Senha BRUNO.S  
+        bot.write(senha_rdp) #Senha BRUNO.S  
         bot.press('TAB', presses= 3, interval= 0.02)
         bot.press('ENTER')
         print('--- Login realizado no RemoteApp-Cortesia.rdp')

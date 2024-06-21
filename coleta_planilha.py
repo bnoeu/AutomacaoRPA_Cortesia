@@ -14,7 +14,7 @@ import pyautogui as bot
 ahk = AHK()
 posicao_img = 0  # Define a variavel para utilização global dela.
 continuar = True
-bot.FAILSAFE = True
+bot.FAILSAFE = False
 tempo_inicio = time.time()
 chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
 pytesseract.pytesseract.tesseract_cmd = r"C:\Tesseract-OCR\tesseract.exe"
@@ -30,6 +30,7 @@ def coleta_planilha():
         ahk.win_wait('db_alltrips', title_match_mode= 2)
         
     if ahk.win_exists('debug_db_alltrips', title_match_mode= 2) is False:
+        bot.hotkey('CTRL', 'HOME')
         #Verifica se já está no modo de edição, caso esteja, muda para o modo "exibição"
         if procura_imagem(imagem='img_planilha/bt_exibicaoverde.png', continuar_exec=True) is False:
             print('--- Não está no modo exibição! Realizando alteração.')
@@ -54,12 +55,13 @@ def coleta_planilha():
     #Altera o filtro para "vazio", para iniciar a coleta de dados.
     if procura_imagem(imagem='img_planilha/bt_filtro.png', continuar_exec=True, area= (1468, 400, 200, 200)) is not False:
         print('--- Já está filtrado, continuando!')
+
     else:
+        bot.hotkey('CTRL', 'HOME')
         print('--- Não está filtrado, executando o filtro!')
         #bot.click(procura_imagem(imagem='img_planilha/bt_setabaixo.png', confianca= 0.75, area=(1529, 459, 75, 75)))
         #Clica no RE para limpar o campo do status 
-        bot.click(procura_imagem(imagem='img_planilha/titulo_re.png'))
-        bot.hotkey('CTRL', 'HOME')
+        #bot.click(procura_imagem(imagem='img_planilha/titulo_re.png'))
         bot.press('RIGHT', presses= 6)
         #bot.move(500, 500)
         bot.hotkey('alt', 'down')
@@ -82,13 +84,10 @@ def coleta_planilha():
     
     # * Coleta os dados da linha atual
     dados_planilha = []
-    print('--- Copiando dados e formatando')
     #Clica na primeira linha (Campo RE), e pressiona seta para baixo
-    bot.click(procura_imagem(imagem='img_planilha/titulo_re.png'))
-    bot.hotkey('CTRL', 'UP')
-    bot.hotkey('CTRL', 'LEFT')
+    print('--- Copiando dados e formatando')
+    bot.hotkey('CTRL', 'HOME')
     bot.press('DOWN')
-    time.sleep(0.5)
     for n in range(0, 7, 1):  # Copia dados dos 6 campos
         while True:
             pausa_copia = 0.1
