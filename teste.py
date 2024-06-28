@@ -45,6 +45,13 @@ centro_custo = filial_estoq
 cracha_mot = '112480'
 
 
+#ahk.win_activate('TopCompras', title_match_mode=2)
+
+
+#Navegando entre os menus para abrir a opção "Compras - Mercantil"
+
+
+
 ''' #* Cria banco de dados
 #Cria a conexão com o banco de dados
 con = sqlite3.connect("informacoes.db")
@@ -59,10 +66,11 @@ exit()
 '''
 
  #* Consulta as telas abertas
+
+'''
 for telas in ahk.list_windows():
-    print(telas.title)
-
-
+    print(telas.text)
+'''
 
 
 #ahk.win_activate('TopCompras', title_match_mode= 2)

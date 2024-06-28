@@ -47,20 +47,21 @@ def valida_lancamento():
         # -------------------------------------- Lançamento Topcon --------------------------------------
         print(Fore.GREEN +  '--- Abrindo TopCompras para iniciar o lançamento' + Style.RESET_ALL)
         tempo_inicio = time.time() #* Tempo inicial do lançamento
-        ahk.win_activate('TopCompras', title_match_mode=2)
-        try:
-            ahk.win_wait('TopCompras', title_match_mode=2, timeout= 5)
+        
+        try: 
+            ahk.win_wait(' (VM-CortesiaApli.CORTESIA.com)', title_match_mode= 1, timeout= 3)
         except TimeoutError:
-            icone_carrinho = procura_imagem(imagem='img_topcon/icone_topcon.png', continuar_exec=True)
-            if icone_carrinho is not False: #Caso encontre o icone
-                bot.click(icone_carrinho)
-                ahk.win_set_title(new_title= 'TopCompras', title= ' (VM-CortesiaApli.CORTESIA.com)', title_match_mode= 1, detect_hidden_windows= True)
+            print('--- Não achou a tela sem nome, verificando se o TopCompras abriu')
+            if ahk.win_wait('TopCompras', title_match_mode= 1):
+                print('--- TopCompras abriu com o nome normal, prosseguindo.')
             else:
-                exit(bot.alert('---Tela de Compras não abriu.'))
+                bot.alert(exit('TopCompras não encontrado.'))
+        else:
+            print('--- Encontrou  tela sem o nome, corrigindo')
+            ahk.win_set_title(new_title= 'TopCompras', title= ' (VM-CortesiaApli.CORTESIA.com)', title_match_mode= 1, detect_hidden_windows= True)
 
         print('--- Alterando para o modo alteração')
         ahk.win_activate('TopCompras', title_match_mode=2)
-        
         while procura_imagem(imagem='img_topcon/txt_inclui.png', continuar_exec= True, area= (852, 956, 1368, 1045)) is False:
             ahk.win_activate('TopCompras', title_match_mode= 2)
             bot.press('F2', presses= 2)
@@ -72,14 +73,13 @@ def valida_lancamento():
             print('--- Entrou no modo incluir, continuando inserção da NFE')
             time.sleep(3)
 
-        bot.press('TAB', presses= 2, interval = 0.5)
-        #bot.doubleClick(558, 235)  # Clica dentro do campo para inserir a chave XML
+        bot.press('TAB', presses= 2, interval = 0.5) # Inicia inserção da chave XML
         bot.write(chave_xml)
         bot.press('TAB')
         time.sleep(1)
 
         while tentativa < maximo_tentativas: #* Aguarda até aparecer uma das telas que podem ser exibidas nesse processo.             
-            #Verifica quais das telas apareceu. 
+            #Verifica quais das telas apareceu.
             if procura_imagem(imagem='img_topcon/botao_sim.jpg', limite_tentativa= 1, continuar_exec=True) is not False:
                 bot.click(procura_imagem(imagem='img_topcon/botao_sim.jpg', limite_tentativa=1, continuar_exec=True))
                 tempo_coleta = time.time() - tempo_inicio

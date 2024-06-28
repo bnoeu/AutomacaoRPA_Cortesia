@@ -22,7 +22,7 @@ from funcoes import marca_lancado, procura_imagem, extrai_txt_img
 
 # --- Definição de parametros
 ahk = AHK()
-bot.PAUSE = 1.2
+bot.PAUSE = 1.5
 posicao_img = 0
 continuar = True
 bot.FAILSAFE = False
@@ -90,7 +90,7 @@ def programa_principal():
     hoje = hoje.strftime("%d%m%y")  # dd/mm/YY
     #dias_fatura = ['23', '29', '30', '31', '01']
     #data_NfeFaturada = extrai_txt_img(imagem='valida_itensxml.png', area_tela=(895, 299, 20, 20))
-    #bot.write('15/06/2024')
+    #bot.write('22/06/2024')
     bot.press('ENTER')
     if procura_imagem(imagem='img_topcon/txt_NaoPermitidoData.png', continuar_exec=True, limite_tentativa= 12):
         print(Fore.RED + '--- Precisa mudar a data' + Style.RESET_ALL)
@@ -120,7 +120,6 @@ def programa_principal():
     '''
 
     print(F'--- Trocando o centro de custo para {centro_custo}')
-    
     bot.write(centro_custo)
 
     print('--- Aguarda aparecer o campo cod_desc')

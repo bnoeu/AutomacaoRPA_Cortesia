@@ -59,9 +59,6 @@ def coleta_planilha():
     else:
         bot.hotkey('CTRL', 'HOME')
         print('--- Não está filtrado, executando o filtro!')
-        #bot.click(procura_imagem(imagem='img_planilha/bt_setabaixo.png', confianca= 0.75, area=(1529, 459, 75, 75)))
-        #Clica no RE para limpar o campo do status 
-        #bot.click(procura_imagem(imagem='img_planilha/titulo_re.png'))
         bot.press('RIGHT', presses= 6)
         #bot.move(500, 500)
         bot.hotkey('alt', 'down')
