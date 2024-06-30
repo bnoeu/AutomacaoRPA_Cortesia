@@ -80,7 +80,6 @@ def abre_topcon():
             bot.press('enter')
             time.sleep(3)
     
-    exit()
     #Abre o modulo de compras e navega até a tela de lançamento
     print('--- Tentando abrir o modulo de compras')
     
