@@ -27,7 +27,7 @@ def procura_imagem(imagem, limite_tentativa=6, area=(0, 0, 1920, 1080), continua
     hoje = datetime.date.today()
     maquina_viva = False
     tentativa = 0   
-    print(F'--- Tentando encontrar: {imagem}', end= ' ')
+    #print(F'--- Tentando encontrar: {imagem}', end= ' ')
     while tentativa < limite_tentativa:
         time.sleep(0.3)
         while maquina_viva is False:
@@ -40,7 +40,7 @@ def procura_imagem(imagem, limite_tentativa=6, area=(0, 0, 1920, 1080), continua
                 maquina_viva = True
             
         if posicao_img is not None:
-            print(F'--- Encontrou {imagem} na posição: {posicao_img}')
+            #print(F'--- Encontrou {imagem} na posição: {posicao_img}')
             break
         tentativa += 1
 
