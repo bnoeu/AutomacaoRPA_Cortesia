@@ -35,7 +35,7 @@ def valida_lancamento():
             chave_xml = dados_planilha[4].strip()
             if len(dados_planilha[6]) > 0:
                 print(F'--- Aguardando 30s para aparecer novas notas, campo preenchido com: {dados_planilha[6]}, tamanho do status: {len(dados_planilha[6])}')
-                time.sleep(600)
+                time.sleep(30)
             if len(chave_xml) < 10:
                 marca_lancado('Chave Invalida')
                 #exit(bot.alert('chave_xml invalida'))

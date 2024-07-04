@@ -44,12 +44,10 @@ filial_estoq = 'JAGUARE'
 centro_custo = filial_estoq
 cracha_mot = '112480'
 
-
-#ahk.win_activate('TopCompras', title_match_mode=2)
-
-
-#Navegando entre os menus para abrir a opção "Compras - Mercantil"
-
+#! Funções
+def lista_telas():
+    for telas in ahk.list_windows():
+        print(telas.title)
 
 
 ''' #* Cria banco de dados
@@ -67,27 +65,17 @@ exit()
 
  #* Consulta as telas abertas
 
+confianca = 0.74
+
+confianca -= 0.01
+
+print(confianca)
+ 
 '''
-for telas in ahk.list_windows():
-    print(telas.text)
 '''
 
 
-#ahk.win_activate('TopCompras', title_match_mode= 2)
-#ahk.win_activate('db_alltrips', title_match_mode= 2)
-#time.sleep(0.5)
-#! Utilizado apenas para estar trechos de codigo.
-#bot.click(procura_imagem(imagem='img_topcon/icone_topcon.png', continuar_exec=True))
 
-'''
-while True:
-    bot.press('alt') #Ativa os atalhos
-    #Clica no botão para alterar Edição / Exibição
-    bot.press('z')
-    bot.press('m')
-    #Habilita a opção: Exibição
-    bot.press('e')
-'''
 
 '''
 certificado = "/certificado_nfe/certificado.pfx"

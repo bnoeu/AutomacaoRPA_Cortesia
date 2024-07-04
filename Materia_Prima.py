@@ -92,12 +92,20 @@ def programa_principal():
     #data_NfeFaturada = extrai_txt_img(imagem='valida_itensxml.png', area_tela=(895, 299, 20, 20))
     #bot.write('22/06/2024')
     bot.press('ENTER')
-    if procura_imagem(imagem='img_topcon/txt_NaoPermitidoData.png', continuar_exec=True, limite_tentativa= 12):
-        print(Fore.RED + '--- Precisa mudar a data' + Style.RESET_ALL)
-        bot.press('enter')
-        bot.write(hoje)
-        bot.press('enter')
-        time.sleep(0.5)
+    time.sleep(2)
+    #if procura_imagem(imagem='img_topcon/txt_NaoPermitidoData.png', continuar_exec=True, limite_tentativa= 12):
+    try:
+        ahk.win_wait('Topsys', title_match_mode= 2, timeout= 30)
+    except TimeoutError:
+        print('--- Tela de erro NÃO apareceu, continuando...')
+    else:
+        if ahk.win_exists('Topsys', title_match_mode= 2):
+            ahk.win_activate('Topsys', title_match_mode= 2)
+            print('--- Precisa mudar a data')
+            bot.press('enter')
+            bot.write(hoje)
+            bot.press('enter')
+            time.sleep(0.5)
 
     ''' #! Depreciado por: Não estava coletando a data de faturamento de forma correta, sendo assim o codigo acima substitui essa logica. 
     if data_NfeFaturada in dias_fatura:
@@ -121,14 +129,13 @@ def programa_principal():
 
     print(F'--- Trocando o centro de custo para {centro_custo}')
     bot.write(centro_custo)
-
     print('--- Aguarda aparecer o campo cod_desc')
     while procura_imagem(imagem='img_topcon/cod_desc.png', limite_tentativa= 50, continuar_exec=True) is False:
         time.sleep(0.2)
     else:
         print('--- Apareceu o campo COD_DESC')
-
-    bot.press('ENTER') # Pressiona enter, e aguarda sumir o campo "cod_desc"
+        bot.press('ENTER') # Pressiona enter, e aguarda sumir o campo "cod_desc"
+        
     print('--- Aguarda até SUMIR o campo "cod_desc"')
     while procura_imagem(imagem='img_topcon/cod_desc.png', continuar_exec=True) is not False:
         time.sleep(0.1)
@@ -159,6 +166,7 @@ def programa_principal():
 
     # Verifica se o campo da placa ficou preenchido
     if procura_imagem('img_topcon/campo_placa.png', continuar_exec=True) is not False:
+        print('--- Encontrou o campo vazio, inserindo XXX0000')
         bot.click(procura_imagem('img_topcon/campo_placa.png', continuar_exec=True))
         bot.write('XXX0000')
         bot.press('ENTER')
@@ -166,7 +174,6 @@ def programa_principal():
         print('--- Não achou o campo ou já está preenchido')
         time.sleep(0.25)
 
- 
     # * -------------------------------------- Aba Produtos e serviços --------------------------------------
     ahk.win_activate('TopCompras', title_match_mode=2)
     ahk.win_wait_active('TopCompras', title_match_mode=2, timeout= 25)    

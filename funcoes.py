@@ -23,13 +23,13 @@ chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
 pytesseract.pytesseract.tesseract_cmd = r"C:\Tesseract-OCR\tesseract.exe"
 bot.useImageNotFoundException(False)
 
-def procura_imagem(imagem, limite_tentativa=6, area=(0, 0, 1920, 1080), continuar_exec=False, confianca = 0.73):
+def procura_imagem(imagem, limite_tentativa=6, area=(0, 0, 1920, 1080), continuar_exec=False, confianca = 0.75):
     hoje = datetime.date.today()
     maquina_viva = False
     tentativa = 0   
     #print(F'--- Tentando encontrar: {imagem}', end= ' ')
     while tentativa < limite_tentativa:
-        time.sleep(0.3)
+        time.sleep(0.4)
         while maquina_viva is False:
             try:
                 posicao_img = bot.locateCenterOnScreen(imagem, grayscale= True, confidence= confianca, region= area)
@@ -43,11 +43,12 @@ def procura_imagem(imagem, limite_tentativa=6, area=(0, 0, 1920, 1080), continua
             #print(F'--- Encontrou {imagem} na posição: {posicao_img}')
             break
         tentativa += 1
+        confianca -= 0.01
 
     #Caso seja para continuar
     if (continuar_exec is True) and (posicao_img is None):
         print('' + F'--- {imagem} não foi encontrada, continuando execução pois o parametro "continuar_exec" está habilitado')
-        time.sleep(0.2)
+        time.sleep(0.3)
         return False
     if tentativa >= limite_tentativa:
         #print('--- FECHANDO PLANILHA PARA EVITAR ERROS')
@@ -56,6 +57,7 @@ def procura_imagem(imagem, limite_tentativa=6, area=(0, 0, 1920, 1080), continua
         img_erro = bot.screenshot()
         img_erro.save(fp= caminho_erro)
         ahk.win_kill('db_alltrips')
+        raise 
         exit(bot.alert(text=F'Não foi possivel encontrar: {imagem}', title='Erro!', button='Fechar'))
     return posicao_img
 
@@ -73,12 +75,15 @@ def verifica_tela(nome_tela, manual=False):
 
 
 def marca_lancado(texto_marcacao='Lancado'):
-    time.sleep(0.5)
+    bot.PAUSE = 1.5
+    time.sleep(1.5)
     print(Fore.GREEN + F'\n--- Abrindo planilha - MARCA_LANCADO, com parametro: {texto_marcacao}' + Style.RESET_ALL)
     ahk.win_activate('db_alltrips', title_match_mode= 2)
     ahk.win_wait_active('db_alltrips', title_match_mode= 2, timeout= 15)
-    time.sleep(1)
+    time.sleep(1.5)
+    bot.hotkey('CTRL', 'HOME')
 
+    ''' #! Alterava para o modo edição/exibição, não é mais necessario.
     if ahk.win_exists('debug_db_alltrips', title_match_mode= 2) is False:
         #Verifica se está no modo "Apenas exibição", caso esteja, altera para permitir edição.
         if procura_imagem(imagem='img_planilha/bt_exibicaoverde.png', continuar_exec=True) is not False:
@@ -91,12 +96,12 @@ def marca_lancado(texto_marcacao='Lancado'):
                     bot.click(procura_imagem(imagem='img_planilha/bt_sim.png', limite_tentativa= 10, area= (751, 521, 429, 218)))
         else:
             print(F'--- Planilha já no modo edição, continuando a inserção do texto: {texto_marcacao}')
+    '''
 
-    #Clica no campo do RE para "limpar", depois navega até A1 em seguida coluna "Status"
-    bot.click(procura_imagem(imagem='img_planilha/titulo_re.png'))
-    bot.hotkey('CTRL', 'HOME')
+    #Navega até o campo "Status"
     bot.press('RIGHT', presses= 6)
     bot.press('DOWN')
+    
     #Informa o texto recebido pela função e passa para a celula ao lado, para inserir a data
     bot.write(texto_marcacao)
     bot.press('RIGHT')
@@ -112,20 +117,17 @@ def marca_lancado(texto_marcacao='Lancado'):
         bot.press('TAB', presses= 10)
         bot.press('ENTER')
         print('--- Saindo do menu do filtro')
-        #bot.click(procura_imagem(imagem='img_planilha/bt_filtro.png', continuar_exec=True, area= (1468, 400, 200, 200)))
-        #bot.click(procura_imagem(imagem='img_planilha/bt_aplicar.png'))
     else:
         print('--- Não está filtrado, executando o filtro!')        
         bot.click(procura_imagem(imagem='img_planilha/titulo_re.png'))
         bot.hotkey('CTRL', 'HOME')
-        #! Aqui está dando erro
         bot.press('RIGHT', presses= 6)
-        #bot.click(procura_imagem(imagem='img_planilha/txt_status.png', confianca= 60))
         bot.move(500, 500)
         bot.hotkey('alt', 'down')        
         
         while procura_imagem(imagem='img_planilha/botao_selecionartudo.png', limite_tentativa= 1) is None:
             time.sleep(0.1)
+            
         bot.click(procura_imagem(imagem='img_planilha/botao_selecionartudo.png'))
         bot.click(procura_imagem(imagem='img_planilha/bt_vazias.png'))
         bot.click(procura_imagem(imagem='img_planilha/bt_aplicar.png'))
@@ -180,12 +182,13 @@ def verifica_ped_vazio(texto, pos):
         print('--- Itens XML ainda tem informação!')
         return False
     else:  # Caso fique vazio
-        print('--- Itens XML ficou vazio! saindo da tela de vinculação') 
+        print('--- Itens XML ficou vazio! saindo da tela de vinculação')
         bot.click(procura_imagem(imagem='img_topcon/confirma.png', limite_tentativa= 100))
+        time.sleep(1)
         bot.click(procura_imagem(imagem='img_topcon/botao_ok.jpg', limite_tentativa= 100))
         return True
 
 
 
 if __name__ == '__main__':
-    verifica_ped_vazio()
+    marca_lancado()
