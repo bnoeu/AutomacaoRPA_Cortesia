@@ -20,7 +20,7 @@ chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
 pytesseract.pytesseract.tesseract_cmd = r"C:\Tesseract-OCR\tesseract.exe"
 
 def coleta_planilha():
-    bot.PAUSE = 0.25
+    bot.PAUSE = 0.5
     print(Fore.GREEN + '--- Abrindo planilha - COLETA_PLANILHA' + Style.RESET_ALL)
     if ahk.win_exists('debug_db_alltrips', title_match_mode= 2):
         ahk.win_activate('debug_db_alltrips', title_match_mode= 2)
@@ -49,40 +49,12 @@ def coleta_planilha():
                 time.sleep(0.1)
             print('--- Alterado para o modo exibição, continuando.')
             
-        else: #Caso não esteja no modo "Edição"
+        else: # Caso não esteja no modo "Edição"
             print('--- A planilha já está no modo "Exibição", continuando processo')
-    
-    #Altera o filtro para "vazio", para iniciar a coleta de dados.
-    '''
-    if procura_imagem(imagem='img_planilha/bt_filtro.png', continuar_exec=True, area= (1468, 400, 200, 200)) is not False:
-        print('--- Já está filtrado, continuando!')
 
-    else:
-        bot.hotkey('CTRL', 'HOME')
-        print('--- Não está filtrado, executando o filtro!')
-        bot.press('RIGHT', presses= 6)
-        #bot.move(500, 500)
-        bot.hotkey('alt', 'down')
-        #Caso não apareça o botão "Selecionar tudo" clica em "limpar filtro" e executa tudo novamente.
-        if procura_imagem(imagem='img_planilha/botao_selecionartudo.png', continuar_exec= True) is False:
-            bot.click(procura_imagem(imagem='img_planilha/bt_limparFiltro.png'))
-            coleta_planilha()
-        else: #Se tudo estiver ok, prossegue aplicando o filtro nas notas vazias. 
-            bot.click(procura_imagem(imagem='img_planilha/botao_selecionartudo.png'))
-            bot.click(procura_imagem(imagem='img_planilha/bt_vazias.png'))
-            bot.click(procura_imagem(imagem='img_planilha/bt_aplicar.png'))
-            print('--- Filtrado pelas notas vazias!')
-
-            #Aguarda aparecer o botão do filtro, para confirmar que está filtrado! 
-            while procura_imagem(imagem='img_planilha/bt_filtro.png', area= (1468, 400, 200, 200)) is False:
-                print('--- Aguardando o botão do filtro na coluna "Status" ')
-                time.sleep(0.6)
-            else:
-                print('--- Filtro das notas vazias aplicado!')
-    '''
     # * Coleta os dados da linha atual
     dados_planilha = []
-    #Clica na primeira linha (Campo RE), e pressiona seta para baixo
+    # Clica na primeira linha (Campo RE), e pressiona seta para baixo
     print('--- Copiando dados e formatando')
     bot.hotkey('CTRL', 'HOME')
     bot.press('DOWN')
@@ -97,6 +69,7 @@ def coleta_planilha():
                 break
         dados_planilha.append(ahk.get_clipboard())
         bot.press('right')
+        
     tempo_coleta = time.time() - tempo_inicio
     tempo_coleta = tempo_coleta
     print(F'--- Tempo que levou: {tempo_coleta:0f} segundos')

@@ -25,7 +25,7 @@ CIMENTO_CP3 = ('CP 111', 'teste')
 CIMENTO_CP2 = ('CP II-E-40', '£-40', 'CIMENTO PORTLAND CP IIE-40 RS |', "CIMENTO PORTLAND CP I'E-40 RS.", "CIMENTO PORTLAND CP IE-40 RS")
 AREIA_RIO = ('AREIA LAVADA MEDIA', 'AREIA MEDIA', 'ARE A LAVADA MEDIA', 'AREA LAVADA MEDIA', 'AREIA LAVADA')
 CIMENTO_CP5 = ('CPV', 'V-ARI')
-AREIA_QUARTZO = ('AREIA DE QUARTZO VERMELHA', 'AREA QUARTZD', 'AREIA DE QUARTZ0 VERMELHA', 'P2 AREIA', 'AREI|A DE QUARTZ0')
+AREIA_QUARTZO = ('AREIA DE QUARTZO VERMELHA', 'AREA QUARTZD', 'AREIA DE QUARTZ0 VERMELHA', 'P2 AREIA', 'AREI|A DE QUARTZ0', 'AREIA VERMELHA')
 AREIA_PRIME = ('AREA PRIME', 'AREIA PRIME')
 AREIA_BRITADA = ('AR EIA ARTIF ClaL', 'AR EIA AR TIFICIAL', 'AREIA ARTIFICIAL')
 PEDRISCO_MISTO = ('PEDRA MISTO', 'TESTE')
@@ -78,7 +78,7 @@ def valida_pedido(acabou_pedido=False):
 
     #Caso não tenha encontrado o texto em nenhuma lista. 
     if validou_itensXml is False:
-        print(F'Não foi possivel encontrar: {txt_itensXML} em nenhuma lista.')
+        print(F'--- Não foi possivel encontrar: {txt_itensXML} em nenhuma lista.')
         bot.click(procura_imagem(imagem='img_topcon/bt_cancela.png'))
         marca_lancado(texto_marcacao='Padronizar_Item')
         return acabou_pedido

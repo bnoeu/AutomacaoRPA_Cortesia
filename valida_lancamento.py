@@ -38,7 +38,6 @@ def valida_lancamento():
                 time.sleep(30)
             if len(chave_xml) < 10:
                 marca_lancado('Chave Invalida')
-                #exit(bot.alert('chave_xml invalida'))
             elif (len(dados_planilha[0]) < 4) or (len(dados_planilha[0]) == 5):
                 marca_lancado('RE_Invalido')
             else:
@@ -73,13 +72,14 @@ def valida_lancamento():
             print('--- Entrou no modo incluir, continuando inserção da NFE')
             time.sleep(3)
 
-        bot.press('TAB', presses= 2, interval = 0.5) # Inicia inserção da chave XML
+        # Inicia inserção da chave XML
+        bot.press('TAB', presses= 2, interval = 0.5)
         bot.write(chave_xml)
         bot.press('TAB')
-        time.sleep(1)
 
-        while tentativa < maximo_tentativas: #* Aguarda até aparecer uma das telas que podem ser exibidas nesse processo.             
-            #Verifica quais das telas apareceu.
+        #* Aguarda até aparecer uma das telas que podem ser exibidas nesse processo.
+        while tentativa < maximo_tentativas:          
+            # Verifica quais das telas apareceu.
             if procura_imagem(imagem='img_topcon/botao_sim.jpg', limite_tentativa= 1, continuar_exec=True) is not False:
                 bot.click(procura_imagem(imagem='img_topcon/botao_sim.jpg', limite_tentativa=1, continuar_exec=True))
                 tempo_coleta = time.time() - tempo_inicio
@@ -87,6 +87,7 @@ def valida_lancamento():
                 print(F'--- Tempo que levou: {tempo_coleta:0f} segundos')
                 print(Fore.GREEN + '--- XML Validado, indo para validação do pedido' + Style.RESET_ALL)
                 return dados_planilha
+            
             else:
                 if procura_imagem(imagem='img_topcon/chave_invalida.png', limite_tentativa= 1, continuar_exec=True) is not False:
                     texto_erro = "Lancado_Manual"              
@@ -98,6 +99,10 @@ def valida_lancamento():
                     texto_erro = "NFE_Cancelada"
                 else:
                     texto_erro = False
+                    print('--- Não encontrou nenhuma das telas, executando novamente.')
+                    # Verifica caso tenha travado e espera até que o topcom volte a responder
+                    while ahk.win_exists('Não está respondendo', title_match_mode= 2):
+                        time.sleep(1)
             
             if texto_erro is not False:
                 print(Fore.RED + F'Apresentou um erro: {texto_erro} ' + Style.RESET_ALL)
@@ -105,12 +110,9 @@ def valida_lancamento():
                 marca_lancado(texto_marcacao = texto_erro)
                 break
             
-            # Verifica caso tenha travado e espera até que o topcom volte a responder
-            while ahk.win_exists('Não está respondendo', title_match_mode= 2):
-                time.sleep(0.4)
             tentativa += 1
         else:
-            exit(Fore.RED + '--- Rodou 10 verificações e não achou nenhuma tela, verificar!' + Style.RESET_ALL)
+            exit(bot.alert(Fore.RED + '--- Rodou 10 verificações e não achou nenhuma tela, verificar!' + Style.RESET_ALL))
             #TODO --- Validar se o topcon ainda está aberto, caso não esteja, reiniciar o processo do zero.
 
 if __name__ == '__main__':

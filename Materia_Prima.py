@@ -17,18 +17,49 @@ import pyautogui as bot
 from datetime import date
 from colorama import Back, Style, Fore
 from valida_pedido import valida_pedido
-from acoes_planilha import valida_lancamento
+from valida_lancamento import valida_lancamento
 from funcoes import marca_lancado, procura_imagem, extrai_txt_img
 
 # --- Definição de parametros
 ahk = AHK()
-bot.PAUSE = 1.5
+bot.PAUSE = 0.5
 posicao_img = 0
 continuar = True
 bot.FAILSAFE = False
 tempo_inicio = time.time()
 chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
 pytesseract.pytesseract.tesseract_cmd = r"C:\Tesseract-OCR\tesseract.exe"
+
+#* Funções
+
+def processo_transferencia():
+    if procura_imagem(imagem='img_topcon/txt_transferencia.png', continuar_exec= True, confianca= 0.7):
+        print('--- Encontrou a tela de transferencia!')
+        time.sleep(2)
+        if procura_imagem('img_topcon/deseja_processar.png', continuar_exec=True, limite_tentativa= 12, confianca= 0.7):
+            print('--- Encontrou a tela do processo de transferencia')
+            bot.click(procura_imagem('img_topcon/bt_sim.png', continuar_exec=True))
+            while True:  # Aguardar o .PDF
+                try:
+                    ahk.win_wait('.pdf', title_match_mode=2, timeout= 15)
+                except TimeoutError:
+                    print('--- Aguardando .PDF da transferencia')
+                else:
+                    ahk.win_activate('.pdf', title_match_mode=2)
+                    ahk.win_close('pdf - Google Chrome', title_match_mode=2)
+                    print('--- Fechou o PDF da transferencia')
+                    time.sleep(0.4)
+                    break
+            
+            # Fechando a tela de transmissão
+            while ahk.win_exists('Transmissão', title_match_mode= 2):
+                ahk.win_activate('Transmissão', title_match_mode=2)
+                bot.click(procura_imagem(imagem='img_topcon/sair_tela.png'))
+                
+                ahk.win_wait_active('TopCom', timeout=10, title_match_mode=2)
+                ahk.win_activate('TopCom', title_match_mode=2)
+    else:
+        print('--- Não foi gerada transferencia para essa nota fiscal.')
 
 # * ---------------------------------------------------------------------------------------------------
 # *                                        Inicio do Programa
@@ -37,6 +68,7 @@ pytesseract.pytesseract.tesseract_cmd = r"C:\Tesseract-OCR\tesseract.exe"
 def programa_principal():
     acabou_pedido = True
     tentativa = 0
+    
     while acabou_pedido is True: #Verifica se o pedido está valido.
         dados_planilha = valida_lancamento()
         cracha_mot = dados_planilha[0]
@@ -71,8 +103,8 @@ def programa_principal():
 
 #* -------------------------- PROSSEGUINDO COM O LANÇAMENTO DA NFE -------------------------- 
     print('--- Preenchendo dados na tela principal do lançamento')
+    time.sleep(2)
     
-    time.sleep(1)
     while procura_imagem(imagem='img_topcon/produtos_servicos.png', continuar_exec= True) is False:
         ahk.win_activate('TopCompras', title_match_mode=2, detect_hidden_windows= True)
         try:
@@ -82,18 +114,25 @@ def programa_principal():
         time.sleep(0.2)
 
     bot.press('up')
+    print('--- Preenchendo filial de estoque')
     bot.write(filial_estoq)
     bot.press('TAB', presses= 2) # Confirma a informação da nova filial de estoque
-    #* --- Alteração da data
-    time.sleep(1)
+    
+    # Alteração da data
     hoje = date.today()
     hoje = hoje.strftime("%d%m%y")  # dd/mm/YY
-    #dias_fatura = ['23', '29', '30', '31', '01']
-    #data_NfeFaturada = extrai_txt_img(imagem='valida_itensxml.png', area_tela=(895, 299, 20, 20))
-    #bot.write('22/06/2024')
+    bot.write('06/07/2024')
     bot.press('ENTER')
-    time.sleep(2)
-    #if procura_imagem(imagem='img_topcon/txt_NaoPermitidoData.png', continuar_exec=True, limite_tentativa= 12):
+    time.sleep(0.5)
+    
+    # Caso o sistema informe que a data deve ser maior/igual a data inserida acima.
+    if procura_imagem('img_topcon/data_invalida.png', continuar_exec= True):
+        print('--- Precisa mudar a data')
+        bot.press('enter')          
+        bot.write(hoje)
+        bot.press('enter')
+        time.sleep(0.2)
+
     try:
         ahk.win_wait('Topsys', title_match_mode= 2, timeout= 30)
     except TimeoutError:
@@ -102,10 +141,10 @@ def programa_principal():
         if ahk.win_exists('Topsys', title_match_mode= 2):
             ahk.win_activate('Topsys', title_match_mode= 2)
             print('--- Precisa mudar a data')
-            bot.press('enter')
+            bot.press('enter')          
             bot.write(hoje)
             bot.press('enter')
-            time.sleep(0.5)
+            time.sleep(0.2)
 
     ''' #! Depreciado por: Não estava coletando a data de faturamento de forma correta, sendo assim o codigo acima substitui essa logica. 
     if data_NfeFaturada in dias_fatura:
@@ -141,6 +180,7 @@ def programa_principal():
         time.sleep(0.1)
 
     bot.click(procura_imagem(imagem='img_topcon/txt_ValoresTotais.png', continuar_exec= True))
+
     # * -------------------------------------- VALIDAÇÃO TRANSPORTADOR --------------------------------------
     print(F'--- Preenchendo transportador: {cracha_mot}')
     bot.click(procura_imagem(imagem='img_topcon/campo_000.png', continuar_exec= True))
@@ -149,7 +189,7 @@ def programa_principal():
         time.sleep(0.1)
     else:
         print('--- Campo RE habilitado, preenchendo.')
-        #Preenche o campo do transportador e verifica se aconteceu algum erro.
+        # Preenche o campo do transportador e verifica se aconteceu algum erro.
         bot.write(cracha_mot)  # ID transportador
         bot.press('enter')
 
@@ -178,7 +218,7 @@ def programa_principal():
     ahk.win_activate('TopCompras', title_match_mode=2)
     ahk.win_wait_active('TopCompras', title_match_mode=2, timeout= 25)    
     bot.doubleClick(procura_imagem(imagem='img_topcon/produtos_servicos.png'))
-    #Aguarda até aparecer o botão "alterar"
+    # Aguarda até aparecer o botão "alterar"
     procura_imagem(imagem='img_topcon/botao_alterar.png', area=(100, 839, 300, 400), limite_tentativa= 100)
     
     if '38953477000164' in chave_xml: #Caso não tenha o CNPJ da Consmar
@@ -218,7 +258,7 @@ def programa_principal():
                 bot.press('ENTER')
                 bot.write(str(qtd_ton))
                 bot.press('ENTER')
-            elif silo1 != '':
+            elif silo1 != '' and silo2 == '':
                 print(F'--- Foi informado UM silo, preenchendo... {silo1}, quantidade: {qtd_ton}')
                 qtd_ton = str(qtd_ton)
                 qtd_ton = qtd_ton.replace(".", ",")
@@ -256,54 +296,36 @@ def programa_principal():
     # Conclui o lançamento
     bot.press('pagedown')  # Conclui o lançamento
     print('--- Enviado pagedown, aguardando tela de operação realizada')
-    time.sleep(2)
     
-    while procura_imagem(imagem='img_topcon/txt_inclui.png', continuar_exec= True, area= (852, 956, 1368, 1045)) is False:
-        # Espera até aparecer a tela de operação realizada ou chave_invalida
-        while procura_imagem(imagem='img_topcon/operacao_realizada.png', continuar_exec=True) is False:
-            print('--- Aguardando a tela de operação realizada')
-            if procura_imagem(imagem='img_topcon/chave_invalida.png', continuar_exec=True) is not False:
-                print('--- Nota já lançada, marcando planilha!')
-                bot.press('ENTER')
-                bot.press('F2', presses = 2)
-                marca_lancado(texto_marcacao='Lancado_Manual')
-        else: #Caso encontre a opção
+    # Espera até aparecer a tela de operação realizada ou chave_invalida
+    while True:
+        # 1. Caso chave invalida.  
+        if procura_imagem(imagem='img_topcon/chave_invalida.png', continuar_exec=True) is not False:
+            print('--- Nota já lançada, marcando planilha!')
+            bot.press('ENTER')
+            bot.press('F2', presses = 2)
+            marca_lancado(texto_marcacao='Lancado_Manual')
+            break
+   
+        # 2. Caso apareça tela "Espelho da nota fiscal"
+        if ahk.win_exists('Espelho de Nota Fiscal', title_match_mode= 2):
+            ahk.win_close('Espelho de Nota Fiscal', title_match_mode= 2)
+            
+        # 4. Caso operação realizada.
+        if procura_imagem(imagem='img_topcon/operacao_realizada.png', continuar_exec= True) is not False:
             print('--- Encontrou a tela de operação realizada, fechando e marcando a planilha')
-            while True:
-                if procura_imagem(imagem='img_topcon/operacao_realizada.png', continuar_exec= True) is not False:
-                    ahk.win_activate('TopCompras', title_match_mode= 2)
-                    ahk.win_wait_active('TopCompras', timeout=50, title_match_mode=2)
-                    bot.click(procura_imagem(imagem='img_topcon/operacao_realizada.png'))
-                    bot.click(procura_imagem(imagem='img_topcon/botao_ok.jpg'))
-                    while procura_imagem(imagem='img_topcon/botao_ok.jpg', continuar_exec= True) is not False:
-                        bot.click(procura_imagem(imagem='img_topcon/botao_ok.jpg'))
-                else:
-                    break
-                
-        #Verifica se apareceu a tela de transferencia 
-        time.sleep(2)
-        if procura_imagem('img_topcon/deseja_processar.png', continuar_exec=True, limite_tentativa= 12, confianca= 0.7):
-            print('--- Encontrou a tela do processo de transferencia')
-            bot.click(procura_imagem('img_topcon/bt_sim.png', continuar_exec=True))
-            while True:  # Aguardar o .PDF
-                try:
-                    ahk.win_wait('.pdf', title_match_mode=2, timeout= 15)
-                except TimeoutError:
-                    print('--- Aguardando .PDF da transferencia')
-                else:
-                    ahk.win_activate('.pdf', title_match_mode=2)
-                    ahk.win_close('pdf - Google Chrome', title_match_mode=2)
-                    print('--- Fechou o PDF da transferencia')
-                    break
-            time.sleep(0.4)
-            ahk.win_activate('Transmissão', title_match_mode=2)
-            bot.click(procura_imagem(imagem='img_topcon/sair_tela.png'))
-            ahk.win_wait_active('TopCom', timeout=10, title_match_mode=2)
-            ahk.win_activate('TopCom', title_match_mode=2)
-    else:
-        print('--- Lançamento concluido com sucesso')
-    # * -------------------------------------- Marca planilha --------------------------------------
-    marca_lancado(texto_marcacao='Lancado_RPA')
+            ahk.win_activate('TopCompras', title_match_mode= 2)
+            ahk.win_wait_active('TopCompras', timeout=50, title_match_mode=2)
+            
+            bot.click(procura_imagem(imagem='img_topcon/operacao_realizada.png'))
+            bot.press('ENTER')
+            processo_transferencia()
+            # Aperta F2 para retornar a tela para o modo "Localizar"
+            bot.press('F2')
+            marca_lancado(texto_marcacao='Lancado_RPA')
+            if procura_imagem(imagem='img_topcon/operacao_realizada.png', continuar_exec= True) is False:
+                break
+          
     return True
 
 

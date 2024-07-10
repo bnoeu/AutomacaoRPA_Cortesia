@@ -17,13 +17,12 @@ ahk = AHK()
 posicao_img = 0  # Define a variavel para utilização global dela.
 continuar = True
 bot.FAILSAFE = False
-bot.PAUSE = 1
 # tempo_inicio = time.time()
 chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
 pytesseract.pytesseract.tesseract_cmd = r"C:\Tesseract-OCR\tesseract.exe"
 bot.useImageNotFoundException(False)
 
-def procura_imagem(imagem, limite_tentativa=6, area=(0, 0, 1920, 1080), continuar_exec=False, confianca = 0.75):
+def procura_imagem(imagem, limite_tentativa=6, area=(0, 0, 1920, 1080), continuar_exec=False, confianca = 0.75, msg_continuar_exec = False):
     hoje = datetime.date.today()
     maquina_viva = False
     tentativa = 0   
@@ -47,17 +46,18 @@ def procura_imagem(imagem, limite_tentativa=6, area=(0, 0, 1920, 1080), continua
 
     #Caso seja para continuar
     if (continuar_exec is True) and (posicao_img is None):
-        print('' + F'--- {imagem} não foi encontrada, continuando execução pois o parametro "continuar_exec" está habilitado')
-        time.sleep(0.3)
+        if msg_continuar_exec is True:
+            print('' + F'--- {imagem} não foi encontrada, continuando execução pois o parametro "continuar_exec" está habilitado')
         return False
+    
     if tentativa >= limite_tentativa:
-        #print('--- FECHANDO PLANILHA PARA EVITAR ERROS')
         time_atual = str(datetime.datetime.now()).replace(":","_").replace(".","_")
         caminho_erro = 'img_geradas/' + 'erro' + time_atual + '.png'
         img_erro = bot.screenshot()
         img_erro.save(fp= caminho_erro)
         ahk.win_kill('db_alltrips')
-        raise 
+        #! Não funcionando.
+        # raise 
         exit(bot.alert(text=F'Não foi possivel encontrar: {imagem}', title='Erro!', button='Fechar'))
     return posicao_img
 
@@ -75,12 +75,11 @@ def verifica_tela(nome_tela, manual=False):
 
 
 def marca_lancado(texto_marcacao='Lancado'):
-    bot.PAUSE = 1.5
-    time.sleep(1.5)
+    bot.PAUSE = 0.5
     print(Fore.GREEN + F'\n--- Abrindo planilha - MARCA_LANCADO, com parametro: {texto_marcacao}' + Style.RESET_ALL)
     ahk.win_activate('db_alltrips', title_match_mode= 2)
     ahk.win_wait_active('db_alltrips', title_match_mode= 2, timeout= 15)
-    time.sleep(1.5)
+    time.sleep(2)
     bot.hotkey('CTRL', 'HOME')
 
     ''' #! Alterava para o modo edição/exibição, não é mais necessario.
@@ -98,32 +97,32 @@ def marca_lancado(texto_marcacao='Lancado'):
             print(F'--- Planilha já no modo edição, continuando a inserção do texto: {texto_marcacao}')
     '''
 
-    #Navega até o campo "Status"
+    # Navega até o campo "Status"
     bot.press('RIGHT', presses= 6)
     bot.press('DOWN')
     
-    #Informa o texto recebido pela função e passa para a celula ao lado, para inserir a data
+    # Informa o texto recebido pela função e passa para a celula ao lado, para inserir a data
     bot.write(texto_marcacao)
     bot.press('RIGHT')
     hoje = datetime.date.today()
     bot.write(str(hoje))
 
-    #Retorna a planilha para o modo "Somente Exibição (Botão Verde)"
+    # Retorna a planilha para o modo "Somente Exibição (Botão Verde)"
+    bot.hotkey('CTRL', 'HOME')
     if procura_imagem(imagem='img_planilha/bt_filtro.png', continuar_exec=True, area = (1468, 400, 200, 200)) is not False:
-        print('--- Navegando no menu do filtro')
-        bot.press('UP')
-        bot.press('LEFT')
-        bot.hotkey('ALT', 'DOWN')
+        print('--- Encontrou o botão do filtro, navegando no menu do filtro')
+        bot.press('RIGHT', presses= 6) # Navega até o campo "Status"
+        bot.hotkey('ALT', 'DOWN') # Comando do excel para abrir o menu do filtro
         bot.press('TAB', presses= 10)
         bot.press('ENTER')
         print('--- Saindo do menu do filtro')
+        #exit(bot.alert('Verificar se filtrou!'))
     else:
-        print('--- Não está filtrado, executando o filtro!')        
-        bot.click(procura_imagem(imagem='img_planilha/titulo_re.png'))
+        print('--- Não está filtrado, executando o filtro!')  
         bot.hotkey('CTRL', 'HOME')
         bot.press('RIGHT', presses= 6)
         bot.move(500, 500)
-        bot.hotkey('alt', 'down')        
+        bot.hotkey('alt', 'down') 
         
         while procura_imagem(imagem='img_planilha/botao_selecionartudo.png', limite_tentativa= 1) is None:
             time.sleep(0.1)
@@ -172,20 +171,18 @@ def extrai_txt_img(imagem, area_tela, porce_escala = 400):
     return texto
 
 def verifica_ped_vazio(texto, pos):
-    #Extrai o texto da imagem 
-    #texto_xml = extrai_txt_img(imagem='valida_itensxml.png', area_tela=(168, 400, 250, 30)).strip().replace('_','')
     texto_xml = extrai_txt_img(imagem='valida_itensxml.png', area_tela=(168, 407, 250, 20))
     print(F'--- Item da nota: {texto}, texto que ainda ficou: {texto_xml}, tamanho do texto {len(texto_xml)}')
 
-    #Verifica pelo tamanho do texto, se ainda ficou algum valor no campo "Itens do pedido"
+    # Verifica pelo tamanho do texto, se ainda ficou algum valor no campo "Itens do pedido"
     if len(texto_xml) > 5: 
         print('--- Itens XML ainda tem informação!')
         return False
     else:  # Caso fique vazio
         print('--- Itens XML ficou vazio! saindo da tela de vinculação')
         bot.click(procura_imagem(imagem='img_topcon/confirma.png', limite_tentativa= 100))
-        time.sleep(1)
-        bot.click(procura_imagem(imagem='img_topcon/botao_ok.jpg', limite_tentativa= 100))
+        time.sleep(2)
+        bot.click(procura_imagem(imagem='img_topcon/botao_ok.jpg', limite_tentativa= 100, confianca= 0.75))
         return True
 
 
