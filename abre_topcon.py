@@ -1,18 +1,15 @@
 # -*- Criado por Bruno da Silva Santos. -*-
 # Para utilização na Cortesia Concreto.
 
-#! Link da planilha
-# 35240433039223000979550010003667421381161110
 import time
 import pytesseract
 from ahk import AHK
-from funcoes import procura_imagem
+from funcoes import procura_imagem, corrige_topcompras
 import pyautogui as bot
 import os
-#from datetime import date
-#import sqlite3
+from colorama import Fore, Style
 
-# --- Definição de parametros
+# Definição de parametros
 ahk = AHK()
 bot.PAUSE = 0.5
 posicao_img = 0
@@ -27,86 +24,80 @@ senha_rdp = 'C0ncret0'
 
 #* ---------------- PROGRAMA PRINCIPAL ------------
 def fecha_execucoes():
-    print(F'Pausa do bot {bot.PAUSE}')
-    #Primeiro força o fechamento das telas, para evitar erros de validações, e depois abre o RDP
+    # Primeiro força o fechamento das telas, para evitar erros de validações, e depois abre o RDP
     print('--- Fechando as execuções atuais.')
-    os.system('taskkill /im mstsc.exe /f /t') #Força o fechamento do processo do RDP por completo
-    
-    ''' #! Subistituido por apenas essa linha acima.
-    ahk.win_kill('Segurança do Windows', title_match_mode= 2)
-    ahk.win_kill('mstsc', title_match_mode= 2)
-    ahk.win_kill('RemoteApp', title_match_mode= 2)
-    ahk.win_kill('RemoteApp', title_match_mode= 2)
-    ahk.win_kill('TopCon', title_match_mode= 2)
-    ahk.win_close('VM-CortesiaApli.CORTESIA.com', title_match_mode= 2)
-    '''
-    print('--- Iniciando o Topcon')
+    ahk.win_close('TopCompras', title_match_mode= 2)   
+    os.system('taskkill /im mstsc.exe /f /t') # Força o fechamento do processo do RDP por completo
+
 
 def abre_topcon():
-    os.startfile('RemoteApp-Cortesia.rdp')
-    time.sleep(2)
-    ahk.win_wait_active('Windows Security', title_match_mode= 2, timeout = 15)
-    if ahk.win_exists('Windows Security', title_match_mode= 2):
-        print('--- Abriu a tela "Windows Security, realizando o login" ')
-        #Realiza o login no RDP, que deve utilizar as informações de login do usuario "CORTESIA\BARBARA.K"
-        ahk.win_activate('Windows Security', title_match_mode= 2)
-        ahk.win_wait_active('Windows Security', title_match_mode= 2, timeout = 30)
-        #bot.click(procura_imagem(imagem='img_windows/txt_seguranca.png'))
-        #bot.write('C0rtesi@01') #Senha BARBARA.K
-        time.sleep(1)
+    print('--- Iniciando o RemoteApp')
+    #os.startfile('RemoteApp-Cortesia.rdp')
+    os.startfile('RemoteApp-CortesiaVPN.rdp')
+    time.sleep(0.5)
+    
+    # Tenta encontrar em ingles e portugues.
+    telas_seguranca = ['Windows Security', 'Segurança do Windows']
+    for tela in telas_seguranca:
+        try:
+            ahk.win_wait_active(tela, title_match_mode= 2, timeout = 10)
+        except TimeoutError:
+            time.sleep(0.2)
+        else:
+            #print(F'--- Encontrou com o nome {tela}')
+            tela_login_rdp = tela
+    
+    if tela_login_rdp is False: # Caso não encontro nenhuma das telas da lista "telas_seguranca"
+        exit(bot.alert('--- Nehuma das telas de segurança abriu.'))
+    
+    # Realiza o login no RDP, que deve utilizar as informações de login do usuario "CORTESIA\BARBARA.K"
+    if ahk.win_exists(tela_login_rdp, title_match_mode= 2):
+        print(F'--- Abriu a tela "{tela_login_rdp}", realizando o login" ')
+        ahk.win_activate(tela_login_rdp, title_match_mode= 2)
+        ahk.win_wait_active(tela_login_rdp, title_match_mode= 2, timeout = 10)
+        
+        # Insere os dados de login.
         bot.write(senha_rdp) #Senha BRUNO.S 
-        bot.press('TAB', presses= 3, interval= 0.02)
+        bot.press('TAB', presses= 3, interval= 0.02) # Navega até o botão "Ok"
         bot.press('ENTER')
         print('--- Login realizado no RemoteApp-Cortesia.rdp')
+        
     elif ahk.win_exists('TopCon (VM-CortesiaApli.CORTESIA.com)', title_match_mode= 2): 
         print('--- Tela de login do Topcon já está aberta, prosseguindo para o login')
 
-    #Verifica se nessa sessão o TopCompras já está aberto.
+    # Se o modulo de compras estiver fechado, realiza o login no TopCon
     if ahk.win_exists('TopCompras', title_match_mode= 2) is False:
-        #Realiza login no TopCon
-        while procura_imagem(imagem='img_topcon/txt_ServidorAplicacao.png', limite_tentativa= 24, continuar_exec= True) is False: #Aguarda até aparecer o campo do servidor preenchido
-            time.sleep(0.2)
-        else:
-            bot.click(procura_imagem(imagem='img_topcon/txt_ServidorAplicacao.png'))
-            print('--- Tela de login do topcon aberta')
-            bot.press('tab', presses= 2, interval= 0.005)
-            bot.press('backspace')
+        # Realiza login no TopCon
+        while True:
+            ahk.win_activate('TopCon', title_match_mode= 2)
+            if procura_imagem(imagem='img_topcon/txt_ServidorAplicacao.png', continuar_exec= True): # Aguarda até aparecer o campo do servidor preenchido
+                print('--- Tela de login do topcon aberta')
+                bot.click(procura_imagem(imagem='img_topcon/txt_ServidorAplicacao.png'))
+                bot.press('tab', presses= 2, interval= 0.005)
+                bot.press('backspace')
+                
+                # Insere os dados de login do usuario BRUNO.S
+                bot.write('BRUNO.S')
+                bot.press('tab')
+                bot.write('rockie')
+                bot.press('tab')
+                bot.press('enter')
+                time.sleep(3)
+                break
             
-            #Insere os dados de login do usuario BRUNO.S
-            bot.write('BRUNO.S')
-            bot.press('tab')
-            bot.write('rockie')
-            bot.press('tab')
-            bot.press('enter')
-            time.sleep(3)
-    
-    #Abre o modulo de compras e navega até a tela de lançamento
-    print('--- Tentando abrir o modulo de compras')
-    
-    ''' #! Substituido pela logica informada a baixo.
-    ahk.win_activate('TopCompras - Versão', title_match_mode= 2)
-    try:
-        ahk.win_wait('TopCompras', title_match_mode=2, timeout= 10)
-    except TimeoutError:
-        print('--- Não encontrou a janela "TopCompras", tentando pelo icone do topcon')
-        icone_carrinho = procura_imagem(imagem='img_topcon/icone_topcon.png', continuar_exec=True)
-        if icone_carrinho is not False: #Caso encontre o icone
-            bot.click(icone_carrinho)
-            ahk.win_set_title(new_title= 'TopCompras', title= ' (VM-CortesiaApli.CORTESIA.com)', title_match_mode= 1, detect_hidden_windows= True)
-        else:
-            exit(bot.alert('---Tela de Compras não abriu.'))
-    bot.press('ENTER')
-    '''
-    ahk.win_activate('TopCon -', title_match_mode= 2)
-    bot.press('TAB', presses= 20)
-    bot.press('ENTER')
-    time.sleep(3)
+            if procura_imagem(imagem='img_topcon/logo_principal.png', continuar_exec= True):
+                print('--- Tela do Topcon já está aberta.')
+                break
+                
+    # Ativa o Topcon, e clica no topcompras, e executa a função para correção do nome.
+    ahk.win_activate('TopCon', title_match_mode= 2)
+    bot.click(procura_imagem(imagem='img_topcon/logo_topcompras.png'))
+    time.sleep(2)
+    corrige_topcompras()
 
-    if ahk.win_exists(' (VM-CortesiaApli.CORTESIA.com)', title_match_mode= 1):
-        print('Encontrou a tela sem o nome, alterando')
-        ahk.win_set_title(new_title= 'TopCompras', title= ' (VM-CortesiaApli.CORTESIA.com)', title_match_mode= 1, detect_hidden_windows= True)
-    #Verifica se aparece a tela "interveniente"
-    if procura_imagem(imagem='img_topcon/botao_ok.jpg', continuar_exec= True, confianca= 0.7):
+    #Abre o TopCompras, e verifica se aparece a tela "interveniente"
+    ahk.win_activate('TopCompras', title_match_mode= 2)
+    if procura_imagem(imagem='img_topcon/botao_ok.jpg', continuar_exec= True):
         print('--- Encontrou a tela do interveniente, clicando no botão "OK"')
         bot.press('ENTER')
         
@@ -117,6 +108,7 @@ def abre_topcon():
     bot.press('DOWN', presses= 7, interval= 0.05)
     bot.press('ENTER')
     time.sleep(3)
+    print(Fore.GREEN +  '--- TopCompras aberto!' + Style.RESET_ALL)
 
 if __name__ == '__main__':
     fecha_execucoes()

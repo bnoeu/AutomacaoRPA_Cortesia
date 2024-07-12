@@ -55,7 +55,7 @@ def procura_imagem(imagem, limite_tentativa=6, area=(0, 0, 1920, 1080), continua
         caminho_erro = 'img_geradas/' + 'erro' + time_atual + '.png'
         img_erro = bot.screenshot()
         img_erro.save(fp= caminho_erro)
-        ahk.win_kill('db_alltrips')
+        ahk.win_kill('debug_db_alltrips')
         #! Não funcionando.
         # raise 
         exit(bot.alert(text=F'Não foi possivel encontrar: {imagem}', title='Erro!', button='Fechar'))
@@ -77,8 +77,8 @@ def verifica_tela(nome_tela, manual=False):
 def marca_lancado(texto_marcacao='Lancado'):
     bot.PAUSE = 0.5
     print(Fore.GREEN + F'\n--- Abrindo planilha - MARCA_LANCADO, com parametro: {texto_marcacao}' + Style.RESET_ALL)
-    ahk.win_activate('db_alltrips', title_match_mode= 2)
-    ahk.win_wait_active('db_alltrips', title_match_mode= 2, timeout= 15)
+    ahk.win_activate('debug_db_alltrips', title_match_mode= 2)
+    ahk.win_wait_active('debug_db_alltrips', title_match_mode= 2, timeout= 15)
     time.sleep(2)
     bot.hotkey('CTRL', 'HOME')
 
@@ -185,6 +185,18 @@ def verifica_ped_vazio(texto, pos):
         bot.click(procura_imagem(imagem='img_topcon/botao_ok.jpg', limite_tentativa= 100, confianca= 0.75))
         return True
 
+def corrige_topcompras():
+    try: 
+        ahk.win_wait(' (VM-CortesiaApli.CORTESIA.com)', title_match_mode= 1, timeout= 3)
+    except TimeoutError:
+        print('--- Não achou a tela sem nome, verificando se o TopCompras abriu')
+        if ahk.win_wait('TopCompras', title_match_mode= 1):
+            print('--- TopCompras abriu com o nome normal, prosseguindo.')
+        else:
+            bot.alert(exit('TopCompras não encontrado.'))
+    else:
+        print('--- Encontrou  tela sem o nome, corrigindo')
+        ahk.win_set_title(new_title= 'TopCompras', title= ' (VM-CortesiaApli.CORTESIA.com)', title_match_mode= 1, detect_hidden_windows= True)
 
 
 if __name__ == '__main__':

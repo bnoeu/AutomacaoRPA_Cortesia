@@ -2,7 +2,6 @@
 # Para utilização na Cortesia Concreto.
 
 #! Link da planilha
-# https://cortesiaconcreto-my.sharepoint.com/:x:/g/personal/bi_cortesiaconcreto_com_br/EU6ahKCIVdxFjiB_rViPfN0Bo9SGYGReQ7VTqbKDjMXyLQ?e=QrTGT0
 # https://cortesiaconcreto-my.sharepoint.com/:x:/g/personal/bi_cortesiaconcreto_com_br/EW_8FZwWFYVAol4MpV1GglkBJEaJaDx6cfuClnesIu60Ng?e=pveECF
 # Debug db alltrips
 # https://cortesiaconcreto-my.sharepoint.com/:x:/g/personal/bruno_silva_cortesiaconcreto_com_br/ETubFnXLMWREkm0e7ez30CMBnID3pHwfLgGWMHbLqk2l5A?rtime=n9xgTPCH3Eg
@@ -121,7 +120,7 @@ def programa_principal():
     # Alteração da data
     hoje = date.today()
     hoje = hoje.strftime("%d%m%y")  # dd/mm/YY
-    bot.write('06/07/2024')
+    #bot.write('06/07/2024')
     bot.press('ENTER')
     time.sleep(0.5)
     
@@ -169,7 +168,7 @@ def programa_principal():
     print(F'--- Trocando o centro de custo para {centro_custo}')
     bot.write(centro_custo)
     print('--- Aguarda aparecer o campo cod_desc')
-    while procura_imagem(imagem='img_topcon/cod_desc.png', limite_tentativa= 50, continuar_exec=True) is False:
+    while procura_imagem(imagem='img_topcon/cod_desc.png', continuar_exec=True) is False:
         time.sleep(0.2)
     else:
         print('--- Apareceu o campo COD_DESC')
@@ -194,6 +193,7 @@ def programa_principal():
         bot.press('enter')
 
     print('--- Aguardando validar o campo do transportador')
+    ahk.win_activate('TopCompras', title_match_mode=2, detect_hidden_windows= True)
     if procura_imagem(imagem='img_topcon/transportador_incorreto.png', continuar_exec= True) is not False:
         print('--- Transportador incorreto!')
         bot.press('ENTER')
@@ -205,6 +205,7 @@ def programa_principal():
         bot.press('enter')
 
     # Verifica se o campo da placa ficou preenchido
+    ahk.win_activate('TopCompras', title_match_mode=2, detect_hidden_windows= True)
     if procura_imagem('img_topcon/campo_placa.png', continuar_exec=True) is not False:
         print('--- Encontrou o campo vazio, inserindo XXX0000')
         bot.click(procura_imagem('img_topcon/campo_placa.png', continuar_exec=True))
@@ -294,11 +295,13 @@ def programa_principal():
         # TODO --- CASO O REMOTE APP DESCONECTE, RODAR O ABRE TOPCON
 
     # Conclui o lançamento
-    bot.press('pagedown')  # Conclui o lançamento
     print('--- Enviado pagedown, aguardando tela de operação realizada')
+    bot.press('pagedown')  # Conclui o lançamento
+    time.sleep(1)
     
     # Espera até aparecer a tela de operação realizada ou chave_invalida
     while True:
+        time.sleep(0.5)
         # 1. Caso chave invalida.  
         if procura_imagem(imagem='img_topcon/chave_invalida.png', continuar_exec=True) is not False:
             print('--- Nota já lançada, marcando planilha!')
@@ -307,25 +310,34 @@ def programa_principal():
             marca_lancado(texto_marcacao='Lancado_Manual')
             break
    
-        # 2. Caso apareça tela "Espelho da nota fiscal"
-        if ahk.win_exists('Espelho de Nota Fiscal', title_match_mode= 2):
-            ahk.win_close('Espelho de Nota Fiscal', title_match_mode= 2)
-            
-        # 4. Caso operação realizada.
+        # 2. Caso operação realizada.
         if procura_imagem(imagem='img_topcon/operacao_realizada.png', continuar_exec= True) is not False:
             print('--- Encontrou a tela de operação realizada, fechando e marcando a planilha')
-            ahk.win_activate('TopCompras', title_match_mode= 2)
-            ahk.win_wait_active('TopCompras', timeout=50, title_match_mode=2)
+            #ahk.win_activate('TopCompras', title_match_mode= 2)
+            #ahk.win_wait_active('TopCompras', timeout=50, title_match_mode=2)
             
-            bot.click(procura_imagem(imagem='img_topcon/operacao_realizada.png'))
-            bot.press('ENTER')
+            while procura_imagem(imagem='img_topcon/bt_nfereferencia.png', continuar_exec= True) is False:
+                ahk.win_activate('TopCompras', title_match_mode= 2)
+                bot.click(procura_imagem(imagem='img_topcon/operacao_realizada.png'))
+                bot.press('ENTER')
+            
             processo_transferencia()
-            # Aperta F2 para retornar a tela para o modo "Localizar"
-            bot.press('F2')
+            
+            bot.press('F2') # Aperta F2 para retornar a tela para o modo "Localizar"
+            time.sleep(2)
             marca_lancado(texto_marcacao='Lancado_RPA')
             if procura_imagem(imagem='img_topcon/operacao_realizada.png', continuar_exec= True) is False:
                 break
-          
+
+    # 1. Caso apareça "deseja imprimir o espelho da nota?"
+    if procura_imagem(imagem='img_topcon/txt_espelhonota.png', continuar_exec=True) is not False:
+        print('--- Apareceu a tela: deseja imprimir o espelho da nota?')
+        bot.press('ENTER')
+        
+    # 2. Caso apareça tela "Espelho da nota fiscal"
+    if ahk.win_exists('Espelho de Nota Fiscal', title_match_mode= 2):
+        ahk.win_close('Espelho de Nota Fiscal', title_match_mode= 2)
+         
     return True
 
 

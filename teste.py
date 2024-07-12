@@ -11,7 +11,6 @@ import pyautogui as bot
 import pandas as pd
 from onedrivedownloader import download as one_download
 from funcoes import procura_imagem, extrai_txt_img, marca_lancado
-from acoes_planilha import valida_lancamento
 from valida_pedido import valida_pedido
 
 ''' #*Selenium
@@ -50,6 +49,8 @@ def lista_telas():
         print(telas.title)
 
 
+ahk.win_close('TopCompras', title_match_mode= 2)   
+
 ''' #* Cria banco de dados
 #Cria a conexão com o banco de dados
 con = sqlite3.connect("informacoes.db")
@@ -65,19 +66,14 @@ exit()
 
  #* Consulta as telas abertas
 
-confianca = 0.74
+''' #* Parte da tentativa de comunicação com o SEFAZ
 
-confianca -= 0.01
-
-print(confianca)
  
-'''
-'''
 
 
 
 
-'''
+
 certificado = "/certificado_nfe/certificado.pfx"
 senha = '123456'
 uf = 'sp'

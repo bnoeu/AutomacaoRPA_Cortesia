@@ -9,7 +9,7 @@ import pyautogui as bot
 # import pygetwindow as gw
 from colorama import Fore, Style
 from coleta_planilha import coleta_planilha
-from funcoes import marca_lancado, procura_imagem
+from funcoes import marca_lancado, procura_imagem, corrige_topcompras
 
 
 # --- Definição de parametros
@@ -47,18 +47,8 @@ def valida_lancamento():
         print(Fore.GREEN +  '--- Abrindo TopCompras para iniciar o lançamento' + Style.RESET_ALL)
         tempo_inicio = time.time() #* Tempo inicial do lançamento
         
-        try: 
-            ahk.win_wait(' (VM-CortesiaApli.CORTESIA.com)', title_match_mode= 1, timeout= 3)
-        except TimeoutError:
-            print('--- Não achou a tela sem nome, verificando se o TopCompras abriu')
-            if ahk.win_wait('TopCompras', title_match_mode= 1):
-                print('--- TopCompras abriu com o nome normal, prosseguindo.')
-            else:
-                bot.alert(exit('TopCompras não encontrado.'))
-        else:
-            print('--- Encontrou  tela sem o nome, corrigindo')
-            ahk.win_set_title(new_title= 'TopCompras', title= ' (VM-CortesiaApli.CORTESIA.com)', title_match_mode= 1, detect_hidden_windows= True)
-
+        corrige_topcompras() # Realiza a correção do nome do modulo de compras
+        
         print('--- Alterando para o modo alteração')
         ahk.win_activate('TopCompras', title_match_mode=2)
         while procura_imagem(imagem='img_topcon/txt_inclui.png', continuar_exec= True, area= (852, 956, 1368, 1045)) is False:
