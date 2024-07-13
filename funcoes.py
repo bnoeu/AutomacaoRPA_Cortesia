@@ -55,7 +55,7 @@ def procura_imagem(imagem, limite_tentativa=6, area=(0, 0, 1920, 1080), continua
         caminho_erro = 'img_geradas/' + 'erro' + time_atual + '.png'
         img_erro = bot.screenshot()
         img_erro.save(fp= caminho_erro)
-        ahk.win_kill('debug_db_alltrips')
+        #ahk.win_kill('debug_db_alltrips')
         #! Não funcionando.
         # raise 
         exit(bot.alert(text=F'Não foi possivel encontrar: {imagem}', title='Erro!', button='Fechar'))

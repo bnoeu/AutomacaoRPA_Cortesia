@@ -49,7 +49,8 @@ def lista_telas():
         print(telas.title)
 
 
-ahk.win_close('TopCompras', title_match_mode= 2)   
+while ahk.win_exists('Espelho de Nota Fiscal', title_match_mode= 2):
+    ahk.win_close('Espelho de Nota Fiscal', title_match_mode= 2)
 
 ''' #* Cria banco de dados
 #Cria a conexão com o banco de dados

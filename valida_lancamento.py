@@ -50,14 +50,14 @@ def valida_lancamento():
         corrige_topcompras() # Realiza a correção do nome do modulo de compras
         
         print('--- Alterando para o modo alteração')
-        ahk.win_activate('TopCompras', title_match_mode=2)
+        ahk.win_activate('TopCompras - Versão', title_match_mode=2)
         while procura_imagem(imagem='img_topcon/txt_inclui.png', continuar_exec= True, area= (852, 956, 1368, 1045)) is False:
             ahk.win_activate('TopCompras', title_match_mode= 2)
             bot.press('F2', presses= 2)
             bot.press('F3', presses= 2)
             time.sleep(0.1)
         else:
-            ahk.win_activate('TopCompras', title_match_mode = 2)
+            ahk.win_activate('TopCompras - Versão', title_match_mode=2)
             bot.press('F3', presses= 2)
             print('--- Entrou no modo incluir, continuando inserção da NFE')
             time.sleep(3)

@@ -217,7 +217,8 @@ def programa_principal():
 
     # * -------------------------------------- Aba Produtos e serviços --------------------------------------
     ahk.win_activate('TopCompras', title_match_mode=2)
-    ahk.win_wait_active('TopCompras', title_match_mode=2, timeout= 25)    
+    ahk.win_wait_active('TopCompras', title_match_mode=2, timeout= 25)
+    print('--- Navegando para a aba Produtos e Servicos')  
     bot.doubleClick(procura_imagem(imagem='img_topcon/produtos_servicos.png'))
     # Aguarda até aparecer o botão "alterar"
     procura_imagem(imagem='img_topcon/botao_alterar.png', area=(100, 839, 300, 400), limite_tentativa= 100)
@@ -228,7 +229,7 @@ def programa_principal():
     #* Realiza a extração da quantidade de toneladas
     valor_escala = 200
     while True:
-        while True:
+        while True: # Realiza a extração das toneladas.
             try:
                 qtd_ton = extrai_txt_img(imagem='img_toneladas.png', area_tela=(892, 577, 70, 20), porce_escala= valor_escala).strip()
                 qtd_ton = qtd_ton.replace(",", ".")
@@ -245,9 +246,9 @@ def programa_principal():
             print('--- Aguardando aparecer a tela "Itens nota fiscal de compra" ')
 
         print('--- Preenchendo SILO e quantidade')
-        if (silo1 != '') or (silo2 != ''):
+        if ('SILO' in silo1) or ('SILO' in silo2):
             bot.click(851, 443)  # Clica na linha para informar o primeiro silo
-            if silo2 != '':  # realiza a divisão da quantidade de cimento
+            if silo2 != '':  # Realiza a divisão da quantidade de cimento
                 qtd_ton = str((qtd_ton / 2))
                 qtd_ton = qtd_ton.replace(".", ",")
                 print(F'--- Foi informado dois silos, preenchendo... {silo1} e {silo2}, quantidade: {qtd_ton}')
@@ -267,8 +268,17 @@ def programa_principal():
                 bot.press('ENTER')
                 bot.write(str(qtd_ton))
                 bot.press('ENTER')
-        else:
-            print('--- Nenhum silo coletado, nota de agregado!')
+        else: # Caso não tenha coletado nenhum silo.            
+            if procura_imagem(imagem='img_topcon/txt_cimento.png', limite_tentativa= 1, continuar_exec= True):
+                print(Fore.RED + '--- Não foi informado nenhum SILO, porém a nota é de cimento!\n' + Style.RESET_ALL)
+                bot.click(procura_imagem(imagem='img_topcon/txt_cimento.png', limite_tentativa= 1, continuar_exec= True))
+                bot.press('ESC')
+                time.sleep(1)
+                marca_lancado(texto_marcacao= 'Faltou_InfoSilo')
+                programa_principal()
+            else: # Caso realmente seja de agregado.
+                print('--- Nota de agregado, continuando o processo!')
+            
             bot.click(procura_imagem(imagem='img_topcon/confirma.png'))
             break
             
@@ -325,18 +335,18 @@ def programa_principal():
             
             bot.press('F2') # Aperta F2 para retornar a tela para o modo "Localizar"
             time.sleep(2)
-            marca_lancado(texto_marcacao='Lancado_RPA')
+            marca_lancado(texto_marcacao='Lancado_RPA') 
             if procura_imagem(imagem='img_topcon/operacao_realizada.png', continuar_exec= True) is False:
                 break
 
-    # 1. Caso apareça "deseja imprimir o espelho da nota?"
-    if procura_imagem(imagem='img_topcon/txt_espelhonota.png', continuar_exec=True) is not False:
-        print('--- Apareceu a tela: deseja imprimir o espelho da nota?')
-        bot.press('ENTER')
-        
-    # 2. Caso apareça tela "Espelho da nota fiscal"
-    if ahk.win_exists('Espelho de Nota Fiscal', title_match_mode= 2):
-        ahk.win_close('Espelho de Nota Fiscal', title_match_mode= 2)
+        # 3. Caso apareça "deseja imprimir o espelho da nota?"
+        if procura_imagem(imagem='img_topcon/txt_espelhonota.png', continuar_exec=True) is not False:
+            print('--- Apareceu a tela: deseja imprimir o espelho da nota?')
+            bot.press('ENTER')
+            
+        # 4. Caso apareça tela "Espelho da nota fiscal"
+        while ahk.win_exists('Espelho de Nota Fiscal', title_match_mode= 2):
+            ahk.win_close('Espelho de Nota Fiscal', title_match_mode= 2)
          
     return True
 
