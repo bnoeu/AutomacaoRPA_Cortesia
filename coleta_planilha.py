@@ -2,6 +2,7 @@
 # Para utilização na Cortesia Concreto.
 
 import time
+import os
 # import cv2
 # import pygetwindow as gw
 import pytesseract
@@ -68,7 +69,7 @@ def coleta_planilha():
         # Navega entre os 6 campos, realizando a copia um por um, e inserindo na lista Dados Planilha.
         for n in range(0, 7, 1):  # Copia dados dos 6 campos
             while True:
-                pausa_copia = 0.2
+                pausa_copia = 0.4
                 bot.hotkey('ctrl', 'c')
                 if 'Recuperando' in ahk.get_clipboard():
                     time.sleep(pausa_copia)
@@ -90,6 +91,7 @@ def coleta_planilha():
         else:
             break
     
+    os.system('cls')
     print(Fore.GREEN + F'--- Dados copiados com sucesso: {dados_planilha}\n' + Style.RESET_ALL)
     return dados_planilha
 

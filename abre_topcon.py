@@ -31,13 +31,14 @@ def fecha_execucoes():
 
 
 def abre_topcon():
+    bot.PAUSE = 1
     # Começa garantindo que fechou todas as execuções antigas.
     fecha_execucoes()
     
     print('--- Iniciando o RemoteApp')
-    #os.startfile('RemoteApp-Cortesia.rdp')
-    os.startfile('RemoteApp-CortesiaVPN.rdp')
-    time.sleep(0.5)
+    os.startfile('RemoteApp-Cortesia.rdp')
+    #os.startfile('RemoteApp-CortesiaVPN.rdp')
+    time.sleep(1)
     
     # Tenta encontrar em ingles e portugues.
     telas_seguranca = ['Windows Security', 'Segurança do Windows']
@@ -45,7 +46,7 @@ def abre_topcon():
         try:
             ahk.win_wait_active(tela, title_match_mode= 2, timeout = 10)
         except TimeoutError:
-            time.sleep(0.2)
+            time.sleep(0.5)
         else:
             #print(F'--- Encontrou com o nome {tela}')
             tela_login_rdp = tela
@@ -61,7 +62,7 @@ def abre_topcon():
         
         # Insere os dados de login.
         bot.write(senha_rdp) #Senha BRUNO.S 
-        bot.press('TAB', presses= 3, interval= 0.02) # Navega até o botão "Ok"
+        bot.press('TAB', presses= 3, interval= 0.05) # Navega até o botão "Ok"
         bot.press('ENTER')
         print('--- Login realizado no RemoteApp-Cortesia.rdp')
         
@@ -95,8 +96,9 @@ def abre_topcon():
     # Ativa o Topcon, e clica no topcompras, e executa a função para correção do nome.
     ahk.win_activate('TopCon', title_match_mode= 2)
     bot.click(procura_imagem(imagem='img_topcon/logo_topcompras.png'))
-    time.sleep(2)
+    time.sleep(4)
     corrige_topcompras()
+    time.sleep(4)
 
     #Abre o TopCompras, e verifica se aparece a tela "interveniente"
     ahk.win_activate('TopCompras', title_match_mode= 2)

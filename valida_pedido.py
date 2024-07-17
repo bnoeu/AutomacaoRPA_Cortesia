@@ -142,7 +142,7 @@ def valida_pedido(acabou_pedido=False):
                     bot.doubleClick(pos) # Clica novamente no mesmo pedido, para desmarcar
             else:
                 print(Fore.GREEN + F'--- Pedido validado, saindo do loop dos pedidos encontrados, valor do campo: {vazio}\n' + Style.RESET_ALL)
-                break
+                return False
 
     else:
         if vazio is False:

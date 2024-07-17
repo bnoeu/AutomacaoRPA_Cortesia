@@ -125,11 +125,6 @@ def finaliza_lancamento():
                 else:
                     print(Fore.RED + '--- Não voltou para o modo localizar, alguma tela ainda deve estar aberta...\n' + Style.RESET_ALL)
                     
-                     
-
-                        
-                        
-            
         # 3. Caso apareça "deseja imprimir o espelho da nota?"
         if procura_imagem(imagem='img_topcon/txt_espelhonota.png', continuar_exec=True) is not False:
             print('--- Apareceu a tela: deseja imprimir o espelho da nota?')
@@ -144,7 +139,7 @@ def finaliza_lancamento():
         time.sleep(1)
         # Caso exceta o limite de tentativas, tenta fechar e abrir a tela de compras.
         tentativas_telas += 1
-        if tentativas_telas >= 10:
+        if tentativas_telas >= 5:
             abre_mercantil()
         
         if lancamento_concluido is True:
@@ -191,6 +186,9 @@ def programa_principal():
             exit(F'Filial de estoque não padronizada {filial_estoq}')
         chave_xml = dados_planilha[4]
         acabou_pedido = valida_pedido(acabou_pedido=False)
+        if acabou_pedido is False:
+            os.system('cls')
+            print(Fore.GREEN + F'--- Pedido validado, dados planilha: {dados_planilha}\n' + Style.RESET_ALL)
 
 #* -------------------------- PROSSEGUINDO COM O LANÇAMENTO DA NFE -------------------------- 
     print('--- Preenchendo dados na tela principal do lançamento')
@@ -212,7 +210,7 @@ def programa_principal():
     # Alteração da data
     hoje = date.today()
     hoje = hoje.strftime("%d%m%y")  # dd/mm/YY
-    bot.write('13/07/2024')
+    #bot.write('13/07/2024')
     bot.press('ENTER')
     time.sleep(0.5)
     
@@ -320,6 +318,7 @@ def programa_principal():
     ahk.win_wait_active('TopCompras', title_match_mode=2, timeout= 25)
     print('--- Navegando para a aba Produtos e Servicos')  
     bot.doubleClick(procura_imagem(imagem='img_topcon/produtos_servicos.png'))
+    time.sleep(2)
     # Aguarda até aparecer o botão "alterar"
     procura_imagem(imagem='img_topcon/botao_alterar.png', area=(100, 839, 300, 400), limite_tentativa= 100)
     

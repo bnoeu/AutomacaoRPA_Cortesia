@@ -4,6 +4,7 @@
 import time
 # import cv2
 import pytesseract
+import os
 from ahk import AHK
 import pyautogui as bot
 # import pygetwindow as gw
@@ -36,24 +37,32 @@ def valida_lancamento():
         corrige_topcompras() # Realiza a correção do nome do modulo de compras
         
         print('--- Alterando o TopCompras para o modo incluir')
-        ahk.win_activate('TopCompras', title_match_mode=2)
-        while procura_imagem(imagem='img_topcon/txt_inclui.png', continuar_exec= True, area= (852, 956, 1368, 1045)) is False:
-            ahk.win_activate('TopCompras', title_match_mode= 2)
-            bot.press('F2', presses= 2)
-            if procura_imagem(imagem='img_topcon/txt_localizar.png', continuar_exec= True, area= (852, 956, 1368, 1045)):
-                print('--- Entrou no modo localizar, mudando para o modo incluir')
+        ahk.win_activate('TopCompras', title_match_mode= 2 )
+        ahk.win_wait_active('TopCompras', title_match_mode= 2)
+        
+        while True: # Enquanto a tela não for alterada para o modo incluir
+            if procura_imagem(imagem='img_topcon/txt_inclui.png', continuar_exec= True, area= (852, 956, 1368, 1045)) is False:
+                ahk.win_activate('TopCompras', title_match_mode= 2)
+                bot.press('F2', presses= 2)
+                if procura_imagem(imagem='img_topcon/txt_localizar.png', continuar_exec= True, area= (852, 956, 1368, 1045)):
+                    print(F'--- Entrou no modo localizar, mudando para o modo incluir, tentativa {tentativa_alterar_botoes}')
+                    bot.press('F3', presses= 2)
+                    time.sleep(0.2)
+
+            else:
+                ahk.win_activate('TopCompras', title_match_mode=2)
                 bot.press('F3', presses= 2)
-                time.sleep(0.2)
-                tentativa_alterar_botoes += 1
-                if tentativa_alterar_botoes > 10:
-                    # Caso passe o limite de tentativas, provavelmente ocorreu algum problema.
-                    abre_topcon()
-                    valida_lancamento()
-        else:
-            ahk.win_activate('TopCompras', title_match_mode=2)
-            bot.press('F3', presses= 2)
-            print('--- Entrou no modo incluir, continuando inserção da NFE')
-            time.sleep(0.5)
+                print('--- Entrou no modo incluir, continuando inserção da NFE')
+                time.sleep(0.5)
+                break
+
+            tentativa_alterar_botoes += 1
+            if tentativa_alterar_botoes > 5:
+                # Caso passe o limite de tentativas, provavelmente ocorreu algum problema.
+                print('--- Excedeu o limite de tentativas de alteração, reabrindo o TopCompras.')
+                exit()
+                abre_topcon()
+                valida_lancamento()
 
         # Inicia inserção da chave XML
         bot.press('TAB', presses= 2, interval = 1)
@@ -65,8 +74,8 @@ def valida_lancamento():
             print('--- Retornou os valores como None, mantendo o loop')
             pass
         else:
-            print('--- Validou os dados do XML! retornando dados_planilha')
-            print(validou_xml)
+            os.system('cls')
+            print(Fore.GREEN + F'--- Validou os dados do XML, dados_planilha: {dados_planilha}\n' + Style.RESET_ALL)
             return validou_xml
 
 def conferencia_xml(tentativa = 0, maximo_tentativas = 20, texto_erro = False, dados_planilha = False):

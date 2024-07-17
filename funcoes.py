@@ -74,8 +74,9 @@ def verifica_tela(nome_tela, manual=False):
     else:
         exit(print(F'--- Tela: {nome_tela} está fechada, saindo do programa.'))
 
+
 def marca_lancado(texto_marcacao='Lancado'):
-    bot.PAUSE = 0.5
+    bot.PAUSE = 0.2
     print(Fore.GREEN + F'\n--- Abrindo planilha - MARCA_LANCADO, com parametro: {texto_marcacao}' + Style.RESET_ALL)
     ahk.win_activate('debug_db_alltrips', title_match_mode= 2)
     ahk.win_wait_active('debug_db_alltrips', title_match_mode= 2, timeout= 15)
@@ -118,18 +119,22 @@ def marca_lancado(texto_marcacao='Lancado'):
         print('--- Saindo do menu do filtro')
         #exit(bot.alert('Verificar se filtrou!'))
     else:
-        print('--- Não está filtrado, executando o filtro!')  
+        print('--- Não está filtrado, executando o filtro!')
         bot.hotkey('CTRL', 'HOME')
         bot.press('RIGHT', presses= 6)
         bot.move(500, 500)
         bot.hotkey('alt', 'down') 
         
-        while procura_imagem(imagem='img_planilha/botao_selecionartudo.png', limite_tentativa= 1) is None:
-            time.sleep(0.1)
+        print('--- Aguardando aparecer o botão selecionar tudo')
+        while procura_imagem(imagem='img_planilha/botao_selecionartudo.png', continuar_exec= True) is None:
+            time.sleep(0.2)
+        else:
+            print('--- Apareceu o botão selecionar tudo!')
             
-        bot.click(procura_imagem(imagem='img_planilha/botao_selecionartudo.png'))
-        bot.click(procura_imagem(imagem='img_planilha/bt_vazias.png'))
-        bot.click(procura_imagem(imagem='img_planilha/bt_aplicar.png'))
+        print('--- Reaplicando o filtro para as notas vazias')
+        # Navega até a opção "Selecionar tudo", para reaplicar o filtro de notas vazias.
+        bot.press('TAB', presses= 9)
+        bot.press('ENTER')
 
     print(Fore.GREEN + F'--------------------- Processou NFE, situação: {texto_marcacao} ---------------------\n' + Style.RESET_ALL)
 
@@ -195,9 +200,8 @@ def corrige_topcompras():
         else:
             bot.alert(exit('TopCompras não encontrado.'))
     else:
-        print('--- Encontrou  tela sem o nome, corrigindo')
+        print('--- Encontrou  tela sem o nome, corrigindoo!')
         ahk.win_set_title(new_title= 'TopCompras', title= ' (VM-CortesiaApli.CORTESIA.com)', title_match_mode= 1, detect_hidden_windows= True)
-
-
+            
 if __name__ == '__main__':
-    marca_lancado()
+    marca_lancado('Teste')
