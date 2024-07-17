@@ -9,9 +9,11 @@ import datetime
 from ahk import AHK
 import pyautogui as bot
 import pandas as pd
+from colorama import Fore, Back, Style
 from onedrivedownloader import download as one_download
 from funcoes import procura_imagem, extrai_txt_img, marca_lancado
 from valida_pedido import valida_pedido
+from Materia_Prima import processo_transferencia
 
 ''' #*Selenium
 from selenium import webdriver
@@ -44,13 +46,8 @@ centro_custo = filial_estoq
 cracha_mot = '112480'
 
 #! Funções
-def lista_telas():
-    for telas in ahk.list_windows():
-        print(telas.title)
 
 
-while ahk.win_exists('Espelho de Nota Fiscal', title_match_mode= 2):
-    ahk.win_close('Espelho de Nota Fiscal', title_match_mode= 2)
 
 ''' #* Cria banco de dados
 #Cria a conexão com o banco de dados

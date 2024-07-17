@@ -22,7 +22,7 @@ chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
 pytesseract.pytesseract.tesseract_cmd = r"C:\Tesseract-OCR\tesseract.exe"
 bot.useImageNotFoundException(False)
 
-def procura_imagem(imagem, limite_tentativa=6, area=(0, 0, 1920, 1080), continuar_exec=False, confianca = 0.75, msg_continuar_exec = False):
+def procura_imagem(imagem, limite_tentativa=6, area=(0, 0, 1920, 1080), continuar_exec=False, confianca = 0.8, msg_continuar_exec = False):
     hoje = datetime.date.today()
     maquina_viva = False
     tentativa = 0   
@@ -42,6 +42,7 @@ def procura_imagem(imagem, limite_tentativa=6, area=(0, 0, 1920, 1080), continua
             #print(F'--- Encontrou {imagem} na posição: {posicao_img}')
             break
         tentativa += 1
+        #print(F'--- Valor atual da confiança da imagem: {confianca}')
         confianca -= 0.01
 
     #Caso seja para continuar
@@ -72,7 +73,6 @@ def verifica_tela(nome_tela, manual=False):
         return False
     else:
         exit(print(F'--- Tela: {nome_tela} está fechada, saindo do programa.'))
-
 
 def marca_lancado(texto_marcacao='Lancado'):
     bot.PAUSE = 0.5
@@ -181,15 +181,15 @@ def verifica_ped_vazio(texto, pos):
     else:  # Caso fique vazio
         print('--- Itens XML ficou vazio! saindo da tela de vinculação')
         bot.click(procura_imagem(imagem='img_topcon/confirma.png', limite_tentativa= 100))
-        time.sleep(2)
-        bot.click(procura_imagem(imagem='img_topcon/botao_ok.jpg', limite_tentativa= 100, confianca= 0.75))
+        time.sleep(3)
+        bot.click(procura_imagem(imagem='img_topcon/botao_ok.jpg', limite_tentativa= 100))
+        print('--- Encerrado a função verifica pedido vazio!')
         return True
 
 def corrige_topcompras():
     try: 
         ahk.win_wait(' (VM-CortesiaApli.CORTESIA.com)', title_match_mode= 1, timeout= 3)
     except TimeoutError:
-        print('--- Não achou a tela sem nome, verificando se o TopCompras abriu')
         if ahk.win_wait('TopCompras', title_match_mode= 1):
             print('--- TopCompras abriu com o nome normal, prosseguindo.')
         else:

@@ -17,7 +17,7 @@ from datetime import date
 from colorama import Back, Style, Fore
 from valida_pedido import valida_pedido
 from valida_lancamento import valida_lancamento
-from funcoes import marca_lancado, procura_imagem, extrai_txt_img
+from funcoes import marca_lancado, procura_imagem, extrai_txt_img, corrige_topcompras
 
 # --- Definição de parametros
 ahk = AHK()
@@ -59,6 +59,98 @@ def processo_transferencia():
                 ahk.win_activate('TopCom', title_match_mode=2)
     else:
         print('--- Não foi gerada transferencia para essa nota fiscal.')
+
+def abre_mercantil():
+    # Inicia fechando o modulo de compras.
+    ahk.win_close('TopCompras', title_match_mode=2)
+    
+    # Ativa o Topcon, e clica no topcompras, e executa a função para correção do nome.
+    ahk.win_activate('TopCon', title_match_mode= 2)
+    bot.click(procura_imagem(imagem='img_topcon/logo_topcompras.png'))
+    time.sleep(2)
+    corrige_topcompras()
+
+    #Abre o TopCompras, e verifica se aparece a tela "interveniente"
+    ahk.win_activate('TopCompras', title_match_mode= 2)
+    if procura_imagem(imagem='img_topcon/botao_ok.jpg', continuar_exec= True):
+        print('--- Encontrou a tela do interveniente, clicando no botão "OK"')
+        bot.press('ENTER')
+    else:
+        print('--- Não exibiu a tela de interveniente.')
+        
+    #Navegando entre os menus para abrir a opção "Compras - Mercantil"
+    ahk.win_activate('TopCompras', title_match_mode= 2)
+    bot.press('ALT')
+    bot.press('RIGHT', presses= 2, interval= 0.05)
+    bot.press('DOWN', presses= 7, interval= 0.05)
+    bot.press('ENTER')
+    time.sleep(3)
+    print(Fore.GREEN +  '--- TopCompras aberto!' + Style.RESET_ALL)
+
+def finaliza_lancamento():
+    lancamento_concluido = False
+    tentativas_telas = 0
+    while True:
+        # Para manter o TopCompras aberto.
+        ahk.win_activate('TopCompras', title_match_mode=2)
+        ahk.win_wait_active('TopCompras', title_match_mode=2, timeout= 25)
+        time.sleep(1)
+        # 1. Caso chave invalida.  
+        if procura_imagem(imagem='img_topcon/chave_invalida.png', continuar_exec=True) is not False:
+            print('--- Nota já lançada, marcando planilha!')
+            bot.press('ENTER')
+            bot.press('F2', presses = 2)
+            marca_lancado(texto_marcacao='Lancado_Manual')
+            break
+
+        # 2. Caso operação realizada.
+        if procura_imagem(imagem='img_topcon/operacao_realizada.png', continuar_exec= True) is not False:
+            print('--- Encontrou a tela de operação realizada, fechando e marcando a planilha')
+            ahk.win_activate('TopCompras', title_match_mode= 2)
+            bot.click(procura_imagem(imagem='img_topcon/operacao_realizada.png'))
+            bot.press('ENTER')
+            time.sleep(2)
+                    
+        else:
+            print('--- Não encontrou a tela "operação realizada" ')
+            if procura_imagem(imagem='img_topcon/bt_obslancamento.png', continuar_exec= True) is not False:
+                print('--- Encontrou o botão "OBS. Lancamento." encerrando loop das telas.')
+                
+                #Retorna a tela para o modo localizar
+                bot.press('F2', presses = 2)
+                if procura_imagem(imagem='img_topcon/txt_localizar.png', continuar_exec= True, area= (852, 956, 1368, 1045)):
+                    print('--- Entrou no modo localizar, lançamento realmente concluido!')
+                    lancamento_concluido = True
+                    break
+                else:
+                    print(Fore.RED + '--- Não voltou para o modo localizar, alguma tela ainda deve estar aberta...\n' + Style.RESET_ALL)
+                    
+                     
+
+                        
+                        
+            
+        # 3. Caso apareça "deseja imprimir o espelho da nota?"
+        if procura_imagem(imagem='img_topcon/txt_espelhonota.png', continuar_exec=True) is not False:
+            print('--- Apareceu a tela: deseja imprimir o espelho da nota?')
+            bot.press('ENTER')
+        
+        # 4. Caso apareça tela "Espelho da nota fiscal"
+        while ahk.win_exists('Espelho de Nota Fiscal', title_match_mode= 2):
+            ahk.win_close('Espelho de Nota Fiscal', title_match_mode= 2)
+
+        # 5. 
+        processo_transferencia()
+        time.sleep(1)
+        # Caso exceta o limite de tentativas, tenta fechar e abrir a tela de compras.
+        tentativas_telas += 1
+        if tentativas_telas >= 10:
+            abre_mercantil()
+        
+        if lancamento_concluido is True:
+            time.sleep(2)
+            bot.press('F2') # Aperta F2 para retornar a tela para o modo "Localizar"
+            marca_lancado(texto_marcacao='Lancado_RPA')
 
 # * ---------------------------------------------------------------------------------------------------
 # *                                        Inicio do Programa
@@ -102,7 +194,7 @@ def programa_principal():
 
 #* -------------------------- PROSSEGUINDO COM O LANÇAMENTO DA NFE -------------------------- 
     print('--- Preenchendo dados na tela principal do lançamento')
-    time.sleep(2)
+    time.sleep(1)
     
     while procura_imagem(imagem='img_topcon/produtos_servicos.png', continuar_exec= True) is False:
         ahk.win_activate('TopCompras', title_match_mode=2, detect_hidden_windows= True)
@@ -120,7 +212,7 @@ def programa_principal():
     # Alteração da data
     hoje = date.today()
     hoje = hoje.strftime("%d%m%y")  # dd/mm/YY
-    #bot.write('06/07/2024')
+    bot.write('13/07/2024')
     bot.press('ENTER')
     time.sleep(0.5)
     
@@ -176,21 +268,28 @@ def programa_principal():
         
     print('--- Aguarda até SUMIR o campo "cod_desc"')
     while procura_imagem(imagem='img_topcon/cod_desc.png', continuar_exec=True) is not False:
-        time.sleep(0.1)
+        time.sleep(0.2)
+    else:
+        print('--- sumiu o campo "cod_desc" ')
 
     bot.click(procura_imagem(imagem='img_topcon/txt_ValoresTotais.png', continuar_exec= True))
 
     # * -------------------------------------- VALIDAÇÃO TRANSPORTADOR --------------------------------------
     print(F'--- Preenchendo transportador: {cracha_mot}')
     bot.click(procura_imagem(imagem='img_topcon/campo_000.png', continuar_exec= True))
+    time.sleep(1)
     bot.press('tab')
+    time.sleep(1)
     while procura_imagem(imagem='img_topcon/campo_re_0.png', continuar_exec= True) is False:
-        time.sleep(0.1)
+        time.sleep(0.3)
     else:
         print('--- Campo RE habilitado, preenchendo.')
+        time.sleep(1)
         # Preenche o campo do transportador e verifica se aconteceu algum erro.
         bot.write(cracha_mot)  # ID transportador
+        time.sleep(1)
         bot.press('enter')
+        time.sleep(1)
 
     print('--- Aguardando validar o campo do transportador')
     ahk.win_activate('TopCompras', title_match_mode=2, detect_hidden_windows= True)
@@ -202,6 +301,7 @@ def programa_principal():
         programa_principal()
     else:
         print('--- Transportador validado! Prosseguindo para validação da placa')
+        time.sleep(1)
         bot.press('enter')
 
     # Verifica se o campo da placa ficou preenchido
@@ -307,51 +407,16 @@ def programa_principal():
     # Conclui o lançamento
     print('--- Enviado pagedown, aguardando tela de operação realizada')
     bot.press('pagedown')  # Conclui o lançamento
-    time.sleep(1)
+    time.sleep(3)
     
-    # Espera até aparecer a tela de operação realizada ou chave_invalida
-    while True:
-        time.sleep(0.5)
-        # 1. Caso chave invalida.  
-        if procura_imagem(imagem='img_topcon/chave_invalida.png', continuar_exec=True) is not False:
-            print('--- Nota já lançada, marcando planilha!')
-            bot.press('ENTER')
-            bot.press('F2', presses = 2)
-            marca_lancado(texto_marcacao='Lancado_Manual')
-            break
-   
-        # 2. Caso operação realizada.
-        if procura_imagem(imagem='img_topcon/operacao_realizada.png', continuar_exec= True) is not False:
-            print('--- Encontrou a tela de operação realizada, fechando e marcando a planilha')
-            #ahk.win_activate('TopCompras', title_match_mode= 2)
-            #ahk.win_wait_active('TopCompras', timeout=50, title_match_mode=2)
-            
-            while procura_imagem(imagem='img_topcon/bt_nfereferencia.png', continuar_exec= True) is False:
-                ahk.win_activate('TopCompras', title_match_mode= 2)
-                bot.click(procura_imagem(imagem='img_topcon/operacao_realizada.png'))
-                bot.press('ENTER')
-            
-            processo_transferencia()
-            
-            bot.press('F2') # Aperta F2 para retornar a tela para o modo "Localizar"
-            time.sleep(2)
-            marca_lancado(texto_marcacao='Lancado_RPA') 
-            if procura_imagem(imagem='img_topcon/operacao_realizada.png', continuar_exec= True) is False:
-                break
-
-        # 3. Caso apareça "deseja imprimir o espelho da nota?"
-        if procura_imagem(imagem='img_topcon/txt_espelhonota.png', continuar_exec=True) is not False:
-            print('--- Apareceu a tela: deseja imprimir o espelho da nota?')
-            bot.press('ENTER')
-            
-        # 4. Caso apareça tela "Espelho da nota fiscal"
-        while ahk.win_exists('Espelho de Nota Fiscal', title_match_mode= 2):
-            ahk.win_close('Espelho de Nota Fiscal', title_match_mode= 2)
-         
+    # Realiza todo o processo de finalização de lançamento.
+    finaliza_lancamento()
     return True
 
 
 if __name__ == '__main__':
+    #abre_mercantil()
+    #finaliza_lancamento()
     while True:
         programa_principal()
 

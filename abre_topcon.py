@@ -31,6 +31,9 @@ def fecha_execucoes():
 
 
 def abre_topcon():
+    # Começa garantindo que fechou todas as execuções antigas.
+    fecha_execucoes()
+    
     print('--- Iniciando o RemoteApp')
     #os.startfile('RemoteApp-Cortesia.rdp')
     os.startfile('RemoteApp-CortesiaVPN.rdp')
@@ -100,6 +103,8 @@ def abre_topcon():
     if procura_imagem(imagem='img_topcon/botao_ok.jpg', continuar_exec= True):
         print('--- Encontrou a tela do interveniente, clicando no botão "OK"')
         bot.press('ENTER')
+    else:
+        print('--- Não exibiu a tela de interveniente.')
         
     #Navegando entre os menus para abrir a opção "Compras - Mercantil"
     ahk.win_activate('TopCompras', title_match_mode= 2)

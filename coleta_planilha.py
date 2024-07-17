@@ -7,7 +7,7 @@ import time
 import pytesseract
 from ahk import AHK
 from colorama import Fore, Style
-from funcoes import procura_imagem
+from funcoes import procura_imagem, marca_lancado
 import pyautogui as bot
 
 # --- Definição de parametros
@@ -20,59 +20,76 @@ chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
 pytesseract.pytesseract.tesseract_cmd = r"C:\Tesseract-OCR\tesseract.exe"
 
 def coleta_planilha():
-    bot.PAUSE = 0.5
-    print(Fore.GREEN + '--- Abrindo planilha - COLETA_PLANILHA' + Style.RESET_ALL)
-    if ahk.win_exists('debug_db_alltrips', title_match_mode= 2):
-        ahk.win_activate('debug_db_alltrips', title_match_mode= 2)
-        ahk.win_wait('debug_db_alltrips', title_match_mode= 2)
-    else:
-        ahk.win_activate('db_alltrips', title_match_mode= 2)
-        ahk.win_wait('db_alltrips', title_match_mode= 2)
+    while True:
+        bot.PAUSE = 0.5
         
-    if ahk.win_exists('debug_db_alltrips', title_match_mode= 2) is False:
+        # Verifica quais das planilhas está aberta, debug ou o banco puro.
+        print(Fore.GREEN + '--- Abrindo planilha - COLETA_PLANILHA' + Style.RESET_ALL)
+        if ahk.win_exists('debug_db_alltrips', title_match_mode= 2):
+            print('--- Abrindo a planilha de debug')
+            ahk.win_activate('debug_db_alltrips', title_match_mode= 2)
+            ahk.win_wait('debug_db_alltrips', title_match_mode= 2)
+        else:
+            print('--- Abrindo a planilha com o banco puro')
+            ahk.win_activate('db_alltrips', title_match_mode= 2)
+            ahk.win_wait('db_alltrips', title_match_mode= 2)
+        
+        # Processo necessario apenas caso rode diretamente no db_alltrips.
+        if ahk.win_exists('debug_db_alltrips', title_match_mode= 2) is False:
+            bot.hotkey('CTRL', 'HOME')
+            # Verifica se já está no modo de edição, caso esteja, muda para o modo "exibição"
+            if procura_imagem(imagem='img_planilha/bt_exibicaoverde.png', continuar_exec=True) is False:
+                print('--- Não está no modo exibição! Realizando alteração.')
+                while procura_imagem(imagem='img_planilha/bt_edicao.png', continuar_exec= True) is False: #Espera até encontar o botão "Exibição" (Lapis bloqueado)
+                    time.sleep(0.1)
+                    
+                if procura_imagem(imagem='img_planilha/bt_TresPontos.png', continuar_exec= True) is not False:
+                    bot.click(procura_imagem(imagem='img_planilha/bt_TresPontos.png'))
+                    
+                bot.click(procura_imagem(imagem='img_planilha/bt_edicao.png'))  
+                time.sleep(0.5)
+                bot.click(procura_imagem(imagem='img_planilha/txt_exibicao.png'))
+
+                #Aguarda até aparecer o botão do modo "exibição"
+                while procura_imagem(imagem='img_planilha/bt_exibicaoverde.png', continuar_exec=True) is False:
+                    time.sleep(0.1)
+                print('--- Alterado para o modo exibição, continuando.')
+                
+            else: # Caso não esteja no modo "Edição"
+                print('--- A planilha já está no modo "Exibição", continuando processo')
+
+        # Coleta os dados da linha atual
+        dados_planilha = []
+        print('--- Copiando dados e formatando')
+        # Navega para a celula A1 ( RE ), em seguida vai para a primeira linha com dados a serem copiado
         bot.hotkey('CTRL', 'HOME')
-        #Verifica se já está no modo de edição, caso esteja, muda para o modo "exibição"
-        if procura_imagem(imagem='img_planilha/bt_exibicaoverde.png', continuar_exec=True) is False:
-            print('--- Não está no modo exibição! Realizando alteração.')
-            while procura_imagem(imagem='img_planilha/bt_edicao.png', continuar_exec= True) is False: #Espera até encontar o botão "Exibição" (Lapis bloqueado)
-                time.sleep(0.1)
-                
-            if procura_imagem(imagem='img_planilha/bt_TresPontos.png', continuar_exec= True) is not False:
-                bot.click(procura_imagem(imagem='img_planilha/bt_TresPontos.png'))
-                
-            bot.click(procura_imagem(imagem='img_planilha/bt_edicao.png'))  
-            time.sleep(0.5)
-            bot.click(procura_imagem(imagem='img_planilha/txt_exibicao.png'))
-
-            #Aguarda até aparecer o botão do modo "exibição"
-            while procura_imagem(imagem='img_planilha/bt_exibicaoverde.png', continuar_exec=True) is False:
-                time.sleep(0.1)
-            print('--- Alterado para o modo exibição, continuando.')
-            
-        else: # Caso não esteja no modo "Edição"
-            print('--- A planilha já está no modo "Exibição", continuando processo')
-
-    # * Coleta os dados da linha atual
-    dados_planilha = []
-    # Clica na primeira linha (Campo RE), e pressiona seta para baixo
-    print('--- Copiando dados e formatando')
-    bot.hotkey('CTRL', 'HOME')
-    bot.press('DOWN')
-    for n in range(0, 7, 1):  # Copia dados dos 6 campos
-        while True:
-            pausa_copia = 0.1
-            bot.hotkey('ctrl', 'c')
-            if 'Recuperando' in ahk.get_clipboard():
-                time.sleep(pausa_copia)
-                pausa_copia += 0.1
-            else:
-                break
-        dados_planilha.append(ahk.get_clipboard())
-        bot.press('right')
+        bot.press('DOWN')
         
-    tempo_coleta = time.time() - tempo_inicio
-    tempo_coleta = tempo_coleta
-    print(F'--- Tempo que levou: {tempo_coleta:0f} segundos')
+        # Navega entre os 6 campos, realizando a copia um por um, e inserindo na lista Dados Planilha.
+        for n in range(0, 7, 1):  # Copia dados dos 6 campos
+            while True:
+                pausa_copia = 0.2
+                bot.hotkey('ctrl', 'c')
+                if 'Recuperando' in ahk.get_clipboard():
+                    time.sleep(pausa_copia)
+                    pausa_copia += 0.1
+                else:
+                    break
+            dados_planilha.append(ahk.get_clipboard())
+            bot.press('right')
+            
+        # Realiza a validação dos dados copiados.
+        chave_xml = dados_planilha[4].strip()
+        if len(dados_planilha[6]) > 0:
+            print(F'--- Aguardando 30s para aparecer novas notas, campo preenchido com: {dados_planilha[6]}, tamanho do status: {len(dados_planilha[6])}')
+            time.sleep(30)
+        if len(chave_xml) < 42:
+            marca_lancado('chave_invalida')
+        elif (len(dados_planilha[0]) < 4) or (len(dados_planilha[0]) == 5):
+            marca_lancado('RE_Invalido')
+        else:
+            break
+    
     print(Fore.GREEN + F'--- Dados copiados com sucesso: {dados_planilha}\n' + Style.RESET_ALL)
     return dados_planilha
 
