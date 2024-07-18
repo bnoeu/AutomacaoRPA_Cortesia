@@ -36,8 +36,8 @@ def abre_topcon():
     fecha_execucoes()
     
     print('--- Iniciando o RemoteApp')
-    os.startfile('RemoteApp-Cortesia.rdp')
-    #os.startfile('RemoteApp-CortesiaVPN.rdp')
+    #os.startfile('RemoteApp-Cortesia.rdp')
+    os.startfile('RemoteApp-CortesiaVPN.rdp')
     time.sleep(1)
     
     # Tenta encontrar em ingles e portugues.

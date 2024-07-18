@@ -17,7 +17,7 @@ from datetime import date
 from colorama import Back, Style, Fore
 from valida_pedido import valida_pedido
 from valida_lancamento import valida_lancamento
-from funcoes import marca_lancado, procura_imagem, extrai_txt_img, corrige_topcompras
+from funcoes import marca_lancado, procura_imagem, extrai_txt_img, corrige_topcompras, abre_mercantil
 
 # --- Definição de parametros
 ahk = AHK()
@@ -59,33 +59,6 @@ def processo_transferencia():
                 ahk.win_activate('TopCom', title_match_mode=2)
     else:
         print('--- Não foi gerada transferencia para essa nota fiscal.')
-
-def abre_mercantil():
-    # Inicia fechando o modulo de compras.
-    ahk.win_close('TopCompras', title_match_mode=2)
-    
-    # Ativa o Topcon, e clica no topcompras, e executa a função para correção do nome.
-    ahk.win_activate('TopCon', title_match_mode= 2)
-    bot.click(procura_imagem(imagem='img_topcon/logo_topcompras.png'))
-    time.sleep(2)
-    corrige_topcompras()
-
-    #Abre o TopCompras, e verifica se aparece a tela "interveniente"
-    ahk.win_activate('TopCompras', title_match_mode= 2)
-    if procura_imagem(imagem='img_topcon/botao_ok.jpg', continuar_exec= True):
-        print('--- Encontrou a tela do interveniente, clicando no botão "OK"')
-        bot.press('ENTER')
-    else:
-        print('--- Não exibiu a tela de interveniente.')
-        
-    #Navegando entre os menus para abrir a opção "Compras - Mercantil"
-    ahk.win_activate('TopCompras', title_match_mode= 2)
-    bot.press('ALT')
-    bot.press('RIGHT', presses= 2, interval= 0.05)
-    bot.press('DOWN', presses= 7, interval= 0.05)
-    bot.press('ENTER')
-    time.sleep(3)
-    print(Fore.GREEN +  '--- TopCompras aberto!' + Style.RESET_ALL)
 
 def finaliza_lancamento():
     lancamento_concluido = False
@@ -137,6 +110,7 @@ def finaliza_lancamento():
         # 5. 
         processo_transferencia()
         time.sleep(1)
+
         # Caso exceta o limite de tentativas, tenta fechar e abrir a tela de compras.
         tentativas_telas += 1
         if tentativas_telas >= 5:

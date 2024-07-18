@@ -10,7 +10,7 @@ import pyautogui as bot
 # import pygetwindow as gw
 from colorama import Fore, Style
 from coleta_planilha import coleta_planilha
-from funcoes import marca_lancado, procura_imagem, corrige_topcompras
+from funcoes import marca_lancado, procura_imagem, corrige_topcompras, abre_mercantil
 from abre_topcon import abre_topcon
 
 
@@ -49,6 +49,13 @@ def valida_lancamento():
                     bot.press('F3', presses= 2)
                     time.sleep(0.2)
 
+                    tentativa_alterar_botoes += 1
+                    if tentativa_alterar_botoes > 5:
+                        # Caso passe o limite de tentativas, provavelmente ocorreu algum problema.
+                        print('--- Excedeu o limite de tentativas de alteração, reabrindo o TopCompras.')
+                        abre_topcon()
+                        valida_lancamento()
+
             else:
                 ahk.win_activate('TopCompras', title_match_mode=2)
                 bot.press('F3', presses= 2)
@@ -56,13 +63,7 @@ def valida_lancamento():
                 time.sleep(0.5)
                 break
 
-            tentativa_alterar_botoes += 1
-            if tentativa_alterar_botoes > 5:
-                # Caso passe o limite de tentativas, provavelmente ocorreu algum problema.
-                print('--- Excedeu o limite de tentativas de alteração, reabrindo o TopCompras.')
-                exit()
-                abre_topcon()
-                valida_lancamento()
+
 
         # Inicia inserção da chave XML
         bot.press('TAB', presses= 2, interval = 1)
@@ -79,6 +80,7 @@ def valida_lancamento():
             return validou_xml
 
 def conferencia_xml(tentativa = 0, maximo_tentativas = 20, texto_erro = False, dados_planilha = False):
+    tentativas_telas = 0
     # Aguarda até aparecer uma das telas que podem ser exibidas nesse processo.
     while tentativa < maximo_tentativas:
         
@@ -119,7 +121,9 @@ def conferencia_xml(tentativa = 0, maximo_tentativas = 20, texto_erro = False, d
         
         tentativa += 1
     else: # Caso execute o maximo de tentativas sem sucesso.
-        exit(bot.alert(Fore.RED + F'--- Rodou {maximo_tentativas} verificações e não achou nenhuma tela, verificar!' + Style.RESET_ALL))
+        # Caso exceta o limite de tentativas, tenta fechar e abrir a tela de compras.
+        abre_mercantil()
+        #exit(bot.alert(Fore.RED + F'--- Rodou {maximo_tentativas} verificações e não achou nenhuma tela, verificar!' + Style.RESET_ALL))
         #TODO --- Validar se o topcon ainda está aberto, caso não esteja, reiniciar o processo do zero.
 
 if __name__ == '__main__':    

@@ -62,6 +62,34 @@ def procura_imagem(imagem, limite_tentativa=6, area=(0, 0, 1920, 1080), continua
         exit(bot.alert(text=F'Não foi possivel encontrar: {imagem}', title='Erro!', button='Fechar'))
     return posicao_img
 
+def abre_mercantil():
+    # Inicia fechando o modulo de compras.
+    ahk.win_close('TopCompras', title_match_mode=2)
+    
+    # Ativa o Topcon, e clica no topcompras, e executa a função para correção do nome.
+    ahk.win_activate('TopCon', title_match_mode= 2)
+    bot.click(procura_imagem(imagem='img_topcon/logo_topcompras.png'))
+    time.sleep(2)
+    corrige_topcompras()
+
+    #Abre o TopCompras, e verifica se aparece a tela "interveniente"
+    ahk.win_activate('TopCompras', title_match_mode= 2)
+    if procura_imagem(imagem='img_topcon/botao_ok.jpg', continuar_exec= True):
+        print('--- Encontrou a tela do interveniente, clicando no botão "OK"')
+        bot.press('ENTER')
+    else:
+        print('--- Não exibiu a tela de interveniente.')
+        
+    #Navegando entre os menus para abrir a opção "Compras - Mercantil"
+    ahk.win_activate('TopCompras', title_match_mode= 2)
+    bot.press('ALT')
+    bot.press('RIGHT', presses= 2, interval= 0.05)
+    bot.press('DOWN', presses= 7, interval= 0.05)
+    bot.press('ENTER')
+    time.sleep(3)
+    print(Fore.GREEN +  '--- TopCompras aberto!' + Style.RESET_ALL)
+
+
 
 def verifica_tela(nome_tela, manual=False):
     if ahk.win_exists(nome_tela):
