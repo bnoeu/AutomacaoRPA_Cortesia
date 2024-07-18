@@ -14,6 +14,7 @@ import pytesseract
 from ahk import AHK
 import pyautogui as bot
 from datetime import date
+from abre_topcon import abre_topcompras
 from colorama import Back, Style, Fore
 from valida_pedido import valida_pedido
 from valida_lancamento import valida_lancamento
@@ -24,7 +25,7 @@ ahk = AHK()
 bot.PAUSE = 0.5
 posicao_img = 0
 continuar = True
-bot.FAILSAFE = False
+bot.FAILSAFE = True
 tempo_inicio = time.time()
 chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
 pytesseract.pytesseract.tesseract_cmd = r"C:\Tesseract-OCR\tesseract.exe"
@@ -32,10 +33,10 @@ pytesseract.pytesseract.tesseract_cmd = r"C:\Tesseract-OCR\tesseract.exe"
 #* Funções
 
 def processo_transferencia():
-    if procura_imagem(imagem='img_topcon/txt_transferencia.png', continuar_exec= True, confianca= 0.7):
+    if procura_imagem(imagem='img_topcon/txt_transferencia.png', continuar_exec= True, confianca= 0.75):
         print('--- Encontrou a tela de transferencia!')
         time.sleep(2)
-        if procura_imagem('img_topcon/deseja_processar.png', continuar_exec=True, limite_tentativa= 12, confianca= 0.7):
+        if procura_imagem('img_topcon/deseja_processar.png', continuar_exec=True, limite_tentativa= 12, confianca= 0.75):
             print('--- Encontrou a tela do processo de transferencia')
             bot.click(procura_imagem('img_topcon/bt_sim.png', continuar_exec=True))
             while True:  # Aguardar o .PDF
@@ -55,12 +56,14 @@ def processo_transferencia():
                 ahk.win_activate('Transmissão', title_match_mode=2)
                 bot.click(procura_imagem(imagem='img_topcon/sair_tela.png'))
                 
-                ahk.win_wait_active('TopCom', timeout=10, title_match_mode=2)
-                ahk.win_activate('TopCom', title_match_mode=2)
+                ahk.win_wait_active('TopCompras', timeout=10, title_match_mode=2)
+                ahk.win_activate('TopCompras', title_match_mode=2)
+                return True
     else:
         print('--- Não foi gerada transferencia para essa nota fiscal.')
 
 def finaliza_lancamento():
+    realizou_transferencia = False
     lancamento_concluido = False
     tentativas_telas = 0
     while True:
@@ -89,14 +92,21 @@ def finaliza_lancamento():
             if procura_imagem(imagem='img_topcon/bt_obslancamento.png', continuar_exec= True) is not False:
                 print('--- Encontrou o botão "OBS. Lancamento." encerrando loop das telas.')
                 
-                #Retorna a tela para o modo localizar
-                bot.press('F2', presses = 2)
-                if procura_imagem(imagem='img_topcon/txt_localizar.png', continuar_exec= True, area= (852, 956, 1368, 1045)):
-                    print('--- Entrou no modo localizar, lançamento realmente concluido!')
-                    lancamento_concluido = True
-                    break
-                else:
-                    print(Fore.RED + '--- Não voltou para o modo localizar, alguma tela ainda deve estar aberta...\n' + Style.RESET_ALL)
+                if realizou_transferencia is True:
+                    abre_topcompras()
+                    
+                else: # Segue o processo a baixo.
+                    
+                    #Retorna a tela para o modo localizar
+                    bot.press('F2', presses = 2)
+                    time.sleep(3)
+                    
+                    if procura_imagem(imagem='img_topcon/txt_localizar.png', continuar_exec= True, area= (852, 956, 1368, 1045)):
+                        print('--- Entrou no modo localizar, lançamento realmente concluido!')
+                        lancamento_concluido = True
+                        break
+                    else:
+                        print(Fore.RED + '--- Não voltou para o modo localizar, alguma tela ainda deve estar aberta...\n' + Style.RESET_ALL)
                     
         # 3. Caso apareça "deseja imprimir o espelho da nota?"
         if procura_imagem(imagem='img_topcon/txt_espelhonota.png', continuar_exec=True) is not False:
@@ -108,7 +118,7 @@ def finaliza_lancamento():
             ahk.win_close('Espelho de Nota Fiscal', title_match_mode= 2)
 
         # 5. 
-        processo_transferencia()
+        realizou_transferencia = processo_transferencia()
         time.sleep(1)
 
         # Caso exceta o limite de tentativas, tenta fechar e abrir a tela de compras.
@@ -161,7 +171,7 @@ def programa_principal():
         chave_xml = dados_planilha[4]
         acabou_pedido = valida_pedido(acabou_pedido=False)
         if acabou_pedido is False:
-            os.system('cls')
+            #os.system('cls')
             print(Fore.GREEN + F'--- Pedido validado, dados planilha: {dados_planilha}\n' + Style.RESET_ALL)
 
 #* -------------------------- PROSSEGUINDO COM O LANÇAMENTO DA NFE -------------------------- 
@@ -181,7 +191,9 @@ def programa_principal():
     bot.write(filial_estoq)
     bot.press('TAB', presses= 2) # Confirma a informação da nova filial de estoque
     
+    
     # Alteração da data
+    print('--- Realizando validação/alteração da data')
     hoje = date.today()
     hoje = hoje.strftime("%d%m%y")  # dd/mm/YY
     #bot.write('13/07/2024')
@@ -190,16 +202,17 @@ def programa_principal():
     
     # Caso o sistema informe que a data deve ser maior/igual a data inserida acima.
     if procura_imagem('img_topcon/data_invalida.png', continuar_exec= True):
-        print('--- Precisa mudar a data')
+        print('--- Precisa mudar a data, inserindo a data de hoje')
         bot.press('enter')          
         bot.write(hoje)
         bot.press('enter')
         time.sleep(0.2)
 
     try:
-        ahk.win_wait('Topsys', title_match_mode= 2, timeout= 30)
+        ahk.win_wait('Topsys', title_match_mode= 2, timeout= 15)
     except TimeoutError:
-        print('--- Tela de erro NÃO apareceu, continuando...')
+        pass
+        #print('--- Tela de erro NÃO apareceu, continuando...')
     else:
         if ahk.win_exists('Topsys', title_match_mode= 2):
             ahk.win_activate('Topsys', title_match_mode= 2)
@@ -294,7 +307,7 @@ def programa_principal():
     bot.doubleClick(procura_imagem(imagem='img_topcon/produtos_servicos.png'))
     time.sleep(2)
     # Aguarda até aparecer o botão "alterar"
-    procura_imagem(imagem='img_topcon/botao_alterar.png', area=(100, 839, 300, 400), limite_tentativa= 100)
+    procura_imagem(imagem='img_topcon/botao_alterar.png', area=(100, 839, 300, 400))
     
     if '38953477000164' in chave_xml: #Caso não tenha o CNPJ da Consmar
         exit(bot.alert('CNPJ da consmar, necessario scriptar'))
@@ -315,7 +328,7 @@ def programa_principal():
 
         print('--- Abrindo a tela "Itens nota fiscal de compra" ')
         bot.click(procura_imagem(imagem='img_topcon/botao_alterar.png', area=(100, 839, 300, 400)))
-        while procura_imagem(imagem='img_topcon/valor_cofins.png', limite_tentativa= 1, continuar_exec= True) is False:
+        while procura_imagem(imagem='img_topcon/valor_cofins.png', limite_tentativa= 3, continuar_exec= True) is False:
             print('--- Aguardando aparecer a tela "Itens nota fiscal de compra" ')
 
         print('--- Preenchendo SILO e quantidade')
@@ -342,9 +355,9 @@ def programa_principal():
                 bot.write(str(qtd_ton))
                 bot.press('ENTER')
         else: # Caso não tenha coletado nenhum silo.            
-            if procura_imagem(imagem='img_topcon/txt_cimento.png', limite_tentativa= 1, continuar_exec= True):
+            if procura_imagem(imagem='img_topcon/txt_cimento.png', limite_tentativa= 3, continuar_exec= True):
                 print(Fore.RED + '--- Não foi informado nenhum SILO, porém a nota é de cimento!\n' + Style.RESET_ALL)
-                bot.click(procura_imagem(imagem='img_topcon/txt_cimento.png', limite_tentativa= 1, continuar_exec= True))
+                bot.click(procura_imagem(imagem='img_topcon/txt_cimento.png', limite_tentativa= 3, continuar_exec= True))
                 bot.press('ESC')
                 time.sleep(1)
                 marca_lancado(texto_marcacao= 'Faltou_InfoSilo')

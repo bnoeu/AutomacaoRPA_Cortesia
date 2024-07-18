@@ -16,7 +16,7 @@ from colorama import Fore, Style
 ahk = AHK()
 posicao_img = 0  # Define a variavel para utilização global dela.
 continuar = True
-bot.FAILSAFE = False
+bot.FAILSAFE = True
 # tempo_inicio = time.time()
 chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
 pytesseract.pytesseract.tesseract_cmd = r"C:\Tesseract-OCR\tesseract.exe"
@@ -26,7 +26,7 @@ def procura_imagem(imagem, limite_tentativa=6, area=(0, 0, 1920, 1080), continua
     hoje = datetime.date.today()
     maquina_viva = False
     tentativa = 0   
-    #print(F'--- Tentando encontrar: {imagem}', end= ' ')
+    print(F'--- Tentando encontrar: {imagem}')
     while tentativa < limite_tentativa:
         time.sleep(0.4)
         while maquina_viva is False:
@@ -39,16 +39,22 @@ def procura_imagem(imagem, limite_tentativa=6, area=(0, 0, 1920, 1080), continua
                 maquina_viva = True
             
         if posicao_img is not None:
-            #print(F'--- Encontrou {imagem} na posição: {posicao_img}')
+            print(F'--- Encontrou {imagem} na posição: {posicao_img}')
             break
         tentativa += 1
-        #print(F'--- Valor atual da confiança da imagem: {confianca}')
-        confianca -= 0.01
+        '''
+        if confianca >= 0.8:
+            print(F'--- Valor atual da confiança da imagem: {confianca}', end= "")
+        else:
+            print(F', {confianca}', end= "")
+        '''
+        confianca -= 0.01                       
+        
 
     #Caso seja para continuar
     if (continuar_exec is True) and (posicao_img is None):
         if msg_continuar_exec is True:
-            print('' + F'--- {imagem} não foi encontrada, continuando execução pois o parametro "continuar_exec" está habilitado')
+            print('' + F'\n--- {imagem} não foi encontrada, continuando execução pois o parametro "continuar_exec" está habilitado')
         return False
     
     if tentativa >= limite_tentativa:

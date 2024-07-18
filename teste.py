@@ -29,7 +29,7 @@ from pynfe.processamento.comunicacao import ComunicacaoSefaz
 ahk = AHK()
 posicao_img = 0  # Define a variavel para utilização global dela.
 continuar = True
-bot.FAILSAFE = False
+bot.FAILSAFE = True
 acabou_pedido = ''
 numero_nf = "965999"
 transportador = "111594"

@@ -14,7 +14,7 @@ ahk = AHK()
 bot.PAUSE = 0.5
 posicao_img = 0
 continuar = True
-bot.FAILSAFE = False
+bot.FAILSAFE = True
 tempo_inicio = time.time()
 chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
 pytesseract.pytesseract.tesseract_cmd = r"C:\Tesseract-OCR\tesseract.exe"
@@ -36,8 +36,8 @@ def abre_topcon():
     fecha_execucoes()
     
     print('--- Iniciando o RemoteApp')
-    #os.startfile('RemoteApp-Cortesia.rdp')
-    os.startfile('RemoteApp-CortesiaVPN.rdp')
+    os.startfile('RemoteApp-Cortesia.rdp')
+    #os.startfile('RemoteApp-CortesiaVPN.rdp')
     time.sleep(1)
     
     # Tenta encontrar em ingles e portugues.
@@ -92,7 +92,13 @@ def abre_topcon():
             if procura_imagem(imagem='img_topcon/logo_principal.png', continuar_exec= True):
                 print('--- Tela do Topcon já está aberta.')
                 break
+    abre_topcompras()
                 
+def abre_topcompras():
+    # Garante que foi realizado o fechamento do TopCompras.
+    ahk.win_close('TopCompras', title_match_mode= 2)
+    time.sleep(1)
+       
     # Ativa o Topcon, e clica no topcompras, e executa a função para correção do nome.
     ahk.win_activate('TopCon', title_match_mode= 2)
     bot.click(procura_imagem(imagem='img_topcon/logo_topcompras.png'))
@@ -118,5 +124,6 @@ def abre_topcon():
     print(Fore.GREEN +  '--- TopCompras aberto!' + Style.RESET_ALL)
 
 if __name__ == '__main__':
+    #abre_topcompras()
     fecha_execucoes()
     abre_topcon()

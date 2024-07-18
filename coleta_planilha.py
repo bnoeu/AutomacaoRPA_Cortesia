@@ -15,14 +15,14 @@ import pyautogui as bot
 ahk = AHK()
 posicao_img = 0  # Define a variavel para utilização global dela.
 continuar = True
-bot.FAILSAFE = False
+bot.FAILSAFE = True
 tempo_inicio = time.time()
 chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
 pytesseract.pytesseract.tesseract_cmd = r"C:\Tesseract-OCR\tesseract.exe"
 
 def coleta_planilha():
     while True:
-        bot.PAUSE = 0.5
+        bot.PAUSE = 0.2
         
         # Verifica quais das planilhas está aberta, debug ou o banco puro.
         print(Fore.GREEN + '--- Abrindo planilha - COLETA_PLANILHA' + Style.RESET_ALL)
@@ -48,7 +48,7 @@ def coleta_planilha():
                     bot.click(procura_imagem(imagem='img_planilha/bt_TresPontos.png'))
                     
                 bot.click(procura_imagem(imagem='img_planilha/bt_edicao.png'))  
-                time.sleep(0.5)
+                time.sleep(0.3)
                 bot.click(procura_imagem(imagem='img_planilha/txt_exibicao.png'))
 
                 #Aguarda até aparecer o botão do modo "exibição"
@@ -68,12 +68,13 @@ def coleta_planilha():
         
         # Navega entre os 6 campos, realizando a copia um por um, e inserindo na lista Dados Planilha.
         for n in range(0, 7, 1):  # Copia dados dos 6 campos
+            pausa_copia = 0.1
             while True:
-                pausa_copia = 0.4
                 bot.hotkey('ctrl', 'c')
                 if 'Recuperando' in ahk.get_clipboard():
                     time.sleep(pausa_copia)
                     pausa_copia += 0.1
+                    print(F'--- Pausa copia aumentada para, {pausa_copia}')
                 else:
                     break
             dados_planilha.append(ahk.get_clipboard())
@@ -91,7 +92,7 @@ def coleta_planilha():
         else:
             break
     
-    os.system('cls')
+    #os.system('cls')
     print(Fore.GREEN + F'--- Dados copiados com sucesso: {dados_planilha}\n' + Style.RESET_ALL)
     return dados_planilha
 

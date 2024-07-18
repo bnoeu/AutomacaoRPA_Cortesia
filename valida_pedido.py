@@ -13,7 +13,7 @@ from funcoes import marca_lancado, procura_imagem, extrai_txt_img, verifica_ped_
 ahk = AHK()
 posicao_img = 0  # Define a variavel para utilização global dela.
 continuar = True
-bot.FAILSAFE = False
+bot.FAILSAFE = True
 numero_nf = "965999"
 transportador = "111594"
 chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
@@ -130,9 +130,9 @@ def valida_pedido(acabou_pedido=False):
                 if vazio is True:
                     tentativa = 3
                     break
-                if procura_imagem('img_topcon/dife_valor.png', continuar_exec=True, limite_tentativa=2):
+                if procura_imagem('img_topcon/dife_valor.png', continuar_exec=True):
                     bot.press('ENTER')
-                if procura_imagem('img_topcon/operacao_fiscal_configurada.png', continuar_exec=True, limite_tentativa=2):
+                if procura_imagem('img_topcon/operacao_fiscal_configurada.png', continuar_exec=True):
                     bot.press('ENTER')
                 
                 #Confere se após clicar nos botões, ainda assim o campo ficou vazio.
