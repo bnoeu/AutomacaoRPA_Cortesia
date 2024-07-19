@@ -4,7 +4,7 @@
 import time
 import pytesseract
 from ahk import AHK
-from funcoes import procura_imagem, corrige_topcompras
+from funcoes import procura_imagem, corrige_topcompras, abre_mercantil
 import pyautogui as bot
 import os
 from colorama import Fore, Style
@@ -74,6 +74,7 @@ def abre_topcon():
         # Realiza login no TopCon
         while True:
             ahk.win_activate('TopCon', title_match_mode= 2)
+            ahk.win_wait_active('TopCon', title_match_mode= 2, timeout= 30)
             if procura_imagem(imagem='img_topcon/txt_ServidorAplicacao.png', continuar_exec= True): # Aguarda até aparecer o campo do servidor preenchido
                 print('--- Tela de login do topcon aberta')
                 bot.click(procura_imagem(imagem='img_topcon/txt_ServidorAplicacao.png'))
@@ -92,16 +93,21 @@ def abre_topcon():
             if procura_imagem(imagem='img_topcon/logo_principal.png', continuar_exec= True):
                 print('--- Tela do Topcon já está aberta.')
                 break
-    abre_topcompras()
-                
+    abre_mercantil()
+    #abre_topcompras()
+
+''' #! Substituido pelo abre mercantil
+          
 def abre_topcompras():
     # Garante que foi realizado o fechamento do TopCompras.
     ahk.win_close('TopCompras', title_match_mode= 2)
     time.sleep(1)
        
     # Ativa o Topcon, e clica no topcompras, e executa a função para correção do nome.
-    ahk.win_activate('TopCon', title_match_mode= 2)
-    bot.click(procura_imagem(imagem='img_topcon/logo_topcompras.png'))
+    while ahk.win_wait_active('TopCon', title_match_mode= 2, timeout= 30) is False:
+        ahk.win_activate('TopCon', title_match_mode= 2)
+        bot.click(procura_imagem(imagem='img_topcon/logo_topcompras.png'))
+        
     time.sleep(4)
     corrige_topcompras()
     time.sleep(4)
@@ -122,6 +128,7 @@ def abre_topcompras():
     bot.press('ENTER')
     time.sleep(3)
     print(Fore.GREEN +  '--- TopCompras aberto!' + Style.RESET_ALL)
+''' 
 
 if __name__ == '__main__':
     #abre_topcompras()

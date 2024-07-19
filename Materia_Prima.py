@@ -5,6 +5,10 @@
 # https://cortesiaconcreto-my.sharepoint.com/:x:/g/personal/bi_cortesiaconcreto_com_br/EW_8FZwWFYVAol4MpV1GglkBJEaJaDx6cfuClnesIu60Ng?e=pveECF
 # Debug db alltrips
 # https://cortesiaconcreto-my.sharepoint.com/:x:/g/personal/bruno_silva_cortesiaconcreto_com_br/ETubFnXLMWREkm0e7ez30CMBnID3pHwfLgGWMHbLqk2l5A?rtime=n9xgTPCH3Eg
+# db_alltrips no usuario bruno.silva
+# https://cortesiaconcreto-my.sharepoint.com/:x:/g/personal/bruno_silva_cortesiaconcreto_com_br/EVBAt2GdSwBEm8MQolLT2lEB85eZi6vobCy7mKI4QHkHWw?rtime=G6x2o4in3Eg
+# db_alltrips no paulo, apenas leitura
+# https://cortesiaconcreto-my.sharepoint.com/:x:/g/personal/bi_cortesiaconcreto_com_br/EQx5PclDGRFGkweQjtb3QckByyAsqydfI5za0MTuO9tjXg?e=RYfgcA
 
 import os
 import time
@@ -14,7 +18,7 @@ import pytesseract
 from ahk import AHK
 import pyautogui as bot
 from datetime import date
-from abre_topcon import abre_topcompras
+from abre_topcon import abre_topcon
 from colorama import Back, Style, Fore
 from valida_pedido import valida_pedido
 from valida_lancamento import valida_lancamento
@@ -69,6 +73,13 @@ def finaliza_lancamento():
     while True:
         # Para manter o TopCompras aberto.
         ahk.win_activate('TopCompras', title_match_mode=2)
+        
+        # Caso apareça a tela de campo obrigatorio.
+        if ahk.win_exists('CsjTb'):
+            ahk.win_close('CsjTb')
+            abre_mercantil()
+            programa_principal()
+            
         ahk.win_wait_active('TopCompras', title_match_mode=2, timeout= 25)
         time.sleep(1)
         # 1. Caso chave invalida.  
@@ -82,22 +93,28 @@ def finaliza_lancamento():
         # 2. Caso operação realizada.
         if procura_imagem(imagem='img_topcon/operacao_realizada.png', continuar_exec= True) is not False:
             print('--- Encontrou a tela de operação realizada, fechando e marcando a planilha')
+            marca_lancado(texto_marcacao='Lancado_RPA')
+            time.sleep(3)
+            
             ahk.win_activate('TopCompras', title_match_mode= 2)
             bot.click(procura_imagem(imagem='img_topcon/operacao_realizada.png'))
             bot.press('ENTER')
-            time.sleep(2)
+            time.sleep(3)
                     
         else:
             print('--- Não encontrou a tela "operação realizada" ')
             if procura_imagem(imagem='img_topcon/bt_obslancamento.png', continuar_exec= True) is not False:
                 print('--- Encontrou o botão "OBS. Lancamento." encerrando loop das telas.')
                 
+                
                 if realizou_transferencia is True:
-                    abre_topcompras()
-                    
+                    abre_mercantil()
+                
+                
+                  
                 else: # Segue o processo a baixo.
                     
-                    #Retorna a tela para o modo localizar
+                    # Retorna a tela para o modo localizar
                     bot.press('F2', presses = 2)
                     time.sleep(3)
                     
@@ -222,38 +239,32 @@ def programa_principal():
             bot.press('enter')
             time.sleep(0.2)
 
-    ''' #! Depreciado por: Não estava coletando a data de faturamento de forma correta, sendo assim o codigo acima substitui essa logica. 
-    if data_NfeFaturada in dias_fatura:
-        print(Back.RED + F'--- Data de faturamento menor que 20, data faturada: {data_NfeFaturada}' + Style.RESET_ALL)
-        #bot.write(F'{data_NfeFaturada}' + '052024')
-        #bot.write(hoje)
-        bot.press('enter')
-        time.sleep(0.5)
-        if procura_imagem(imagem='img_topcon/txt_NaoPermitidoData.png', continuar_exec=True, limite_tentativa= 12):
-            print(Fore.RED + '--- Precisa mudar a data' + Style.RESET_ALL)
-            bot.press('enter')
-            bot.write(hoje)
-            bot.press('enter')
-            time.sleep(0.5)
-    else:
-        print(F'--- Alterando a data para {hoje}, data NFE coletada {data_NfeFaturada}')
-        bot.write(hoje)
-        bot.press('enter')
-        time.sleep(0.5)
-    '''
-
     print(F'--- Trocando o centro de custo para {centro_custo}')
     bot.write(centro_custo)
     print('--- Aguarda aparecer o campo cod_desc')
     while procura_imagem(imagem='img_topcon/cod_desc.png', continuar_exec=True) is False:
-        time.sleep(0.2)
+        tentativa_cod_desc = 0
+        time.sleep(0.4)
+        
+        if tentativa_cod_desc >= 30:
+            abre_mercantil()
+            programa_principal()    
+        else:
+            tentativa_cod_desc += 1 
     else:
         print('--- Apareceu o campo COD_DESC')
         bot.press('ENTER') # Pressiona enter, e aguarda sumir o campo "cod_desc"
         
     print('--- Aguarda até SUMIR o campo "cod_desc"')
     while procura_imagem(imagem='img_topcon/cod_desc.png', continuar_exec=True) is not False:
-        time.sleep(0.2)
+        tentativa_cod_desc = 0
+        time.sleep(0.4)
+        
+        if tentativa_cod_desc >= 30:
+            abre_mercantil()
+            programa_principal()    
+        else:
+            tentativa_cod_desc += 1 
     else:
         print('--- sumiu o campo "cod_desc" ')
 
@@ -262,19 +273,19 @@ def programa_principal():
     # * -------------------------------------- VALIDAÇÃO TRANSPORTADOR --------------------------------------
     print(F'--- Preenchendo transportador: {cracha_mot}')
     bot.click(procura_imagem(imagem='img_topcon/campo_000.png', continuar_exec= True))
-    time.sleep(1)
+    time.sleep(2)
     bot.press('tab')
-    time.sleep(1)
+    time.sleep(2)
     while procura_imagem(imagem='img_topcon/campo_re_0.png', continuar_exec= True) is False:
-        time.sleep(0.3)
+        time.sleep(0.5)
     else:
         print('--- Campo RE habilitado, preenchendo.')
-        time.sleep(1)
+        time.sleep(2)
         # Preenche o campo do transportador e verifica se aconteceu algum erro.
         bot.write(cracha_mot)  # ID transportador
-        time.sleep(1)
+        time.sleep(2)
         bot.press('enter')
-        time.sleep(1)
+        time.sleep(2)
 
     print('--- Aguardando validar o campo do transportador')
     ahk.win_activate('TopCompras', title_match_mode=2, detect_hidden_windows= True)
@@ -286,7 +297,7 @@ def programa_principal():
         programa_principal()
     else:
         print('--- Transportador validado! Prosseguindo para validação da placa')
-        time.sleep(1)
+        time.sleep(2)
         bot.press('enter')
 
     # Verifica se o campo da placa ficou preenchido
@@ -304,10 +315,11 @@ def programa_principal():
     ahk.win_activate('TopCompras', title_match_mode=2)
     ahk.win_wait_active('TopCompras', title_match_mode=2, timeout= 25)
     print('--- Navegando para a aba Produtos e Servicos')  
-    bot.doubleClick(procura_imagem(imagem='img_topcon/produtos_servicos.png'))
-    time.sleep(2)
+    bot.doubleClick(procura_imagem(imagem='img_topcon/produtos_servicos.png', limite_tentativa= 12))
+    time.sleep(4)
+    
     # Aguarda até aparecer o botão "alterar"
-    procura_imagem(imagem='img_topcon/botao_alterar.png', area=(100, 839, 300, 400))
+    procura_imagem(imagem='img_topcon/botao_alterar.png', area=(100, 839, 300, 400), limite_tentativa= 12)
     
     if '38953477000164' in chave_xml: #Caso não tenha o CNPJ da Consmar
         exit(bot.alert('CNPJ da consmar, necessario scriptar'))

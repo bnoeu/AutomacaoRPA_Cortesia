@@ -39,7 +39,7 @@ def valida_lancamento():
         
         print('--- Alterando o TopCompras para o modo incluir')
         ahk.win_activate('TopCompras', title_match_mode= 2 )
-        ahk.win_wait_active('TopCompras', title_match_mode= 2)
+        ahk.win_wait_active('TopCompras', title_match_mode= 2, timeout= 30)
         time.sleep(1)
         
         while True: # Enquanto a tela não for alterada para o modo incluir
@@ -50,29 +50,29 @@ def valida_lancamento():
                 print(F'--- Não está no modo Localizar, enviando comando F2 para tentar entrar no modo, tentativa: {tentativa_alterar_botoes}')
                 bot.press('F2', presses= 2)
                 
-                if procura_imagem(imagem='img_topcon/txt_localizar.png', continuar_exec= True, area= (852, 956, 1368, 1045)):
-                    print(F'--- Entrou no modo localizar, mudando para o modo incluir, tentativa: {tentativa_alterar_botoes}')
-                    bot.press('F3', presses= 2)
-                    time.sleep(1)
+            if procura_imagem(imagem='img_topcon/txt_localizar.png', continuar_exec= True, area= (852, 956, 1368, 1045)):
+                print(F'--- Entrou no modo localizar, mudando para o modo incluir, tentativa: {tentativa_alterar_botoes}')
+                bot.press('F3', presses= 2)
+                time.sleep(1)
 
-                    tentativa_alterar_botoes += 1
-                    if tentativa_alterar_botoes > 5:
-                        # 1. Abrir topCompras
-                        ahk.win_activate('TopCompras', title_match_mode= 2 )
-                        # 2. Apertar TAB
-                        bot.press('TAB')
-                        # 3. Verificar se ficou o "1001 - Vila Prudente em azul"
-                        if procura_imagem(imagem='img_topcon/txt_1001vila_prudente.png', continuar_exec= True):
-                            # 4. Caso encontre, quebrar o loop e continuar a inserção.
-                            print('--- Está funcionando a inserção de NFE! não é necessario reabrir o TopCompras')
-                            bot.press('F3')
-                            break
-                        else:
-                            # Caso passe o limite de tentativas, provavelmente ocorreu algum problema.
-                            print('--- Excedeu o limite de tentativas de alteração para o modo localizar, reabrindo o TopCompras.')
-                            exit(bot.alert('Verificar script'))
-                            abre_topcon()
-                            valida_lancamento()
+                tentativa_alterar_botoes += 1
+                if tentativa_alterar_botoes > 5:
+                    # 1. Abrir topCompras
+                    ahk.win_activate('TopCompras', title_match_mode= 2 )
+                    # 2. Apertar TAB
+                    bot.press('TAB')
+                    # 3. Verificar se ficou o "1001 - Vila Prudente em azul"
+                    if procura_imagem(imagem='img_topcon/txt_1001vila_prudente.png', continuar_exec= True):
+                        # 4. Caso encontre, quebrar o loop e continuar a inserção.
+                        print('--- Está funcionando a inserção de NFE! não é necessario reabrir o TopCompras')
+                        bot.press('F3')
+                        break
+                    else:
+                        # Caso passe o limite de tentativas, provavelmente ocorreu algum problema.
+                        print('--- Excedeu o limite de tentativas de alteração para o modo localizar, reabrindo o TopCompras.')
+                        exit(bot.alert('Verificar script'))
+                        abre_topcon()
+                        valida_lancamento()
 
             else:
                 ahk.win_activate('TopCompras', title_match_mode=2)
@@ -148,5 +148,5 @@ def conferencia_xml(tentativa = 0, maximo_tentativas = 20, texto_erro = False, d
         #TODO --- Validar se o topcon ainda está aberto, caso não esteja, reiniciar o processo do zero.
 
 if __name__ == '__main__':    
-    conferencia_xml()
-    #valida_lancamento()
+    #conferencia_xml()
+    valida_lancamento()
