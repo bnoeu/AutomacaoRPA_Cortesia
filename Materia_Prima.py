@@ -414,8 +414,8 @@ def programa_principal():
 
 if __name__ == '__main__':
     #abre_mercantil()
-    #finaliza_lancamento()
-    while True:
-        programa_principal()
+    finaliza_lancamento()
+    #while True:
+    #    programa_principal()
 
 # TODO --- Caso NFE Faturada no final do mes, lançar com qual data? 
