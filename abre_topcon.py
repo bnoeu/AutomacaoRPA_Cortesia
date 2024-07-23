@@ -4,10 +4,10 @@
 import time
 import pytesseract
 from ahk import AHK
-from funcoes import procura_imagem, corrige_topcompras, abre_mercantil
+from funcoes import procura_imagem, corrige_topcompras
 import pyautogui as bot
 import os
-from colorama import Fore, Style
+from colorama import Fore, Style, Back
 
 # Definição de parametros
 ahk = AHK()
@@ -22,12 +22,56 @@ pytesseract.pytesseract.tesseract_cmd = r"C:\Tesseract-OCR\tesseract.exe"
 login_rdp = 'bruno.s'
 senha_rdp = 'C0ncret0'
 
+
+def abre_mercantil():
+    print(Fore.RED + '--- Fechando e reabrindo APENAS o TopCompras' + Style.RESET_ALL)
+    # Inicia fechando o modulo de compras.
+    verifica_topcompras = 0
+    while ahk.win_exists('TopCompras', title_match_mode=2):
+        ahk.win_close('TopCompras', title_match_mode=2)
+        verifica_topcompras += 1
+        if verifica_topcompras > 10:
+            print('--- Tentou fechar o TopCompras porém não conseguiu! Fechando o remote por completo')
+            abre_topcon()
+            
+    # Ativa o Topcon, e clica no topcompras, e executa a função para correção do nome.
+    ahk.win_activate('TopCon', title_match_mode= 2)
+    bot.click(procura_imagem(imagem='img_topcon/logo_topcompras.png'))
+    time.sleep(2)
+    corrige_topcompras()
+
+    #Abre o TopCompras, e verifica se aparece a tela "interveniente"
+    ahk.win_activate('TopCompras', title_match_mode= 2)
+    if procura_imagem(imagem='img_topcon/botao_ok.jpg', continuar_exec= True):
+        print('--- Encontrou a tela do interveniente, clicando no botão "OK"')
+        bot.press('ENTER')
+    else:
+        print('--- Não exibiu a tela de interveniente.')
+        
+    #Navegando entre os menus para abrir a opção "Compras - Mercantil"
+    ahk.win_activate('TopCompras', title_match_mode= 2)
+    bot.click(900, 900)
+    bot.press('ALT')
+    bot.press('RIGHT', presses= 2, interval= 0.05)
+    bot.press('DOWN', presses= 7, interval= 0.05)
+    bot.press('ENTER')
+    time.sleep(3)
+    print(Fore.GREEN +  '--- TopCompras aberto!' + Style.RESET_ALL)
+
+
 #* ---------------- PROGRAMA PRINCIPAL ------------
 def fecha_execucoes():
-    # Primeiro força o fechamento das telas, para evitar erros de validações, e depois abre o RDP
-    print('--- Fechando as execuções atuais.')
-    ahk.win_close('TopCompras', title_match_mode= 2)   
-    os.system('taskkill /im mstsc.exe /f /t') # Força o fechamento do processo do RDP por completo
+    print(Back.RED + '--- iniciando fecha_execucoes --- Realizando fechamento do TopCompras' + Style.RESET_ALL)
+    
+    # Primeiro força o fechamento das telas, para evitar erros de validações
+    while ahk.win_exists('TopCompras', title_match_mode= 2):
+        ahk.win_close('TopCompras', title_match_mode= 2)   
+    else:
+        print(Back.RED + '--- Fechou o TopCompras, para garantir que seja uma execução limpa' + Style.RESET_ALL)
+    
+    # Força o fechamento do processo do RDP por completo
+    os.system('taskkill /im mstsc.exe /f /t')
+    print(Back.RED + '--- Fechou o processo do RemoteDesktop' + Style.RESET_ALL)
 
 
 def abre_topcon():
@@ -93,44 +137,11 @@ def abre_topcon():
             if procura_imagem(imagem='img_topcon/logo_principal.png', continuar_exec= True):
                 print('--- Tela do Topcon já está aberta.')
                 break
+    
+    # Com o programa TopCon aberto, realiza a abertura do modulo de compras (mercantil). 
     abre_mercantil()
-    #abre_topcompras()
-
-''' #! Substituido pelo abre mercantil
-          
-def abre_topcompras():
-    # Garante que foi realizado o fechamento do TopCompras.
-    ahk.win_close('TopCompras', title_match_mode= 2)
-    time.sleep(1)
-       
-    # Ativa o Topcon, e clica no topcompras, e executa a função para correção do nome.
-    while ahk.win_wait_active('TopCon', title_match_mode= 2, timeout= 30) is False:
-        ahk.win_activate('TopCon', title_match_mode= 2)
-        bot.click(procura_imagem(imagem='img_topcon/logo_topcompras.png'))
-        
-    time.sleep(4)
-    corrige_topcompras()
-    time.sleep(4)
-
-    #Abre o TopCompras, e verifica se aparece a tela "interveniente"
-    ahk.win_activate('TopCompras', title_match_mode= 2)
-    if procura_imagem(imagem='img_topcon/botao_ok.jpg', continuar_exec= True):
-        print('--- Encontrou a tela do interveniente, clicando no botão "OK"')
-        bot.press('ENTER')
-    else:
-        print('--- Não exibiu a tela de interveniente.')
-        
-    #Navegando entre os menus para abrir a opção "Compras - Mercantil"
-    ahk.win_activate('TopCompras', title_match_mode= 2)
-    bot.press('ALT')
-    bot.press('RIGHT', presses= 2, interval= 0.05)
-    bot.press('DOWN', presses= 7, interval= 0.05)
-    bot.press('ENTER')
-    time.sleep(3)
-    print(Fore.GREEN +  '--- TopCompras aberto!' + Style.RESET_ALL)
-''' 
 
 if __name__ == '__main__':
     #abre_topcompras()
-    fecha_execucoes()
+    #fecha_execucoes()
     abre_topcon()

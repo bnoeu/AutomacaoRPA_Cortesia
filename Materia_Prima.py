@@ -5,8 +5,6 @@
 # https://cortesiaconcreto-my.sharepoint.com/:x:/g/personal/bi_cortesiaconcreto_com_br/EW_8FZwWFYVAol4MpV1GglkBJEaJaDx6cfuClnesIu60Ng?e=pveECF
 # Debug db alltrips
 # https://cortesiaconcreto-my.sharepoint.com/:x:/g/personal/bruno_silva_cortesiaconcreto_com_br/ETubFnXLMWREkm0e7ez30CMBnID3pHwfLgGWMHbLqk2l5A?rtime=n9xgTPCH3Eg
-# db_alltrips no usuario bruno.silva
-# https://cortesiaconcreto-my.sharepoint.com/:x:/g/personal/bruno_silva_cortesiaconcreto_com_br/EVBAt2GdSwBEm8MQolLT2lEB85eZi6vobCy7mKI4QHkHWw?rtime=G6x2o4in3Eg
 # db_alltrips no paulo, apenas leitura
 # https://cortesiaconcreto-my.sharepoint.com/:x:/g/personal/bi_cortesiaconcreto_com_br/EQx5PclDGRFGkweQjtb3QckByyAsqydfI5za0MTuO9tjXg?e=RYfgcA
 
@@ -18,11 +16,11 @@ import pytesseract
 from ahk import AHK
 import pyautogui as bot
 from datetime import date
-from abre_topcon import abre_topcon
+from abre_topcon import abre_topcon, abre_mercantil
 from colorama import Back, Style, Fore
 from valida_pedido import valida_pedido
 from valida_lancamento import valida_lancamento
-from funcoes import marca_lancado, procura_imagem, extrai_txt_img, corrige_topcompras, abre_mercantil
+from funcoes import marca_lancado, procura_imagem, extrai_txt_img, corrige_topcompras
 
 # --- Definição de parametros
 ahk = AHK()
@@ -42,8 +40,11 @@ def processo_transferencia():
         time.sleep(2)
         if procura_imagem('img_topcon/deseja_processar.png', continuar_exec=True, limite_tentativa= 12, confianca= 0.75):
             print('--- Encontrou a tela do processo de transferencia')
-            bot.click(procura_imagem('img_topcon/bt_sim.png', continuar_exec=True))
+            while procura_imagem('img_topcon/bt_sim.png', continuar_exec=True):
+                bot.click(procura_imagem('img_topcon/bt_sim.png', continuar_exec=True))
+                
             while True:  # Aguardar o .PDF
+                time.sleep(0.4)
                 try:
                     ahk.win_wait('.pdf', title_match_mode=2, timeout= 15)
                 except TimeoutError:
@@ -70,6 +71,7 @@ def finaliza_lancamento():
     realizou_transferencia = False
     lancamento_concluido = False
     tentativas_telas = 0
+    planilha_marcada = False
     while True:
         # Para manter o TopCompras aberto.
         ahk.win_activate('TopCompras', title_match_mode=2)
@@ -79,9 +81,8 @@ def finaliza_lancamento():
             ahk.win_close('CsjTb')
             abre_mercantil()
             programa_principal()
-            
-        ahk.win_wait_active('TopCompras', title_match_mode=2, timeout= 25)
-        time.sleep(1)
+        
+        time.sleep(3)
         # 1. Caso chave invalida.  
         if procura_imagem(imagem='img_topcon/chave_invalida.png', continuar_exec=True) is not False:
             print('--- Nota já lançada, marcando planilha!')
@@ -93,7 +94,9 @@ def finaliza_lancamento():
         # 2. Caso operação realizada.
         if procura_imagem(imagem='img_topcon/operacao_realizada.png', continuar_exec= True) is not False:
             print('--- Encontrou a tela de operação realizada, fechando e marcando a planilha')
-            marca_lancado(texto_marcacao='Lancado_RPA')
+            if planilha_marcada is False:
+                marca_lancado(texto_marcacao='Lancado_RPA')
+                planilha_marcada = True
             time.sleep(3)
             
             ahk.win_activate('TopCompras', title_match_mode= 2)
@@ -155,6 +158,11 @@ def finaliza_lancamento():
 def programa_principal():
     acabou_pedido = True
     tentativa = 0
+    print('---------------------------------------------------------------------------------------------------')
+    print('')
+    print('--- INICIANDO UM NOVO LANÇAMENTO DE NFE --- ')
+    print('')
+    print('---------------------------------------------------------------------------------------------------')
     
     while acabou_pedido is True: #Verifica se o pedido está valido.
         dados_planilha = valida_lancamento()
@@ -242,9 +250,9 @@ def programa_principal():
     print(F'--- Trocando o centro de custo para {centro_custo}')
     bot.write(centro_custo)
     print('--- Aguarda aparecer o campo cod_desc')
+    tentativa_cod_desc = 0
     while procura_imagem(imagem='img_topcon/cod_desc.png', continuar_exec=True) is False:
-        tentativa_cod_desc = 0
-        time.sleep(0.4)
+        time.sleep(0.5)
         
         if tentativa_cod_desc >= 30:
             abre_mercantil()
@@ -256,9 +264,10 @@ def programa_principal():
         bot.press('ENTER') # Pressiona enter, e aguarda sumir o campo "cod_desc"
         
     print('--- Aguarda até SUMIR o campo "cod_desc"')
+    tentativa_cod_desc = 0
     while procura_imagem(imagem='img_topcon/cod_desc.png', continuar_exec=True) is not False:
-        tentativa_cod_desc = 0
-        time.sleep(0.4)
+        time.sleep(0.5
+                   )
         
         if tentativa_cod_desc >= 30:
             abre_mercantil()
@@ -276,8 +285,14 @@ def programa_principal():
     time.sleep(2)
     bot.press('tab')
     time.sleep(2)
+    tentativa_achar_camp_re = 0
     while procura_imagem(imagem='img_topcon/campo_re_0.png', continuar_exec= True) is False:
         time.sleep(0.5)
+        tentativa_achar_camp_re += 1
+        if tentativa_achar_camp_re >= 10:
+            print('--- Limite de tentativas de achar o campo "RE", reabrindo topcompras e reiniciando o processo.')
+            abre_mercantil()
+            programa_principal()
     else:
         print('--- Campo RE habilitado, preenchendo.')
         time.sleep(2)
@@ -413,9 +428,10 @@ def programa_principal():
 
 
 if __name__ == '__main__':
+    #processo_transferencia()
     #abre_mercantil()
-    finaliza_lancamento()
-    #while True:
-    #    programa_principal()
+    #finaliza_lancamento()
+    while True:
+        programa_principal()
 
 # TODO --- Caso NFE Faturada no final do mes, lançar com qual data? 

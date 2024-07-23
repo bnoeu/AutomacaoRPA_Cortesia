@@ -48,6 +48,10 @@ cracha_mot = '112480'
 #! Funções
 
 
+for tela in ahk.list_windows():
+    print(tela.title)
+
+
 
 ''' #* Cria banco de dados
 #Cria a conexão com o banco de dados
@@ -64,20 +68,3 @@ exit()
 
  #* Consulta as telas abertas
 
-''' #* Parte da tentativa de comunicação com o SEFAZ
-
- 
-
-
-
-
-
-certificado = "/certificado_nfe/certificado.pfx"
-senha = '123456'
-uf = 'sp'
-homologacao = True
-
-con = ComunicacaoSefaz(uf, certificado, senha, homologacao)
-xml = con.status_servico('nfe')
-print(xml.text)
-'''

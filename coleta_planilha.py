@@ -20,10 +20,7 @@ tempo_inicio = time.time()
 chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
 pytesseract.pytesseract.tesseract_cmd = r"C:\Tesseract-OCR\tesseract.exe"
 
-def coleta_planilha():
-    while True:
-        bot.PAUSE = 0.2
-        
+def abre_planilha():
         # Verifica quais das planilhas está aberta, debug ou o banco puro.
         print(Fore.GREEN + '--- Abrindo planilha - COLETA_PLANILHA' + Style.RESET_ALL)
         if ahk.win_exists('debug_db_alltrips', title_match_mode= 2):
@@ -34,6 +31,12 @@ def coleta_planilha():
             print('--- Abrindo a planilha com o banco puro')
             ahk.win_activate('db_alltrips', title_match_mode= 2)
             ahk.win_wait('db_alltrips', title_match_mode= 2)
+
+def coleta_planilha():
+    while True:
+        bot.PAUSE = 0.2
+        # Abre a tela da planilha, que já deve ter sido acessada no Edge
+        abre_planilha()
         
         # Processo necessario apenas caso rode diretamente no db_alltrips.
         if ahk.win_exists('debug_db_alltrips', title_match_mode= 2) is False:

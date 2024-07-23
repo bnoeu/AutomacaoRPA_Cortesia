@@ -10,8 +10,8 @@ import pyautogui as bot
 # import pygetwindow as gw
 from colorama import Fore, Style
 from coleta_planilha import coleta_planilha
-from funcoes import marca_lancado, procura_imagem, corrige_topcompras, abre_mercantil
-from abre_topcon import abre_topcon
+from funcoes import marca_lancado, procura_imagem, corrige_topcompras
+from abre_topcon import abre_topcon, abre_mercantil
 
 
 # --- Definição de parametros
@@ -71,8 +71,8 @@ def valida_lancamento():
                         # Caso passe o limite de tentativas, provavelmente ocorreu algum problema.
                         print('--- Excedeu o limite de tentativas de alteração para o modo localizar, reabrindo o TopCompras.')
                         exit(bot.alert('Verificar script'))
-                        abre_topcon()
-                        valida_lancamento()
+                        #abre_topcon()
+                        
 
             else:
                 ahk.win_activate('TopCompras', title_match_mode=2)

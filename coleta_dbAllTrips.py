@@ -25,130 +25,35 @@ bot.FAILSAFE = True
 tempo_inicio = time.time()
 chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
 pytesseract.pytesseract.tesseract_cmd = r"C:\Tesseract-OCR\tesseract.exe"
+planilha_original_leitura = "https://cortesiaconcreto-my.sharepoint.com/:x:/g/personal/bi_cortesiaconcreto_com_br/EQx5PclDGRFGkweQjtb3QckByyAsqydfI5za0MTuO9tjXg?e=RYfgcA"
+planilha_debug = "https://cortesiaconcreto-my.sharepoint.com/:x:/g/personal/bruno_silva_cortesiaconcreto_com_br/ETubFnXLMWREkm0e7ez30CMBnID3pHwfLgGWMHbLqk2l5A?rtime=n9xgTPCH3Eg"
+
+#! Funções
+def inicia_navegador():
+    #Definições Chrome Driver
+    options = webdriver.ChromeOptions()
+    options.add_experimental_option("detach", True)
+    servico = Service(ChromeDriverManager().install())
+    navegador = webdriver.Chrome(options=options,service=servico)
+    navegador.implicitly_wait(30)
+    return navegador
 
 
-#! Link do db_alltrips_old
-# https://cortesiaconcreto-my.sharepoint.com/:x:/g/personal/bruno_silva_cortesiaconcreto_com_br/EeKEw02Y8wxNsUl20Ye6AXEBI6hSgj_U9zmkYI5O9pN6Lw?e=ouNo7U
-
-# * ---------------------------------------------------------------------------------------------------
-# *                                        Inicio do Programa
-# * ---------------------------------------------------------------------------------------------------
-#Execução apenas caso rode o arquivo principal
-
+def abre_planilha_chrome():
+    navegador = inicia_navegador()
+    navegador.get(planilha_debug)
+    navegador.maximize_window()
+    time.sleep(5)
 
 
 if __name__ == "__main__":
-    def inicia_navegador():
-        #Definições Chrome Driver
-        options = webdriver.ChromeOptions()
-        options.add_experimental_option("detach", True)
-        servico = Service(ChromeDriverManager().install())
-        navegador = webdriver.Chrome(options=options,service=servico)
-        navegador.implicitly_wait(15)
-        return navegador
-
-    navegador = inicia_navegador()
-    navegador.get("https://cortesiaconcreto-my.sharepoint.com/:x:/g/personal/bruno_silva_cortesiaconcreto_com_br/EeKEw02Y8wxNsUl20Ye6AXEBI6hSgj_U9zmkYI5O9pN6Lw?e=ouNo7U")
-    navegador.maximize_window()
-    exit()
-    time.sleep(2)
-    chave_xml = '123'
-    navegador.find_element(By.XPATH, '//*[@id="ctl00_ContentPlaceHolder1_txtChaveAcessoResumo"]').send_keys(chave_xml)
-    time.sleep(2)
-    navegador.find_element(By.XPATH, '//*[@id="checkbox"]').click()
-    exit()
-    #Preencher a senha
-
-        
-    #Clica no botão de login
-    navegador.find_element('xpath', '//*[@id="loginBtn"]').click()
-    time.sleep(1.5)
-    #Clicar no botão "Detecte o aplicativo"
-    navegador.find_element('xpath', '//*[@id="protocolhandler-welcome-installButton"]').click()
-    time.sleep(1)
-    bot.click(procura_imagem(img='img_chrome/abrir_citrix.png', continuar_exec=True))
-    time.sleep(1)
-    navegador.find_element('xpath', '//*[@id="protocolhandler-detect-alreadyInstalledLink"]').click()
-    navegador.find_element('xpath', '//*[@id="home-screen"]/div[2]/section[5]/div[5]/div/ul/li[5]').click()
-    #Clica no botão "Downloads"
-    #bot.click(procura_imagem(img='img_chrome/icone_downloads.png'))
-    #Clica no arquivo .ICA
-    while procura_imagem(img='img_chrome/icone_ica.png') is False:
-        time.sleep(0.1)
-    else:
-        bot.click(procura_imagem(img='img_chrome/icone_ica.png'))
-
-#* -------------------- Processos Sênior Desktop. ---------------------
-    ahk.win_wait('Controle de Ponto e Refeitório', title_match_mode= 2, timeout= 1000)
-    ahk.win_activate('Controle de Ponto e Refeitório', title_match_mode= 2)
-    time.sleep(0.5)
+    abre_planilha_chrome()
     
-    #Aguarda até encontrar o campo para inserir os dados de login.
-    while procura_imagem(img='img_senior/txt_usuario.png', continuar_exec= True) is False:
-        time.sleep(0.3)
-    else:
-        print('--- Realizando o processo de login no Sênior Desktop App')
-        bot.click(procura_imagem(img='img_senior/txt_usuario.png'))
-
-    #! Dados de login do Sênior Desktop
-    bot.write('eliane')
-    bot.click(procura_imagem(img='img_senior/txt_senha.png'))
-    bot.write('sol2020')
+    ahk.win_exists('debug_db_alltrips', title_match_mode= 2)
+    ahk.win_activate('debug_db_alltrips', title_match_mode= 2)
     
-    bot.click(procura_imagem(img='img_senior/bt_autenticar.png', continuar_exec=True))
-
-    #Aguarda o modulo carregar por completo
-    ahk.win_wait('Controle de Ponto e Refeitório', title_match_mode= 2, timeout= 1000)
-    ahk.win_activate('Controle de Ponto e Refeitório', title_match_mode= 2)
+    # Clica no meio da planilha e navega até a coluna A1
+    bot.click(800, 800)
+    bot.hotkey('CTRL', 'HOME')
+    bot.click(800, 800)
     
-    
-    while procura_imagem(img='img_senior/logo_senior.png', continuar_exec=True) is False:
-        time.sleep(0.5)
-    else:
-        bot.click(procura_imagem(img='img_senior/logo_senior.png', continuar_exec=True))
-        print('--- Carregou o Sênior')
-        time.sleep(0.5)
-        
-    #Abre o menu de pesquisa, e abre a tela "Calculos / Apuração > Calcular"
-    bot.click(procura_imagem(img='img_senior/icon_pesquisa.png', continuar_exec=True))
-    bot.write('FRCALAPU')
-    bot.click(procura_imagem(img='img_senior/bt_calcular.png', continuar_exec=True))
-    time.sleep(0.5)
-    
-    #Caso apareça a tela de "Um aplicativo "
-    if ahk.win_exists('Citrix Workspace - Aviso de segurança', title_match_mode= 2):
-        bot.click(procura_imagem(img='img_senior/bt_acessoTotal.png', continuar_exec=True))
-    
-    
-    while procura_imagem(img='img_senior/txt_periodo.png', continuar_exec=True) is False:
-        time.sleep(0.5)
-    else:
-        print('--- Carregou a tela de calculo da apuração')
-        ahk.win_activate('FRCALAPU', title_match_mode= 2)
-        time.sleep(1)
-        print('--- Carregou a tela de calculo da apuração')
-        time.sleep(0.5)
-        bot.write('02052024')
-        bot.click(893, 191)
-        time.sleep(0.5)
-        bot.write('03052024')
-        bot.click(procura_imagem(img='img_senior/bt_marcaTodos.png', continuar_exec=True))   
-     
-    #Clica no botão processar, e aguarda a tela para confirmar o calculo de apuração 
-    bot.click(procura_imagem(img='img_senior/txt_processar.png', continuar_exec=True))
-    
-    ahk.win_wait('Confirmação', title_match_mode= 2, timeout= 1000)
-    ahk.win_activate('Confirmação', title_match_mode= 2)
-    bot.press('alt') 
-    bot.press('s') #Seleciona a opção SIM
-    
-    ahk.win_activate('Senior', title_match_mode= 2)
-    ahk.win_wait('FRPROAPU', title_match_mode= 2, timeout= 1000)
-    ahk.win_activate('FRPROAPU', title_match_mode= 2)
-    while (procura_imagem(img='img_senior/txt_StatusErroLog.png', limite_tentativa= 1,  continuar_exec = True)) is False:
-        print('Aguardando o processamento.')
-    ahk.send('LEFT')
-    ahk.send('ENTER')
-    
-
-    #TODO --- Caso apareça o erro "Número do PIS/CPF não cadastrado"
