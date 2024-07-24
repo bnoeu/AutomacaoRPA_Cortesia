@@ -72,6 +72,8 @@ def finaliza_lancamento():
     lancamento_concluido = False
     tentativas_telas = 0
     planilha_marcada = False
+    print(Fore.GREEN + '--- Iniciando a função de finalização de lançamento ---' + Style.RESET_ALL)
+    
     while True:
         # Para manter o TopCompras aberto.
         ahk.win_activate('TopCompras', title_match_mode=2)
@@ -82,7 +84,7 @@ def finaliza_lancamento():
             abre_mercantil()
             programa_principal()
         
-        time.sleep(3)
+        time.sleep(1)
         # 1. Caso chave invalida.  
         if procura_imagem(imagem='img_topcon/chave_invalida.png', continuar_exec=True) is not False:
             print('--- Nota já lançada, marcando planilha!')
@@ -97,29 +99,26 @@ def finaliza_lancamento():
             if planilha_marcada is False:
                 marca_lancado(texto_marcacao='Lancado_RPA')
                 planilha_marcada = True
-            time.sleep(3)
             
             ahk.win_activate('TopCompras', title_match_mode= 2)
             bot.click(procura_imagem(imagem='img_topcon/operacao_realizada.png'))
             bot.press('ENTER')
-            time.sleep(3)
+            time.sleep(1)
                     
         else:
             print('--- Não encontrou a tela "operação realizada" ')
+            
+            #Validando se já fecharam todas as telas
             if procura_imagem(imagem='img_topcon/bt_obslancamento.png', continuar_exec= True) is not False:
                 print('--- Encontrou o botão "OBS. Lancamento." encerrando loop das telas.')
-                
-                
+                 
                 if realizou_transferencia is True:
                     abre_mercantil()
-                
-                
-                  
                 else: # Segue o processo a baixo.
-                    
                     # Retorna a tela para o modo localizar
+                    ahk.win_activate('TopCompras', title_match_mode= 2)
                     bot.press('F2', presses = 2)
-                    time.sleep(3)
+                    time.sleep(2)
                     
                     if procura_imagem(imagem='img_topcon/txt_localizar.png', continuar_exec= True, area= (852, 956, 1368, 1045)):
                         print('--- Entrou no modo localizar, lançamento realmente concluido!')
@@ -252,7 +251,7 @@ def programa_principal():
     print('--- Aguarda aparecer o campo cod_desc')
     tentativa_cod_desc = 0
     while procura_imagem(imagem='img_topcon/cod_desc.png', continuar_exec=True) is False:
-        time.sleep(0.5)
+        time.sleep(1)
         
         if tentativa_cod_desc >= 30:
             abre_mercantil()
@@ -266,12 +265,11 @@ def programa_principal():
     print('--- Aguarda até SUMIR o campo "cod_desc"')
     tentativa_cod_desc = 0
     while procura_imagem(imagem='img_topcon/cod_desc.png', continuar_exec=True) is not False:
-        time.sleep(0.5
-                   )
+        time.sleep(1)
         
         if tentativa_cod_desc >= 30:
             abre_mercantil()
-            programa_principal()    
+            programa_principal()
         else:
             tentativa_cod_desc += 1 
     else:

@@ -6,6 +6,7 @@ from datetime import date
 import pytesseract
 import datetime
 #import cv2
+import os
 from ahk import AHK
 import pyautogui as bot
 import pandas as pd
@@ -48,9 +49,7 @@ cracha_mot = '112480'
 #! Funções
 
 
-for tela in ahk.list_windows():
-    print(tela.title)
-
+os.system('taskkill /im AutoHotkey.exe /f /t')
 
 
 ''' #* Cria banco de dados
