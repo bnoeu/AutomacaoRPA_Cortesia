@@ -14,7 +14,7 @@ ahk = AHK()
 bot.PAUSE = 0.5
 posicao_img = 0
 continuar = True
-bot.FAILSAFE = True
+bot.FAILSAFE = False
 tempo_inicio = time.time()
 chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
 pytesseract.pytesseract.tesseract_cmd = r"C:\Tesseract-OCR\tesseract.exe"
@@ -77,7 +77,7 @@ def fecha_execucoes():
 def abre_topcon():
     bot.PAUSE = 1
     # Começa garantindo que fechou todas as execuções antigas.
-    fecha_execucoes()
+    #fecha_execucoes()
     
     print('--- Iniciando o RemoteApp')
     os.startfile('RemoteApp-Cortesia.rdp')
@@ -86,6 +86,8 @@ def abre_topcon():
     
     # Tenta encontrar em ingles e portugues.
     telas_seguranca = ['Windows Security', 'Segurança do Windows']
+    tela_login_rdp = False
+    
     for tela in telas_seguranca:
         try:
             ahk.win_wait_active(tela, title_match_mode= 2, timeout = 10)

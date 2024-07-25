@@ -13,7 +13,7 @@ from funcoes import marca_lancado, procura_imagem, extrai_txt_img, verifica_ped_
 ahk = AHK()
 posicao_img = 0  # Define a variavel para utilização global dela.
 continuar = True
-bot.FAILSAFE = True
+bot.FAILSAFE = False
 numero_nf = "965999"
 transportador = "111594"
 chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''

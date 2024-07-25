@@ -30,7 +30,7 @@ from pynfe.processamento.comunicacao import ComunicacaoSefaz
 ahk = AHK()
 posicao_img = 0  # Define a variavel para utilização global dela.
 continuar = True
-bot.FAILSAFE = True
+bot.FAILSAFE = False
 acabou_pedido = ''
 numero_nf = "965999"
 transportador = "111594"
@@ -47,10 +47,6 @@ centro_custo = filial_estoq
 cracha_mot = '112480'
 
 #! Funções
-
-
-os.system('taskkill /im AutoHotkey.exe /f /t')
-
 
 ''' #* Cria banco de dados
 #Cria a conexão com o banco de dados
