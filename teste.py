@@ -36,7 +36,7 @@ numero_nf = "965999"
 transportador = "111594"
 chave_xml, silo2, silo1 = '', '', ''
 pytesseract.pytesseract.tesseract_cmd = r"C:\Tesseract-OCR\tesseract.exe"
-time.sleep(1)
+time.sleep(0.5)
 start = time.time()
 hoje = datetime.date.today()
 
@@ -47,6 +47,10 @@ centro_custo = filial_estoq
 cracha_mot = '112480'
 
 #! Funções
+
+ # Encerra todos os processos do AHK
+os.system('taskkill /im AutoHotkey.exe /f /t')
+
 
 ''' #* Cria banco de dados
 #Cria a conexão com o banco de dados

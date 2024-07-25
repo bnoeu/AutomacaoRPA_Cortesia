@@ -26,7 +26,7 @@ pytesseract.pytesseract.tesseract_cmd = r"C:\Tesseract-OCR\tesseract.exe"
 
 # Realiza o processo de validação do lançamento.
 def valida_lancamento():
-    bot.PAUSE = 0.5
+    bot.PAUSE = 0.25
     while True:
         tentativa_alterar_botoes = 0
         # Recebe os dados coletados da planilha, já validados e formatados.
@@ -40,23 +40,25 @@ def valida_lancamento():
         print('--- Alterando o TopCompras para o modo incluir')
         ahk.win_activate('TopCompras', title_match_mode= 2 )
         ahk.win_wait_active('TopCompras', title_match_mode= 2, timeout= 30)
-        time.sleep(1)
+        time.sleep(0.5)
         
         while True: # Enquanto a tela não for alterada para o modo incluir
             ahk.win_activate('TopCompras', title_match_mode= 2)
             
             print('--- Verificando se está no modo Localizar.')
-            if procura_imagem(imagem='img_topcon/txt_inclui.png', continuar_exec= True, area= (852, 956, 1368, 1045)) is False:
+            if procura_imagem(imagem='img_topcon/txt_inclui.png', continuar_exec= True, area= (852, 956, 1368, 1045), limite_tentativa= 3, confianca= 0.75) is False:
                 print(F'--- Não está no modo Localizar, enviando comando F2 para tentar entrar no modo, tentativa: {tentativa_alterar_botoes}')
+                ahk.win_activate('TopCompras', title_match_mode= 2)
                 bot.press('F2', presses= 2)
                 
-            if procura_imagem(imagem='img_topcon/txt_localizar.png', continuar_exec= True, area= (852, 956, 1368, 1045)):
+            if procura_imagem(imagem='img_topcon/txt_localizar.png', continuar_exec= True, area= (852, 956, 1368, 1045), limite_tentativa= 3, confianca= 0.75):
                 print(F'--- Entrou no modo localizar, mudando para o modo incluir, tentativa: {tentativa_alterar_botoes}')
+                ahk.win_activate('TopCompras', title_match_mode= 2)
                 bot.press('F3', presses= 2)
-                time.sleep(1)
+                time.sleep(0.5)
 
                 tentativa_alterar_botoes += 1
-                if tentativa_alterar_botoes > 5:
+                if tentativa_alterar_botoes > 10:
                     # 1. Abrir topCompras
                     ahk.win_activate('TopCompras', title_match_mode= 2 )
                     # 2. Apertar TAB
@@ -79,14 +81,14 @@ def valida_lancamento():
                 ahk.win_activate('TopCompras', title_match_mode=2)
                 bot.press('F3', presses= 2)
                 print('--- Entrou no modo incluir, continuando inserção da NFE')
-                time.sleep(1)
+                time.sleep(0.5)
                 break
 
         # Inicia inserção da chave XML
         bot.press('TAB', presses= 2, interval = 1)
         bot.write(chave_xml)
         bot.press('TAB')
-        time.sleep(1)
+        time.sleep(0.5)
         validou_xml = conferencia_xml(dados_planilha = dados_planilha)
         if validou_xml is None:
             print('--- Retornou os valores como None, mantendo o loop')
@@ -96,14 +98,14 @@ def valida_lancamento():
             print(Fore.GREEN + F'--- Validou os dados do XML, dados_planilha: {dados_planilha}\n' + Style.RESET_ALL)
             return validou_xml
 
-def conferencia_xml(tentativa = 0, maximo_tentativas = 20, texto_erro = False, dados_planilha = False):
+def conferencia_xml(tentativa = 0, maximo_tentativas = 25, texto_erro = False, dados_planilha = False):
     tentativas_telas = 0
     # Aguarda até aparecer uma das telas que podem ser exibidas nesse processo.
     while tentativa < maximo_tentativas:
         
         # Caso a tela não esteja respondendo.
         while ahk.win_exists('Não está respondendo', title_match_mode= 2):
-            time.sleep(1)
+            time.sleep(0.5)
         
         # Verifica quais das telas apareceu.
         ahk.win_activate('TopCompras', title_match_mode=2, detect_hidden_windows= True)   
@@ -114,16 +116,16 @@ def conferencia_xml(tentativa = 0, maximo_tentativas = 20, texto_erro = False, d
         
         else: # Caso não encontre o botão "Sim", verifica se apareceu alguma das outras telas.
             while True:
-                if procura_imagem(imagem='img_topcon/chave_invalida.png', continuar_exec=True) is not False:
+                if procura_imagem(imagem='img_topcon/chave_invalida.png', continuar_exec=True, confianca= 0.75, limite_tentativa= 3, msg_confianca = True) is not False:
                     texto_erro = "Lancado_Manual"
                     break          
-                elif procura_imagem(imagem='img_topcon/naoencontrado_xml.png', continuar_exec=True) is not False:
+                elif procura_imagem(imagem='img_topcon/naoencontrado_xml.png', continuar_exec=True, confianca= 0.75, limite_tentativa= 3) is not False:
                     texto_erro = "Aguardando_SEFAZ"
                     break
-                elif procura_imagem(imagem='img_topcon/chave_44digitos.png', continuar_exec=True) is not False:
+                elif procura_imagem(imagem='img_topcon/chave_44digitos.png', continuar_exec=True, confianca= 0.75, limite_tentativa= 3) is not False:
                     texto_erro = "Chave_invalida"
                     break
-                elif procura_imagem(imagem='img_topcon/nfe_cancelada.png', continuar_exec=True) is not False:
+                elif procura_imagem(imagem='img_topcon/nfe_cancelada.png', continuar_exec=True, confianca= 0.75, limite_tentativa= 3) is not False:
                     texto_erro = "NFE_Cancelada"
                     break
                 else:
@@ -144,6 +146,7 @@ def conferencia_xml(tentativa = 0, maximo_tentativas = 20, texto_erro = False, d
         tentativa += 1
     else: # Caso execute o maximo de tentativas sem sucesso.
         # Caso exceta o limite de tentativas, tenta fechar e abrir a tela de compras.
+        print('--- Excedeu o limite de tentativas de encontrar alguma tela.')
         abre_mercantil()
         #exit(bot.alert(Fore.RED + F'--- Rodou {maximo_tentativas} verificações e não achou nenhuma tela, verificar!' + Style.RESET_ALL))
         #TODO --- Validar se o topcon ainda está aberto, caso não esteja, reiniciar o processo do zero.

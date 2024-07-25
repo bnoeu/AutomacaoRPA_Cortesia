@@ -47,12 +47,12 @@ mapeamento_imagens = {
 
 
 def valida_pedido(acabou_pedido=False):
-    bot.PAUSE = 0.5
+    bot.PAUSE = 0.2
     tentativa = 0
     img_pedido = 0
     item_pedido = ''
     validou_itensXml = False
-    time.sleep(1)
+    time.sleep(0.5)
     #Aguarda a abertura da tela de vinculação de item versus nota
     ahk.win_activate('Vinculação Itens da Nota', title_match_mode = 2)
     

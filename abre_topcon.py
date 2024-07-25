@@ -11,7 +11,7 @@ from colorama import Fore, Style, Back
 
 # Definição de parametros
 ahk = AHK()
-bot.PAUSE = 0.5
+bot.PAUSE = 0.25
 posicao_img = 0
 continuar = True
 bot.FAILSAFE = False
@@ -29,15 +29,16 @@ def abre_mercantil():
     verifica_topcompras = 0
     while ahk.win_exists('TopCompras', title_match_mode=2):
         ahk.win_close('TopCompras', title_match_mode=2)
-        verifica_topcompras += 1
         if verifica_topcompras > 10:
             print('--- Tentou fechar o TopCompras porém não conseguiu! Fechando o remote por completo')
             abre_topcon()
             
+        verifica_topcompras += 1
+            
     # Ativa o Topcon, e clica no topcompras, e executa a função para correção do nome.
     ahk.win_activate('TopCon', title_match_mode= 2)
     bot.click(procura_imagem(imagem='img_topcon/logo_topcompras.png'))
-    time.sleep(2)
+    time.sleep(0.5)
     corrige_topcompras()
 
     #Abre o TopCompras, e verifica se aparece a tela "interveniente"
@@ -57,7 +58,6 @@ def abre_mercantil():
     bot.press('ENTER')
     time.sleep(3)
     print(Fore.GREEN +  '--- TopCompras aberto!' + Style.RESET_ALL)
-
 
 #* ---------------- PROGRAMA PRINCIPAL ------------
 def fecha_execucoes():
@@ -82,7 +82,7 @@ def abre_topcon():
     print('--- Iniciando o RemoteApp')
     os.startfile('RemoteApp-Cortesia.rdp')
     #os.startfile('RemoteApp-CortesiaVPN.rdp')
-    time.sleep(1)
+    time.sleep(0.5)
     
     # Tenta encontrar em ingles e portugues.
     telas_seguranca = ['Windows Security', 'Segurança do Windows']
@@ -144,6 +144,6 @@ def abre_topcon():
     abre_mercantil()
 
 if __name__ == '__main__':
-    #abre_topcompras()
+    abre_mercantil()
     #fecha_execucoes()
-    abre_topcon()
+    #abre_topcon()
