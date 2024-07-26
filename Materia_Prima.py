@@ -290,6 +290,7 @@ def programa_principal():
     while procura_imagem(imagem='img_topcon/campo_re_0.png', continuar_exec= True) is False:
         time.sleep(0.5)
         tentativa_achar_camp_re += 1
+        print(F'Tentativa: {tentativa_achar_camp_re}')
         if tentativa_achar_camp_re >= 15:
             print('--- Limite de tentativas de achar o campo "RE", reabrindo topcompras e reiniciando o processo.')
             abre_mercantil()

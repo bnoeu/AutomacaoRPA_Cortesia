@@ -80,8 +80,8 @@ def abre_topcon():
     #fecha_execucoes()
     
     print('--- Iniciando o RemoteApp')
-    os.startfile('RemoteApp-Cortesia.rdp')
-    #os.startfile('RemoteApp-CortesiaVPN.rdp')
+    #os.startfile('RemoteApp-Cortesia.rdp')
+    os.startfile('RemoteApp-CortesiaVPN.rdp')
     time.sleep(0.5)
     
     # Tenta encontrar em ingles e portugues.
@@ -90,7 +90,8 @@ def abre_topcon():
     
     for tela in telas_seguranca:
         try:
-            ahk.win_wait_active(tela, title_match_mode= 2, timeout = 10)
+            time.sleep(0.5)
+            ahk.win_wait_active(tela, title_match_mode= 2, timeout = 5)
         except TimeoutError:
             time.sleep(0.5)
         else:
