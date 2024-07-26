@@ -19,7 +19,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 # --- Definição de parametros
 ahk = AHK()
 posicao_img = 0 
-bot.PAUSE = 0.25
+bot.PAUSE = 0.55
 continuar = True
 bot.FAILSAFE = False
 tempo_inicio = time.time()

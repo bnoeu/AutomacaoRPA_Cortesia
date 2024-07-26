@@ -26,7 +26,7 @@ pytesseract.pytesseract.tesseract_cmd = r"C:\Tesseract-OCR\tesseract.exe"
 
 # Realiza o processo de validação do lançamento.
 def valida_lancamento():
-    bot.PAUSE = 0.25
+    bot.PAUSE = 0.55
     while True:
         tentativa_alterar_botoes = 0
         # Recebe os dados coletados da planilha, já validados e formatados.
@@ -134,11 +134,17 @@ def conferencia_xml(tentativa = 0, maximo_tentativas = 25, texto_erro = False, d
                 
         if texto_erro is not False:
             print(Fore.RED + F'--- Apresentou um erro: {texto_erro} ' + Style.RESET_ALL)
-            while procura_imagem(imagem='img_topcon/txt_localizar.png', continuar_exec= True, area= (852, 956, 1368, 1045)) is False:
-                print('--- Alterando a tela para o modo "localiza" para ficar correto o proximo lançamento.')
-                time.sleep(0.5)
-                bot.press('ENTER')
-                bot.press('F2')
+            ahk.win_activate('TopCompras', title_match_mode= 2)
+            while True:
+                if procura_imagem(imagem='img_topcon/txt_localizar.png', continuar_exec= True, area= (852, 956, 1368, 1045)) is False:
+                    ahk.win_activate('TopCompras', title_match_mode= 2)
+                    bot.click(procura_imagem(imagem='img_topcon/botao_ok.jpg', continuar_exec= True, limite_tentativa= 3, confianca= 0.75))
+                    print('--- Alterando a tela para o modo "localiza" para ficar correto o proximo lançamento.')
+                    time.sleep(0.5)
+                    bot.press('F2')
+                else:
+                    print('--- Tela já está no modo localizar, saindo do loop!')
+                    break
                 
             marca_lancado(texto_marcacao = texto_erro)
             break

@@ -24,7 +24,7 @@ from funcoes import marca_lancado, procura_imagem, extrai_txt_img, corrige_topco
 
 # --- Definição de parametros
 ahk = AHK()
-bot.PAUSE = 0.25
+bot.PAUSE = 0.55
 posicao_img = 0
 continuar = True
 bot.FAILSAFE = False
@@ -248,6 +248,7 @@ def programa_principal():
 
     print(F'--- Trocando o centro de custo para {centro_custo}')
     bot.write(centro_custo)
+    ahk.win_activate('TopCompras', title_match_mode= 2)
     print('--- Aguarda aparecer o campo cod_desc')
     tentativa_cod_desc = 0
     while procura_imagem(imagem='img_topcon/cod_desc.png', continuar_exec=True, confianca= 0.75, limite_tentativa= 3) is False:

@@ -11,7 +11,7 @@ from colorama import Fore, Style, Back
 
 # Definição de parametros
 ahk = AHK()
-bot.PAUSE = 0.25
+bot.PAUSE = 0.55
 posicao_img = 0
 continuar = True
 bot.FAILSAFE = False
@@ -144,6 +144,6 @@ def abre_topcon():
     abre_mercantil()
 
 if __name__ == '__main__':
-    abre_mercantil()
+    #abre_mercantil()
     #fecha_execucoes()
-    #abre_topcon()
+    abre_topcon()

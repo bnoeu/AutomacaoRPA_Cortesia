@@ -34,7 +34,7 @@ def abre_planilha():
 
 def coleta_planilha():
     while True:
-        bot.PAUSE = 0.2
+        bot.PAUSE = 0.5
         # Abre a tela da planilha, que já deve ter sido acessada no Edge
         abre_planilha()
         

@@ -44,10 +44,12 @@ def procura_imagem(imagem, limite_tentativa=6, area=(0, 0, 1920, 1080), continua
         tentativa += 1
     
         #TODO Aqui deveria ter um IF para validar se a MSG Confiança está como True
-        if confianca < 0.74 and msg_confianca is True:
+        '''
+        if confianca < 0.73 and msg_confianca is True:
             print(F'--- Valor atual da confiança da imagem: {confianca}', end= "")
         else:
             print(F', {confianca}', end= "")
+        '''
     
         confianca -= 0.01              
         
@@ -82,7 +84,7 @@ def verifica_tela(nome_tela, manual=False):
 
 
 def marca_lancado(texto_marcacao='Lancado'):
-    bot.PAUSE = 0.2
+    bot.PAUSE = 0.5
     print(Fore.GREEN + F'\n--- Abrindo planilha - MARCA_LANCADO, com parametro: {texto_marcacao}' + Style.RESET_ALL)
     ahk.win_activate('debug_db_alltrips', title_match_mode= 2)
     ahk.win_wait_active('debug_db_alltrips', title_match_mode= 2, timeout= 15)
