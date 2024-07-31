@@ -16,7 +16,7 @@ import pytesseract
 from ahk import AHK
 import pyautogui as bot
 from datetime import date
-from abre_topcon import abre_topcon, abre_mercantil
+from abre_topcon import abre_topcon, abre_mercantil, navega_topcompras
 from colorama import Back, Style, Fore
 from valida_pedido import valida_pedido
 from valida_lancamento import valida_lancamento
@@ -24,10 +24,10 @@ from funcoes import marca_lancado, procura_imagem, extrai_txt_img, corrige_topco
 
 # --- Definição de parametros
 ahk = AHK()
-bot.PAUSE = 0.55
+bot.PAUSE = 0.4
 posicao_img = 0
 continuar = True
-bot.FAILSAFE = False
+bot.FAILSAFE = True
 tempo_inicio = time.time()
 chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
 pytesseract.pytesseract.tesseract_cmd = r"C:\Tesseract-OCR\tesseract.exe"
@@ -40,7 +40,7 @@ def processo_transferencia():
         
         if procura_imagem('img_topcon/deseja_processar.png', continuar_exec=True, confianca= 0.75):
             print('--- Encontrou a tela do processo de transferencia')
-            while procura_imagem('img_topcon/bt_sim.png', continuar_exec=True):
+            while procura_imagem('img_topcon/bt_sim.png', continuar_exec=True, limite_tentativa= 3, confianca= 0.74):
                 bot.click(procura_imagem('img_topcon/bt_sim.png', continuar_exec=True))
                 
             while True:  # Aguardar o .PDF
@@ -64,7 +64,9 @@ def processo_transferencia():
                 ahk.win_wait_active('TopCompras', timeout=10, title_match_mode=2)
                 ahk.win_activate('TopCompras', title_match_mode=2)
                 return True
-
+    else:
+        print('--- Não encontrou a tela de transferencia. ')
+        
 def finaliza_lancamento():
     realizou_transferencia = False
     lancamento_concluido = False
@@ -80,11 +82,12 @@ def finaliza_lancamento():
         if ahk.win_exists('CsjTb'):
             ahk.win_close('CsjTb')
             abre_mercantil()
+            print('--- Reabriu o mercantil, recomeçando o processo.')
             programa_principal()
         
         time.sleep(0.5)
         # 1. Caso chave invalida.  
-        if procura_imagem(imagem='img_topcon/chave_invalida.png', continuar_exec=True, limite_tentativa= 3, confianca= 0.75) is not False:
+        if procura_imagem(imagem='img_topcon/chave_invalida.png', continuar_exec=True, limite_tentativa= 2, confianca= 0.74) is not False:
             print('--- Nota já lançada, marcando planilha!')
             bot.press('ENTER')
             bot.press('F2', presses = 2)
@@ -92,7 +95,7 @@ def finaliza_lancamento():
             break
 
         # 2. Caso operação realizada.
-        if procura_imagem(imagem='img_topcon/operacao_realizada.png', continuar_exec= True, limite_tentativa= 3, confianca= 0.75) is not False:
+        if procura_imagem(imagem='img_topcon/operacao_realizada.png', continuar_exec= True, limite_tentativa= 2, confianca= 0.74) is not False:
             print('--- Encontrou a tela de operação realizada, fechando e marcando a planilha')
             if planilha_marcada is False:
                 marca_lancado(texto_marcacao='Lancado_RPA')
@@ -106,13 +109,14 @@ def finaliza_lancamento():
         else:
             print('--- Não encontrou a tela "operação realizada" ')
             
-            #Validando se já fecharam todas as telas
-            if procura_imagem(imagem='img_topcon/bt_obslancamento.png', continuar_exec= True, limite_tentativa= 3, confianca= 0.75) is not False:
+            #Validando se já fecharam todas as telas.
+            if procura_imagem(imagem='img_topcon/bt_obslancamento.png', continuar_exec= True, limite_tentativa= 2, confianca= 0.74) is not False:
                 print('--- Encontrou o botão "OBS. Lancamento." encerrando loop das telas.')
                  
                 if realizou_transferencia is True:
                     print('--- Realizou transferencia, reabrindo o modulo do topcompras para evitar erros.')
-                    abre_mercantil()
+                    time.sleep(0.1)
+                    navega_topcompras()
                 else: # Segue o processo a baixo.
                     # Retorna a tela para o modo localizar
                     ahk.win_activate('TopCompras', title_match_mode= 2)
@@ -123,13 +127,13 @@ def finaliza_lancamento():
                         print('--- Entrou no modo localizar, lançamento realmente concluido!')
                         lancamento_concluido = True
                         break
-                    else:
-                        print(Fore.RED + '--- Não voltou para o modo localizar, alguma tela ainda deve estar aberta...\n' + Style.RESET_ALL)
                     
         # 3. Caso apareça "deseja imprimir o espelho da nota?"
-        if procura_imagem(imagem='img_topcon/txt_espelhonota.png', continuar_exec=True, limite_tentativa= 3, confianca= 0.75) is not False:
+        if procura_imagem(imagem='img_topcon/txt_espelhonota.png', continuar_exec=True, limite_tentativa= 2, confianca= 0.74) is not False:
             print('--- Apareceu a tela: deseja imprimir o espelho da nota?')
+            ahk.win_activate('TopCompras', title_match_mode= 2)
             bot.press('ENTER')
+        
         
         # 4. Caso apareça tela "Espelho da nota fiscal"
         while ahk.win_exists('Espelho de Nota Fiscal', title_match_mode= 2):
@@ -140,15 +144,16 @@ def finaliza_lancamento():
         time.sleep(0.5)
 
         tentativas_telas += 1
-        # Caso exceta o limite de tentativas, tenta fechar e abrir a tela de compras.
-        if tentativas_telas >= 10:
-            print('--- Excedeu o limite de tentativas de encontrar as telas.')
-            abre_topcon()
         
         if lancamento_concluido is True:
             time.sleep(0.5)
             bot.press('F2') # Aperta F2 para retornar a tela para o modo "Localizar"
             marca_lancado(texto_marcacao='Lancado_RPA')
+        
+        # Caso exceta o limite de tentativas, tenta fechar e abrir a tela de compras.
+        elif tentativas_telas >= 15:
+            print(Fore.RED + '--- Excedeu o limite de tentativas de encontrar as telas, reabrindo o TopCompras' + Style.RESET_ALL)
+            abre_mercantil()
 
 # * ---------------------------------------------------------------------------------------------------
 # *                                        Inicio do Programa
@@ -202,7 +207,7 @@ def programa_principal():
     print('--- Preenchendo dados na tela principal do lançamento')
     time.sleep(0.5)
     
-    while procura_imagem(imagem='img_topcon/produtos_servicos.png', continuar_exec= True, limite_tentativa= 3) is False:
+    while procura_imagem(imagem='img_topcon/produtos_servicos.png', continuar_exec= True, limite_tentativa= 3, confianca= 0.74) is False:
         ahk.win_activate('TopCompras', title_match_mode=2, detect_hidden_windows= True)
         try:
             ahk.win_wait_active('TopCompras', title_match_mode=2, timeout= 25)
@@ -233,7 +238,7 @@ def programa_principal():
         time.sleep(0.2)
 
     try:
-        ahk.win_wait('Topsys', title_match_mode= 2, timeout= 15)
+        ahk.win_wait('Topsys', title_match_mode= 2, timeout= 10)
     except TimeoutError:
         pass
         #print('--- Tela de erro NÃO apareceu, continuando...')
@@ -252,60 +257,56 @@ def programa_principal():
     print('--- Aguarda aparecer o campo cod_desc')
     tentativa_cod_desc = 0
     while procura_imagem(imagem='img_topcon/cod_desc.png', continuar_exec=True, confianca= 0.75, limite_tentativa= 3) is False:
-        time.sleep(0.5)
-        
-        if tentativa_cod_desc >= 30:
+        print(F'Tentativa de achar o cod_desc: {tentativa_cod_desc}')
+        if tentativa_cod_desc >= 100:
             print('--- Não foi possivel encontrar o campo cod_desc, reiniciando o processo.')
             abre_mercantil()
             programa_principal()    
         else:
             tentativa_cod_desc += 1 
     else:
-        print('--- Apareceu o campo COD_DESC')
+        print(F'--- Apareceu o campo COD_DESC, tentativa: {tentativa_cod_desc} ')
         bot.press('ENTER') # Pressiona enter, e aguarda sumir o campo "cod_desc"
         
     print('--- Aguarda até SUMIR o campo "cod_desc"')
     tentativa_cod_desc = 0
-    while procura_imagem(imagem='img_topcon/cod_desc.png', continuar_exec=True, confianca= 0.75, limite_tentativa= 3) is not False:
-        time.sleep(0.5)
-        
-        if tentativa_cod_desc >= 30:
+    while procura_imagem(imagem='img_topcon/cod_desc.png', continuar_exec=True, confianca= 0.74, limite_tentativa= 3) is not False:
+        bot.click(procura_imagem(imagem='img_topcon/txt_ValoresTotais.png', continuar_exec= True))
+        print(F'--- Tentativa de aguardar sumir o cod_desc: {tentativa_cod_desc}112826')
+        if tentativa_cod_desc >= 100:
             print('--- O campo cod_desc não sumiu, reiniciando o processo.')
             abre_mercantil()
             programa_principal()
         else:
             tentativa_cod_desc += 1 
     else:
-        print('--- sumiu o campo "cod_desc" ')
+        print(F'--- sumiu o campo "cod_desc", tentativa: {tentativa_cod_desc}')
 
+    ahk.win_activate('TopCompras', title_match_mode= 2)
     bot.click(procura_imagem(imagem='img_topcon/txt_ValoresTotais.png', continuar_exec= True))
 
     # * -------------------------------------- VALIDAÇÃO TRANSPORTADOR --------------------------------------
     print(F'--- Preenchendo transportador: {cracha_mot}')
     bot.click(procura_imagem(imagem='img_topcon/campo_000.png', continuar_exec= True))
-    time.sleep(0.5)
     bot.press('tab')
-    time.sleep(0.5)
     tentativa_achar_camp_re = 0
-    while procura_imagem(imagem='img_topcon/campo_re_0.png', continuar_exec= True) is False:
+    while procura_imagem(imagem='img_topcon/campo_re_0.png', continuar_exec= True, limite_tentativa= 3, confianca= 0.74) is False:
+        print(F'Tentativa: {tentativa_achar_camp_re}')
         time.sleep(0.5)
         tentativa_achar_camp_re += 1
-        print(F'Tentativa: {tentativa_achar_camp_re}')
-        if tentativa_achar_camp_re >= 15:
+        if tentativa_achar_camp_re >= 10:
             print('--- Limite de tentativas de achar o campo "RE", reabrindo topcompras e reiniciando o processo.')
             abre_mercantil()
             programa_principal()
     else:
         print('--- Campo RE habilitado, preenchendo.')
-        time.sleep(0.5)
         # Preenche o campo do transportador e verifica se aconteceu algum erro.
         bot.write(cracha_mot)  # ID transportador
         time.sleep(0.5)
         bot.press('enter')
-        time.sleep(0.5)
 
     print('--- Aguardando validar o campo do transportador')
-    ahk.win_activate('TopCompras', title_match_mode=2, detect_hidden_windows= True)
+    ahk.win_activate('TopCompras', title_match_mode=2)
     if procura_imagem(imagem='img_topcon/transportador_incorreto.png', continuar_exec= True) is not False:
         print('--- Transportador incorreto!')
         bot.press('ENTER')
@@ -314,28 +315,28 @@ def programa_principal():
         programa_principal()
     else:
         print('--- Transportador validado! Prosseguindo para validação da placa')
-        time.sleep(0.5)
+        ahk.win_activate('TopCompras', title_match_mode=2)
         bot.press('enter')
 
     # Verifica se o campo da placa ficou preenchido
-    ahk.win_activate('TopCompras', title_match_mode=2, detect_hidden_windows= True)
-    if procura_imagem('img_topcon/campo_placa.png', continuar_exec=True) is not False:
+    if procura_imagem('img_topcon/campo_placa.png', confianca= 0.75, continuar_exec=True) is not False:
         print('--- Encontrou o campo vazio, inserindo XXX0000')
+        ahk.win_activate('TopCompras', title_match_mode=2)
         bot.click(procura_imagem('img_topcon/campo_placa.png', continuar_exec=True))
         bot.write('XXX0000')
         bot.press('ENTER')
     else:
         print('--- Não achou o campo ou já está preenchido')
-        time.sleep(0.25)
 
     # * -------------------------------------- Aba Produtos e serviços --------------------------------------
     ahk.win_activate('TopCompras', title_match_mode=2)
-    ahk.win_wait_active('TopCompras', title_match_mode=2, timeout= 25)
+    ahk.win_wait_active('TopCompras', title_match_mode=2, timeout= 10)
     print('--- Navegando para a aba Produtos e Servicos')  
     bot.doubleClick(procura_imagem(imagem='img_topcon/produtos_servicos.png', limite_tentativa= 12))
     
     # Aguarda até aparecer o botão "alterar"
-    procura_imagem(imagem='img_topcon/botao_alterar.png', area=(100, 839, 300, 400), limite_tentativa= 12)
+    ahk.win_activate('TopCompras', title_match_mode=2)
+    procura_imagem(imagem='img_topcon/botao_alterar.png', area=(100, 839, 300, 400), limite_tentativa= 16)
     
     if '38953477000164' in chave_xml: #Caso não tenha o CNPJ da Consmar
         exit(bot.alert('CNPJ da consmar, necessario scriptar'))
@@ -356,7 +357,7 @@ def programa_principal():
 
         print('--- Abrindo a tela "Itens nota fiscal de compra" ')
         bot.click(procura_imagem(imagem='img_topcon/botao_alterar.png', area=(100, 839, 300, 400)))
-        while procura_imagem(imagem='img_topcon/valor_cofins.png', limite_tentativa= 3, continuar_exec= True) is False:
+        while procura_imagem(imagem='img_topcon/valor_cofins.png', continuar_exec= True, limite_tentativa= 3, confianca= 0.74) is False:
             print('--- Aguardando aparecer a tela "Itens nota fiscal de compra" ')
 
         print('--- Preenchendo SILO e quantidade')
@@ -403,12 +404,12 @@ def programa_principal():
         else:
             print(Fore.RED + F'--- Falha, executando novamente a coleta das toneladas. Escala atual: {valor_escala}' + Style.RESET_ALL)
             valor_escala += 10
-            while procura_imagem(imagem='img_topcon/confirma.png', continuar_exec=True) is not False:
+            while procura_imagem(imagem='img_topcon/confirma.png', continuar_exec=True, limite_tentativa= 3, confianca= 0.74) is not False:
                 bot.press('ENTER')
                 bot.press('ESC')
                 time.sleep(0.5)
             
-        while procura_imagem(imagem='img_topcon/confirma.png', continuar_exec=True) is not False:
+        while procura_imagem(imagem='img_topcon/confirma.png', continuar_exec=True, limite_tentativa= 3, confianca= 0.74) is not False:
             tentativa += 1
             print('--- Aguardando fechamento da tela do botão "Alterar" ')
             time.sleep(0.3)
@@ -428,6 +429,8 @@ def programa_principal():
 
 
 if __name__ == '__main__':
+    # Encerra todos os processos do AHK
+    os.system('taskkill /im AutoHotkey.exe /f /t')
     #processo_transferencia()
     #abre_mercantil()
     #finaliza_lancamento()

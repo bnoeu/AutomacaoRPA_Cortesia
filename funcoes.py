@@ -16,19 +16,20 @@ from colorama import Fore, Style
 ahk = AHK()
 posicao_img = 0  # Define a variavel para utilização global dela.
 continuar = True
-bot.FAILSAFE = False
+bot.FAILSAFE = True
 # tempo_inicio = time.time()
 chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
 pytesseract.pytesseract.tesseract_cmd = r"C:\Tesseract-OCR\tesseract.exe"
 bot.useImageNotFoundException(False)
 
 def procura_imagem(imagem, limite_tentativa=6, area=(0, 0, 1920, 1080), continuar_exec=False, confianca = 0.8, msg_continuar_exec = False, msg_confianca = False):
+    pausa_img = 0.25
     hoje = datetime.date.today()
     maquina_viva = False
     tentativa = 0   
-    print(F'--- Tentando encontrar: {imagem}')
+    #print(F'--- Tentando encontrar: {imagem}')
     while tentativa < limite_tentativa:
-        time.sleep(0.5)
+        time.sleep(pausa_img)
         while maquina_viva is False:
             try:
                 posicao_img = bot.locateCenterOnScreen(imagem, grayscale= True, confidence= confianca, region= area)
@@ -39,17 +40,19 @@ def procura_imagem(imagem, limite_tentativa=6, area=(0, 0, 1920, 1080), continua
                 maquina_viva = True
             
         if posicao_img is not None:
-            print(F'--- Encontrou {imagem} na posição: {posicao_img}')
+            #print(F'--- Encontrou {imagem} na posição: {posicao_img}')
             break
         tentativa += 1
+        pausa_img += 0.25 
     
         #TODO Aqui deveria ter um IF para validar se a MSG Confiança está como True
-        '''
-        if confianca < 0.73 and msg_confianca is True:
-            print(F'--- Valor atual da confiança da imagem: {confianca}', end= "")
-        else:
-            print(F', {confianca}', end= "")
-        '''
+        
+        if msg_confianca is True:
+            if confianca < 0.73:
+                print(F'--- Valor atual da confiança da imagem: {confianca}', end= "")
+            else:
+                print(F', {confianca}', end= "")
+        
     
         confianca -= 0.01              
         
@@ -84,7 +87,7 @@ def verifica_tela(nome_tela, manual=False):
 
 
 def marca_lancado(texto_marcacao='Lancado'):
-    bot.PAUSE = 0.5
+    bot.PAUSE = 0.4
     print(Fore.GREEN + F'\n--- Abrindo planilha - MARCA_LANCADO, com parametro: {texto_marcacao}' + Style.RESET_ALL)
     ahk.win_activate('debug_db_alltrips', title_match_mode= 2)
     ahk.win_wait_active('debug_db_alltrips', title_match_mode= 2, timeout= 15)
@@ -134,7 +137,7 @@ def marca_lancado(texto_marcacao='Lancado'):
         bot.hotkey('alt', 'down') 
         
         print('--- Aguardando aparecer o botão selecionar tudo')
-        while procura_imagem(imagem='img_planilha/botao_selecionartudo.png', continuar_exec= True) is None:
+        while procura_imagem(imagem='img_planilha/botao_selecionartudo.png', continuar_exec= True, limite_tentativa= 3, confianca= 0.74) is None:
             time.sleep(0.2)
         else:
             print('--- Apareceu o botão selecionar tudo!')
@@ -193,23 +196,24 @@ def verifica_ped_vazio(texto, pos):
         return False
     else:  # Caso fique vazio
         print('--- Itens XML ficou vazio! saindo da tela de vinculação')
+        time.sleep(0.5)
         ahk.win_activate('TopCompras', title_match_mode= 2)
-        bot.click(procura_imagem(imagem='img_topcon/confirma.png', limite_tentativa= 100, msg_confianca= True))
-        bot.click(procura_imagem(imagem='img_topcon/botao_ok.jpg', limite_tentativa= 100, msg_confianca= True))
+        bot.click(procura_imagem(imagem='img_topcon/confirma.png', msg_confianca= True))
+        bot.click(procura_imagem(imagem='img_topcon/botao_ok.jpg', msg_confianca= True))
         print('--- Encerrado a função verifica pedido vazio!')
         return True
 
 def corrige_topcompras():
     try: 
-        ahk.win_wait(' (VM-CortesiaApli.CORTESIA.com)', title_match_mode= 1, timeout= 3)
+        ahk.win_wait(' (VM-CortesiaApli.CORTESIA.com)', title_match_mode= 1, timeout= 10)
     except TimeoutError:
-        if ahk.win_wait('TopCompras', title_match_mode= 1):
+        if ahk.win_wait('TopCompras', title_match_mode= 1, timeout= 10):
             print('--- TopCompras abriu com o nome normal, prosseguindo.')
         else:
             bot.alert(exit('TopCompras não encontrado.'))
     else:
-        print('--- Encontrou  tela sem o nome, corrigindoo!')
         ahk.win_set_title(new_title= 'TopCompras', title= ' (VM-CortesiaApli.CORTESIA.com)', title_match_mode= 1, detect_hidden_windows= True)
+        print(Fore.GREEN + '--- Encontrou tela sem o nome, e realizou a correção!' + Style.RESET_ALL)
             
 if __name__ == '__main__':
     marca_lancado('Teste')

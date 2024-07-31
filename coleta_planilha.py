@@ -15,7 +15,7 @@ import pyautogui as bot
 ahk = AHK()
 posicao_img = 0  # Define a variavel para utilização global dela.
 continuar = True
-bot.FAILSAFE = False
+bot.FAILSAFE = True
 tempo_inicio = time.time()
 chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
 pytesseract.pytesseract.tesseract_cmd = r"C:\Tesseract-OCR\tesseract.exe"
@@ -34,7 +34,7 @@ def abre_planilha():
 
 def coleta_planilha():
     while True:
-        bot.PAUSE = 0.5
+        bot.PAUSE = 0.2
         # Abre a tela da planilha, que já deve ter sido acessada no Edge
         abre_planilha()
         
@@ -44,7 +44,7 @@ def coleta_planilha():
             # Verifica se já está no modo de edição, caso esteja, muda para o modo "exibição"
             if procura_imagem(imagem='img_planilha/bt_exibicaoverde.png', continuar_exec=True) is False:
                 print('--- Não está no modo exibição! Realizando alteração.')
-                while procura_imagem(imagem='img_planilha/bt_edicao.png', continuar_exec= True) is False: #Espera até encontar o botão "Exibição" (Lapis bloqueado)
+                while procura_imagem(imagem='img_planilha/bt_edicao.png', continuar_exec= True, limite_tentativa= 3, confianca= 0.74) is False: #Espera até encontar o botão "Exibição" (Lapis bloqueado)
                     time.sleep(0.1)
                     
                 if procura_imagem(imagem='img_planilha/bt_TresPontos.png', continuar_exec= True) is not False:
@@ -55,7 +55,7 @@ def coleta_planilha():
                 bot.click(procura_imagem(imagem='img_planilha/txt_exibicao.png'))
 
                 #Aguarda até aparecer o botão do modo "exibição"
-                while procura_imagem(imagem='img_planilha/bt_exibicaoverde.png', continuar_exec=True) is False:
+                while procura_imagem(imagem='img_planilha/bt_exibicaoverde.png', continuar_exec=True, limite_tentativa= 3, confianca= 0.74) is False:
                     time.sleep(0.1)
                 print('--- Alterado para o modo exibição, continuando.')
                 

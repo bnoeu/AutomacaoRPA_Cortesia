@@ -13,7 +13,7 @@ from funcoes import marca_lancado, procura_imagem, extrai_txt_img, verifica_ped_
 ahk = AHK()
 posicao_img = 0  # Define a variavel para utilização global dela.
 continuar = True
-bot.FAILSAFE = False
+bot.FAILSAFE = True
 numero_nf = "965999"
 transportador = "111594"
 chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
@@ -47,17 +47,17 @@ mapeamento_imagens = {
 
 
 def valida_pedido(acabou_pedido=False):
-    bot.PAUSE = 0.5
+    bot.PAUSE = 0.4
     tentativa = 0
     img_pedido = 0
     item_pedido = ''
     validou_itensXml = False
-    time.sleep(0.5)
+
     #Aguarda a abertura da tela de vinculação de item versus nota
     ahk.win_activate('Vinculação Itens da Nota', title_match_mode = 2)
     
     #Aguarda aparecer o botão "confirma" para poder continuar o processo.
-    while procura_imagem(imagem='img_topcon/confirma.png', continuar_exec= True) is False:
+    while procura_imagem(imagem='img_topcon/confirma.png', continuar_exec= True, limite_tentativa= 2, confianca= 0.74) is False:
         time.sleep(0.2)
 
     #Coleta o texto do campo "item XML", que é o item a constar na nota fiscal, e com base nisso, trata o dado

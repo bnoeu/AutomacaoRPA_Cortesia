@@ -18,7 +18,7 @@ from abre_topcon import abre_topcon, abre_mercantil
 ahk = AHK()
 posicao_img = 0  # Define a variavel para utilização global dela.
 continuar = True
-bot.FAILSAFE = False
+bot.FAILSAFE = True
 tempo_inicio = time.time()
 chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
 pytesseract.pytesseract.tesseract_cmd = r"C:\Tesseract-OCR\tesseract.exe"
@@ -26,7 +26,7 @@ pytesseract.pytesseract.tesseract_cmd = r"C:\Tesseract-OCR\tesseract.exe"
 
 # Realiza o processo de validação do lançamento.
 def valida_lancamento():
-    bot.PAUSE = 0.55
+    bot.PAUSE = 0.2
     while True:
         tentativa_alterar_botoes = 0
         # Recebe os dados coletados da planilha, já validados e formatados.
@@ -40,22 +40,20 @@ def valida_lancamento():
         print('--- Alterando o TopCompras para o modo incluir')
         ahk.win_activate('TopCompras', title_match_mode= 2 )
         ahk.win_wait_active('TopCompras', title_match_mode= 2, timeout= 30)
-        time.sleep(0.5)
         
         while True: # Enquanto a tela não for alterada para o modo incluir
             ahk.win_activate('TopCompras', title_match_mode= 2)
             
             print('--- Verificando se está no modo Localizar.')
-            if procura_imagem(imagem='img_topcon/txt_inclui.png', continuar_exec= True, area= (852, 956, 1368, 1045), limite_tentativa= 3, confianca= 0.75) is False:
+            if procura_imagem(imagem='img_topcon/txt_inclui.png', continuar_exec= True, area= (852, 956, 1368, 1045), limite_tentativa= 2, confianca= 0.75) is False:
                 print(F'--- Não está no modo Localizar, enviando comando F2 para tentar entrar no modo, tentativa: {tentativa_alterar_botoes}')
                 ahk.win_activate('TopCompras', title_match_mode= 2)
                 bot.press('F2', presses= 2)
                 
-            if procura_imagem(imagem='img_topcon/txt_localizar.png', continuar_exec= True, area= (852, 956, 1368, 1045), limite_tentativa= 3, confianca= 0.75):
+            if procura_imagem(imagem='img_topcon/txt_localizar.png', continuar_exec= True, area= (852, 956, 1368, 1045), limite_tentativa= 2, confianca= 0.75):
                 print(F'--- Entrou no modo localizar, mudando para o modo incluir, tentativa: {tentativa_alterar_botoes}')
                 ahk.win_activate('TopCompras', title_match_mode= 2)
                 bot.press('F3', presses= 2)
-                time.sleep(0.5)
 
                 tentativa_alterar_botoes += 1
                 if tentativa_alterar_botoes > 10:
@@ -71,9 +69,11 @@ def valida_lancamento():
                         break
                     else:
                         # Caso passe o limite de tentativas, provavelmente ocorreu algum problema.
+                        time.sleep(0.5)
                         print('--- Excedeu o limite de tentativas de alteração para o modo localizar, reabrindo o TopCompras.')
+                        abre_mercantil()
                         #abre_topcon()
-                        exit(bot.alert('Verificar script'))
+                        #exit(bot.alert('Verificar script'))
                         #abre_topcon()
                         
 
@@ -81,7 +81,6 @@ def valida_lancamento():
                 ahk.win_activate('TopCompras', title_match_mode=2)
                 bot.press('F3', presses= 2)
                 print('--- Entrou no modo incluir, continuando inserção da NFE')
-                time.sleep(0.5)
                 break
 
         # Inicia inserção da chave XML
@@ -99,6 +98,7 @@ def valida_lancamento():
             return validou_xml
 
 def conferencia_xml(tentativa = 0, maximo_tentativas = 25, texto_erro = False, dados_planilha = False):
+    ahk.win_activate('TopCompras', title_match_mode=2, detect_hidden_windows= True)
     tentativas_telas = 0
     # Aguarda até aparecer uma das telas que podem ser exibidas nesse processo.
     while tentativa < maximo_tentativas:
@@ -109,23 +109,23 @@ def conferencia_xml(tentativa = 0, maximo_tentativas = 25, texto_erro = False, d
         
         # Verifica quais das telas apareceu.
         ahk.win_activate('TopCompras', title_match_mode=2, detect_hidden_windows= True)   
-        if procura_imagem(imagem='img_topcon/botao_sim.jpg', continuar_exec=True) is not False:
+        if procura_imagem(imagem='img_topcon/botao_sim.jpg', continuar_exec= True, limite_tentativa= 2, confianca= 0.74) is not False:
             bot.click(procura_imagem(imagem='img_topcon/botao_sim.jpg', continuar_exec=True))
             print(Fore.GREEN + '--- XML Validado, indo para validação do pedido' + Style.RESET_ALL)
             return dados_planilha
         
         else: # Caso não encontre o botão "Sim", verifica se apareceu alguma das outras telas.
             while True:
-                if procura_imagem(imagem='img_topcon/chave_invalida.png', continuar_exec=True, confianca= 0.75, limite_tentativa= 3, msg_confianca = True) is not False:
+                if procura_imagem(imagem='img_topcon/chave_invalida.png', continuar_exec=True, limite_tentativa= 2, confianca= 0.74) is not False:
                     texto_erro = "Lancado_Manual"
                     break          
-                elif procura_imagem(imagem='img_topcon/naoencontrado_xml.png', continuar_exec=True, confianca= 0.75, limite_tentativa= 3) is not False:
+                elif procura_imagem(imagem='img_topcon/naoencontrado_xml.png', continuar_exec=True, limite_tentativa= 2, confianca= 0.74) is not False:
                     texto_erro = "Aguardando_SEFAZ"
                     break
-                elif procura_imagem(imagem='img_topcon/chave_44digitos.png', continuar_exec=True, confianca= 0.75, limite_tentativa= 3) is not False:
+                elif procura_imagem(imagem='img_topcon/chave_44digitos.png', continuar_exec=True, limite_tentativa= 2, confianca= 0.74) is not False:
                     texto_erro = "Chave_invalida"
                     break
-                elif procura_imagem(imagem='img_topcon/nfe_cancelada.png', continuar_exec=True, confianca= 0.75, limite_tentativa= 3) is not False:
+                elif procura_imagem(imagem='img_topcon/nfe_cancelada.png', continuar_exec=True, limite_tentativa= 2, confianca= 0.74) is not False:
                     texto_erro = "NFE_Cancelada"
                     break
                 else:
@@ -158,5 +158,5 @@ def conferencia_xml(tentativa = 0, maximo_tentativas = 25, texto_erro = False, d
         #TODO --- Validar se o topcon ainda está aberto, caso não esteja, reiniciar o processo do zero.
 
 if __name__ == '__main__':    
-    #conferencia_xml()
-    valida_lancamento()
+    conferencia_xml()
+    #valida_lancamento()

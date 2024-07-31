@@ -11,45 +11,55 @@ from colorama import Fore, Style, Back
 
 # Definição de parametros
 ahk = AHK()
-bot.PAUSE = 0.55
+bot.PAUSE = 0.4
 posicao_img = 0
 continuar = True
-bot.FAILSAFE = False
+bot.FAILSAFE = True
 tempo_inicio = time.time()
 chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
 pytesseract.pytesseract.tesseract_cmd = r"C:\Tesseract-OCR\tesseract.exe"
 #! Dados para acesso ao remoteApp
 login_rdp = 'bruno.s'
-senha_rdp = 'C0ncret0'
+senha_rdp = '1Pyth0n@'
 
 
 def abre_mercantil():
-    print(Fore.RED + '--- Fechando e reabrindo APENAS o TopCompras' + Style.RESET_ALL)
+    
+    print(Fore.RED + '--- Executando a função: ABRE MERCANTIL ' + Style.RESET_ALL)
     # Inicia fechando o modulo de compras.
     verifica_topcompras = 0
+    time.sleep(0.2)
+    corrige_topcompras()
+    
     while ahk.win_exists('TopCompras', title_match_mode=2):
         ahk.win_close('TopCompras', title_match_mode=2)
+        time.sleep(0.5)
         if verifica_topcompras > 10:
             print('--- Tentou fechar o TopCompras porém não conseguiu! Fechando o remote por completo')
             abre_topcon()
             
         verifica_topcompras += 1
             
+    print('--- Fechou o modulo de compras, reabrindo uma nova execução!')
     # Ativa o Topcon, e clica no topcompras, e executa a função para correção do nome.
     ahk.win_activate('TopCon', title_match_mode= 2)
     bot.click(procura_imagem(imagem='img_topcon/logo_topcompras.png'))
-    time.sleep(0.5)
+    time.sleep(1)
     corrige_topcompras()
 
     #Abre o TopCompras, e verifica se aparece a tela "interveniente"
     ahk.win_activate('TopCompras', title_match_mode= 2)
+    time.sleep(1)
     if procura_imagem(imagem='img_topcon/botao_ok.jpg', continuar_exec= True):
         print('--- Encontrou a tela do interveniente, clicando no botão "OK"')
         bot.press('ENTER')
     else:
         print('--- Não exibiu a tela de interveniente.')
+    
+    navega_topcompras()
         
-    #Navegando entre os menus para abrir a opção "Compras - Mercantil"
+def navega_topcompras():
+    # Navegando entre os menus para abrir a opção "Compras - Mercantil"
     ahk.win_activate('TopCompras', title_match_mode= 2)
     bot.click(900, 900)
     bot.press('ALT')
@@ -61,6 +71,9 @@ def abre_mercantil():
 
 #* ---------------- PROGRAMA PRINCIPAL ------------
 def fecha_execucoes():
+    # Encerra todos os processos do AHK
+    os.system('taskkill /im AutoHotkey.exe /f /t')    
+    
     print(Back.RED + '--- iniciando fecha_execucoes --- Realizando fechamento do TopCompras' + Style.RESET_ALL)
     
     # Primeiro força o fechamento das telas, para evitar erros de validações
@@ -77,11 +90,11 @@ def fecha_execucoes():
 def abre_topcon():
     bot.PAUSE = 1
     # Começa garantindo que fechou todas as execuções antigas.
-    #fecha_execucoes()
+    fecha_execucoes()
     
     print('--- Iniciando o RemoteApp')
-    #os.startfile('RemoteApp-Cortesia.rdp')
-    os.startfile('RemoteApp-CortesiaVPN.rdp')
+    os.startfile('RemoteApp-Cortesia.rdp')
+    #os.startfile('RemoteApp-CortesiaVPN.rdp')
     time.sleep(0.5)
     
     # Tenta encontrar em ingles e portugues.
