@@ -9,6 +9,7 @@ import datetime
 import os
 from ahk import AHK
 import pyautogui as bot
+import platform
 import pandas as pd
 from colorama import Fore, Back, Style
 from onedrivedownloader import download as one_download
@@ -47,6 +48,10 @@ centro_custo = filial_estoq
 cracha_mot = '112480'
 
 #! Funções
+
+print(os.getlogin())
+computador = platform.node()
+print(computador)
 
  # Encerra todos os processos do AHK
 os.system('taskkill /im AutoHotkey.exe /f /t')

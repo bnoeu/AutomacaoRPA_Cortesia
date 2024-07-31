@@ -16,7 +16,7 @@ from colorama import Fore, Style
 ahk = AHK()
 posicao_img = 0  # Define a variavel para utilização global dela.
 continuar = True
-bot.FAILSAFE = True
+bot.FAILSAFE = False
 # tempo_inicio = time.time()
 chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
 pytesseract.pytesseract.tesseract_cmd = r"C:\Tesseract-OCR\tesseract.exe"
@@ -60,7 +60,7 @@ def procura_imagem(imagem, limite_tentativa=6, area=(0, 0, 1920, 1080), continua
     #Caso seja para continuar
     if (continuar_exec is True) and (posicao_img is None):
         if msg_continuar_exec is True:
-            print('' + F'\n--- {imagem} não foi encontrada, continuando execução pois o parametro "continuar_exec" está habilitado')
+            print('' + F'--- {imagem} não foi encontrada, continuando execução pois o parametro "continuar_exec" está habilitado')
         return False
     
     if tentativa >= limite_tentativa:
@@ -87,8 +87,8 @@ def verifica_tela(nome_tela, manual=False):
 
 
 def marca_lancado(texto_marcacao='Lancado'):
-    bot.PAUSE = 0.4
-    print(Fore.GREEN + F'\n--- Abrindo planilha - MARCA_LANCADO, com parametro: {texto_marcacao}' + Style.RESET_ALL)
+    bot.PAUSE = 0.6
+    print(Fore.GREEN + F'--- Abrindo planilha - MARCA_LANCADO, com parametro: {texto_marcacao}' + Style.RESET_ALL)
     ahk.win_activate('debug_db_alltrips', title_match_mode= 2)
     ahk.win_wait_active('debug_db_alltrips', title_match_mode= 2, timeout= 15)
     time.sleep(0.5)
@@ -147,7 +147,7 @@ def marca_lancado(texto_marcacao='Lancado'):
         bot.press('TAB', presses= 9)
         bot.press('ENTER')
 
-    print(Fore.GREEN + F'--------------------- Processou NFE, situação: {texto_marcacao} ---------------------\n' + Style.RESET_ALL)
+    print(Fore.GREEN + F'--------------------- Processou NFE, situação: {texto_marcacao} ---------------------' + Style.RESET_ALL)
 
 def extrai_txt_img(imagem, area_tela, porce_escala = 400):
     # Captura uma screenshot da área especificada da tela

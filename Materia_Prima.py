@@ -23,11 +23,11 @@ from valida_lancamento import valida_lancamento
 from funcoes import marca_lancado, procura_imagem, extrai_txt_img, corrige_topcompras
 
 # --- Definição de parametros
-ahk = AHK()
-bot.PAUSE = 0.4
+ahk = AHK() 
+bot.PAUSE = 0.6
 posicao_img = 0
 continuar = True
-bot.FAILSAFE = True
+bot.FAILSAFE = False
 tempo_inicio = time.time()
 chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
 pytesseract.pytesseract.tesseract_cmd = r"C:\Tesseract-OCR\tesseract.exe"
@@ -201,7 +201,7 @@ def programa_principal():
         acabou_pedido = valida_pedido(acabou_pedido=False)
         if acabou_pedido is False:
             #os.system('cls')
-            print(Fore.GREEN + F'--- Pedido validado, dados planilha: {dados_planilha}\n' + Style.RESET_ALL)
+            print(Fore.GREEN + F'--- Pedido validado, dados planilha: {dados_planilha}' + Style.RESET_ALL)
 
 #* -------------------------- PROSSEGUINDO COM O LANÇAMENTO DA NFE -------------------------- 
     print('--- Preenchendo dados na tela principal do lançamento')
@@ -385,7 +385,7 @@ def programa_principal():
                 bot.press('ENTER')
         else: # Caso não tenha coletado nenhum silo.            
             if procura_imagem(imagem='img_topcon/txt_cimento.png', limite_tentativa= 3, continuar_exec= True):
-                print(Fore.RED + '--- Não foi informado nenhum SILO, porém a nota é de cimento!\n' + Style.RESET_ALL)
+                print(Fore.RED + '--- Não foi informado nenhum SILO, porém a nota é de cimento!' + Style.RESET_ALL)
                 bot.click(procura_imagem(imagem='img_topcon/txt_cimento.png', limite_tentativa= 3, continuar_exec= True))
                 bot.press('ESC')
                 time.sleep(0.5)

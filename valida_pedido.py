@@ -13,7 +13,7 @@ from funcoes import marca_lancado, procura_imagem, extrai_txt_img, verifica_ped_
 ahk = AHK()
 posicao_img = 0  # Define a variavel para utilização global dela.
 continuar = True
-bot.FAILSAFE = True
+bot.FAILSAFE = False
 numero_nf = "965999"
 transportador = "111594"
 chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
@@ -47,7 +47,7 @@ mapeamento_imagens = {
 
 
 def valida_pedido(acabou_pedido=False):
-    bot.PAUSE = 0.4
+    bot.PAUSE = 0.6
     tentativa = 0
     img_pedido = 0
     item_pedido = ''
@@ -141,7 +141,7 @@ def valida_pedido(acabou_pedido=False):
                     print(F'--- Não ficou vazio, desmarcando pedido, indo para proxima tentativa {tentativa}')
                     bot.doubleClick(pos) # Clica novamente no mesmo pedido, para desmarcar
             else:
-                print(Fore.GREEN + F'--- Pedido validado, saindo do loop dos pedidos encontrados, valor do campo: {vazio}\n' + Style.RESET_ALL)
+                print(Fore.GREEN + F'--- Pedido validado, saindo do loop dos pedidos encontrados, valor do campo: {vazio}' + Style.RESET_ALL)
                 return False
 
     else:

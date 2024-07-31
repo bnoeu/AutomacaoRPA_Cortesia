@@ -75,7 +75,7 @@ if quantidade_novas_linhas > 0:
         if rows[6].value is None:
             for item in range(0, 9):
                 linha_atual.append(rows[item].value)
-            print(F'\nDados coletado {linha_atual}')
+            print(F'Dados coletado {linha_atual}')
             #Insere a linha na producao
             producao.append(linha_atual)
             linha_atual = []

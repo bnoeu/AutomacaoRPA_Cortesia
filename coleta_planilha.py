@@ -15,7 +15,7 @@ import pyautogui as bot
 ahk = AHK()
 posicao_img = 0  # Define a variavel para utilização global dela.
 continuar = True
-bot.FAILSAFE = True
+bot.FAILSAFE = False
 tempo_inicio = time.time()
 chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
 pytesseract.pytesseract.tesseract_cmd = r"C:\Tesseract-OCR\tesseract.exe"
@@ -96,7 +96,7 @@ def coleta_planilha():
             break
     
     #os.system('cls')
-    print(Fore.GREEN + F'--- Dados copiados com sucesso: {dados_planilha}\n' + Style.RESET_ALL)
+    print(Fore.GREEN + F'--- Dados copiados com sucesso: {dados_planilha}' + Style.RESET_ALL)
     return dados_planilha
 
 if __name__ == '__main__':

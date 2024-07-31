@@ -18,7 +18,7 @@ from abre_topcon import abre_topcon, abre_mercantil
 ahk = AHK()
 posicao_img = 0  # Define a variavel para utilização global dela.
 continuar = True
-bot.FAILSAFE = True
+bot.FAILSAFE = False
 tempo_inicio = time.time()
 chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
 pytesseract.pytesseract.tesseract_cmd = r"C:\Tesseract-OCR\tesseract.exe"
@@ -57,6 +57,7 @@ def valida_lancamento():
 
                 tentativa_alterar_botoes += 1
                 if tentativa_alterar_botoes > 10:
+                    print('--- Atingiu o maximo de tentativas de alterar os botões ---')
                     # 1. Abrir topCompras
                     ahk.win_activate('TopCompras', title_match_mode= 2 )
                     # 2. Apertar TAB
@@ -94,7 +95,7 @@ def valida_lancamento():
             pass
         else:
             #os.system('cls')
-            print(Fore.GREEN + F'--- Validou os dados do XML, dados_planilha: {dados_planilha}\n' + Style.RESET_ALL)
+            print(Fore.GREEN + F'--- Validou os dados do XML, dados_planilha: {dados_planilha}' + Style.RESET_ALL)
             return validou_xml
 
 def conferencia_xml(tentativa = 0, maximo_tentativas = 25, texto_erro = False, dados_planilha = False):
