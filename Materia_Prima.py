@@ -13,6 +13,7 @@ import time
 #import sqlite3
 #import subprocess
 import pytesseract
+import platform
 from ahk import AHK
 import pyautogui as bot
 from datetime import date
@@ -27,7 +28,6 @@ ahk = AHK()
 bot.PAUSE = 0.6
 posicao_img = 0
 continuar = True
-bot.FAILSAFE = False
 tempo_inicio = time.time()
 chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
 pytesseract.pytesseract.tesseract_cmd = r"C:\Tesseract-OCR\tesseract.exe"
@@ -431,6 +431,14 @@ def programa_principal():
 if __name__ == '__main__':
     # Encerra todos os processos do AHK
     os.system('taskkill /im AutoHotkey.exe /f /t')
+    os.system('cls')
+    
+    # Verifica qual sistema está rodando o script
+    if 'VLPTIC1Z9HD33' in platform.node():
+        bot.FAILSAFE = True
+    else:
+        bot.FAILSAFE = False
+        
     #processo_transferencia()
     #abre_mercantil()
     #finaliza_lancamento()

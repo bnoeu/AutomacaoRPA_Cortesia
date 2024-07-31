@@ -18,7 +18,6 @@ from abre_topcon import abre_topcon, abre_mercantil
 ahk = AHK()
 posicao_img = 0  # Define a variavel para utilização global dela.
 continuar = True
-bot.FAILSAFE = False
 tempo_inicio = time.time()
 chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
 pytesseract.pytesseract.tesseract_cmd = r"C:\Tesseract-OCR\tesseract.exe"
@@ -99,17 +98,12 @@ def valida_lancamento():
             return validou_xml
 
 def conferencia_xml(tentativa = 0, maximo_tentativas = 25, texto_erro = False, dados_planilha = False):
-    ahk.win_activate('TopCompras', title_match_mode=2, detect_hidden_windows= True)
-    tentativas_telas = 0
     # Aguarda até aparecer uma das telas que podem ser exibidas nesse processo.
+    tentativas_telas = 0
+    ahk.win_activate('TopCompras', title_match_mode=2, detect_hidden_windows= True)
+    
     while tentativa < maximo_tentativas:
-        
-        # Caso a tela não esteja respondendo.
-        while ahk.win_exists('Não está respondendo', title_match_mode= 2):
-            time.sleep(0.5)
-        
-        # Verifica quais das telas apareceu.
-        ahk.win_activate('TopCompras', title_match_mode=2, detect_hidden_windows= True)   
+        ahk.win_activate('TopCompras', title_match_mode=2, detect_hidden_windows= True) 
         if procura_imagem(imagem='img_topcon/botao_sim.jpg', continuar_exec= True, limite_tentativa= 2, confianca= 0.74) is not False:
             bot.click(procura_imagem(imagem='img_topcon/botao_sim.jpg', continuar_exec=True))
             print(Fore.GREEN + '--- XML Validado, indo para validação do pedido' + Style.RESET_ALL)

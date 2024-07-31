@@ -53,6 +53,9 @@ print(os.getlogin())
 computador = platform.node()
 print(computador)
 
+if 'VLPTIC1Z9HD33' in platform.node():
+    print('Notebook do Bruno')
+
  # Encerra todos os processos do AHK
 os.system('taskkill /im AutoHotkey.exe /f /t')
 
