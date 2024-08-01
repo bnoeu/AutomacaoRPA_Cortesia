@@ -27,7 +27,7 @@ def abre_mercantil():
     print(Fore.RED + '--- Executando a função: ABRE MERCANTIL ' + Style.RESET_ALL)
     # Inicia fechando o modulo de compras.
     verifica_topcompras = 0
-    time.sleep(0.2)
+    time.sleep(0.5)
     corrige_topcompras()
     
     while ahk.win_exists('TopCompras', title_match_mode=2):

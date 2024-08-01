@@ -38,18 +38,18 @@ def valida_lancamento():
         
         print('--- Alterando o TopCompras para o modo incluir')
         ahk.win_activate('TopCompras', title_match_mode= 2 )
-        ahk.win_wait_active('TopCompras', title_match_mode= 2, timeout= 30)
+        ahk.win_wait_active('TopCompras', title_match_mode= 2, timeout= 15)
         
         while True: # Enquanto a tela não for alterada para o modo incluir
             ahk.win_activate('TopCompras', title_match_mode= 2)
             
             print('--- Verificando se está no modo Localizar.')
-            if procura_imagem(imagem='img_topcon/txt_inclui.png', continuar_exec= True, area= (852, 956, 1368, 1045), limite_tentativa= 2, confianca= 0.75) is False:
+            if procura_imagem(imagem='img_topcon/txt_inclui.png', continuar_exec= True, area= (852, 956, 1368, 1045), limite_tentativa= 2, confianca= 0.74) is False:
                 print(F'--- Não está no modo Localizar, enviando comando F2 para tentar entrar no modo, tentativa: {tentativa_alterar_botoes}')
                 ahk.win_activate('TopCompras', title_match_mode= 2)
                 bot.press('F2', presses= 2)
                 
-            if procura_imagem(imagem='img_topcon/txt_localizar.png', continuar_exec= True, area= (852, 956, 1368, 1045), limite_tentativa= 2, confianca= 0.75):
+            if procura_imagem(imagem='img_topcon/txt_localizar.png', continuar_exec= True, area= (852, 956, 1368, 1045), limite_tentativa= 2, confianca= 0.74):
                 print(F'--- Entrou no modo localizar, mudando para o modo incluir, tentativa: {tentativa_alterar_botoes}')
                 ahk.win_activate('TopCompras', title_match_mode= 2)
                 bot.press('F3', presses= 2)
@@ -136,6 +136,7 @@ def conferencia_xml(tentativa = 0, maximo_tentativas = 25, texto_erro = False, d
                     bot.click(procura_imagem(imagem='img_topcon/botao_ok.jpg', continuar_exec= True, limite_tentativa= 3, confianca= 0.75))
                     print('--- Alterando a tela para o modo "localiza" para ficar correto o proximo lançamento.')
                     time.sleep(0.5)
+                    ahk.win_activate('TopCompras', title_match_mode= 2)
                     bot.press('F2')
                 else:
                     print('--- Tela já está no modo localizar, saindo do loop!')

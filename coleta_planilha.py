@@ -41,7 +41,7 @@ def coleta_planilha():
         if ahk.win_exists('debug_db_alltrips', title_match_mode= 2) is False:
             bot.hotkey('CTRL', 'HOME')
             # Verifica se já está no modo de edição, caso esteja, muda para o modo "exibição"
-            if procura_imagem(imagem='img_planilha/bt_exibicaoverde.png', continuar_exec=True) is False:
+            if procura_imagem(imagem='img_planilha/bt_exibicaoverde.png', continuar_exec=True, limite_tentativa= 3, confianca= 0.74) is False:
                 print('--- Não está no modo exibição! Realizando alteração.')
                 while procura_imagem(imagem='img_planilha/bt_edicao.png', continuar_exec= True, limite_tentativa= 3, confianca= 0.74) is False: #Espera até encontar o botão "Exibição" (Lapis bloqueado)
                     time.sleep(0.1)

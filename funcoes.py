@@ -21,8 +21,8 @@ chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
 pytesseract.pytesseract.tesseract_cmd = r"C:\Tesseract-OCR\tesseract.exe"
 bot.useImageNotFoundException(False)
 
-def procura_imagem(imagem, limite_tentativa=6, area=(0, 0, 1920, 1080), continuar_exec=False, confianca = 0.8, msg_continuar_exec = False, msg_confianca = False):
-    pausa_img = 0.25
+def procura_imagem(imagem, limite_tentativa=5, area=(0, 0, 1920, 1080), continuar_exec=False, confianca = 0.78, msg_continuar_exec = False, msg_confianca = False):
+    pausa_img = 0.2
     hoje = datetime.date.today()
     maquina_viva = False
     tentativa = 0   
@@ -70,7 +70,9 @@ def procura_imagem(imagem, limite_tentativa=6, area=(0, 0, 1920, 1080), continua
         #ahk.win_kill('debug_db_alltrips')
         #! Não funcionando.
         # raise 
-        exit(bot.alert(text=F'Não foi possivel encontrar: {imagem}', title='Erro!', button='Fechar'))
+        #reinicia_mp()
+        #exit(bot.alert(text=F'Não foi possivel encontrar: {imagem}', title='Erro!', button='Fechar'))
+        
     return posicao_img
 
 def verifica_tela(nome_tela, manual=False):
@@ -206,10 +208,13 @@ def corrige_topcompras():
     try: 
         ahk.win_wait(' (VM-CortesiaApli.CORTESIA.com)', title_match_mode= 1, timeout= 10)
     except TimeoutError:
-        if ahk.win_wait('TopCompras', title_match_mode= 1, timeout= 10):
-            print('--- TopCompras abriu com o nome normal, prosseguindo.')
-        else:
-            bot.alert(exit('TopCompras não encontrado.'))
+        try:
+            if ahk.win_wait('TopCompras', title_match_mode= 1, timeout= 10):
+                print('--- TopCompras abriu com o nome normal, prosseguindo.')
+            else:
+                bot.alert(exit('TopCompras não encontrado.'))
+        except TimeoutError:
+            return
     else:
         ahk.win_set_title(new_title= 'TopCompras', title= ' (VM-CortesiaApli.CORTESIA.com)', title_match_mode= 1, detect_hidden_windows= True)
         print(Fore.GREEN + '--- Encontrou tela sem o nome, e realizou a correção!' + Style.RESET_ALL)

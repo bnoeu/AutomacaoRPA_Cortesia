@@ -46,7 +46,7 @@ def processo_transferencia():
             while True:  # Aguardar o .PDF
                 time.sleep(0.5)
                 try:
-                    ahk.win_wait('.pdf', title_match_mode=2, timeout= 15)
+                    ahk.win_wait('.pdf', title_match_mode=2, timeout= 10)
                 except TimeoutError:
                     print('--- Aguardando .PDF da transferencia')
                 else:
@@ -73,6 +73,8 @@ def finaliza_lancamento():
     tentativas_telas = 0
     planilha_marcada = False
     print(Fore.GREEN + '--- Iniciando a função de finalização de lançamento ---' + Style.RESET_ALL)
+    print('--- Enviado pagedown, aguardando tela de operação realizada')
+    bot.press('pagedown')  # Conclui o lançamento
     
     while True:
         # Para manter o TopCompras aberto.
@@ -106,8 +108,9 @@ def finaliza_lancamento():
             bot.press('ENTER')
             time.sleep(0.5)
                     
-        else:
-            print('--- Não encontrou a tela "operação realizada" ')
+        elif planilha_marcada is True: # Essa parte só pode rodar, se encontrar a opção "operação realizada"
+            print('--- Não encontrou a tela "operação realizada", porém a planilha está marcada!')
+            ahk.win_activate('TopCompras', title_match_mode= 2)
             
             #Validando se já fecharam todas as telas.
             if procura_imagem(imagem='img_topcon/bt_obslancamento.png', continuar_exec= True, limite_tentativa= 2, confianca= 0.74) is not False:
@@ -120,8 +123,9 @@ def finaliza_lancamento():
                 else: # Segue o processo a baixo.
                     # Retorna a tela para o modo localizar
                     ahk.win_activate('TopCompras', title_match_mode= 2)
-                    bot.press('F2', presses = 2)
-                    time.sleep(0.5)
+                    bot.press('F3', presses = 1)
+                    bot.press('F2', presses = 1)
+                    time.sleep(1)
                     
                     if procura_imagem(imagem='img_topcon/txt_localizar.png', continuar_exec= True, area= (852, 956, 1368, 1045)):
                         print('--- Entrou no modo localizar, lançamento realmente concluido!')
@@ -202,6 +206,8 @@ def programa_principal():
         if acabou_pedido is False:
             #os.system('cls')
             print(Fore.GREEN + F'--- Pedido validado, dados planilha: {dados_planilha}' + Style.RESET_ALL)
+        else:
+            print('--- Pedido não validado!')
 
 #* -------------------------- PROSSEGUINDO COM O LANÇAMENTO DA NFE -------------------------- 
     print('--- Preenchendo dados na tela principal do lançamento')
@@ -210,7 +216,7 @@ def programa_principal():
     while procura_imagem(imagem='img_topcon/produtos_servicos.png', continuar_exec= True, limite_tentativa= 3, confianca= 0.74) is False:
         ahk.win_activate('TopCompras', title_match_mode=2, detect_hidden_windows= True)
         try:
-            ahk.win_wait_active('TopCompras', title_match_mode=2, timeout= 25)
+            ahk.win_wait_active('TopCompras', title_match_mode=2, timeout= 10)
         except TimeoutError:
             bot.alert(exit('Topcompras não encontrado'))
         time.sleep(0.2)
@@ -238,7 +244,7 @@ def programa_principal():
         time.sleep(0.2)
 
     try:
-        ahk.win_wait('Topsys', title_match_mode= 2, timeout= 10)
+        ahk.win_wait('Topsys', title_match_mode= 2, timeout= 5)
     except TimeoutError:
         pass
         #print('--- Tela de erro NÃO apareceu, continuando...')
@@ -331,7 +337,8 @@ def programa_principal():
     # * -------------------------------------- Aba Produtos e serviços --------------------------------------
     ahk.win_activate('TopCompras', title_match_mode=2)
     ahk.win_wait_active('TopCompras', title_match_mode=2, timeout= 10)
-    print('--- Navegando para a aba Produtos e Servicos')  
+    time.sleep(1)
+    print('--- Navegando para a aba Produtos e Servicos')
     bot.doubleClick(procura_imagem(imagem='img_topcon/produtos_servicos.png', limite_tentativa= 12))
     
     # Aguarda até aparecer o botão "alterar"
@@ -339,7 +346,9 @@ def programa_principal():
     procura_imagem(imagem='img_topcon/botao_alterar.png', area=(100, 839, 300, 400), limite_tentativa= 16)
     
     if '38953477000164' in chave_xml: #Caso não tenha o CNPJ da Consmar
-        exit(bot.alert('CNPJ da consmar, necessario scriptar'))
+        finaliza_lancamento()
+        return True
+        #exit(bot.alert('CNPJ da consmar, necessario scriptar'))
  
     #* Realiza a extração da quantidade de toneladas
     valor_escala = 200
@@ -419,10 +428,7 @@ def programa_principal():
                 exit(bot.alert('Apresentou algum erro.'))
         # TODO --- CASO O REMOTE APP DESCONECTE, RODAR O ABRE TOPCON
 
-    # Conclui o lançamento
-    print('--- Enviado pagedown, aguardando tela de operação realizada')
-    bot.press('pagedown')  # Conclui o lançamento
-    
+    # Conclui o lançamento    
     # Realiza todo o processo de finalização de lançamento.
     finaliza_lancamento()
     return True
