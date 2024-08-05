@@ -29,7 +29,6 @@ def abre_mercantil():
     time.sleep(0.5)
     corrige_topcompras()
     
-    while ahk.win_exists('TopCompras', title_match_mode=2):
     while ahk.win_exists('TopCompras'):
         ahk.win_close('TopCompras', title_match_mode=2)
         time.sleep(0.5)
