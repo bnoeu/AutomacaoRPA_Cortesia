@@ -94,7 +94,7 @@ def valida_lancamento():
             pass
         else:
             #os.system('cls')
-            print(Fore.GREEN + F'--- Validou os dados do XML, dados_planilha: {dados_planilha}' + Style.RESET_ALL)
+            #print(Fore.GREEN + F'--- Validou os dados do XML, dados_planilha: {dados_planilha}' + Style.RESET_ALL)
             return validou_xml
 
 def conferencia_xml(tentativa = 0, maximo_tentativas = 25, texto_erro = False, dados_planilha = False):
@@ -104,23 +104,23 @@ def conferencia_xml(tentativa = 0, maximo_tentativas = 25, texto_erro = False, d
     
     while tentativa < maximo_tentativas:
         ahk.win_activate('TopCompras', title_match_mode=2, detect_hidden_windows= True) 
-        if procura_imagem(imagem='img_topcon/botao_sim.jpg', continuar_exec= True, limite_tentativa= 2, confianca= 0.74) is not False:
+        if procura_imagem(imagem='img_topcon/botao_sim.jpg', continuar_exec= True, limite_tentativa= 1, confianca= 0.73) is not False:
             bot.click(procura_imagem(imagem='img_topcon/botao_sim.jpg', continuar_exec=True))
             print(Fore.GREEN + '--- XML Validado, indo para validação do pedido' + Style.RESET_ALL)
             return dados_planilha
         
         else: # Caso não encontre o botão "Sim", verifica se apareceu alguma das outras telas.
             while True:
-                if procura_imagem(imagem='img_topcon/chave_invalida.png', continuar_exec=True, limite_tentativa= 2, confianca= 0.74) is not False:
+                if procura_imagem(imagem='img_topcon/chave_invalida.png', continuar_exec=True, limite_tentativa= 1, confianca= 0.73) is not False:
                     texto_erro = "Lancado_Manual"
                     break          
-                elif procura_imagem(imagem='img_topcon/naoencontrado_xml.png', continuar_exec=True, limite_tentativa= 2, confianca= 0.74) is not False:
+                elif procura_imagem(imagem='img_topcon/naoencontrado_xml.png', continuar_exec=True, limite_tentativa= 1, confianca= 0.73) is not False:
                     texto_erro = "Aguardando_SEFAZ"
                     break
-                elif procura_imagem(imagem='img_topcon/chave_44digitos.png', continuar_exec=True, limite_tentativa= 2, confianca= 0.74) is not False:
+                elif procura_imagem(imagem='img_topcon/chave_44digitos.png', continuar_exec=True, limite_tentativa= 1, confianca= 0.73) is not False:
                     texto_erro = "Chave_invalida"
                     break
-                elif procura_imagem(imagem='img_topcon/nfe_cancelada.png', continuar_exec=True, limite_tentativa= 2, confianca= 0.74) is not False:
+                elif procura_imagem(imagem='img_topcon/nfe_cancelada.png', continuar_exec=True, limite_tentativa= 1, confianca= 0.73) is not False:
                     texto_erro = "NFE_Cancelada"
                     break
                 else:

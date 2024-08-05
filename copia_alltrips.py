@@ -1,5 +1,5 @@
-# -*- Criado por Bruno da Silva Santos. -*-
 # Para utilização na Cortesia Concreto.
+# -*- Criado por Bruno da Silva Santos. -*-
 
 #! Link do site do Senior
 # https://logincloud.senior.com.br/logon/LogonPoint/tmindex.html
@@ -24,18 +24,24 @@ planilha_debug = "https://cortesiaconcreto-my.sharepoint.com/:x:/g/personal/brun
 alltrips = "https://cortesiaconcreto-my.sharepoint.com/:x:/g/personal/bi_cortesiaconcreto_com_br/EQx5PclDGRFGkweQjtb3QckByyAsqydfI5za0MTuO9tjXg?e=RYfgcA.com"
 
 # Receber nos parametros a chave_xml da ultima NFE coletada
-def abre_planilha_navegador():
+def abre_planilha_navegador(link_planilha = alltrips):
     print('--- Abrindo a planilha no EDGE.')
-    comando_iniciar = F'start msedge {alltrips} -inprivate'
+    comando_iniciar = F'start msedge {link_planilha} -inprivate'
     os.system(comando_iniciar)
-    time.sleep(15)
+    time.sleep(20)
     ahk.win_wait_active('db_alltrips.xlsx', title_match_mode = 2, timeout= 15)
     ahk.win_maximize('db_alltrips.xlsx')
     print('--- Planilha aberta e maximizada.')
 
 def encontra_ultimo_xml(ultimo_xml = ''):
+    bot.PAUSE = 1
     print(F'--- Iniciando a navegação até a ultima chave XML: {ultimo_xml}')
     ahk.win_activate('db_alltrips.xlsx', title_match_mode= 2)
+    try:
+        ahk.win_wait_active('db_alltrips.xlsx', title_match_mode= 2, timeout= 10)
+    except TimeoutError:
+        print('--- Planilha não encontrada!')
+        return True
     # Clica no meio da planilha para "ativar" a navegação dentro dela.
     bot.click(1000, 600)
     
@@ -100,29 +106,27 @@ def copia_dados():
     
     # Inicia o processo de seleção dos dados
     print('--- Iniciando o processo de seleção dos dados')    
-    bot.press('LEFT', presses= 4)
-    
-    #bot.hotkey('ctrlleft', 'shiftleft', 'DOWN', interval= 0.05)
-    #bot.keyDown('shiftleft')
-    #bot.press('down', presses= 10)
-    #bot.keyUp('shift')
+    bot.press('LEFT', presses= 4) # Navega até a coluna "RE"
 
     ahk.key_down('Shift')
     ahk.key_down('Control')
     
-    ahk.key_press('down')
-    
-    ahk.key_up('Control')
-    ahk.key_up('Shift')  # Release the key
-    
-    ahk.key_down('Shift')
-    ahk.key_press('Right')
-    ahk.key_press('Right')
-    ahk.key_press('Right')
-    ahk.key_up('Shift')  # Release the key
+    ahk.key_press('down') # Com shift + ctrl pressionado, navega até a ultima linha da planilha
+    time.sleep(0.2)
+    ahk.key_press('right') # Avança para a ultima coluna
+    time.sleep(0.2)
+    ahk.key_press('right') # Avança para a ultima coluna
+    time.sleep(0.2)
+    ahk.key_press('right') # Avança para a ultima coluna
+    time.sleep(0.2)
+    ahk.key_up('Control') # Solta a tecla ctrl
+    ahk.key_up('Shift')  # Solta a tecla Shift
 
-if __name__ == '__main__':
-    #abre_planilha_navegador()
-    encontra_ultimo_xml(chave_xml)
+def main(ultimo_xml = chave_xml):
+    abre_planilha_navegador()
+    encontra_ultimo_xml(ultimo_xml = ultimo_xml)
     copia_dados()
 
+if __name__ == '__main__':
+    main()
+    #ahk.win_close('db_alltrips.xlsx', title_match_mode = 2)

@@ -2,7 +2,7 @@
 # Para utilização na Cortesia Concreto.
 
 import time
-from datetime import date
+#from datetime import date
 import pytesseract
 import datetime
 #import cv2
@@ -11,21 +11,11 @@ from ahk import AHK
 import pyautogui as bot
 import platform
 import pandas as pd
-from colorama import Fore, Back, Style
+#from colorama import Fore, Back, Style
 from onedrivedownloader import download as one_download
 from funcoes import procura_imagem, extrai_txt_img, marca_lancado
 from valida_pedido import valida_pedido
 from Materia_Prima import processo_transferencia
-
-''' #*Selenium
-from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.chrome.service import Service
-from webdriver_manager.chrome import ChromeDriverManager
-from pynfe.processamento.comunicacao import ComunicacaoSefaz
-'''
-#import winsound
-#import pygetwindow as gw
 
 # --- Definição de parametros
 ahk = AHK()

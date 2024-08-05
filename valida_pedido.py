@@ -46,7 +46,7 @@ mapeamento_imagens = {
 
 
 def valida_pedido(acabou_pedido=False):
-    bot.PAUSE = 0.6
+    bot.PAUSE = 0.2
     tentativa = 0
     img_pedido = 0
     item_pedido = ''
@@ -56,7 +56,7 @@ def valida_pedido(acabou_pedido=False):
     ahk.win_activate('Vinculação Itens da Nota', title_match_mode = 2)
     
     #Aguarda aparecer o botão "confirma" para poder continuar o processo.
-    while procura_imagem(imagem='img_topcon/confirma.png', continuar_exec= True, limite_tentativa= 2, confianca= 0.74) is False:
+    while procura_imagem(imagem='img_topcon/confirma.png', continuar_exec= True, limite_tentativa= 1, confianca= 0.73) is False:
         time.sleep(0.2)
 
     #Coleta o texto do campo "item XML", que é o item a constar na nota fiscal, e com base nisso, trata o dado
@@ -86,7 +86,7 @@ def valida_pedido(acabou_pedido=False):
     vazio = False
     while (tentativa < 3) and (vazio is False):
         ahk.win_activate('Vinculação Itens da Nota', title_match_mode = 2)
-        time.sleep(0.2)
+        time.sleep(0.1)
         vazio = '' 
         
         #* Validação para saber se encontrou em algum local, caso não encontre, exibe um erro.

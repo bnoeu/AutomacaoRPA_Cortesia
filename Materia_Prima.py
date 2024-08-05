@@ -26,6 +26,8 @@ from funcoes import marca_lancado, procura_imagem, extrai_txt_img, corrige_topco
 # --- Definição de parametros
 ahk = AHK() 
 bot.PAUSE = 0.6
+bot.LOG_SCREENSHOTS = True
+bot.LOG_SCREENSHOTS_LIMIT = 5
 posicao_img = 0
 continuar = True
 tempo_inicio = time.time()
@@ -170,7 +172,7 @@ def programa_principal():
     print('')
     print('--- INICIANDO UM NOVO LANÇAMENTO DE NFE --- ')
     print('')
-    print('---------------------------------------------------------------------------------------------------')
+    print('---------------------------------------------------------------------------------------------------\n')
     
     while acabou_pedido is True: #Verifica se o pedido está valido.
         dados_planilha = valida_lancamento()
@@ -263,11 +265,10 @@ def programa_principal():
     print('--- Aguarda aparecer o campo cod_desc')
     tentativa_cod_desc = 0
     while procura_imagem(imagem='img_topcon/cod_desc.png', continuar_exec=True, confianca= 0.75, limite_tentativa= 3) is False:
-        print(F'Tentativa de achar o cod_desc: {tentativa_cod_desc}')
         if tentativa_cod_desc >= 100:
             print('--- Não foi possivel encontrar o campo cod_desc, reiniciando o processo.')
             abre_mercantil()
-            programa_principal()    
+            return True    
         else:
             tentativa_cod_desc += 1 
     else:
@@ -278,11 +279,11 @@ def programa_principal():
     tentativa_cod_desc = 0
     while procura_imagem(imagem='img_topcon/cod_desc.png', continuar_exec=True, confianca= 0.74, limite_tentativa= 3) is not False:
         bot.click(procura_imagem(imagem='img_topcon/txt_ValoresTotais.png', continuar_exec= True))
-        print(F'--- Tentativa de aguardar sumir o cod_desc: {tentativa_cod_desc}112826')
+        #print(F'--- Tentativa de aguardar sumir o cod_desc: {tentativa_cod_desc}')
         if tentativa_cod_desc >= 100:
             print('--- O campo cod_desc não sumiu, reiniciando o processo.')
             abre_mercantil()
-            programa_principal()
+            return True
         else:
             tentativa_cod_desc += 1 
     else:
@@ -293,6 +294,7 @@ def programa_principal():
 
     # * -------------------------------------- VALIDAÇÃO TRANSPORTADOR --------------------------------------
     print(F'--- Preenchendo transportador: {cracha_mot}')
+    ahk.win_activate('TopCompras', title_match_mode= 2)
     bot.click(procura_imagem(imagem='img_topcon/campo_000.png', continuar_exec= True))
     bot.press('tab')
     tentativa_achar_camp_re = 0
@@ -335,11 +337,12 @@ def programa_principal():
         print('--- Não achou o campo ou já está preenchido')
 
     # * -------------------------------------- Aba Produtos e serviços --------------------------------------
+    time.sleep(0.2)
     ahk.win_activate('TopCompras', title_match_mode=2)
     ahk.win_wait_active('TopCompras', title_match_mode=2, timeout= 10)
-    time.sleep(1)
+    time.sleep(0.2)
     print('--- Navegando para a aba Produtos e Servicos')
-    bot.doubleClick(procura_imagem(imagem='img_topcon/produtos_servicos.png', limite_tentativa= 12))
+    bot.doubleClick(procura_imagem(imagem='img_topcon/produtos_servicos.png', confianca= 0.75, limite_tentativa= 12))
     
     # Aguarda até aparecer o botão "alterar"
     ahk.win_activate('TopCompras', title_match_mode=2)

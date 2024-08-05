@@ -71,7 +71,7 @@ def procura_imagem(imagem, limite_tentativa=5, area=(0, 0, 1920, 1080), continua
         #! Não funcionando.
         # raise 
         #reinicia_mp()
-        #exit(bot.alert(text=F'Não foi possivel encontrar: {imagem}', title='Erro!', button='Fechar'))
+        exit(bot.alert(text=F'Não foi possivel encontrar: {imagem}', title='Erro!', button='Fechar'))
         
     return posicao_img
 
@@ -88,27 +88,20 @@ def verifica_tela(nome_tela, manual=False):
 
 
 def marca_lancado(texto_marcacao='Lancado'):
-    bot.PAUSE = 0.6
+    bot.PAUSE = 0.2
+    tentativa = 0
     print(Fore.GREEN + F'--- Abrindo planilha - MARCA_LANCADO, com parametro: {texto_marcacao}' + Style.RESET_ALL)
     ahk.win_activate('debug_db_alltrips', title_match_mode= 2)
-    ahk.win_wait_active('debug_db_alltrips', title_match_mode= 2, timeout= 15)
-    time.sleep(0.5)
-    bot.hotkey('CTRL', 'HOME')
-
-    ''' #! Alterava para o modo edição/exibição, não é mais necessario.
-    if ahk.win_exists('debug_db_alltrips', title_match_mode= 2) is False:
-        #Verifica se está no modo "Apenas exibição", caso esteja, altera para permitir edição.
-        if procura_imagem(imagem='img_planilha/bt_exibicaoverde.png', continuar_exec=True) is not False:
-            bot.click(procura_imagem(imagem='img_planilha/bt_exibicaoverde.png', limite_tentativa= 50))
-            bot.click(procura_imagem(imagem='img_planilha/botao_iniciaredicao.png', limite_tentativa= 50))
-            print('--- Aguardando entrar no modo edição')
-            while procura_imagem(imagem='img_planilha/bt_edicao.png', continuar_exec= True) is False: #Aguarda até entrar no modo Edição
-                #Caso apareça a tela informando que houve alteração durante esse periodo, confirma que quer atualizar e prossegue.
-                if procura_imagem(imagem='img_planilha/txt_modificada.png', continuar_exec=True, limite_tentativa= 10) is not False: 
-                    bot.click(procura_imagem(imagem='img_planilha/bt_sim.png', limite_tentativa= 10, area= (751, 521, 429, 218)))
+    while tentativa < 3:
+        try:
+            ahk.win_wait_active(title= 'debug_db', title_match_mode= 2, timeout= 5)
+        except TimeoutError:
+            ahk.win_activate('debug_db_alltrips', title_match_mode= 2)
+            tentativa += 1
         else:
-            print(F'--- Planilha já no modo edição, continuando a inserção do texto: {texto_marcacao}')
-    '''
+            break
+        
+    bot.hotkey('CTRL', 'HOME')
 
     # Navega até o campo "Status"
     bot.press('RIGHT', presses= 6)
@@ -119,7 +112,9 @@ def marca_lancado(texto_marcacao='Lancado'):
     bot.press('RIGHT')
     hoje = datetime.date.today()
     bot.write(str(hoje))
-
+    time.sleep(0.2)
+    bot.click(500, 500)
+    
     # Retorna a planilha para o modo "Somente Exibição (Botão Verde)"
     bot.hotkey('CTRL', 'HOME')
     if procura_imagem(imagem='img_planilha/bt_filtro.png', continuar_exec=True, area = (1468, 400, 200, 200)) is not False:
@@ -138,10 +133,8 @@ def marca_lancado(texto_marcacao='Lancado'):
         bot.hotkey('alt', 'down') 
         
         print('--- Aguardando aparecer o botão selecionar tudo')
-        while procura_imagem(imagem='img_planilha/botao_selecionartudo.png', continuar_exec= True, limite_tentativa= 3, confianca= 0.74) is None:
-            time.sleep(0.2)
-        else:
-            print('--- Apareceu o botão selecionar tudo!')
+        while procura_imagem(imagem='img_planilha/botao_selecionartudo.png', continuar_exec= True, limite_tentativa= 1, confianca= 0.73) is None:
+            time.sleep(0.1)
             
         print('--- Reaplicando o filtro para as notas vazias')
         # Navega até a opção "Selecionar tudo", para reaplicar o filtro de notas vazias.
@@ -197,19 +190,20 @@ def verifica_ped_vazio(texto, pos):
         return False
     else:  # Caso fique vazio
         print('--- Itens XML ficou vazio! saindo da tela de vinculação')
-        time.sleep(0.5)
+        time.sleep(0.2)
         ahk.win_activate('TopCompras', title_match_mode= 2)
-        bot.click(procura_imagem(imagem='img_topcon/confirma.png', msg_confianca= True))
-        bot.click(procura_imagem(imagem='img_topcon/botao_ok.jpg', msg_confianca= True))
+        bot.click(procura_imagem(imagem='img_topcon/confirma.png'))
+        bot.click(procura_imagem(imagem='img_topcon/botao_ok.jpg'))
         print('--- Encerrado a função verifica pedido vazio!')
         return True
 
 def corrige_topcompras():
     try: 
-        ahk.win_wait(' (VM-CortesiaApli.CORTESIA.com)', title_match_mode= 1, timeout= 10)
+        ahk.win_wait(' (VM-CortesiaApli.CORTESIA.com)', title_match_mode= 1, timeout= 5)
     except TimeoutError:
         try:
-            if ahk.win_wait('TopCompras', title_match_mode= 1, timeout= 10):
+            if ahk.win_wait('TopCompras', title_match_mode= 1, timeout= 5):
+                pass
                 print('--- TopCompras abriu com o nome normal, prosseguindo.')
             else:
                 bot.alert(exit('TopCompras não encontrado.'))
@@ -220,4 +214,5 @@ def corrige_topcompras():
         print(Fore.GREEN + '--- Encontrou tela sem o nome, e realizou a correção!' + Style.RESET_ALL)
             
 if __name__ == '__main__':
-    marca_lancado('Teste')
+    corrige_topcompras()
+    #marca_lancado('Teste')

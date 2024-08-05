@@ -7,6 +7,7 @@ import os
 # import pygetwindow as gw
 import pytesseract
 from ahk import AHK
+from copia_alltrips import main as copia_banco
 from colorama import Fore, Style
 from funcoes import procura_imagem, marca_lancado
 import pyautogui as bot
@@ -20,16 +21,16 @@ chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
 pytesseract.pytesseract.tesseract_cmd = r"C:\Tesseract-OCR\tesseract.exe"
 
 def abre_planilha():
-        # Verifica quais das planilhas está aberta, debug ou o banco puro.
-        print(Fore.GREEN + '--- Abrindo planilha - COLETA_PLANILHA' + Style.RESET_ALL)
-        if ahk.win_exists('debug_db_alltrips', title_match_mode= 2):
-            print('--- Abrindo a planilha de debug')
-            ahk.win_activate('debug_db_alltrips', title_match_mode= 2)
-            ahk.win_wait('debug_db_alltrips', title_match_mode= 2)
-        else:
-            print('--- Abrindo a planilha com o banco puro')
-            ahk.win_activate('db_alltrips', title_match_mode= 2)
-            ahk.win_wait('db_alltrips', title_match_mode= 2)
+    bot.PAUSE = 0.2
+    # Verifica quais das planilhas está aberta, debug ou o banco puro.
+    if ahk.win_exists('debug_db_alltrips', title_match_mode= 2):
+        print(Fore.GREEN + '--- Abrindo planilha de debug - COLETA_PLANILHA' + Style.RESET_ALL)
+        ahk.win_activate('debug_db_alltrips', title_match_mode= 2)
+        ahk.win_wait('debug_db_alltrips', title_match_mode= 2)
+    else:
+        print(Fore.GREEN + '--- Abrindo planilha do banco puro - COLETA_PLANILHA' + Style.RESET_ALL)
+        ahk.win_activate('db_alltrips', title_match_mode= 2)
+        ahk.win_wait('db_alltrips', title_match_mode= 2)
 
 def coleta_planilha():
     while True:
@@ -85,7 +86,9 @@ def coleta_planilha():
         # Realiza a validação dos dados copiados.
         chave_xml = dados_planilha[4].strip()
         if len(dados_planilha[6]) > 0:
-            print(F'--- Aguardando 30s para aparecer novas notas, campo preenchido com: {dados_planilha[6]}, tamanho do status: {len(dados_planilha[6])}')
+            print('--- Chegou ao final da planilha atual, realizando uma conferencia no banco')
+            #print(F'--- Aguardando 30s para aparecer novas notas, campo preenchido com: {dados_planilha[6]}, tamanho do status: {len(dados_planilha[6])}')
+            copia_banco(ultimo_xml= chave_xml)
             time.sleep(30)
         if len(chave_xml) < 42:
             marca_lancado('chave_invalida')

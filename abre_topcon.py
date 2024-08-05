@@ -23,7 +23,6 @@ senha_rdp = '1Pyth0n@'
 
 
 def abre_mercantil():
-    
     print(Fore.RED + '--- Executando a função: ABRE MERCANTIL ' + Style.RESET_ALL)
     # Inicia fechando o modulo de compras.
     verifica_topcompras = 0
@@ -31,6 +30,7 @@ def abre_mercantil():
     corrige_topcompras()
     
     while ahk.win_exists('TopCompras', title_match_mode=2):
+    while ahk.win_exists('TopCompras'):
         ahk.win_close('TopCompras', title_match_mode=2)
         time.sleep(0.5)
         if verifica_topcompras > 10:
@@ -49,11 +49,13 @@ def abre_mercantil():
     #Abre o TopCompras, e verifica se aparece a tela "interveniente"
     ahk.win_activate('TopCompras', title_match_mode= 2)
     time.sleep(1)
-    if procura_imagem(imagem='img_topcon/botao_ok.jpg', continuar_exec= True):
-        print('--- Encontrou a tela do interveniente, clicando no botão "OK"')
-        bot.press('ENTER')
-    else:
-        print('--- Não exibiu a tela de interveniente.')
+    
+    while procura_imagem(imagem='img_topcon/botao_ok.jpg', continuar_exec= True, confianca= 0.74, limite_tentativa= 2) is not False:
+        if procura_imagem(imagem='img_topcon/botao_ok.jpg', continuar_exec= True):
+            print('--- Encontrou a tela do interveniente, clicando no botão "OK"')
+            bot.press('ENTER')
+        else:
+            print('--- Não exibiu a tela de interveniente.')
     
     navega_topcompras()
         
@@ -68,46 +70,41 @@ def navega_topcompras():
     time.sleep(3)
     print(Fore.GREEN +  '--- TopCompras aberto!' + Style.RESET_ALL)
 
-#* ---------------- PROGRAMA PRINCIPAL ------------
 def fecha_execucoes():
-    # Encerra todos os processos do AHK
-    os.system('taskkill /im AutoHotkey.exe /f /t')    
+    print('--- Iniciando fecha_execucoes, para fechar o TopCompras e o RDP ---')
     
-    print(Back.RED + '--- iniciando fecha_execucoes --- Realizando fechamento do TopCompras' + Style.RESET_ALL)
-    
-    # Primeiro força o fechamento das telas, para evitar erros de validações
-    while ahk.win_exists('TopCompras', title_match_mode= 2):
-        ahk.win_close('TopCompras', title_match_mode= 2)   
+    # Primeiro força o fechamento do TopCompras, para evitar erros de validações
+    while ahk.win_exists(title= "TopCompras", title_match_mode= 2):
+        time.sleep(0.2)
+        ahk.win_close(title= 'TopCompras', title_match_mode = 2)   
     else:
-        print(Back.RED + '--- Fechou o TopCompras, para garantir que seja uma execução limpa' + Style.RESET_ALL)
-    
-    # Força o fechamento do processo do RDP por completo
-    os.system('taskkill /im mstsc.exe /f /t')
-    print(Back.RED + '--- Fechou o processo do RemoteDesktop' + Style.RESET_ALL)
+        time.sleep(0.2)
 
+    #os.system('taskkill /im AutoHotkey.exe /f /t') # Encerra todos os processos do AHK
+    os.system('taskkill /im mstsc.exe /f /t') # Força o fechamento do processo do RDP por completo
 
 def abre_topcon():
     bot.PAUSE = 1
-    # Começa garantindo que fechou todas as execuções antigas.
-    fecha_execucoes()
+    fecha_execucoes() # Começa garantindo que fechou todas as execuções antigas.
     
     print('--- Iniciando o RemoteApp')
     os.startfile('RemoteApp-Cortesia.rdp')
     #os.startfile('RemoteApp-CortesiaVPN.rdp')
-    time.sleep(0.5)
     
     # Tenta encontrar em ingles e portugues.
     telas_seguranca = ['Windows Security', 'Segurança do Windows']
     tela_login_rdp = False
     
     for tela in telas_seguranca:
+        print(F'--- Tentando a tela: {tela}')
         try:
-            time.sleep(0.5)
-            ahk.win_wait_active(tela, title_match_mode= 2, timeout = 5)
+            ahk.win_wait_active(tela, title_match_mode= 2, timeout= 10)
         except TimeoutError:
             time.sleep(0.5)
+        #except OSError:
+        #    time.sleep(0.2)
         else:
-            #print(F'--- Encontrou com o nome {tela}')
+            print(F'--- Encontrou com o nome {tela}')
             tela_login_rdp = tela
     
     if tela_login_rdp is False: # Caso não encontro nenhuma das telas da lista "telas_seguranca"
@@ -115,7 +112,7 @@ def abre_topcon():
     
     # Realiza o login no RDP, que deve utilizar as informações de login do usuario "CORTESIA\BARBARA.K"
     if ahk.win_exists(tela_login_rdp, title_match_mode= 2):
-        print(F'--- Abriu a tela "{tela_login_rdp}", realizando o login" ')
+        #print(F'--- Abriu a tela "{tela_login_rdp}", realizando o login" ')
         ahk.win_activate(tela_login_rdp, title_match_mode= 2)
         ahk.win_wait_active(tela_login_rdp, title_match_mode= 2, timeout = 10)
         
