@@ -7,7 +7,6 @@ import os
 # import pygetwindow as gw
 import pytesseract
 from ahk import AHK
-from copia_alltrips import main as copia_banco
 from colorama import Fore, Style
 from funcoes import procura_imagem, marca_lancado
 import pyautogui as bot
@@ -21,25 +20,22 @@ chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
 pytesseract.pytesseract.tesseract_cmd = r"C:\Tesseract-OCR\tesseract.exe"
 
 def abre_planilha():
-    bot.PAUSE = 0.2
-    # Verifica quais das planilhas está aberta, debug ou o banco puro.
+    # Realiza a abertura da planilha de debug
     if ahk.win_exists('debug_db_alltrips', title_match_mode= 2):
-        print(Fore.GREEN + '--- Abrindo planilha de debug - COLETA_PLANILHA' + Style.RESET_ALL)
         ahk.win_activate('debug_db_alltrips', title_match_mode= 2)
         ahk.win_wait('debug_db_alltrips', title_match_mode= 2)
-    else:
-        print(Fore.GREEN + '--- Abrindo planilha do banco puro - COLETA_PLANILHA' + Style.RESET_ALL)
-        ahk.win_activate('db_alltrips', title_match_mode= 2)
-        ahk.win_wait('db_alltrips', title_match_mode= 2)
 
 def coleta_planilha():
+    from copia_alltrips import main as copia_banco
     while True:
-        bot.PAUSE = 0.2
+        print(Fore.GREEN + '\n--- Iniciando a função: coleta planilha ---' + Style.RESET_ALL)
+        bot.PAUSE = 0.1
         # Abre a tela da planilha, que já deve ter sido acessada no Edge
         abre_planilha()
         
         # Processo necessario apenas caso rode diretamente no db_alltrips.
         if ahk.win_exists('debug_db_alltrips', title_match_mode= 2) is False:
+            time.sleep(0.5)
             bot.hotkey('CTRL', 'HOME')
             # Verifica se já está no modo de edição, caso esteja, muda para o modo "exibição"
             if procura_imagem(imagem='img_planilha/bt_exibicaoverde.png', continuar_exec=True, limite_tentativa= 3, confianca= 0.74) is False:
@@ -51,7 +47,7 @@ def coleta_planilha():
                     bot.click(procura_imagem(imagem='img_planilha/bt_TresPontos.png'))
                     
                 bot.click(procura_imagem(imagem='img_planilha/bt_edicao.png'))  
-                time.sleep(0.3)
+                time.sleep(0.1)
                 bot.click(procura_imagem(imagem='img_planilha/txt_exibicao.png'))
 
                 #Aguarda até aparecer o botão do modo "exibição"
@@ -64,7 +60,7 @@ def coleta_planilha():
 
         # Coleta os dados da linha atual
         dados_planilha = []
-        print('--- Copiando dados e formatando')
+        #print('--- Copiando dados e formatando')
         # Navega para a celula A1 ( RE ), em seguida vai para a primeira linha com dados a serem copiado
         bot.hotkey('CTRL', 'HOME')
         bot.press('DOWN')
@@ -77,19 +73,20 @@ def coleta_planilha():
                 if 'Recuperando' in ahk.get_clipboard():
                     time.sleep(pausa_copia)
                     pausa_copia += 0.1
-                    print(F'--- Pausa copia aumentada para, {pausa_copia}')
+                    #print(F'--- Pausa copia aumentada para, {pausa_copia}')
                 else:
                     break
             dados_planilha.append(ahk.get_clipboard())
             bot.press('right')
             
-        # Realiza a validação dos dados copiados.
-        chave_xml = dados_planilha[4].strip()
+        chave_xml = dados_planilha[4].strip() # Realiza a validação dos dados copiados.
         if len(dados_planilha[6]) > 0:
             print('--- Chegou ao final da planilha atual, realizando uma conferencia no banco')
+            print(F'--- Ultima chave: {chave_xml}')
+            #exit(bot.alert('Final da planilha'))
             #print(F'--- Aguardando 30s para aparecer novas notas, campo preenchido com: {dados_planilha[6]}, tamanho do status: {len(dados_planilha[6])}')
+            #exit(bot.alert(' Verificar Script '))
             copia_banco(ultimo_xml= chave_xml)
-            time.sleep(30)
         if len(chave_xml) < 42:
             marca_lancado('chave_invalida')
         elif (len(dados_planilha[0]) < 4) or (len(dados_planilha[0]) == 5):

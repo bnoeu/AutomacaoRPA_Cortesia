@@ -22,7 +22,9 @@ pytesseract.pytesseract.tesseract_cmd = r"C:\Tesseract-OCR\tesseract.exe"
 bot.useImageNotFoundException(False)
 
 def procura_imagem(imagem, limite_tentativa=5, area=(0, 0, 1920, 1080), continuar_exec=False, confianca = 0.78, msg_continuar_exec = False, msg_confianca = False):
-    pausa_img = 0.2
+    from abre_topcon import abre_topcon
+    from Materia_Prima import programa_principal
+    pausa_img = 0.3
     hoje = datetime.date.today()
     maquina_viva = False
     tentativa = 0   
@@ -34,6 +36,7 @@ def procura_imagem(imagem, limite_tentativa=5, area=(0, 0, 1920, 1080), continua
                 posicao_img = bot.locateCenterOnScreen(imagem, grayscale= True, confidence= confianca, region= area)
             except OSError:
                 print('--- Erro devido a resolução da maquina virtual, aguardando')
+                abre_topcon() # Executa o processo de reabertura do topcon e do modulo de compras
                 time.sleep(30)
             else:
                 maquina_viva = True
@@ -51,27 +54,22 @@ def procura_imagem(imagem, limite_tentativa=5, area=(0, 0, 1920, 1080), continua
                 print(F'--- Valor atual da confiança da imagem: {confianca}', end= "")
             else:
                 print(F', {confianca}', end= "")
-        
-    
         confianca -= 0.01              
         
 
     #Caso seja para continuar
-    if (continuar_exec is True) and (posicao_img is None):
+    if (continuar_exec is True) and (posicao_img is None): # Exibe a mensagem que o parametro está ativo
         if msg_continuar_exec is True:
             print('' + F'--- {imagem} não foi encontrada, continuando execução pois o parametro "continuar_exec" está habilitado')
         return False
     
-    if tentativa >= limite_tentativa:
+    if tentativa >= limite_tentativa: # Caso exceda o limite de tentativas
         time_atual = str(datetime.datetime.now()).replace(":","_").replace(".","_")
         caminho_erro = 'img_geradas/' + 'erro' + time_atual + '.png'
         img_erro = bot.screenshot()
         img_erro.save(fp= caminho_erro)
-        #ahk.win_kill('debug_db_alltrips')
-        #! Não funcionando.
-        # raise 
-        #reinicia_mp()
-        exit(bot.alert(text=F'Não foi possivel encontrar: {imagem}', title='Erro!', button='Fechar'))
+        programa_principal()
+        #exit(bot.alert(text=F'Não foi possivel encontrar: {imagem}', title='Erro!', button='Fechar'))
         
     return posicao_img
 
@@ -88,7 +86,7 @@ def verifica_tela(nome_tela, manual=False):
 
 
 def marca_lancado(texto_marcacao='Lancado'):
-    bot.PAUSE = 0.2
+    bot.PAUSE = 0.5
     tentativa = 0
     print(Fore.GREEN + F'--- Abrindo planilha - MARCA_LANCADO, com parametro: {texto_marcacao}' + Style.RESET_ALL)
     ahk.win_activate('debug_db_alltrips', title_match_mode= 2)
@@ -101,6 +99,7 @@ def marca_lancado(texto_marcacao='Lancado'):
         else:
             break
         
+    time.sleep(0.5)
     bot.hotkey('CTRL', 'HOME')
 
     # Navega até o campo "Status"
@@ -112,8 +111,9 @@ def marca_lancado(texto_marcacao='Lancado'):
     bot.press('RIGHT')
     hoje = datetime.date.today()
     bot.write(str(hoje))
-    time.sleep(0.2)
+    time.sleep(0.5)
     bot.click(500, 500)
+    time.sleep(0.5)
     
     # Retorna a planilha para o modo "Somente Exibição (Botão Verde)"
     bot.hotkey('CTRL', 'HOME')
@@ -141,12 +141,14 @@ def marca_lancado(texto_marcacao='Lancado'):
         bot.press('TAB', presses= 9)
         bot.press('ENTER')
 
+    bot.hotkey('CTRL', 'HOME')
     print(Fore.GREEN + F'--------------------- Processou NFE, situação: {texto_marcacao} ---------------------' + Style.RESET_ALL)
 
 def extrai_txt_img(imagem, area_tela, porce_escala = 400):
+    time.sleep(1)
     # Captura uma screenshot da área especificada da tela
     img = bot.screenshot('img_geradas/' + imagem, region=area_tela)
-    print(F'--- Tirou print da imagem: {imagem} ----')
+    #print(F'--- Tirou print da imagem: {imagem} ----')
 
     # Lê a imagem capturada usando o OpenCV
     img = cv2.imread('img_geradas/' + imagem)
@@ -190,29 +192,38 @@ def verifica_ped_vazio(texto, pos):
         return False
     else:  # Caso fique vazio
         print('--- Itens XML ficou vazio! saindo da tela de vinculação')
-        time.sleep(0.2)
-        ahk.win_activate('TopCompras', title_match_mode= 2)
+        ahk.win_activate('Vinculação Itens da Nota', title_match_mode = 2)
+        time.sleep(0.1)
         bot.click(procura_imagem(imagem='img_topcon/confirma.png'))
-        bot.click(procura_imagem(imagem='img_topcon/botao_ok.jpg'))
+        
+        
+        ahk.win_wait_active('TopCompras (VM-CortesiaApli.CORTESIA.com)', title_match_mode = 2, timeout= 30)
+        while ahk.win_exists('TopCompras (VM-CortesiaApli.CORTESIA.com)', title_match_mode = 2):
+            time.sleep(0.5)
+            bot.click(procura_imagem(imagem='img_topcon/botao_ok.jpg', confianca= 0.73, limite_tentativa= 10))
+            ahk.win_wait_close('TopCompras (VM-CortesiaApli.CORTESIA.com)', title_match_mode = 2, timeout= 30)
+
+        ahk.win_wait_close('Vinculação Itens da Nota', title_match_mode = 2, timeout= 30)
         print('--- Encerrado a função verifica pedido vazio!')
         return True
 
-def corrige_topcompras():
+def corrige_nometela(novo_nome = "TopCompras"):
     try: 
-        ahk.win_wait(' (VM-CortesiaApli.CORTESIA.com)', title_match_mode= 1, timeout= 5)
+        ahk.win_wait(' (VM-CortesiaApli.CORTESIA.com)', title_match_mode= 1, timeout= 8)
     except TimeoutError:
         try:
-            if ahk.win_wait('TopCompras', title_match_mode= 1, timeout= 5):
-                pass
-                print('--- TopCompras abriu com o nome normal, prosseguindo.')
+            if ahk.win_wait(novo_nome, title_match_mode= 1, timeout= 8):
+                #print('--- TopCompras abriu com o nome normal, prosseguindo.')
+                return
             else:
                 bot.alert(exit('TopCompras não encontrado.'))
         except TimeoutError:
             return
     else:
-        ahk.win_set_title(new_title= 'TopCompras', title= ' (VM-CortesiaApli.CORTESIA.com)', title_match_mode= 1, detect_hidden_windows= True)
+        ahk.win_set_title(new_title= novo_nome, title= ' (VM-CortesiaApli.CORTESIA.com)', title_match_mode= 1, detect_hidden_windows= True)
         print(Fore.GREEN + '--- Encontrou tela sem o nome, e realizou a correção!' + Style.RESET_ALL)
             
 if __name__ == '__main__':
-    corrige_topcompras()
+    #verifica_ped_vazio()
+    corrige_nometela()
     #marca_lancado('Teste')

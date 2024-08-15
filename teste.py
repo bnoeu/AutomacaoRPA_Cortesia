@@ -1,8 +1,7 @@
 # -*- Criado por Bruno da Silva Santos. -*-
 # Para utilização na Cortesia Concreto.
-
 import time
-#from datetime import date
+from datetime import date, timedelta
 import pytesseract
 import datetime
 #import cv2
@@ -46,9 +45,8 @@ print(computador)
 if 'VLPTIC1Z9HD33' in platform.node():
     print('Notebook do Bruno')
 
- # Encerra todos os processos do AHK
-os.system('taskkill /im AutoHotkey.exe /f /t')
-
+# Encerra todos os processos do AHK
+#os.system('taskkill /im AutoHotkey.exe /f /t')
 
 ''' #* Cria banco de dados
 #Cria a conexão com o banco de dados
@@ -63,5 +61,6 @@ cur = con.cursor()
 exit()
 '''
 
- #* Consulta as telas abertas
-
+#* Consulta as telas abertas
+for tela in ahk.list_windows():
+    print(tela.title)
