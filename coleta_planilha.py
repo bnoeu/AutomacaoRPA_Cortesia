@@ -23,9 +23,10 @@ def abre_planilha():
     # Realiza a abertura da planilha de debug
     if ahk.win_exists('debug_db_alltrips', title_match_mode= 2):
         ahk.win_activate('debug_db_alltrips', title_match_mode= 2)
-        ahk.win_wait('debug_db_alltrips', title_match_mode= 2)
+        ahk.win_wait('debug_db_alltrips', title_match_mode= 2, timeout= 15)
 
 def coleta_planilha():
+    valida_final_planilha = 0
     from copia_alltrips import main as copia_banco
     while True:
         print(Fore.GREEN + '\n--- Iniciando a função: coleta planilha ---' + Style.RESET_ALL)
@@ -79,14 +80,15 @@ def coleta_planilha():
             dados_planilha.append(ahk.get_clipboard())
             bot.press('right')
             
-        chave_xml = dados_planilha[4].strip() # Realiza a validação dos dados copiados.
-        if len(dados_planilha[6]) > 0:
-            print('--- Chegou ao final da planilha atual, realizando uma conferencia no banco')
+        chave_xml = dados_planilha[4].strip() # Realiza a validação dos dados copiados
+        
+        if len(dados_planilha[6]) > 0 and (valida_final_planilha < 2):
+            print(F'--- Chegou ao final da planilha atual, tentativa: {valida_final_planilha}, executando ultima validação')
+            valida_final_planilha += 1
+        elif len(dados_planilha[6]) > 0 and (valida_final_planilha >= 2): # Caso já tenha realizado o processo duas vezes.
             print(F'--- Ultima chave: {chave_xml}')
-            #exit(bot.alert('Final da planilha'))
-            #print(F'--- Aguardando 30s para aparecer novas notas, campo preenchido com: {dados_planilha[6]}, tamanho do status: {len(dados_planilha[6])}')
-            #exit(bot.alert(' Verificar Script '))
             copia_banco(ultimo_xml= chave_xml)
+            
         if len(chave_xml) < 42:
             marca_lancado('chave_invalida')
         elif (len(dados_planilha[0]) < 4) or (len(dados_planilha[0]) == 5):

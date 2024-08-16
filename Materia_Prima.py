@@ -518,13 +518,8 @@ if __name__ == '__main__':
     while True:
         try:
             programa_principal()
-        except ValueError:
+        except (TimeoutError, OSError, ValueError):
             os.system('taskkill /im AutoHotkey.exe /f /t')
-            #exit(bot.alert('--- Erro por que não encontrou alguma das telas.'))
-            abre_topcon()
-            programa_principal()
-        except TimeoutError:
-            #exit(bot.alert('--- Erro por que não encontrou alguma das telas.'))
             abre_topcon()
             programa_principal()
 
