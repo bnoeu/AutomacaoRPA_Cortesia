@@ -26,6 +26,7 @@ pytesseract.pytesseract.tesseract_cmd = r"C:\Tesseract-OCR\tesseract.exe"
 
 # Realiza o processo de validação do lançamento.
 def valida_lancamento():
+    raise OSError
     bot.PAUSE = 0.25
     while True:
         dados_planilha = coleta_planilha() # Recebe os dados coletados da planilha, já validados e formatados.

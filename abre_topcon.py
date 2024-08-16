@@ -91,10 +91,10 @@ def fecha_execucoes():
     
     # Primeiro força o fechamento do TopCompras, para evitar erros de validações
     while ahk.win_exists(title= "TopCompras", title_match_mode= 2):
-        time.sleep(0.1)
+        time.sleep(0.2)
         ahk.win_close(title= 'TopCompras', title_match_mode = 2)   
     else:
-        time.sleep(0.1)
+        time.sleep(0.2)
 
     #os.system('taskkill /im AutoHotkey.exe /f /t') # Encerra todos os processos do AHK
     os.system('taskkill /im mstsc.exe /f /t') # Força o fechamento do processo do RDP por completo
