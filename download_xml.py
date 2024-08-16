@@ -7,7 +7,7 @@ import time
 import pytesseract
 from ahk import AHK
 from datetime import date
-from funcoes import procura_imagem
+from utils.funcoes import procura_imagem
 import pyautogui as bot
 
 

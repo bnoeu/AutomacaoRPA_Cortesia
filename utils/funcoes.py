@@ -22,6 +22,20 @@ pytesseract.pytesseract.tesseract_cmd = r"C:\Tesseract-OCR\tesseract.exe"
 bot.useImageNotFoundException(False)
 
 def procura_imagem(imagem, limite_tentativa=5, area=(0, 0, 1920, 1080), continuar_exec=False, confianca = 0.78, msg_continuar_exec = False, msg_confianca = False):
+    """Função que realiza o processo de OCR na tela, retornando as coordenadas onde localizou a imagem especificada.
+
+    Args:
+        imagem (Arquivo): imagem que deseja encontrar.
+        limite_tentativa (int, optional): Quantas vezes deseja procurar. Defaults to 5.
+        area (tuple, optional): Area onde deseja procurar. Defaults to (0, 0, 1920, 1080).
+        continuar_exec (bool, optional): Continua a execução caso não encontre. Defaults to False.
+        confianca (float, optional): _description_. Defaults to 0.78.
+        msg_continuar_exec (bool, optional): _description_. Defaults to False.
+        msg_confianca (bool, optional): _description_. Defaults to False.
+
+    Returns:
+        _type_: Retorna as posições onde encontrou a imagem.
+    """    
     from abre_topcon import abre_topcon
     from Materia_Prima import programa_principal
     pausa_img = 0.3
@@ -210,14 +224,14 @@ def verifica_ped_vazio(texto, pos):
 def corrige_nometela(novo_nome = "TopCompras"):
     try: 
         ahk.win_wait(' (VM-CortesiaApli.CORTESIA.com)', title_match_mode= 1, timeout= 8)
-    except TimeoutError:
+    except (TimeoutError, OSError):
         try:
             if ahk.win_wait(novo_nome, title_match_mode= 1, timeout= 8):
                 #print('--- TopCompras abriu com o nome normal, prosseguindo.')
                 return
             else:
                 bot.alert(exit('TopCompras não encontrado.'))
-        except TimeoutError:
+        except (TimeoutError, OSError):
             return
     else:
         ahk.win_set_title(new_title= novo_nome, title= ' (VM-CortesiaApli.CORTESIA.com)', title_match_mode= 1, detect_hidden_windows= True)

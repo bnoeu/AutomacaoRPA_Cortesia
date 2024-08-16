@@ -4,7 +4,7 @@
 import time
 import pytesseract
 from ahk import AHK
-from funcoes import procura_imagem, corrige_nometela
+from utils.funcoes import procura_imagem, corrige_nometela
 import pyautogui as bot
 import os
 from colorama import Fore, Style
@@ -175,5 +175,5 @@ def abre_topcon():
 if __name__ == '__main__':
     bot.pause = 0.25
     #abre_mercantil()
-    #fecha_execucoes()
-    abre_topcon()
+    fecha_execucoes()
+    #abre_topcon()
