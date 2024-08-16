@@ -11,7 +11,7 @@ import pyautogui as bot
 # import pygetwindow as gw
 from colorama import Fore, Style
 from coleta_planilha import coleta_planilha
-from funcoes import marca_lancado, procura_imagem, corrige_nometela
+from utils.funcoes import marca_lancado, procura_imagem, corrige_nometela
 from abre_topcon import abre_topcon, abre_mercantil
 
 
@@ -45,6 +45,9 @@ def valida_lancamento():
         
         while True: # Enquanto a tela não for alterada para o modo incluir
             ahk.win_activate('TopCompras', title_match_mode= 2)
+            
+            
+            
             
             print('--- Verificando se está no modo Localizar.')
             if procura_imagem(imagem='img_topcon/txt_inclui.png', continuar_exec= True, area= (852, 956, 1368, 1045), limite_tentativa= 2, confianca= 0.74) is False:

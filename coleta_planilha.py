@@ -8,7 +8,7 @@ import os
 import pytesseract
 from ahk import AHK
 from colorama import Fore, Style
-from funcoes import procura_imagem, marca_lancado
+from utils.funcoes import procura_imagem, marca_lancado
 import pyautogui as bot
 
 # --- Definição de parametros

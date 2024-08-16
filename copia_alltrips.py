@@ -10,7 +10,7 @@ import pytesseract
 from ahk import AHK
 import pyautogui as bot
 from datetime import date
-from funcoes import procura_imagem
+from utils.funcoes import procura_imagem
 from coleta_planilha import abre_planilha as abre_planilha_debug
 
 # --- Definição de parametros

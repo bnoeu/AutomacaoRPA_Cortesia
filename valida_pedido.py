@@ -7,7 +7,7 @@ import time
 from ahk import AHK
 import pyautogui as bot
 from colorama import Fore, Style
-from funcoes import marca_lancado, procura_imagem, extrai_txt_img, verifica_ped_vazio, corrige_nometela
+from utils.funcoes import marca_lancado, procura_imagem, extrai_txt_img, verifica_ped_vazio, corrige_nometela
 
 # --- Definição de parametros
 ahk = AHK()

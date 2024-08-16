@@ -8,7 +8,7 @@ import cv2
 import numpy as np
 import pytesseract
 from ahk import AHK
-from funcoes import procura_imagem
+from utils.funcoes import procura_imagem
 import pyautogui as bot
 
 

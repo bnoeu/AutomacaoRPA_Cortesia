@@ -12,7 +12,7 @@ import platform
 import pandas as pd
 #from colorama import Fore, Back, Style
 from onedrivedownloader import download as one_download
-from funcoes import procura_imagem, extrai_txt_img, marca_lancado
+from utils.funcoes import procura_imagem, extrai_txt_img, marca_lancado
 from valida_pedido import valida_pedido
 from Materia_Prima import processo_transferencia
 
