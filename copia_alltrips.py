@@ -6,15 +6,15 @@
 
 import os
 import time
+import logging
 import pytesseract
 from ahk import AHK
 import pyautogui as bot
-from datetime import date
-from utils.funcoes import procura_imagem
-from coleta_planilha import abre_planilha as abre_planilha_debug
+from automacao_planilha.abre_planilha_debug import abre_planilha
 
 # --- Definição de parametros
 ahk = AHK()
+bot.FAILSAFE = False
 posicao_img = 0 
 continuar = True
 tempo_inicio = time.time()
@@ -25,27 +25,26 @@ alltrips = "https://cortesiaconcreto-my.sharepoint.com/:x:/g/personal/bi_cortesi
 
 # Receber nos parametros a chave_xml da ultima NFE coletada
 def abre_planilha_navegador(link_planilha = alltrips):
-    bot.PAUSE = 1
     # Garante que a planilha não esteja aberta
     while ahk.win_exists('db_alltrips.xlsx', title_match_mode= 1):
         ahk.win_close('db_alltrips.xlsx', title_match_mode= 1)
-        time.sleep(0.5)
+        time.sleep(1)
     
-    print('--- Abrindo a planilha no EDGE.')
+    logging.info('--- Abrindo a planilha no EDGE.')
     comando_iniciar = F'start msedge {link_planilha} -new-window -inprivate'
     os.system(comando_iniciar)
     time.sleep(15)
     ahk.win_wait_active('db_alltrips.xlsx', title_match_mode = 2, timeout= 15)
     ahk.win_maximize('db_alltrips.xlsx')
-    print('--- Planilha aberta e maximizada.')
+    logging.info('--- Planilha aberta e maximizada.')
 
 def encontra_ultimo_xml(ultimo_xml = ''):
-    print(F'--- Iniciando a navegação até a ultima chave XML: {ultimo_xml}')
+    logging.info(F'--- Iniciando a navegação até a ultima chave XML: {ultimo_xml}')
     ahk.win_activate('db_alltrips.xlsx', title_match_mode= 2)
     try:
         ahk.win_wait_active('db_alltrips.xlsx', title_match_mode= 2, timeout= 10)
     except TimeoutError:
-        print('--- Planilha não encontrada!')
+        logging.critical('--- Planilha não encontrada!')
         return True
     # Clica no meio da planilha para "ativar" a navegação dentro dela.
     bot.click(1000, 600)
@@ -55,7 +54,7 @@ def encontra_ultimo_xml(ultimo_xml = ''):
     
     # Navega até o campo "D. Insercao"]
     bot.press('RIGHT', presses= 8, interval= 0.05)
-    time.sleep(0.5)
+    time.sleep(1)
     
     #Abre o menu do filtro
     bot.hotkey('ALT', 'DOWN')
@@ -87,37 +86,35 @@ def encontra_ultimo_xml(ultimo_xml = ''):
     bot.press('ALT', presses= 2)
     
     # Finaliza
-    print(F'--- Concluido a navegação até a ultima chave XML: {ultimo_xml}')
+    logging.info(F'--- Concluido a navegação até a ultima chave XML: {ultimo_xml}')
     
 def copia_dados():
-    bot.PAUSE = 1
-    print('--- Iniciando o processo de cópia.')
+    logging.info('--- Iniciando o processo de cópia.')
     ahk.win_activate('db_alltrips.xlsx', title_match_mode= 2)
     
-    # Navega até a proxima linha após a ultima chave.
-    bot.press('DOWN')
+    bot.press('DOWN') # Navega até a proxima linha após a ultima chave.
     
-    # Realiza uma avaliação, 
+    # Realiza uma avaliação
     # 1. Caso o campo esteja vazio, significa que ainda não foram inseridas novas notas, e para o processo. 
     # 2. Caso o campo esteja com uma chave XML nova, prossegue
     while True:
         bot.hotkey('ctrl', 'c')
         if 'Recuperando' in ahk.get_clipboard():
-            print('--- Tentando copiar novamente.')
-            time.sleep(0.1)
+            logging.info('--- Tentando copiar novamente.')
+            time.sleep(0.2)
         else:
-            print('--- Dado copiado com sucesso, realizando avaliação.')
+            logging.info('--- Dado copiado com sucesso, realizando avaliação.')
             valor_copiado = ahk.get_clipboard()
             break
     
     if valor_copiado == "":
-        print('--- Campo vazio, aguardando 10 minutos.')
+        logging.info('--- Campo vazio, aguardando 10 minutos.')
         time.sleep(100)
     else:
-        print(F'--- Uma nova chave foi inserida: {valor_copiado}')
+        logging.info(F'--- Uma nova chave foi inserida: {valor_copiado}')
     
     # Inicia o processo de seleção dos dados
-    print('--- Iniciando o processo de seleção dos dados')    
+    logging.info('--- Iniciando o processo de seleção dos dados')    
     time.sleep(1)
     bot.press('LEFT', presses= 4) # Navega até a coluna "RE"
     time.sleep(1)
@@ -140,37 +137,43 @@ def copia_dados():
     time.sleep(1)
     dados_copiados = ahk.get_clipboard()
     cola_dados(dados_copiados)
-    print('--- Dados copiados da planilha db_alltrips')
-
+    logging.info('--- Dados copiados da planilha db_alltrips')
 
 def cola_dados(dados_copiados = "TESTE"):
-    print('--- Acessando a planilha de debug')
-    abre_planilha_debug()
-    time.sleep(0.5)
+    logging.info('--- Acessando a planilha de debug')
+    abre_planilha()
+    time.sleep(1)
     bot.hotkey('CTRL', 'HOME') # Navega até a celula A1.
     bot.press('DOWN', presses= 2) # Proxima linha que deveria estar sem informação.
+    '''
     bot.hotkey('ctrl', 'c') # Copia dados da coluna RE, para avaliar se realmente não tem nenhuma outra linha.
-    if "" not in ahk.get_clipboard():
-        exit(bot.alert('Ainda existem linhas para processar'))
+    time.sleep(1)
+    if len(ahk.get_clipboard()) > 1:
+        logging.error('--- Ainda existem linhas para processar')
+        return False
     else:
-        ahk.set_clipboard(dados_copiados) # Devolve os dados copiados para o clipboard.
+        logging.info('--- Não existem mais dados para processar, prosseguindo com a inserção dos novos dados.')
+        pyperclip.copy(dados_copiados)
+        #ahk.set_clipboard(dados_copiados) # Devolve os dados copiados para o clipboard.
+    '''
         
     bot.press('ALT') # Abre o menu para navegação via teclas
     bot.press('C') # Vai até a opção "Inicio"
     bot.press('V') # Abre o menu de "Colar"
     bot.press('V') # Seleciona a opção "Colar somente valores"
     time.sleep(1)
+    logging.info('--- Copiado e colado com sucesso! Fechando a planilha original.')
     ahk.win_activate('db_alltrips.xlsx', title_match_mode= 1)
+    ahk.win_kill('db_alltrips.xlsx', title_match_mode= 1) # Força o fechamento da planilha com o banco puro.
 
 def main(ultimo_xml = chave_xml):
-    bot.pause = 0.8
+    bot.PAUSE = 1
     abre_planilha_navegador()
     encontra_ultimo_xml(ultimo_xml = ultimo_xml)
     copia_dados()
 
 if __name__ == '__main__':
-    bot.PAUSE = 0.5
     #cola_dados()
     #abre_planilha_navegador()
-    main(ultimo_xml= "35240814038100000111550010003443181975318640")
+    main(ultimo_xml= "35240833039223000979550010003763911822669448")
     #ahk.win_close('db_alltrips.xlsx', title_match_mode = 2)

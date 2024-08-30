@@ -14,7 +14,6 @@ import pandas as pd
 from onedrivedownloader import download as one_download
 from utils.funcoes import procura_imagem, extrai_txt_img, marca_lancado
 from valida_pedido import valida_pedido
-from Materia_Prima import processo_transferencia
 
 # --- Definição de parametros
 ahk = AHK()
@@ -37,6 +36,7 @@ centro_custo = filial_estoq
 cracha_mot = '112480'
 
 #! Funções
+exit()
 
 print(os.getlogin())
 computador = platform.node()

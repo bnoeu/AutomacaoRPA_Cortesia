@@ -10,13 +10,12 @@
 
 import os
 import time
+import logging
 import platform
 import pytesseract
 import pyautogui as bot
-import logging
 
 from ahk import AHK
-from colorama import Style, Fore
 from datetime import date
 from valida_pedido import valida_pedido
 from valida_lancamento import valida_lancamento
@@ -24,39 +23,28 @@ from abre_topcon import abre_mercantil, abre_topcon
 from automacao.finaliza_lancamento import finaliza_lancamento
 from utils.funcoes import marca_lancado, procura_imagem, extrai_txt_img
 
-# --- Definição de parametros
+
+#* Definição de parametros
 ahk = AHK()
-bot.LOG_SCREENSHOTS = True
-bot.LOG_SCREENSHOTS_LIMIT = 5
 posicao_img = 0
 continuar = True
 tempo_inicio = time.time()
+bot.LOG_SCREENSHOTS = True  
+bot.LOG_SCREENSHOTS_LIMIT = 5
 chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
 pytesseract.pytesseract.tesseract_cmd = r"C:\Tesseract-OCR\tesseract.exe"
           
-         
+
 def programa_principal():
-    bot.pause = 0.1
-    acabou_pedido = True
+    bot.PAUSE = 0.3
+    acabou_pedido = False
     tentativa = 0
-    contagem_validalancamento = 0
-    logging.basicConfig(level=logging.DEBUG)
-    
+
     print('---------------------------------------------------------------------------------------------------')
     print('--- INICIANDO UM NOVO LANÇAMENTO DE NFE --- ')
     print('---------------------------------------------------------------------------------------------------')
-    
-    while acabou_pedido is True: #Verifica se o pedido está valido.
-        while contagem_validalancamento < 2: # Necessario para coletar os erros de não encontrar a tela do topcon (Timeout)
-            try:
-                dados_planilha = valida_lancamento()
-            except TimeoutError:
-                print(Fore.CYAN + '--- VALIDA LANCAMENTO deu timeouterroor' + Style.RESET_ALL)
-                abre_topcon()
-                contagem_validalancamento += 1
-            else:
-                break
- 
+    while acabou_pedido is False: # Verifica se o pedido está valido.
+        dados_planilha = valida_lancamento()
         cracha_mot = dados_planilha[0]
         silo1 = dados_planilha[1]
         silo2 = dados_planilha[2]
@@ -86,16 +74,13 @@ def programa_principal():
             exit(F'Filial de estoque não padronizada {filial_estoq}')
         chave_xml = dados_planilha[4]
         
-        # Prrocesso de validação do pedido.
         acabou_pedido = valida_pedido(acabou_pedido=False)
-        if acabou_pedido is False:
-            #os.system('cls')
-            print('--- Pedido não validado!')
-        else:
-            print(Fore.GREEN + '\n--- Pedido validado, retornando para o programa principal' + Style.RESET_ALL)
+        time.sleep(1)
+    else:
+        logging.info('--- Pedido validado, retornando para o programa principal' )
 
 #* -------------------------- PROSSEGUINDO COM O LANÇAMENTO DA NFE -------------------------- 
-    print('--- Preenchendo dados na tela principal do lançamento')
+    logging.info('--- Preenchendo dados na tela principal do lançamento')
     ahk.win_activate('TopCompras', title_match_mode=2)
     ahk.win_wait_active('TopCompras', title_match_mode=2, timeout= 10)
     time.sleep(0.2)
@@ -110,12 +95,12 @@ def programa_principal():
         time.sleep(0.2)
 
     bot.press('up')
-    print('--- Preenchendo filial de estoque')
+    logging.info('--- Preenchendo filial de estoque')
     bot.write(filial_estoq)
     bot.press('TAB', presses= 2) # Confirma a informação da nova filial de estoque
     
     # Alteração da data
-    print('--- Realizando validação/alteração da data')
+    logging.info('--- Realizando validação/alteração da data')
     hoje = date.today()
     hoje = hoje.strftime("%d%m%y")  # dd/mm/YY
     #bot.write('10/08/2024')
@@ -127,42 +112,41 @@ def programa_principal():
     
     # Caso o sistema informe que a data deve ser maior/igual a data inserida acima.
     if procura_imagem('img_topcon/data_invalida.png', continuar_exec= True):
-        print('--- Precisa mudar a data, inserindo a data de hoje')
+        logging.warning('--- Precisa mudar a data, inserindo a data de hoje')
         bot.press('enter')          
         bot.write(hoje)
         bot.press('enter')
-        time.sleep(0.1)
+        time.sleep(0.25)
         # Aguarda até o topcompras voltar a funcionar
         ahk.win_activate('TopCompras', title_match_mode= 2)
         ahk.win_wait_active('TopCompras', title_match_mode= 2, timeout= 100)
 
-    try:
+    try: # Aguarda a tela de erro do TopCon 
         ahk.win_wait('Topsys', title_match_mode= 2, timeout= 3)
     except TimeoutError:
         pass
-        #print('--- Tela de erro NÃO apareceu, continuando...')
     else:
         if ahk.win_exists('Topsys', title_match_mode= 2):
             ahk.win_activate('Topsys', title_match_mode= 2)
-            print('--- Precisa mudar a data')
+            logging.warning('--- Precisa mudar a data')
             bot.press('enter')          
             bot.write(hoje)
             bot.press('enter')
-            time.sleep(0.1)
+            time.sleep(0.25)
 
     # Aguarda até o topcompras voltar a funcionar
     ahk.win_activate('TopCompras', title_match_mode= 2)
     ahk.win_wait_active('TopCompras', title_match_mode= 2, timeout= 100)
     
-    print(F'--- Trocando o centro de custo para {centro_custo}')
+    logging.info(F'--- Trocando o centro de custo para {centro_custo}')
     bot.write(centro_custo)
     ahk.win_activate('TopCompras', title_match_mode= 2)
-    print('--- Aguarda aparecer o campo cod_desc')
+    logging.info('--- Aguarda aparecer o campo cod_desc')
     tentativa_cod_desc = 0
     while procura_imagem(imagem='img_topcon/cod_desc.png', continuar_exec=True, confianca= 0.74, limite_tentativa= 1) is False:
         if tentativa_cod_desc >= 100:
-            print('--- Não foi possivel encontrar o campo cod_desc, reiniciando o processo.')
-            time.sleep(0.5)
+            logging.info('--- Não foi possivel encontrar o campo cod_desc, reiniciando o processo.')
+            time.sleep(1)
             abre_mercantil()
             return True
         else:
@@ -171,17 +155,17 @@ def programa_principal():
             ahk.win_wait_active('TopCompras', title_match_mode= 2, timeout= 100)
             tentativa_cod_desc += 1 
     else:
-        print(F'--- Apareceu o campo COD_DESC, tentativa: {tentativa_cod_desc} ')
+        logging.info(F'--- Apareceu o campo COD_DESC, tentativa: {tentativa_cod_desc} ')
         bot.press('ENTER') # Pressiona enter, e aguarda sumir o campo "cod_desc"
         
-    print('--- Aguarda até SUMIR o campo "cod_desc"')
+    logging.info('--- Aguarda até SUMIR o campo "cod_desc"')
     tentativa_cod_desc = 0
     while procura_imagem(imagem='img_topcon/cod_desc.png', continuar_exec=True, confianca= 0.74, limite_tentativa= 1) is not False:
         bot.click(procura_imagem(imagem='img_topcon/txt_ValoresTotais.png', continuar_exec= True, limite_tentativa= 1, confianca= 0.74))
-        #print(F'--- Tentativa de aguardar sumir o cod_desc: {tentativa_cod_desc}')
+        #logging.info(F'--- Tentativa de aguardar sumir o cod_desc: {tentativa_cod_desc}')
         if tentativa_cod_desc >= 100:
-            print('--- O campo cod_desc não sumiu, reiniciando o processo.')
-            time.sleep(0.5)
+            logging.info('--- O campo cod_desc não sumiu, reiniciando o processo.')
+            time.sleep(1)
             abre_mercantil()
             return True
         else:
@@ -190,7 +174,7 @@ def programa_principal():
             ahk.win_wait_active('TopCompras', title_match_mode= 2, timeout= 100)
             tentativa_cod_desc += 1 
     else:
-        print(F'--- sumiu o campo "cod_desc", tentativa: {tentativa_cod_desc}')
+        logging.info(F'--- sumiu o campo "cod_desc", tentativa: {tentativa_cod_desc}')
 
     # Aguarda até o topcompras voltar a funcionar
     ahk.win_activate('TopCompras', title_match_mode= 2)
@@ -198,56 +182,59 @@ def programa_principal():
     bot.click(procura_imagem(imagem='img_topcon/txt_ValoresTotais.png', continuar_exec= True))
 
     # * -------------------------------------- VALIDAÇÃO TRANSPORTADOR --------------------------------------
-    print(F'--- Preenchendo transportador: {cracha_mot}')
+    logging.info(F'--- Preenchendo transportador: {cracha_mot}')
     ahk.win_activate('TopCompras', title_match_mode= 2)
+    time.sleep(1)
     bot.click(procura_imagem(imagem='img_topcon/campo_000.png', continuar_exec= True))
+    time.sleep(1)
     bot.press('tab')
+    time.sleep(1)
     tentativa_achar_camp_re = 0
     while procura_imagem(imagem='img_topcon/campo_re_0.png', continuar_exec= True, limite_tentativa= 1, confianca= 0.74) is False:
-        print(F'Tentativa: {tentativa_achar_camp_re}')
-        time.sleep(0.1)
+        logging.info(F'Tentativa: {tentativa_achar_camp_re}')
+        time.sleep(0.25)
         tentativa_achar_camp_re += 1
         if tentativa_achar_camp_re >= 10:
-            print('--- Limite de tentativas de achar o campo "RE", reabrindo topcompras e reiniciando o processo.')
-            time.sleep(0.5)
+            logging.info('--- Limite de tentativas de achar o campo "RE", reabrindo topcompras e reiniciando o processo.')
+            time.sleep(1)
             abre_mercantil()
             return True
     else:
-        print('--- Campo RE habilitado, preenchendo.')
+        logging.info('--- Campo RE habilitado, preenchendo.')
         # Preenche o campo do transportador e verifica se aconteceu algum erro.
         bot.write(cracha_mot)  # ID transportador
-        time.sleep(0.1)
+        time.sleep(0.25)
         bot.press('enter')
 
-    print('--- Aguardando validar o campo do transportador')
+    logging.info('--- Aguardando validar o campo do transportador')
     ahk.win_activate('TopCompras', title_match_mode=2)
     if procura_imagem(imagem='img_topcon/transportador_incorreto.png', continuar_exec= True) is not False:
-        print('--- Transportador incorreto!')
+        logging.info('--- Transportador incorreto!')
         bot.press('ENTER')
         bot.press('F2')
         marca_lancado(texto_marcacao='RE_Invalido')
         programa_principal()
     else:
-        print('--- Transportador validado! Prosseguindo para validação da placa')
+        logging.info('--- Transportador validado! Prosseguindo para validação da placa')
         ahk.win_activate('TopCompras', title_match_mode=2)
         bot.press('enter')
 
     # Verifica se o campo da placa ficou preenchido
-    time.sleep(0.5)
+    time.sleep(1)
     if procura_imagem('img_topcon/campo_placa.png', confianca= 0.74, continuar_exec=True) is not False:
-        print('--- Encontrou o campo vazio, inserindo XXX0000')
+        logging.info('--- Encontrou o campo vazio, inserindo XXX0000')
         ahk.win_activate('TopCompras', title_match_mode=2)
         bot.click(procura_imagem('img_topcon/campo_placa.png', continuar_exec=True))
         bot.write('XXX0000')
         bot.press('ENTER')
-        time.sleep(0.5)
+        time.sleep(1)
     else:
-        print('--- Não achou o campo ou já está preenchido')
+        logging.info('--- Não achou o campo ou já está preenchido')
 
     # * -------------------------------------- Aba Produtos e serviços --------------------------------------
     ahk.win_activate('TopCompras', title_match_mode=2)
     ahk.win_wait_active('TopCompras', title_match_mode=2, timeout= 15)
-    print('--- Navegando para a aba Produtos e Servicos')
+    logging.info('--- Navegando para a aba Produtos e Servicos')
     tela_prod_servico = 0
     while procura_imagem(imagem='img_topcon/botao_alterar.png', area=(100, 839, 300, 400), limite_tentativa= 1, continuar_exec= True, confianca= 0.74) is False:
         if tela_prod_servico > 15:
@@ -275,24 +262,24 @@ def programa_principal():
             except ValueError:
                 valor_escala += 10
             else:
-                print(F'--- Texto coletado da quantidade: {qtd_ton}, Valor escala: {valor_escala}')
+                logging.warning(F'--- Texto coletado da quantidade: {qtd_ton}, Valor escala: {valor_escala}')
                 break
 
-        print('--- Abrindo a tela "Itens nota fiscal de compra" ')
+        logging.info('--- Abrindo a tela "Itens nota fiscal de compra" ')
         bot.click(procura_imagem(imagem='img_topcon/botao_alterar.png', area=(100, 839, 300, 400)))
         while procura_imagem(imagem='img_topcon/valor_cofins.png', continuar_exec= True, limite_tentativa= 1, confianca= 0.74) is False:
-            print('--- Aguardando aparecer a tela "Itens nota fiscal de compra" ')
+            logging.info('--- Aguardando aparecer a tela "Itens nota fiscal de compra" ')
         
         ahk.win_activate('TopCompras', title_match_mode=2)
         ahk.win_wait_active('TopCompras', title_match_mode=2, timeout= 30)
         time.sleep(0.25)
-        print('--- Preenchendo SILO e quantidade')
+        logging.info('--- Preenchendo SILO e quantidade')
         if ('SILO' in silo1) or ('SILO' in silo2):
             bot.click(851, 443)  # Clica na linha para informar o primeiro silo
             if ('SILO' in silo1) and ('SILO' in silo2):  
                 qtd_ton = str((qtd_ton / 2)) # Realiza a divisão da quantidade de cimento, pois será distribuido em dois silos!
                 qtd_ton = qtd_ton.replace(".", ",")
-                print(F'--- Foi informado dois silos, preenchendo... {silo1} e {silo2}, quantidade: {qtd_ton}')
+                logging.info(F'--- Foi informado dois silos, preenchendo... {silo1} e {silo2}, quantidade: {qtd_ton}')
                 bot.write(silo1)
                 bot.press('ENTER')
                 bot.write(str(qtd_ton))
@@ -302,7 +289,7 @@ def programa_principal():
                 bot.write(str(qtd_ton))
                 bot.press('ENTER')
             else:
-                print(F'--- Foi informado UM silo, preenchendo... {silo1}, quantidade: {qtd_ton}')
+                logging.info(F'--- Foi informado UM silo, preenchendo... {silo1}, quantidade: {qtd_ton}')
                 qtd_ton = str(qtd_ton)
                 qtd_ton = qtd_ton.replace(".", ",")
                 bot.write(silo1)
@@ -312,33 +299,33 @@ def programa_principal():
                 bot.press('ENTER')
         else: # Caso não tenha coletado nenhum silo.            
             if procura_imagem(imagem='img_topcon/txt_cimento.png', limite_tentativa= 1, continuar_exec= True):
-                print(Fore.RED + '--- Não foi informado nenhum SILO, porém a nota é de cimento!' + Style.RESET_ALL)
+                logging.info('--- Não foi informado nenhum SILO, porém a nota é de cimento!' )
                 bot.click(procura_imagem(imagem='img_topcon/txt_cimento.png', limite_tentativa= 1, continuar_exec= True))
                 bot.press('ESC')
-                time.sleep(0.1)
+                time.sleep(0.25)
                 marca_lancado(texto_marcacao= 'Faltou_InfoSilo')
                 return True
             else: # Caso realmente seja de agregado.
-                print('--- Nota de agregado, continuando o processo!')
+                logging.info('--- Nota de agregado, continuando o processo!')
             
             bot.click(procura_imagem(imagem='img_topcon/confirma.png'))
             break
-            
+
         bot.click(procura_imagem(imagem='img_topcon/confirma.png'))            
         if procura_imagem(imagem='img_topcon/txt_ErroAtribuida.png', limite_tentativa = 6, continuar_exec = True) is False:
-            print(Fore.GREEN + '--- Preenchimento completo, saindo do loop.' + Style.RESET_ALL)
+            logging.info('--- Preenchimento completo, saindo do loop.' )
             break
         else:
-            print(Fore.RED + F'--- Falha, executando novamente a coleta das toneladas. Escala atual: {valor_escala}' + Style.RESET_ALL)
+            logging.warning(F'--- Falha, executando novamente a coleta das toneladas. Escala atual: {valor_escala}' )
             valor_escala += 10
             while procura_imagem(imagem='img_topcon/confirma.png', continuar_exec=True, limite_tentativa= 1, confianca= 0.74) is not False:
                 bot.press('ENTER')
                 bot.press('ESC')
-                time.sleep(0.1)
+                time.sleep(0.25)
             
         while procura_imagem(imagem='img_topcon/confirma.png', continuar_exec=True, limite_tentativa= 1, confianca= 0.74) is not False:
             tentativa += 1
-            print('--- Aguardando fechamento da tela do botão "Alterar" ')
+            logging.info('--- Aguardando fechamento da tela do botão "Alterar" ')
             time.sleep(0.25)
             #TODO --- VerificaR se apareceu a tela "quantidade atribuida aos locais"
 
@@ -350,6 +337,16 @@ def programa_principal():
 
 
 if __name__ == '__main__':
+    logging.basicConfig(
+        filename="automacao.log",
+        filemode="a",
+        encoding="utf-8",
+        level=logging.INFO,
+        format="{asctime} - {levelname} - {message}",
+        style="{",
+        )
+    
+    logging.info('\n------------------------ Iniciando um novo log ------------------------ ')
     os.system('taskkill /im AutoHotkey.exe /f /t') # Encerra todos os processos do AHK
     os.system('cls')
     
@@ -361,9 +358,11 @@ if __name__ == '__main__':
     while True:
         try:
             programa_principal()
-        except (TimeoutError, OSError, ValueError):
-            os.system('taskkill /im AutoHotkey.exe /f /t')
+        #except (TimeoutError, OSError, ValueError):
+        except (TimeoutError, ValueError, OSError):
+            #os.system('taskkill /im AutoHotkey.exe /f /t') # Encerra todos os processos do AHK
+            time.sleep(5)
             abre_topcon()
-            programa_principal()
+            logging.critical("A execução principal acusou algum erro ( TimeoutError ), executando o script inteiro novamente.")
 
-# TODO --- Caso NFE Faturada no final do mes, lançar com qual data? 
+# TODO --- Caso NFE Faturada no final do mes, lançar com qual data?

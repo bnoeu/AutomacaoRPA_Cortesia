@@ -13,7 +13,7 @@ import pyautogui as bot
 
 # --- Definição de parametros
 ahk = AHK()
-bot.pause = 0.1  # Pausa padrão do bot
+bot.PAUSE = 0.3  # Pausa padrão do bot
 posicao_img = 0  # Define a variavel para utilização global dela.
 continuar = True
 bot.FAILSAFE = False
@@ -30,18 +30,18 @@ for tela in telas:
 
 ahk.win_activate('GeneXus', title_match_mode=2)
 ahk.win_wait('GeneXus', title_match_mode=2, timeout=10)
-bot.click(procura_imagem(imagem='img_gerenciador/bt_fechar.png'))
+bot.click(procura_imagem(imagem='imagens/img_gerenciador/bt_fechar.png'))
 bot.click(procura_imagem(
-    imagem='img_gerenciador/bt_distribuicao.png', limite_tentativa=50))
+    imagem='imagens/img_gerenciador/bt_distribuicao.png', limite_tentativa=50))
 bot.click(procura_imagem(
-    imagem='img_gerenciador/autorizada.png', limite_tentativa=500))
+    imagem='imagens/img_gerenciador/autorizada.png', limite_tentativa=500))
 bot.click(954, 157)  # Campo da data
 hoje = date.today()
 hoje = hoje.strftime("%d%m%y")  # dd/mm/YY
 bot.write('311224', interval=0.05)
 bot.press('enter', presses=3)
 bot.doubleClick(procura_imagem(
-    imagem='img_gerenciador/icone_nfe.png', limite_tentativa=50))
+    imagem='imagens/img_gerenciador/icone_nfe.png', limite_tentativa=50))
 ahk.win_wait('Não está respondendo', title_match_mode=2, timeout=50)
 while ahk.win_exists('Não está respondendo', title_match_mode=2):
     print('Aguardando')
@@ -49,5 +49,5 @@ while ahk.win_exists('Não está respondendo', title_match_mode=2):
 
 # TODO --- TELA REJEIÇÃO
 while True:
-    procura_imagem(imagem='img_gerenciador/rejeicao.png', continuar_exec=True)
+    procura_imagem(imagem='imagens/img_gerenciador/rejeicao.png', continuar_exec=True)
 # TODO --- TELA QUE INFORMA QUANTOS BAIXOU

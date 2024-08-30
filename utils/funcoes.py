@@ -4,12 +4,11 @@
 import time
 import cv2
 import datetime
+import logging
 import pytesseract
 import numpy as np
 from ahk import AHK
 import pyautogui as bot
-#import pygetwindow as gw
-from colorama import Fore, Style
 
 
 # --- Definição de parametros
@@ -36,73 +35,73 @@ def procura_imagem(imagem, limite_tentativa=5, area=(0, 0, 1920, 1080), continua
     Returns:
         _type_: Retorna as posições onde encontrou a imagem.
     """    
-    from abre_topcon import abre_topcon
-    from Materia_Prima import programa_principal
+    
+    #from abre_topcon import abre_topcon
+    #from Materia_Prima import programa_principal
     pausa_img = 0.3
-    hoje = datetime.date.today()
+    #hoje = datetime.date.today()
     maquina_viva = False
     tentativa = 0   
-    #print(F'--- Tentando encontrar: {imagem}')
+    logging.debug(F'--- Tentando encontrar: {imagem}')
     while tentativa < limite_tentativa:
         time.sleep(pausa_img)
         while maquina_viva is False:
             try:
                 posicao_img = bot.locateCenterOnScreen(imagem, grayscale= True, confidence= confianca, region= area)
             except OSError:
-                print('--- Erro devido a resolução da maquina virtual, aguardando')
-                abre_topcon() # Executa o processo de reabertura do topcon e do modulo de compras
-                time.sleep(30)
+                logging.critical('--- Erro devido a resolução da maquina virtual, aguardando')
+                time.sleep(15)
+                raise OSError
             else:
                 maquina_viva = True
             
         if posicao_img is not None:
-            #print(F'--- Encontrou {imagem} na posição: {posicao_img}')
+            logging.debug(F'--- Encontrou {imagem} na posição: {posicao_img}')
             break
-        tentativa += 1
-        pausa_img += 0.25 
-    
-        #TODO Aqui deveria ter um IF para validar se a MSG Confiança está como True
         
         if msg_confianca is True:
             if confianca < 0.73:
-                print(F'--- Valor atual da confiança da imagem: {confianca}', end= "")
+                logging.debug(F'--- Valor atual da confiança da imagem: {confianca}', end= "")
             else:
-                print(F', {confianca}', end= "")
+                logging.debug(F', {confianca}', end= "")
+        
+        # Ajuste dos parametros
         confianca -= 0.01              
+        tentativa += 1
+        pausa_img += 0.25 
         
 
     #Caso seja para continuar
     if (continuar_exec is True) and (posicao_img is None): # Exibe a mensagem que o parametro está ativo
         if msg_continuar_exec is True:
-            print('' + F'--- {imagem} não foi encontrada, continuando execução pois o parametro "continuar_exec" está habilitado')
+            logging.info('' + F'--- {imagem} não foi encontrada, continuando execução pois o parametro "continuar_exec" está habilitado')
         return False
     
     if tentativa >= limite_tentativa: # Caso exceda o limite de tentativas
         time_atual = str(datetime.datetime.now()).replace(":","_").replace(".","_")
-        caminho_erro = 'img_geradas/' + 'erro' + time_atual + '.png'
+        caminho_erro = 'imagens/img_geradas/' + 'erro' + time_atual + '.png'
         img_erro = bot.screenshot()
         img_erro.save(fp= caminho_erro)
-        programa_principal()
-        #exit(bot.alert(text=F'Não foi possivel encontrar: {imagem}', title='Erro!', button='Fechar'))
+        raise TimeoutError
         
     return posicao_img
 
 def verifica_tela(nome_tela, manual=False):
     if ahk.win_exists(nome_tela):
-        print(F'--- A tela: {nome_tela} está aberta')
+        logging.info(F'--- A tela: {nome_tela} está aberta')
         ahk.win_activate(nome_tela, title_match_mode=2)
         return True
     elif manual is True:
-        print(F'--- A tela: {nome_tela} está fechada, Modo Manual: {True}, executando...')
+        logging.info(F'--- A tela: {nome_tela} está fechada, Modo Manual: {True}, executando...')
         return False
     else:
-        exit(print(F'--- Tela: {nome_tela} está fechada, saindo do programa.'))
+        exit(logging.critical(F'--- Tela: {nome_tela} está fechada, saindo do programa.'))
 
 
 def marca_lancado(texto_marcacao='Lancado'):
-    bot.PAUSE = 0.5
+    bot.PAUSE = 0.3
     tentativa = 0
-    print(Fore.GREEN + F'--- Abrindo planilha - MARCA_LANCADO, com parametro: {texto_marcacao}' + Style.RESET_ALL)
+    logging.info(F'--- Abrindo planilha - MARCA_LANCADO, com parametro: {texto_marcacao}' )
     ahk.win_activate('debug_db_alltrips', title_match_mode= 2)
     while tentativa < 3:
         try:
@@ -113,7 +112,7 @@ def marca_lancado(texto_marcacao='Lancado'):
         else:
             break
         
-    time.sleep(0.5)
+    time.sleep(1)
     bot.hotkey('CTRL', 'HOME')
 
     # Navega até o campo "Status"
@@ -125,50 +124,44 @@ def marca_lancado(texto_marcacao='Lancado'):
     bot.press('RIGHT')
     hoje = datetime.date.today()
     bot.write(str(hoje))
-    time.sleep(0.5)
+    time.sleep(1)
     bot.click(500, 500)
-    time.sleep(0.5)
+    time.sleep(1)
     
     # Retorna a planilha para o modo "Somente Exibição (Botão Verde)"
     bot.hotkey('CTRL', 'HOME')
-    if procura_imagem(imagem='img_planilha/bt_filtro.png', continuar_exec=True, area = (1468, 400, 200, 200)) is not False:
-        print('--- Encontrou o botão do filtro, navegando no menu do filtro')
-        bot.press('RIGHT', presses= 6) # Navega até o campo "Status"
-        bot.hotkey('ALT', 'DOWN') # Comando do excel para abrir o menu do filtro
-        bot.press('TAB', presses= 10)
-        bot.press('ENTER')
-        print('--- Saindo do menu do filtro')
-        #exit(bot.alert('Verificar se filtrou!'))
-    else:
-        print('--- Não está filtrado, executando o filtro!')
-        bot.hotkey('CTRL', 'HOME')
-        bot.press('RIGHT', presses= 6)
-        bot.move(500, 500)
-        bot.hotkey('alt', 'down') 
-        
-        print('--- Aguardando aparecer o botão selecionar tudo')
-        while procura_imagem(imagem='img_planilha/botao_selecionartudo.png', continuar_exec= True, limite_tentativa= 1, confianca= 0.73) is None:
-            time.sleep(0.1)
-            
-        print('--- Reaplicando o filtro para as notas vazias')
-        # Navega até a opção "Selecionar tudo", para reaplicar o filtro de notas vazias.
-        bot.press('TAB', presses= 9)
-        bot.press('ENTER')
-
+    reaplica_filtro_status() # Reaplica o filtro da coluna "Status"
     bot.hotkey('CTRL', 'HOME')
-    print(Fore.GREEN + F'--------------------- Processou NFE, situação: {texto_marcacao} ---------------------' + Style.RESET_ALL)
+    logging.info(F'--------------------- Processou NFE, situação: {texto_marcacao} ---------------------')
+
+def reaplica_filtro_status(): 
+    bot.PAUSE = 1
+    ahk.win_activate('debug_db_alltrips', title_match_mode= 2)
+    logging.debug('--- Reaplicando o filtro na coluna "Status" ')
+    time.sleep(2)
+    bot.click(960, 540)
+    bot.move(960, 540)
+    
+    bot.hotkey('CTRL', 'HOME') # Navega até o campo A1
+    bot.press('RIGHT', presses= 6) # Navega até o campo "Status"
+    bot.hotkey('ALT', 'DOWN') # Comando do excel para abrir o menu do filtro
+    logging.debug('--- Navegou até celula A1 e abriu o filtro do status ')
+    
+    while procura_imagem(imagem='img_planilha/bt_aplicar.png', continuar_exec= True, limite_tentativa= 3, confianca= 0.73) is None:
+        time.sleep(1)
+
+    bot.click(procura_imagem(imagem='img_planilha/bt_aplicar.png', continuar_exec= True, limite_tentativa= 3, confianca= 0.73))
+    logging.debug('--- na tela do menu de filtro, clicou no botão "Aplicar" para reaplicar o filtro ')
+
 
 def extrai_txt_img(imagem, area_tela, porce_escala = 400):
     time.sleep(1)
-    # Captura uma screenshot da área especificada da tela
-    img = bot.screenshot('img_geradas/' + imagem, region=area_tela)
-    #print(F'--- Tirou print da imagem: {imagem} ----')
+    img = bot.screenshot('imagens/img_geradas/' + imagem, region=area_tela) # Captura uma screenshot da área especificada da tela
+    logging.debug(F'--- Tirou print da imagem: {imagem} ----')
 
-    # Lê a imagem capturada usando o OpenCV
-    img = cv2.imread('img_geradas/' + imagem)
+    img = cv2.imread('imagens/img_geradas/' + imagem) # Lê a imagem capturada usando o OpenCV
 
-    # Define uma porcentagem de escala para redimensionar a imagem
-    porce_escala = porce_escala
+    porce_escala = porce_escala # Define uma porcentagem de escala para redimensionar a imagem
     largura = int(img.shape[1] * porce_escala / 90)
     altura = int(img.shape[0] * porce_escala / 90)
     nova_dim = (largura, altura)
@@ -180,7 +173,7 @@ def extrai_txt_img(imagem, area_tela, porce_escala = 400):
     
     # Utiliza o pytesseract para extrair texto da imagem binarizada
     texto = pytesseract.image_to_string(img_thresh, lang='eng', config='--psm 7').strip()
-    cv2.imwrite('img_geradas\img_thresh.png', img_thresh)
+    cv2.imwrite('imagens/img_geradas/img_thresh.png', img_thresh)
     
     '''
     #Exibe as imagens em caso de debug
@@ -193,32 +186,30 @@ def extrai_txt_img(imagem, area_tela, porce_escala = 400):
     cv2.waitKey()
     '''
 
-
     return texto
 
 def verifica_ped_vazio(texto, pos):
     texto_xml = extrai_txt_img(imagem='valida_itensxml.png', area_tela=(168, 407, 250, 20))
-    print(F'--- Item da nota: {texto}, texto que ainda ficou: {texto_xml}, tamanho do texto {len(texto_xml)}')
+    logging.info(F'--- Item da nota: {texto}, texto que ainda ficou: {texto_xml}, tamanho do texto {len(texto_xml)}')
 
     # Verifica pelo tamanho do texto, se ainda ficou algum valor no campo "Itens do pedido"
     if len(texto_xml) > 5: 
-        print('--- Itens XML ainda tem informação!')
+        logging.info('--- Itens XML ainda tem informação!')
         return False
     else:  # Caso fique vazio
-        print('--- Itens XML ficou vazio! saindo da tela de vinculação')
+        logging.info('--- Itens XML ficou vazio! saindo da tela de vinculação')
         ahk.win_activate('Vinculação Itens da Nota', title_match_mode = 2)
-        time.sleep(0.1)
+        time.sleep(0.25)
         bot.click(procura_imagem(imagem='img_topcon/confirma.png'))
-        
         
         ahk.win_wait_active('TopCompras (VM-CortesiaApli.CORTESIA.com)', title_match_mode = 2, timeout= 30)
         while ahk.win_exists('TopCompras (VM-CortesiaApli.CORTESIA.com)', title_match_mode = 2):
-            time.sleep(0.5)
+            ahk.win_activate('TopCompras (VM-CortesiaApli.CORTESIA.com)', title_match_mode = 2)
+            time.sleep(1)
             bot.click(procura_imagem(imagem='img_topcon/botao_ok.jpg', confianca= 0.73, limite_tentativa= 10))
-            ahk.win_wait_close('TopCompras (VM-CortesiaApli.CORTESIA.com)', title_match_mode = 2, timeout= 30)
 
         ahk.win_wait_close('Vinculação Itens da Nota', title_match_mode = 2, timeout= 30)
-        print('--- Encerrado a função verifica pedido vazio!')
+        logging.info('--- Encerrado a função verifica pedido vazio!')
         return True
 
 def corrige_nometela(novo_nome = "TopCompras"):
@@ -227,17 +218,21 @@ def corrige_nometela(novo_nome = "TopCompras"):
     except (TimeoutError, OSError):
         try:
             if ahk.win_wait(novo_nome, title_match_mode= 1, timeout= 8):
-                #print('--- TopCompras abriu com o nome normal, prosseguindo.')
+                logging.info('--- TopCompras abriu com o nome normal, prosseguindo.')
                 return
             else:
-                bot.alert(exit('TopCompras não encontrado.'))
+                exit(bot.alert('TopCompras não encontrado.'))
         except (TimeoutError, OSError):
+            logging.warning("Não encontrou o TopCompras nem a tela sem nome")
             return
     else:
         ahk.win_set_title(new_title= novo_nome, title= ' (VM-CortesiaApli.CORTESIA.com)', title_match_mode= 1, detect_hidden_windows= True)
-        print(Fore.GREEN + '--- Encontrou tela sem o nome, e realizou a correção!' + Style.RESET_ALL)
+        logging.warning('--- Encontrou tela sem o nome, e realizou a correção!' )
             
 if __name__ == '__main__':
+    bot.PAUSE = 1.5
+    bot.FAILSAFE = False
+    reaplica_filtro_status()
     #verifica_ped_vazio()
-    corrige_nometela()
+    #corrige_nometela()
     #marca_lancado('Teste')
