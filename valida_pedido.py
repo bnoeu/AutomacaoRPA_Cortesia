@@ -58,10 +58,10 @@ def valida_pedido(acabou_pedido=False):
     #Aguarda a abertura da tela de vinculação de item versus nota
     ahk.win_activate('Vinculação Itens da Nota', title_match_mode = 2)
     try:
-        ahk.win_wait_active('Vinculação Itens da Nota', title_match_mode = 2, timeout= 30)
-    except TimeoutError:
-        corrige_nometela()
-
+        ahk.win_wait_active('Vinculação Itens da Nota', title_match_mode = 2, timeout= 15)
+    except TimeoutError: # Corrige o nome da tela de vinculação caso não encontre
+        corrige_nometela(novo_nome= "Vinculação Itens da Nota")
+    
     #Coleta o texto do campo "item XML", que é o item a constar na nota fiscal, e com base nisso, trata o dado
     time.sleep(1)
     txt_itensXML = extrai_txt_img(imagem='item_nota.png',area_tela=(170, 407, 280, 20))
@@ -82,7 +82,7 @@ def valida_pedido(acabou_pedido=False):
     #Caso não tenha encontrado o texto em nenhuma lista. 
     if validou_itensXml is False:
         logging.error(F'--- Não foi possivel encontrar: {txt_itensXML} em nenhuma lista.')
-        bot.click(procura_imagem(imagem='img_topcon/bt_cancela.png'))
+        bot.click(procura_imagem(imagem='imagens/img_topcon/bt_cancela.png'))
         marca_lancado(texto_marcacao='Padronizar_Item')
         return acabou_pedido
 
@@ -130,20 +130,20 @@ def valida_pedido(acabou_pedido=False):
             time.sleep(1)
             
             bot.doubleClick(pos)  # Marca o pedido encontrado
-            bot.click(procura_imagem(imagem='img_topcon/localizar.png'))
+            bot.click(procura_imagem(imagem='imagens/img_topcon/localizar.png'))
             vazio = verifica_ped_vazio(texto=txt_itensXML, pos=pos)
             logging.info(F'--- Valor campo "item XML": {vazio}')
             
             if vazio is not True:
-                bot.click(procura_imagem('img_topcon/vinc_xml_pedido.png',continuar_exec=True))
+                bot.click(procura_imagem('imagens/img_topcon/vinc_xml_pedido.png',continuar_exec=True))
                 vazio = verifica_ped_vazio(texto=txt_itensXML, pos=pos)
                 logging.info(F'--- Valor campo "vazio": {vazio}')
                 if vazio is True:
                     tentativa = 3
                     break
-                if procura_imagem('img_topcon/dife_valor.png', continuar_exec=True):
+                if procura_imagem('imagens/img_topcon/dife_valor.png', continuar_exec=True):
                     bot.press('ENTER')
-                if procura_imagem('img_topcon/operacao_fiscal_configurada.png', continuar_exec=True):
+                if procura_imagem('imagens/img_topcon/operacao_fiscal_configurada.png', continuar_exec=True):
                     bot.press('ENTER')
                 
                 #Confere se após clicar nos botões, ainda assim o campo ficou vazio.

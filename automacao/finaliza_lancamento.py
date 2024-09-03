@@ -40,7 +40,7 @@ def finaliza_lancamento(planilha_marcada = False, lancamento_concluido = False, 
         realizou_transferencia = processo_transferencia()
         time.sleep(1)
         # 1. Caso chave invalida.  
-        if procura_imagem(imagem='img_topcon/chave_invalida.png', continuar_exec=True, limite_tentativa= 1, confianca= 0.74) is not False:
+        if procura_imagem(imagem='imagens/img_topcon/chave_invalida.png', continuar_exec=True, limite_tentativa= 1, confianca= 0.74) is not False:
             logging.info('--- Nota já lançada, marcando planilha!')
             bot.press('ENTER')
             bot.press('F2', presses = 2)
@@ -48,14 +48,14 @@ def finaliza_lancamento(planilha_marcada = False, lancamento_concluido = False, 
             break
 
         # 2. Caso operação realizada.
-        if procura_imagem(imagem='img_topcon/operacao_realizada.png', continuar_exec= True, limite_tentativa= 1, confianca= 0.74) is not False:
+        if procura_imagem(imagem='imagens/img_topcon/operacao_realizada.png', continuar_exec= True, limite_tentativa= 1, confianca= 0.74) is not False:
             if planilha_marcada is False:
                 logging.info('--- Operação realizada, marcando a planilha com "Lancado RPA" ')
                 marca_lancado(texto_marcacao='Lancado_RPA')
                 planilha_marcada = True
             
             ahk.win_activate('TopCompras', title_match_mode= 2)
-            bot.click(procura_imagem(imagem='img_topcon/operacao_realizada.png'))
+            bot.click(procura_imagem(imagem='imagens/img_topcon/operacao_realizada.png'))
             logging.info('--- Clicando na tela "Operação Realizada" ')
             bot.press('ENTER')
                     
@@ -64,7 +64,7 @@ def finaliza_lancamento(planilha_marcada = False, lancamento_concluido = False, 
             ahk.win_activate('TopCompras', title_match_mode= 2)
             
             #Validando se já fecharam todas as telas.
-            if procura_imagem(imagem='img_topcon/bt_obslancamento.png', continuar_exec= True, limite_tentativa= 1, confianca= 0.74) is not False:
+            if procura_imagem(imagem='imagens/img_topcon/bt_obslancamento.png', continuar_exec= True, limite_tentativa= 1, confianca= 0.74) is not False:
                 logging.info(F'--- Encontrou o botão "OBS. Lancamento." encerrando loop das telas, valor do realizou transf: {realizou_transferencia}')
                 if realizou_transferencia is True:
                     logging.info('--- Realizou transferencia, reabrindo o modulo do topcompras para evitar erros.')
@@ -76,13 +76,13 @@ def finaliza_lancamento(planilha_marcada = False, lancamento_concluido = False, 
                     bot.press('F2', presses = 1)
                     time.sleep(0.25)
                     
-                    if procura_imagem(imagem='img_topcon/txt_localizar.png', continuar_exec= True, area= (852, 956, 1368, 1045)):
+                    if procura_imagem(imagem='imagens/img_topcon/txt_localizar.png', continuar_exec= True, area= (852, 956, 1368, 1045)):
                         logging.info('--- Entrou no modo localizar, lançamento realmente concluido!\n')
                         lancamento_concluido = True
                         return True
                     
         # 3. Caso apareça "deseja imprimir o espelho da nota?"
-        if procura_imagem(imagem='img_topcon/txt_espelhonota.png', continuar_exec=True, limite_tentativa= 1, confianca= 0.74) is not False:
+        if procura_imagem(imagem='imagens/img_topcon/txt_espelhonota.png', continuar_exec=True, limite_tentativa= 1, confianca= 0.74) is not False:
             logging.info('--- Apareceu a tela: deseja imprimir o espelho da nota?')
             ahk.win_activate('TopCompras', title_match_mode= 2)
             bot.press('ENTER')
@@ -113,15 +113,15 @@ def finaliza_lancamento(planilha_marcada = False, lancamento_concluido = False, 
             tentativas_telas += 1
         
         # 6. Caso apareça o erro de vencimento
-        if procura_imagem(imagem='img_topcon/txt_vencimento.PNG', continuar_exec=True, limite_tentativa= 1, confianca= 0.74) is not False:
+        if procura_imagem(imagem='imagens/img_topcon/txt_vencimento.PNG', continuar_exec=True, limite_tentativa= 1, confianca= 0.74) is not False:
             ahk.win_activate('TopCompras (VM-CortesiaApli.CORTESIA.com)', title_match_mode=2)
             logging.warning('--- Apareceu a tela de vencimento, alterando para +3 dias')
             bot.press('ENTER')
             ahk.win_wait_close('TopCompras (VM-CortesiaApli.CORTESIA.com)', title_match_mode=2)
             time.sleep(1)
             # Altera a data de vencimento para +3 dias
-            bot.click(procura_imagem(imagem='img_topcon/bt_contasapagar.PNG'))
-            bot.click(procura_imagem(imagem='img_topcon/bt_datavencimento.PNG', area= (419, 536, 811, 715)))
+            bot.click(procura_imagem(imagem='imagens/img_topcon/bt_contasapagar.PNG'))
+            bot.click(procura_imagem(imagem='imagens/img_topcon/bt_datavencimento.PNG', area= (419, 536, 811, 715)))
             data_vencimento = date.today() + timedelta(3)
             data_vencimento = data_vencimento.strftime("%d%m%y")
             bot.write(data_vencimento)

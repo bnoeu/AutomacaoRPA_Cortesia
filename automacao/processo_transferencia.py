@@ -20,15 +20,15 @@ pytesseract.pytesseract.tesseract_cmd = r"C:\Tesseract-OCR\tesseract.exe"
 
 
 def processo_transferencia():
-    if procura_imagem(imagem='img_topcon/txt_transferencia.png', continuar_exec= True, limite_tentativa= 2, confianca= 0.74):
+    if procura_imagem(imagem='imagens/img_topcon/txt_transferencia.png', continuar_exec= True, limite_tentativa= 2, confianca= 0.74):
         logging.info('--- Iniciando a função: processo transferencia ---' )
         ahk.win_activate('TopCompras', title_match_mode=2)
         ahk.win_wait_active('TopCompras', title_match_mode=2, timeout= 30)
         
-        if procura_imagem('img_topcon/deseja_processar.png', continuar_exec=True, confianca= 0.75):
+        if procura_imagem('imagens/img_topcon/deseja_processar.png', continuar_exec=True, confianca= 0.75):
             logging.info('--- Encontrou a tela "Deseja processar NFE" ')
-            while procura_imagem('img_topcon/bt_sim.png', continuar_exec=True, limite_tentativa= 3, confianca= 0.74):
-                bot.click(procura_imagem('img_topcon/bt_sim.png', continuar_exec=True))
+            while procura_imagem('imagens/img_topcon/bt_sim.png', continuar_exec=True, limite_tentativa= 3, confianca= 0.74):
+                bot.click(procura_imagem('imagens/img_topcon/bt_sim.png', continuar_exec=True))
                 
             contador_pdf = 0
             while True:  # Aguardar o .PDF
@@ -40,7 +40,7 @@ def processo_transferencia():
                         # Fechando a tela de transmissão
                         while ahk.win_exists('Transmissão', title_match_mode= 2):
                             ahk.win_activate('Transmissão', title_match_mode=2)
-                            bot.click(procura_imagem(imagem='img_topcon/sair_tela.png'))
+                            bot.click(procura_imagem(imagem='imagens/img_topcon/sair_tela.png'))
                             ahk.win_wait_close('Transmissão', title_match_mode=2, timeout= 15)
                             
                             ahk.win_wait_active('TopCompras', timeout=10, title_match_mode=2)
@@ -60,7 +60,7 @@ def processo_transferencia():
             while ahk.win_exists('Transmissão', title_match_mode= 2):
                 logging.debug('--- Fechando a tela de Transmissão da NFE')
                 ahk.win_activate('Transmissão', title_match_mode=2)
-                bot.click(procura_imagem(imagem='img_topcon/sair_tela.png'))
+                bot.click(procura_imagem(imagem='imagens/img_topcon/sair_tela.png'))
                 
                 ahk.win_wait_active('TopCompras', timeout=10, title_match_mode=2)
                 ahk.win_activate('TopCompras', title_match_mode=2)

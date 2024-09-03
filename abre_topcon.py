@@ -43,9 +43,9 @@ def abre_mercantil():
             
     # Ativa o Topcon, e clica no topcompras, e executa a função para correção do nome.
     ahk.win_activate('TopCon', title_match_mode= 2)
-    bot.click(procura_imagem(imagem='img_topcon/logo_topcompras.png'))
+    bot.click(procura_imagem(imagem='imagens/img_topcon/logo_topcompras.png'))
     time.sleep(3)
-    if ahk.win_exists(title= 'TopCompras - Versão', title_match_mode = 1) is False:
+    if ahk.win_exists(title= 'TopCompras - Versão', title_match_mode = 1) is False: # Caso não encontre o TopCompras
         corrige_nometela()
 
     try: #Abre o TopCompras, e verifica se aparece a tela "interveniente"
@@ -56,8 +56,8 @@ def abre_mercantil():
             ahk.win_wait_active('TopCompras (VM-CortesiaApli.CORTESIA.com)', title_match_mode= 1, timeout= 5)
             time.sleep(0.2)
             
-            while procura_imagem(imagem='img_topcon/botao_ok.jpg', continuar_exec= True, confianca= 0.74, limite_tentativa= 1) is not False:
-                if procura_imagem(imagem='img_topcon/botao_ok.jpg', continuar_exec= True):
+            while procura_imagem(imagem='imagens/img_topcon/botao_ok.jpg', continuar_exec= True, confianca= 0.74, limite_tentativa= 1) is not False:
+                if procura_imagem(imagem='imagens/img_topcon/botao_ok.jpg', continuar_exec= True):
                     logging.info('--- Encontrou a tela do interveniente, clicando no botão "OK"')
                     bot.press('ENTER')
                 else:
@@ -153,9 +153,9 @@ def abre_topcon():
             while True: # Realiza login no TopCon
                 ahk.win_activate('TopCon', title_match_mode= 2)
                 ahk.win_wait_active('TopCon', title_match_mode= 2, timeout= 30)
-                if procura_imagem(imagem='img_topcon/txt_ServidorAplicacao.png', continuar_exec= True, limite_tentativa= 1, confianca= 0.74): # Aguarda até aparecer o campo do servidor preenchido
+                if procura_imagem(imagem='imagens/img_topcon/txt_ServidorAplicacao.png', continuar_exec= True, limite_tentativa= 1, confianca= 0.74): # Aguarda até aparecer o campo do servidor preenchido
                     logging.info('--- Tela de login do topcon aberta')
-                    bot.click(procura_imagem(imagem='img_topcon/txt_ServidorAplicacao.png'))
+                    bot.click(procura_imagem(imagem='imagens/img_topcon/txt_ServidorAplicacao.png'))
                     bot.press('tab', presses= 2, interval= 0.005)
                     bot.press('backspace')
                     
@@ -168,7 +168,7 @@ def abre_topcon():
                     time.sleep(1)
                     break
                 
-                if procura_imagem(imagem='img_topcon/logo_principal.png', continuar_exec= True, limite_tentativa= 1, confianca= 0.74):
+                if procura_imagem(imagem='imagens/img_topcon/logo_principal.png', continuar_exec= True, limite_tentativa= 1, confianca= 0.74):
                     time.sleep(1)
                     logging.info('--- Tela do Topcon já está aberta.')
                     break
@@ -181,7 +181,5 @@ def abre_topcon():
             logging.critical('--- deu algum xabu')
 
 if __name__ == '__main__':
-    bot.PAUSE = 0.3
-    #abre_mercantil()
-    #fecha_execucoes()
+    bot.PAUSE = 0.5
     abre_topcon()

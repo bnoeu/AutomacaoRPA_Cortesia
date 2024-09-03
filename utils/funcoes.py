@@ -125,33 +125,38 @@ def marca_lancado(texto_marcacao='Lancado'):
     hoje = datetime.date.today()
     bot.write(str(hoje))
     time.sleep(1)
-    bot.click(500, 500)
+    bot.click(960, 640) # Clica no meio da planilha
     time.sleep(1)
     
     # Retorna a planilha para o modo "Somente Exibição (Botão Verde)"
     bot.hotkey('CTRL', 'HOME')
     reaplica_filtro_status() # Reaplica o filtro da coluna "Status"
     bot.hotkey('CTRL', 'HOME')
-    logging.info(F'--------------------- Processou NFE, situação: {texto_marcacao} ---------------------')
+    print(F'--------------------- Processou NFE, situação: {texto_marcacao} ---------------------')
 
 def reaplica_filtro_status(): 
     bot.PAUSE = 1
     ahk.win_activate('debug_db_alltrips', title_match_mode= 2)
     logging.debug('--- Reaplicando o filtro na coluna "Status" ')
     time.sleep(2)
-    bot.click(960, 540)
-    bot.move(960, 540)
+    bot.click(960, 640)
+    bot.move(960, 640)
     
     bot.hotkey('CTRL', 'HOME') # Navega até o campo A1
     bot.press('RIGHT', presses= 6) # Navega até o campo "Status"
     bot.hotkey('ALT', 'DOWN') # Comando do excel para abrir o menu do filtro
     logging.debug('--- Navegou até celula A1 e abriu o filtro do status ')
     
-    while procura_imagem(imagem='img_planilha/bt_aplicar.png', continuar_exec= True, limite_tentativa= 3, confianca= 0.73) is None:
+    while procura_imagem(imagem='imagens/img_planilha/bt_aplicar.png', continuar_exec= True, limite_tentativa= 3, confianca= 0.73) is None:
         time.sleep(1)
 
-    bot.click(procura_imagem(imagem='img_planilha/bt_aplicar.png', continuar_exec= True, limite_tentativa= 3, confianca= 0.73))
+    bot.click(procura_imagem(imagem='imagens/img_planilha/bt_aplicar.png', continuar_exec= True, limite_tentativa= 3, confianca= 0.73))
     logging.debug('--- na tela do menu de filtro, clicou no botão "Aplicar" para reaplicar o filtro ')
+    
+    if procura_imagem(imagem='imagens/img_planilha/bt_visualizar_todos.png', continuar_exec= True):
+        bot.click(procura_imagem(imagem='imagens/img_planilha/bt_visualizar_todos.png', continuar_exec= True))
+        logging.debug('--- Clicou para visualizar o filtro de todos.')
+        
 
 
 def extrai_txt_img(imagem, area_tela, porce_escala = 400):
@@ -200,23 +205,26 @@ def verifica_ped_vazio(texto, pos):
         logging.info('--- Itens XML ficou vazio! saindo da tela de vinculação')
         ahk.win_activate('Vinculação Itens da Nota', title_match_mode = 2)
         time.sleep(0.25)
-        bot.click(procura_imagem(imagem='img_topcon/confirma.png'))
+        bot.click(procura_imagem(imagem='imagens/img_topcon/confirma.png'))
         
         ahk.win_wait_active('TopCompras (VM-CortesiaApli.CORTESIA.com)', title_match_mode = 2, timeout= 30)
         while ahk.win_exists('TopCompras (VM-CortesiaApli.CORTESIA.com)', title_match_mode = 2):
             ahk.win_activate('TopCompras (VM-CortesiaApli.CORTESIA.com)', title_match_mode = 2)
             time.sleep(1)
-            bot.click(procura_imagem(imagem='img_topcon/botao_ok.jpg', confianca= 0.73, limite_tentativa= 10))
+            bot.click(procura_imagem(imagem='imagens/img_topcon/botao_ok.jpg', confianca= 0.73, limite_tentativa= 10))
 
         ahk.win_wait_close('Vinculação Itens da Nota', title_match_mode = 2, timeout= 30)
         logging.info('--- Encerrado a função verifica pedido vazio!')
         return True
 
-def corrige_nometela(novo_nome = "TopCompras"):
-    try: 
-        ahk.win_wait(' (VM-CortesiaApli.CORTESIA.com)', title_match_mode= 1, timeout= 8)
-    except (TimeoutError, OSError):
-        try:
+def corrige_nometela(novo_nome = "TopCompras"):    
+    
+    
+    try: # Verifica se o topcon abriu SEM NOME
+        ahk.win_wait(' (VM-CortesiaApli.CORTESIA.com)', title_match_mode= 1, timeout= 5)
+    
+    except (TimeoutError, OSError): # Apresenta Timeout caso esteja aberto com o nome normal.
+        try: # Verifica se REALMENTE abriu com o nome normal
             if ahk.win_wait(novo_nome, title_match_mode= 1, timeout= 8):
                 logging.info('--- TopCompras abriu com o nome normal, prosseguindo.')
                 return
