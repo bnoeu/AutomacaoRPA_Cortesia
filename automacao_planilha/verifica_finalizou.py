@@ -7,7 +7,7 @@ from automacao_planilha.abre_planilha_debug import abre_planilha
 from utils.funcoes import reaplica_filtro_status
 
 def verifica_finalizou_planilha(dados_planilha = [], chave_xml= ""):
-    if len(dados_planilha[6]) > 0: # Caso realmente esteja preenchido
+    if len(dados_planilha[6]) > 1: # Caso realmente esteja preenchido
         logging.warning(F'--- Realmente está na ultima chave: {chave_xml}, executando COPIA BANCO')
 
         # Executa o processo de copia dos dados.
@@ -18,7 +18,6 @@ def verifica_finalizou_planilha(dados_planilha = [], chave_xml= ""):
         abre_planilha()
         bot.press('F5')
         time.sleep(8)
-        
         reaplica_filtro_status()
         
         

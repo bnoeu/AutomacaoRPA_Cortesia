@@ -4,8 +4,7 @@ import pyautogui as bot
 import logging
 
 from ahk import AHK
-from colorama import Style, Fore
-from utils.funcoes import procura_imagem
+from utils.funcoes import procura_imagem  
 from abre_topcon import abre_mercantil
 
 # --- Definição de parametros
@@ -20,13 +19,14 @@ pytesseract.pytesseract.tesseract_cmd = r"C:\Tesseract-OCR\tesseract.exe"
 
 
 def processo_transferencia():
+    ahk.win_activate('TopCompras', title_match_mode=2)
     if procura_imagem(imagem='imagens/img_topcon/txt_transferencia.png', continuar_exec= True, limite_tentativa= 2, confianca= 0.74):
         logging.info('--- Iniciando a função: processo transferencia ---' )
         ahk.win_activate('TopCompras', title_match_mode=2)
         ahk.win_wait_active('TopCompras', title_match_mode=2, timeout= 30)
         
         if procura_imagem('imagens/img_topcon/deseja_processar.png', continuar_exec=True, confianca= 0.75):
-            logging.info('--- Encontrou a tela "Deseja processar NFE" ')
+            logging.warning('--- Encontrou a tela "Deseja processar NFE" ')
             while procura_imagem('imagens/img_topcon/bt_sim.png', continuar_exec=True, limite_tentativa= 3, confianca= 0.74):
                 bot.click(procura_imagem('imagens/img_topcon/bt_sim.png', continuar_exec=True))
                 
@@ -67,5 +67,11 @@ def processo_transferencia():
                 logging.warning('--- Forçando reabertura do mercantil, pois foi executada uma transferencia.')
                 abre_mercantil() #! Sempre que é executado o processo de transferencia, é necessario reabrir o TopCompras, pois a tela trava.
                 return True
+        elif procura_imagem("imagens/img_topcon/txt_numero_nf_alterado.png", continuar_exec= True):
+            ahk.win_activate('TopCompras (VM-CortesiaApli.CORTESIA.com)', title_match_mode= 2)
+            bot.press('enter')
         else:
             logging.info('--- Não encontrou a tela "Deseja processar NFE ainda')
+
+if __name__ == '__main__':
+    processo_transferencia()

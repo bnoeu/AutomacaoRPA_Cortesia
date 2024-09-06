@@ -90,10 +90,14 @@ def navega_topcompras():
 def fecha_execucoes():
     logging.info('--- Iniciando fecha_execucoes, para fechar o TopCompras e o RDP ---')
     
+    if ahk.win_exists('Vinculação Itens da Nota', title_match_mode = 2):
+        ahk.win_close('Vinculação Itens da Nota', title_match_mode = 2, seconds_to_wait= 5)
+        
+    
     # Primeiro força o fechamento do TopCompras, para evitar erros de validações
     while ahk.win_exists(title= "TopCompras", title_match_mode= 2):
         time.sleep(0.2)
-        ahk.win_close(title= 'TopCompras', title_match_mode = 2, seconds_to_wait= 10)   
+        ahk.win_close(title= 'TopCompras', title_match_mode = 2, seconds_to_wait= 5)   
     else:
         time.sleep(0.2)
 
@@ -181,5 +185,6 @@ def abre_topcon():
             logging.critical('--- deu algum xabu')
 
 if __name__ == '__main__':
-    bot.PAUSE = 0.5
+    bot.PAUSE = 0.25
+    fecha_execucoes()
     abre_topcon()

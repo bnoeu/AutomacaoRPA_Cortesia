@@ -25,6 +25,7 @@ from utils.funcoes import marca_lancado, procura_imagem, extrai_txt_img
 
 
 #* Definição de parametros
+# Teste
 ahk = AHK()
 posicao_img = 0
 continuar = True
@@ -33,7 +34,7 @@ bot.LOG_SCREENSHOTS = True
 bot.LOG_SCREENSHOTS_LIMIT = 5
 chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
 pytesseract.pytesseract.tesseract_cmd = r"C:\Tesseract-OCR\tesseract.exe"
-          
+
 def valida_filial_estoque(filial_estoq = ""):
     if filial_estoq == '1001':
         centro_custo = 'VILA'
@@ -60,9 +61,9 @@ def valida_filial_estoque(filial_estoq = ""):
     
     if centro_custo != "":
         return centro_custo
- 
+
 def programa_principal():
-    bot.PAUSE = 0.3
+    bot.PAUSE = 0.25
     acabou_pedido = False
     tentativa = 0
 
@@ -82,7 +83,7 @@ def programa_principal():
         centro_custo = valida_filial_estoque(filial_estoq) # Realiza a validação da filial de estoque.
         chave_xml = dados_planilha[4]
     
-        acabou_pedido = valida_pedido(acabou_pedido=False) # Verifica se o pedido está valido.
+        acabou_pedido = valida_pedido() # Verifica se o pedido está valido.
     else:
         logging.info('--- Pedido validado, retornando para o programa principal' )
 
@@ -109,7 +110,7 @@ def programa_principal():
     logging.info('--- Realizando validação/alteração da data')
     hoje = date.today()
     hoje = hoje.strftime("%d%m%y")  # dd/mm/YY
-    bot.write('02/09/2024')
+    #bot.write('03/09/2024')
     bot.press('ENTER')
     
     # Aguarda até o topcompras voltar a funcionar
@@ -150,13 +151,13 @@ def programa_principal():
     logging.info('--- Aguarda aparecer o campo cod_desc')
     tentativa_cod_desc = 0
     while procura_imagem(imagem='imagens/img_topcon/cod_desc.png', continuar_exec=True, confianca= 0.74, limite_tentativa= 1) is False:
+        time.sleep(0.25)
         if tentativa_cod_desc >= 100:
             logging.info('--- Não foi possivel encontrar o campo cod_desc, reiniciando o processo.')
             time.sleep(1)
             abre_mercantil()
             return True
-        else:
-            # Aguarda até o topcompras voltar a funcionar
+        else: # Aguarda até o topcompras voltar a funcionar
             ahk.win_activate('TopCompras', title_match_mode= 2)
             ahk.win_wait_active('TopCompras', title_match_mode= 2, timeout= 100)
             tentativa_cod_desc += 1 
@@ -174,8 +175,7 @@ def programa_principal():
             time.sleep(1)
             abre_mercantil()
             return True
-        else:
-            # Aguarda até o topcompras voltar a funcionar
+        else: # Aguarda até o topcompras voltar a funcionar
             ahk.win_activate('TopCompras', title_match_mode= 2)
             ahk.win_wait_active('TopCompras', title_match_mode= 2, timeout= 100)
             tentativa_cod_desc += 1 
@@ -268,7 +268,7 @@ def programa_principal():
             except ValueError:
                 valor_escala += 10
             else:
-                logging.warning(F'--- Texto coletado da quantidade: {qtd_ton}, Valor escala: {valor_escala}')
+                logging.debug(F'--- Texto coletado da quantidade: {qtd_ton}, Valor escala: {valor_escala}')
                 break
 
         logging.info('--- Abrindo a tela "Itens nota fiscal de compra" ')
@@ -317,7 +317,9 @@ def programa_principal():
             bot.click(procura_imagem(imagem='imagens/img_topcon/confirma.png'))
             break
 
-        bot.click(procura_imagem(imagem='imagens/img_topcon/confirma.png'))            
+
+        #* Confirma ou cancela os processo executados na tela "itens nota fiscal de compras "
+        bot.click(procura_imagem(imagem='imagens/img_topcon/confirma.png'))       
         if procura_imagem(imagem='imagens/img_topcon/txt_ErroAtribuida.png', limite_tentativa = 6, continuar_exec = True) is False:
             logging.info('--- Preenchimento completo, saindo do loop.' )
             break
@@ -329,14 +331,22 @@ def programa_principal():
                 bot.press('ESC')
                 time.sleep(0.25)
             
-        while procura_imagem(imagem='imagens/img_topcon/confirma.png', continuar_exec=True, limite_tentativa= 1, confianca= 0.74) is not False:
-            tentativa += 1
+        while procura_imagem(imagem='imagens/img_topcon/confirma.png', continuar_exec=True) is not False:
+            ahk.win_activate('TopCompras', title_match_mode=2)
             logging.info('--- Aguardando fechamento da tela do botão "Alterar" ')
             time.sleep(0.25)
-            #TODO --- VerificaR se apareceu a tela "quantidade atribuida aos locais"
 
-            if tentativa > 10: #Executa o loop 10 vezes até dar erro.
-                exit(bot.alert('Apresentou algum erro.'))
+            if procura_imagem(imagem='imagens/img_topcon/local_estoque_obrigatorio.png', continuar_exec=True):
+                bot.click(procura_imagem(imagem='imagens/img_topcon/botao_ok.jpg', continuar_exec=True))
+                bot.click(procura_imagem(imagem='imagens/img_topcon/bt_cancela.png', continuar_exec=True))
+                marca_lancado("Erro local estoque")
+                return False
+                
+            tentativa += 1
+            if tentativa > 10: # Caso a tela não feche.
+                exit(bot.alert('Não foi possivel fechar a tela "itens nota fiscal de compra" '))
+        else:
+            print('--- Não fechou a tela "itens nota fiscal de compras" ')
     
     finaliza_lancamento() # Realiza todo o processo de finalização de lançamento.
     return True
@@ -364,9 +374,7 @@ if __name__ == '__main__':
     while True:
         try:
             programa_principal()
-        #except (TimeoutError, OSError, ValueError):
         except (TimeoutError, ValueError, OSError):
-            #os.system('taskkill /im AutoHotkey.exe /f /t') # Encerra todos os processos do AHK
             time.sleep(5)
             abre_topcon()
             logging.critical("A execução principal acusou algum erro ( TimeoutError ), executando o script inteiro novamente.")

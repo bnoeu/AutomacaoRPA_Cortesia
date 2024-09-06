@@ -8,6 +8,7 @@ from ahk import AHK
 import pyautogui as bot
 from utils.funcoes import procura_imagem
 from automacao_planilha.abre_planilha_debug import abre_planilha
+from automacao_planilha.copia_linha_atual import copia_linha_atual
 
 # --- Definição de parametros
 ahk = AHK()
@@ -34,11 +35,12 @@ def encontra_ultimo_xml(ultimo_xml = ''):
     bot.PAUSE = 1
     logging.info(F'--- Iniciando a navegação até a ultima chave XML: {ultimo_xml}')
     ahk.win_activate('db_alltrips.xlsx', title_match_mode= 2)
+    ahk.win_wait_active('db_alltrips.xlsx', title_match_mode= 2, timeout= 5)
     try:
         ahk.win_wait_active('db_alltrips.xlsx', title_match_mode= 2, timeout= 10)
     except TimeoutError:
         logging.critical('--- Planilha não encontrada!')
-        return True
+        return False
     
     # Navega até o campo da data, e organiza do menor para o maior.
     bot.click(960, 630) # Clica no meio da planilha para "ativar" a navegação dentro dela.
@@ -48,7 +50,6 @@ def encontra_ultimo_xml(ultimo_xml = ''):
     time.sleep(5)
     bot.click(procura_imagem(imagem='imagens/img_planilha/txt_menor_maior.png')) # Clica no botão "organizar do menor ao maior"
     time.sleep(1)
-    #bot.click(procura_imagem(imagem='imagens/img_planilha/bt_classifica_menor.PNG')) # Clica no botão "organizar do menor ao maior"
     ahk.win_activate('db_alltrips.xlsx', title_match_mode= 2)
     bot.click(960, 630) # Clica no meio da planilha para "ativar" a navegação dentro dela.
     
@@ -60,7 +61,6 @@ def encontra_ultimo_xml(ultimo_xml = ''):
     bot.press('F')
     
     # Insere a ultima chave copiada da planilha de debug
-    print(F'Tempo pausa: {bot.PAUSE} ')
     bot.write(ultimo_xml)
     bot.press('ENTER')
     
@@ -68,8 +68,12 @@ def encontra_ultimo_xml(ultimo_xml = ''):
     bot.press('ESC')
     bot.press('ALT', presses= 2)
     
-    # Finaliza
-    logging.info(F'--- Concluido a navegação até a ultima chave XML: {ultimo_xml}')
+    # Verifica se realmente chegou no ultimo XML
+    bot.hotkey('ctrl', 'c')
+    if ahk.get_clipboard() == ultimo_xml:
+        logging.info(F'--- Concluido a navegação até a ultima chave XML: {ultimo_xml}')
+    else:
+        logging.error(F'--- Ops... não está na ultima chave {ultimo_xml}, navegando novamente.')
     
 def copia_dados():
     dados_copiados = ""
@@ -108,22 +112,30 @@ def copia_dados():
     time.sleep(1)
     ahk.key_press('down') # Com shift + ctrl pressionado, navega até a ultima linha da planilha
     time.sleep(1)
-    ahk.key_up('Control') # Solta a tecla ctrl
     ahk.key_press('right') # Avança para a ultima coluna
+    tentativa_copia = 0
     while True:
-        ahk.key_up('Shift')  # Solta a tecla Shift
-        time.sleep(0.25)
+        ahk.key_up('Shift')
+        ahk.key_up('Control')
+        
+        time.sleep(1)
         bot.hotkey('ctrl', 'c')
-        time.sleep(0.25)
+        time.sleep(1)
         dados_copiados = ahk.get_clipboard()
         if "," in dados_copiados:
             logging.info('--- Novos dados copiados com sucesso da planilha db_alltrips')
             return dados_copiados
         else:
             ahk.key_down('Shift') # Segura a tecla SHIFT
-            time.sleep(0.25)
+            time.sleep(1)
+            ahk.key_down('Control')
+            time.sleep(1)
             ahk.key_press('right') # Avança para a ultima coluna
-            time.sleep(0.25)
+            time.sleep(1)
+        
+        tentativa_copia += 1
+        if tentativa_copia > 10:
+            abre_planilha_navegador()
 
 
 def cola_dados(dados_copiados = "TESTE"):
@@ -147,9 +159,8 @@ def cola_dados(dados_copiados = "TESTE"):
         return True
 
 def main(ultimo_xml = chave_xml):
-    exit(bot.alert('Verificar script'))
     bot.PAUSE = 1
-    abre_planilha_navegador()
+    #abre_planilha_navegador()
     encontra_ultimo_xml(ultimo_xml = ultimo_xml)
     dados_copiados = copia_dados()
     colou_dados = cola_dados(dados_copiados)
@@ -157,4 +168,4 @@ def main(ultimo_xml = chave_xml):
         return True
 
 if __name__ == '__main__':
-    main(ultimo_xml= "33240933051624000197550010003280401000000019")
+    main(ultimo_xml= "35240909425531000109550010002316071008748230")

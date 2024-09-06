@@ -99,7 +99,7 @@ def verifica_tela(nome_tela, manual=False):
 
 
 def marca_lancado(texto_marcacao='Lancado'):
-    bot.PAUSE = 0.25
+    bot.PAUSE = 0.3
     tentativa = 0
     logging.info(F'--- Abrindo planilha - MARCA_LANCADO, com parametro: {texto_marcacao}' )
     ahk.win_activate('debug_db_alltrips', title_match_mode= 2)
@@ -112,7 +112,7 @@ def marca_lancado(texto_marcacao='Lancado'):
         else:
             break
         
-    time.sleep(0.25)
+    time.sleep(1)
     bot.hotkey('CTRL', 'HOME')
 
     # Navega até o campo "Status"
@@ -124,9 +124,9 @@ def marca_lancado(texto_marcacao='Lancado'):
     bot.press('RIGHT')
     hoje = datetime.date.today()
     bot.write(str(hoje))
-    time.sleep(0.25)
+    time.sleep(1)
     bot.click(960, 640) # Clica no meio da planilha
-    time.sleep(0.25)
+    time.sleep(1)
     
     # Retorna a planilha para o modo "Somente Exibição (Botão Verde)"
     bot.hotkey('CTRL', 'HOME')
@@ -137,7 +137,7 @@ def marca_lancado(texto_marcacao='Lancado'):
 def reaplica_filtro_status(): 
     ahk.win_activate('debug_db_alltrips', title_match_mode= 2)
     logging.debug('--- Reaplicando o filtro na coluna "Status" ')
-    time.sleep(0.25)
+    time.sleep(1)
     bot.click(960, 640)
     
     bot.hotkey('CTRL', 'HOME') # Navega até o campo A1
@@ -158,7 +158,7 @@ def reaplica_filtro_status():
 
 
 def extrai_txt_img(imagem, area_tela, porce_escala = 400):
-    time.sleep(0.25)
+    time.sleep(1)
     img = bot.screenshot('imagens/img_geradas/' + imagem, region=area_tela) # Captura uma screenshot da área especificada da tela
     logging.debug(F'--- Tirou print da imagem: {imagem} ----')
 
@@ -208,7 +208,7 @@ def verifica_ped_vazio(texto, pos):
         ahk.win_wait_active('TopCompras (VM-CortesiaApli.CORTESIA.com)', title_match_mode = 2, timeout= 30)
         while ahk.win_exists('TopCompras (VM-CortesiaApli.CORTESIA.com)', title_match_mode = 2):
             ahk.win_activate('TopCompras (VM-CortesiaApli.CORTESIA.com)', title_match_mode = 2)
-            time.sleep(0.25)
+            time.sleep(1)
             bot.click(procura_imagem(imagem='imagens/img_topcon/botao_ok.jpg', confianca= 0.73, limite_tentativa= 10))
 
         ahk.win_wait_close('Vinculação Itens da Nota', title_match_mode = 2, timeout= 30)

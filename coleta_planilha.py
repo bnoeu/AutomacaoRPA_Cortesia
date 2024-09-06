@@ -7,7 +7,6 @@ import pytesseract
 import pyautogui as bot
 
 from ahk import AHK
-from copia_alltrips import main as copia_banco
 from utils.funcoes import marca_lancado, reaplica_filtro_status
 from automacao_planilha.abre_planilha_debug import abre_planilha
 from automacao_planilha.verifica_finalizou import verifica_finalizou_planilha
@@ -24,7 +23,7 @@ bot.FAILSAFE = False
 
 
 def copia_linha_atual():
-    bot.PAUSE = 0.25
+    bot.PAUSE = 0.1
     dados_planilha = []
     coluna_atual = 0
     while coluna_atual < 7: # Navega entre os 6 campos, realizando a copia um por um, e inserindo na lista Dados Planilha.
@@ -47,13 +46,13 @@ def copia_linha_atual():
 
 
 def coleta_planilha():
-    valida_final_planilha = 0
     logging.info('--- Iniciando a função: coleta planilha ---' )
     
     while True:
-        bot.PAUSE = 0.5
+        bot.PAUSE = 0.2
         abre_planilha() # Abre a tela da planilha, que já deve ter sido acessada no Edge
-        
+        reaplica_filtro_status()
+
         logging.info('--- Copiando dados e formatando na planilha de debug')
         ahk.set_clipboard("")
         bot.hotkey('CTRL', 'HOME') # Navega para a celula A1 ( RE ), em seguida vai para a primeira linha com dados a serem copiado
@@ -61,30 +60,22 @@ def coleta_planilha():
         logging.info('--- Navegou até a celula A1, e foi para a linha logo a baixo.')
         
         dados_planilha = copia_linha_atual()
-        chave_xml = dados_planilha[4].strip() # Realiza a validação dos dados copiados
+        chave_xml = dados_planilha[4].strip()
         
-        #! Toda essa parte das validações precisa ser revisada.
-        if len(dados_planilha[6]) > 0 and (valida_final_planilha < 2):
+        if len(dados_planilha[6]) > 1: # Caso "STATUS" preenchido, executa ajuste no filtro
             print('--- coluna status preenchida, validando se chegou ao final da planilha.')
-            abre_planilha() # Acessa novamente a planilha
+            abre_planilha()
             reaplica_filtro_status()
-            bot.hotkey('CTRL', 'HOME') # Navega para a celula A1 ( RE ), em seguida vai para a primeira linha com dados a serem copiado
+            
+            # Navega para a celula A1 ( RE ), em seguida vai para a primeira linha com dados a serem copiado 
+            bot.hotkey('CTRL', 'HOME')        
             bot.press('down')
+            print('--- Pronto para realizar a ultima validação')
             
+            # Inicia a ultima validação, antes de executar a copia.
             dados_planilha = copia_linha_atual() # Executa uma nova copia para avaliar os dados
-            verifica_finalizou_planilha(dados_planilha, chave_xml)
-            
-            if len(dados_planilha[6]) > 0: # Caso realmente esteja preenchido
-                logging.warning(F'--- Realmente está na ultima chave: {chave_xml}, executando COPIA BANCO')
-                time.sleep(0.5)
-                copia_banco(ultimo_xml= chave_xml)
-                time.sleep(1)
-                abre_planilha()
-                bot.press('F5')
-                time.sleep(8)
-                reaplica_filtro_status()
-                return False
-       
+            verifica_finalizou_planilha(dados_planilha, chave_xml)            
+ 
         elif len(chave_xml) < 42 and len(chave_xml) > 1: # Caso a chave tenha menos de 42 digitos, ela é invalida!
             marca_lancado('chave_invalida')   
         elif (len(dados_planilha[0]) < 4) or (len(dados_planilha[0]) == 5):

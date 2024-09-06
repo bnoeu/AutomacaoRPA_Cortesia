@@ -23,7 +23,7 @@ def conferencia_xml():
     ahk.win_activate('TopCompras', title_match_mode=2)  
     while tentativa < maximo_tentativas: # Aguarda até aparecer uma das telas que podem ser exibidas nesse processo.
         ahk.win_activate('TopCompras', title_match_mode=2, detect_hidden_windows= True)
-        time.sleep(0.5)
+        time.sleep(0.25)
         
         if procura_imagem(imagem='imagens/img_topcon/botao_sim.jpg', continuar_exec= True, limite_tentativa= 1, confianca= 0.73) is not False:
             logging.info('--- XML Validado, indo para validação do pedido')

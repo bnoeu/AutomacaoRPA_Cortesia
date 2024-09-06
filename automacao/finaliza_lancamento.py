@@ -77,7 +77,7 @@ def finaliza_lancamento(planilha_marcada = False, lancamento_concluido = False, 
                     time.sleep(0.25)
                     
                     if procura_imagem(imagem='imagens/img_topcon/txt_localizar.png', continuar_exec= True, area= (852, 956, 1368, 1045)):
-                        logging.info('--- Entrou no modo localizar, lançamento realmente concluido!\n')
+                        logging.info('--- Entrou no modo localizar, lançamento realmente concluido\n')
                         lancamento_concluido = True
                         return True
                     

@@ -47,23 +47,22 @@ mapeamento_imagens = {
 }
 
 
-def valida_pedido(acabou_pedido=False):
-    bot.PAUSE = 0.3
+def valida_pedido():
+    bot.PAUSE = 0.25
     tentativa = 0
     img_pedido = 0
     item_pedido = ''
     validou_itensXml = False
     logging.info('--- Executando função: valida pedido' )
 
-    #Aguarda a abertura da tela de vinculação de item versus nota
-    ahk.win_activate('Vinculação Itens da Nota', title_match_mode = 2)
+    ahk.win_activate('Vinculação Itens da Nota', title_match_mode = 2) #Aguarda a abertura da tela de vinculação de item versus nota
     try:
         ahk.win_wait_active('Vinculação Itens da Nota', title_match_mode = 2, timeout= 15)
+        time.sleep(0.5)
     except TimeoutError: # Corrige o nome da tela de vinculação caso não encontre
         corrige_nometela(novo_nome= "Vinculação Itens da Nota")
     
     #Coleta o texto do campo "item XML", que é o item a constar na nota fiscal, e com base nisso, trata o dado
-    time.sleep(1)
     txt_itensXML = extrai_txt_img(imagem='item_nota.png',area_tela=(170, 407, 280, 20))
 
     #Indentifica qual o item que consta na extração.
@@ -84,7 +83,7 @@ def valida_pedido(acabou_pedido=False):
         logging.error(F'--- Não foi possivel encontrar: {txt_itensXML} em nenhuma lista.')
         bot.click(procura_imagem(imagem='imagens/img_topcon/bt_cancela.png'))
         marca_lancado(texto_marcacao='Padronizar_Item')
-        return acabou_pedido
+        return False
 
 #* --------------------------------- Pedidos Encontrados ---------------------------------
     vazio = False
@@ -115,11 +114,11 @@ def valida_pedido(acabou_pedido=False):
             ahk.win_wait_active('Vinculação Itens da Nota', title_match_mode = 2, timeout= 30)
             ahk.win_close('Vinculação Itens da Nota', title_match_mode = 2)
             ahk.win_wait_close('Vinculação Itens da Nota', title_match_mode = 2, timeout= 30)
+            bot.press('F2')
             marca_lancado(texto_marcacao= 'Pedido_Inexistente')
             vazio = False
             tentativa = 3
-            acabou_pedido = True
-            return acabou_pedido
+            return False # Retorna false pois não concluiu o processo.
         else:
             posicoes = bot.locateAllOnScreen('imagens/img_pedidos/' + img_pedido, confidence= 0.92, grayscale=True, region=(0, 0, 850, 400))
 
@@ -127,7 +126,7 @@ def valida_pedido(acabou_pedido=False):
         for pos in posicoes:  # Tenta em todos pedidos encontrados
             logging.info(F'--- Tentativa: {tentativa}, achou o {txt_itensXML} na posição {pos}')
             ahk.win_activate('Vinculação Itens da Nota', title_match_mode = 2)
-            time.sleep(1)
+            time.sleep(0.5)
             
             bot.doubleClick(pos)  # Marca o pedido encontrado
             bot.click(procura_imagem(imagem='imagens/img_topcon/localizar.png'))
@@ -163,10 +162,9 @@ def valida_pedido(acabou_pedido=False):
                 ahk.win_close('Vinculação Itens da Nota', title_match_mode = 2)
                 
             bot.press('F2')
-            time.sleep(1)
+            time.sleep(0.5)
             marca_lancado('Erro_Pedido_' + img_pedido)
-            acabou_pedido = True
-            return acabou_pedido
+            return False
         
 if __name__ == '__main__':
     valida_pedido()
