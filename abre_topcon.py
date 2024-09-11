@@ -19,7 +19,7 @@ chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
 pytesseract.pytesseract.tesseract_cmd = r"C:\Tesseract-OCR\tesseract.exe"
 #! Dados para acesso ao remoteApp
 login_rdp = 'bruno.s'
-senha_rdp = '1Pyth0n@'
+senha_rdp = '2Pyth0n@'
 bot.FAILSAFE = False
 
 
@@ -32,7 +32,7 @@ def abre_mercantil():
     
     while ahk.win_exists('TopCompras', title_match_mode= 2): # Realiza o fechamento do TopCompras, caso esteja aberto
         ahk.win_close('TopCompras', title_match_mode=2)
-        time.sleep(1)
+        time.sleep(0.5)
         if verifica_topcompras > 10:
             logging.warning('--- Tentou fechar o TopCompras porém não conseguiu! Fechando o remote por completo')
             return False
@@ -67,7 +67,7 @@ def abre_mercantil():
             logging.info('--- Fechou a tela dos intervenientes')
     except TimeoutError:
         logging.error('--- Apresentou um erro')
-        time.sleep(1)
+        time.sleep(0.5)
         abre_topcon()
     
     return navega_topcompras()
@@ -83,7 +83,7 @@ def navega_topcompras():
     bot.press('RIGHT', presses= 2, interval= 0.05)
     bot.press('DOWN', presses= 7, interval= 0.05)
     bot.press('ENTER')
-    time.sleep(1)
+    time.sleep(0.5)
     logging.info( '--- TopCompras aberto!' )
     return True
 
@@ -112,7 +112,7 @@ def abre_topcon():
         bot.press('ENTER')
     
     while True:
-        bot.PAUSE = 0.3
+        bot.PAUSE = 0.25
         
         logging.info('--- Executando a função: ABRE TOPCON ' )
         fecha_execucoes() # Começa garantindo que fechou todas as execuções antigas.
@@ -129,7 +129,7 @@ def abre_topcon():
             try:
                 ahk.win_wait_active(tela, title_match_mode= 2, timeout= 7)
             except TimeoutError:
-                time.sleep(1)
+                time.sleep(0.5)
             else:
                 logging.info(F'--- Encontrou com o nome {tela}')
                 tela_login_rdp = tela
@@ -169,11 +169,11 @@ def abre_topcon():
                     bot.write('rockie')
                     bot.press('tab')
                     bot.press('enter')
-                    time.sleep(1)
+                    time.sleep(0.5)
                     break
                 
                 if procura_imagem(imagem='imagens/img_topcon/logo_principal.png', continuar_exec= True, limite_tentativa= 1, confianca= 0.74):
-                    time.sleep(1)
+                    time.sleep(0.5)
                     logging.info('--- Tela do Topcon já está aberta.')
                     break
         

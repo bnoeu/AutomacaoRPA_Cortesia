@@ -1,6 +1,7 @@
 # -*- Criado por Bruno da Silva Santos. -*-
 # Para utilização na Cortesia Concreto.
 
+import os
 import time
 import cv2
 import datetime
@@ -19,6 +20,9 @@ continuar = True
 chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
 pytesseract.pytesseract.tesseract_cmd = r"C:\Tesseract-OCR\tesseract.exe"
 bot.useImageNotFoundException(False)
+planilha_debug = "https://cortesiaconcreto-my.sharepoint.com/:x:/g/personal/bruno_silva_cortesiaconcreto_com_br/ETubFnXLMWREkm0e7ez30CMBnID3pHwfLgGWMHbLqk2l5A?rtime=n9xgTPCH3Eg"
+alltrips = "https://cortesiaconcreto-my.sharepoint.com/:x:/g/personal/bi_cortesiaconcreto_com_br/EQx5PclDGRFGkweQjtb3QckByyAsqydfI5za0MTuO9tjXg?e=RYfgcA.com"
+
 
 def procura_imagem(imagem, limite_tentativa=5, area=(0, 0, 1920, 1080), continuar_exec=False, confianca = 0.78, msg_continuar_exec = False, msg_confianca = False):
     """Função que realiza o processo de OCR na tela, retornando as coordenadas onde localizou a imagem especificada.
@@ -36,10 +40,8 @@ def procura_imagem(imagem, limite_tentativa=5, area=(0, 0, 1920, 1080), continua
         _type_: Retorna as posições onde encontrou a imagem.
     """    
     
-    #from abre_topcon import abre_topcon
-    #from Materia_Prima import programa_principal
-    pausa_img = 0.3
-    #hoje = datetime.date.today()
+
+    pausa_img = 0.2
     maquina_viva = False
     tentativa = 0   
     logging.debug(F'--- Tentando encontrar: {imagem}')
@@ -78,6 +80,7 @@ def procura_imagem(imagem, limite_tentativa=5, area=(0, 0, 1920, 1080), continua
         return False
     
     if tentativa >= limite_tentativa: # Caso exceda o limite de tentativas
+        logging.critical(F'--- Não encontrou a imagem: {imagem}')
         time_atual = str(datetime.datetime.now()).replace(":","_").replace(".","_")
         caminho_erro = 'imagens/img_geradas/' + 'erro' + time_atual + '.png'
         img_erro = bot.screenshot()
@@ -135,25 +138,23 @@ def marca_lancado(texto_marcacao='Lancado'):
     print(F'--------------------- Processou NFE, situação: {texto_marcacao} ---------------------')
 
 def reaplica_filtro_status(): 
+    logging.info('--- Executando a função REAPLICA FILTRO STATUS')
     ahk.win_activate('debug_db_alltrips', title_match_mode= 2)
-    logging.debug('--- Reaplicando o filtro na coluna "Status" ')
-    time.sleep(0.25)
+    time.sleep(0.5)
     bot.click(960, 640)
     
     bot.hotkey('CTRL', 'HOME') # Navega até o campo A1
     bot.press('RIGHT', presses= 6) # Navega até o campo "Status"
     bot.hotkey('ALT', 'DOWN') # Comando do excel para abrir o menu do filtro
     logging.debug('--- Navegou até celula A1 e abriu o filtro do status ')
-    
-    while procura_imagem(imagem='imagens/img_planilha/bt_aplicar.png', continuar_exec= True, limite_tentativa= 3, confianca= 0.73) is None:
-        time.sleep(0.5)
-
-    bot.click(procura_imagem(imagem='imagens/img_planilha/bt_aplicar.png', continuar_exec= True, limite_tentativa= 3, confianca= 0.73))
-    logging.debug('--- na tela do menu de filtro, clicou no botão "Aplicar" para reaplicar o filtro ')
+    bot.click(procura_imagem(imagem='imagens/img_planilha/bt_aplicar.png', limite_tentativa= 10))
+    logging.debug('--- Na tela do menu de filtro, clicou no botão "Aplicar" para reaplicar o filtro ')
     
     if procura_imagem(imagem='imagens/img_planilha/bt_visualizar_todos.png', continuar_exec= True):
         bot.click(procura_imagem(imagem='imagens/img_planilha/bt_visualizar_todos.png', continuar_exec= True))
         logging.debug('--- Clicou para visualizar o filtro de todos.')
+    
+    time.sleep(0.5)
         
 
 
@@ -234,10 +235,38 @@ def corrige_nometela(novo_nome = "TopCompras"):
     else:
         ahk.win_set_title(new_title= novo_nome, title= ' (VM-CortesiaApli.CORTESIA.com)', title_match_mode= 1, detect_hidden_windows= True)
         logging.warning('--- Encontrou tela sem o nome, e realizou a correção!' )
+
+
+def abre_planilha_navegador(link_planilha = alltrips):
+    logging.info('--- Executando a função ABRE PLANILHA NAVEGADOR')
+    if link_planilha == alltrips: # Planilha original
+        planilha = "db_alltrips.xlsx" 
+    else: # Planilha de debug
+        planilha = "debug_db_alltrips.xlsx"   
+    
+    if ahk.win_exists(planilha):
+        logging.info('--- Planilha já estava aberta, executou apenas um recarregamento')
+        ahk.win_activate(planilha, title_match_mode= 2)
+        bot.hotkey('CTRL', 'F5') # Recarrega a planilha limpando o cache
+        time.sleep(10)
+        return True
+    
+    while ahk.win_exists("alltrips.xlsx", title_match_mode= 2): # Garante que a planilha não esteja aberta
+        ahk.win_close('alltrips.xlsx', title_match_mode= 2)
+        time.sleep(0.5)
+    
+    logging.info('--- Abrindo a planilha no EDGE.')
+    comando_iniciar = F'start msedge {link_planilha} -new-window -inprivate'
+    os.system(comando_iniciar)
+    ahk.win_wait_active(planilha, title_match_mode = 2, timeout= 8)
+    ahk.win_maximize(planilha)
+    time.sleep(10)
+    logging.info('--- Planilha aberta e maximizada.')
             
 if __name__ == '__main__':
     bot.PAUSE = 1.5
     bot.FAILSAFE = False
+    #abre_planilha_navegador()
     reaplica_filtro_status()
     #verifica_ped_vazio()
     #corrige_nometela()

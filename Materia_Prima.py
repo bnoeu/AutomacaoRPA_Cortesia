@@ -6,7 +6,7 @@
 # Debug db alltrips
 # https://cortesiaconcreto-my.sharepoint.com/:x:/g/personal/bruno_silva_cortesiaconcreto_com_br/ETubFnXLMWREkm0e7ez30CMBnID3pHwfLgGWMHbLqk2l5A?rtime=n9xgTPCH3Eg
 # db_alltrips no paulo, apenas leitura
-# https://cortesiaconcreto-my.sharepoint.com/:x:/g/personal/bi_cortesiaconcreto_com_br/EQx5PclDGRFGkweQjtb3QckByyAsqydfI5za0MTuO9tjXg?e=RYfgcA
+#  
 
 import os
 import time
@@ -65,12 +65,14 @@ def valida_filial_estoque(filial_estoq = ""):
 def programa_principal():
     bot.PAUSE = 0.25
     acabou_pedido = False
-    tentativa = 0
+    tentativa = 0       
+
 
     print('---------------------------------------------------------------------------------------------------')
     print('--- INICIANDO UM NOVO LANÇAMENTO DE NFE --- ')
     print('---------------------------------------------------------------------------------------------------')
     
+
     while acabou_pedido is False: # Realiza a validação do pedido
         dados_planilha = valida_lancamento() # Coleta e confere os dados do lançamento atual
         
@@ -87,7 +89,13 @@ def programa_principal():
     else:
         logging.info('--- Pedido validado, retornando para o programa principal' )
 
-#* -------------------------- PROSSEGUINDO COM O LANÇAMENTO DA NFE -------------------------- 
+#* -------------------------- Continua o processo de lançamento da NFE -------------------------- 
+    # Verificar se o Topcon & TopCompras estão abertos
+    if ahk.win_exists('TopCon', title_match_mode=2) and ahk.win_exists('TopCompras', title_match_mode=2):
+        logging.info('--- TopCompras e Topcon estão abertos, processo pode iniciar')
+    else:
+        abre_topcon()
+
     logging.info('--- Preenchendo dados na tela principal do lançamento')
     ahk.win_activate('TopCompras', title_match_mode=2)
     ahk.win_wait_active('TopCompras', title_match_mode=2, timeout= 10)
@@ -101,6 +109,7 @@ def programa_principal():
             bot.alert(exit('Topcompras não encontrado'))
         time.sleep(0.2)
 
+    print(bot.PAUSE)
     bot.press('up')
     logging.info('--- Preenchendo filial de estoque')
     bot.write(filial_estoq)
@@ -154,7 +163,7 @@ def programa_principal():
         time.sleep(0.25)
         if tentativa_cod_desc >= 100:
             logging.info('--- Não foi possivel encontrar o campo cod_desc, reiniciando o processo.')
-            time.sleep(1)
+            time.sleep(0.5)
             abre_mercantil()
             return True
         else: # Aguarda até o topcompras voltar a funcionar
@@ -172,7 +181,7 @@ def programa_principal():
         #logging.info(F'--- Tentativa de aguardar sumir o cod_desc: {tentativa_cod_desc}')
         if tentativa_cod_desc >= 100:
             logging.info('--- O campo cod_desc não sumiu, reiniciando o processo.')
-            time.sleep(1)
+            time.sleep(0.5)
             abre_mercantil()
             return True
         else: # Aguarda até o topcompras voltar a funcionar
@@ -190,11 +199,11 @@ def programa_principal():
     # * -------------------------------------- VALIDAÇÃO TRANSPORTADOR --------------------------------------
     logging.info(F'--- Preenchendo transportador: {cracha_mot}')
     ahk.win_activate('TopCompras', title_match_mode= 2)
-    time.sleep(1)
+    time.sleep(0.5)
     bot.click(procura_imagem(imagem='imagens/img_topcon/campo_000.png', continuar_exec= True))
-    time.sleep(1)
+    time.sleep(0.5)
     bot.press('tab')
-    time.sleep(1)
+    time.sleep(0.5)
     tentativa_achar_camp_re = 0
     while procura_imagem(imagem='imagens/img_topcon/campo_re_0.png', continuar_exec= True, limite_tentativa= 1, confianca= 0.74) is False:
         logging.info(F'Tentativa: {tentativa_achar_camp_re}')
@@ -202,7 +211,7 @@ def programa_principal():
         tentativa_achar_camp_re += 1
         if tentativa_achar_camp_re >= 10:
             logging.info('--- Limite de tentativas de achar o campo "RE", reabrindo topcompras e reiniciando o processo.')
-            time.sleep(1)
+            time.sleep(0.5)
             abre_mercantil()
             return True
     else:
@@ -226,14 +235,14 @@ def programa_principal():
         bot.press('enter')
 
     # Verifica se o campo da placa ficou preenchido
-    time.sleep(1)
+    time.sleep(0.25)
     if procura_imagem('imagens/img_topcon/campo_placa.png', confianca= 0.74, continuar_exec=True) is not False:
         logging.info('--- Encontrou o campo vazio, inserindo XXX0000')
         ahk.win_activate('TopCompras', title_match_mode=2)
         bot.click(procura_imagem('imagens/img_topcon/campo_placa.png', continuar_exec=True))
         bot.write('XXX0000')
         bot.press('ENTER')
-        time.sleep(1)
+        time.sleep(0.25)
     else:
         logging.info('--- Não achou o campo ou já está preenchido')
 
@@ -362,7 +371,7 @@ if __name__ == '__main__':
         style="{",
         )
     
-    logging.info('\n------------------------ Iniciando um novo log ------------------------ ')
+    logging.info('------------------------ Iniciando um novo log ------------------------ ')
     os.system('taskkill /im AutoHotkey.exe /f /t') # Encerra todos os processos do AHK
     os.system('cls')
     
@@ -375,8 +384,7 @@ if __name__ == '__main__':
         try:
             programa_principal()
         except (TimeoutError, ValueError, OSError):
+            logging.critical("A execução principal acusou algum erro, executando o script inteiro novamente.")
             time.sleep(5)
-            abre_topcon()
-            logging.critical("A execução principal acusou algum erro ( TimeoutError ), executando o script inteiro novamente.")
 
 # TODO --- Caso NFE Faturada no final do mes, lançar com qual data?

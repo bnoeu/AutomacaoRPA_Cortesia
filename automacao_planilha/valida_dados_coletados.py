@@ -5,6 +5,7 @@
 import logging
 from ahk import AHK
 import pyautogui as bot
+from utils.funcoes import marca_lancado
 
 
 # --- Definição de parametros
@@ -20,6 +21,10 @@ def valida_dados_coletados(dados_planilha = []):
             return False
         elif len(dados_planilha[4]) < 44: # Campo chave XML
             return False
+        elif len(dados_planilha[4]) < 42 and len(dados_planilha[4]) > 1: # Caso a chave tenha menos de 42 digitos, ela é invalida!
+            marca_lancado('chave_invalida')   
+        elif (len(dados_planilha[0]) < 4) or (len(dados_planilha[0]) == 5):
+                marca_lancado('RE_Invalido')
         else:
             return True # Dados validados
         

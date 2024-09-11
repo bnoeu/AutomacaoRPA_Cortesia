@@ -6,11 +6,11 @@ from ahk import AHK
 ahk = AHK() # --- Definição de parametros
 
 
-def abre_planilha(): # Realiza a abertura da planilha de debug
-    logging.info('--- Abrindo a planilha de debug.')
-    if ahk.win_exists('debug_db_alltrips', title_match_mode= 2):
-        ahk.win_activate('debug_db_alltrips', title_match_mode= 2)
-        ahk.win_wait('debug_db_alltrips', title_match_mode= 2, timeout= 15)
+def abre_planilha(planilha = "debug_db_alltrips"): # Realiza a abertura da planilha de debug
+    logging.info(F'--- Abrindo a planilha: {planilha}')
+    if ahk.win_exists(planilha, title_match_mode= 2):
+        ahk.win_activate(planilha, title_match_mode= 2)
+        ahk.win_wait(planilha, title_match_mode= 2, timeout= 15)
         
         logging.debug('--- Clicando no meio da planilha de debug.')
         bot.click(990, 700) # Clica no meio da planilha, para "firmar" a tela.

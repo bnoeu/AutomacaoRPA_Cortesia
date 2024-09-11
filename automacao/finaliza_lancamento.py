@@ -38,7 +38,7 @@ def finaliza_lancamento(planilha_marcada = False, lancamento_concluido = False, 
         
         # 0. Verifica se ocorreu algo de transferencia
         realizou_transferencia = processo_transferencia()
-        time.sleep(1)
+        time.sleep(0.5)
         # 1. Caso chave invalida.  
         if procura_imagem(imagem='imagens/img_topcon/chave_invalida.png', continuar_exec=True, limite_tentativa= 1, confianca= 0.74) is not False:
             logging.info('--- Nota já lançada, marcando planilha!')
@@ -94,7 +94,7 @@ def finaliza_lancamento(planilha_marcada = False, lancamento_concluido = False, 
             ahk.win_close('Espelho de Nota Fiscal', title_match_mode= 2)
 
         if lancamento_concluido is True:
-            time.sleep(1)
+            time.sleep(0.5)
             ahk.win_activate('TopCompras', title_match_mode= 2)
             bot.press('F2') # Aperta F2 para retornar a tela para o modo "Localizar"
             marca_lancado(texto_marcacao='Lancado_RPA')
@@ -102,7 +102,7 @@ def finaliza_lancamento(planilha_marcada = False, lancamento_concluido = False, 
         # Caso exceta o limite de tentativas, tenta fechar e abrir a tela de compras.
         if tentativas_telas >= 20:
             logging.error(F'--- Excedeu o limite de tentativas de encontrar as telas, reabrindo o TopCompras, tentativa: {tentativas_telas}' )
-            time.sleep(1)
+            time.sleep(0.5)
             abre_mercantil()
             return False # Retorna False pois o lançamento não foi concluido
         else:
@@ -118,7 +118,7 @@ def finaliza_lancamento(planilha_marcada = False, lancamento_concluido = False, 
             logging.warning('--- Apareceu a tela de vencimento, alterando para +3 dias')
             bot.press('ENTER')
             ahk.win_wait_close('TopCompras (VM-CortesiaApli.CORTESIA.com)', title_match_mode=2)
-            time.sleep(1)
+            time.sleep(0.5)
             # Altera a data de vencimento para +3 dias
             bot.click(procura_imagem(imagem='imagens/img_topcon/bt_contasapagar.PNG'))
             bot.click(procura_imagem(imagem='imagens/img_topcon/bt_datavencimento.PNG', area= (419, 536, 811, 715)))
@@ -126,5 +126,5 @@ def finaliza_lancamento(planilha_marcada = False, lancamento_concluido = False, 
             data_vencimento = data_vencimento.strftime("%d%m%y")
             bot.write(data_vencimento)
             bot.press('ENTER')
-            time.sleep(1)
+            time.sleep(0.5)
             bot.press('pagedown')  # Conclui o lançamento

@@ -64,7 +64,7 @@ def valida_lancamento():
                         break
                     else:
                         # Caso passe o limite de tentativas, provavelmente ocorreu algum problema.
-                        time.sleep(1)
+                        time.sleep(0.5)
                         logging.warning('--- Excedeu o limite de tentativas de alteração para o modo localizar, reabrindo o TopCompras.')
                         abre_mercantil()
                         
