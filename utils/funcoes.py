@@ -147,7 +147,8 @@ def reaplica_filtro_status():
     bot.press('RIGHT', presses= 6) # Navega até o campo "Status"
     bot.hotkey('ALT', 'DOWN') # Comando do excel para abrir o menu do filtro
     logging.debug('--- Navegou até celula A1 e abriu o filtro do status ')
-    bot.click(procura_imagem(imagem='imagens/img_planilha/bt_aplicar.png', limite_tentativa= 10))
+    time.sleep(0.5)
+    bot.click(procura_imagem(imagem='imagens/img_planilha/bt_aplicar.png', limite_tentativa= 50))
     logging.debug('--- Na tela do menu de filtro, clicou no botão "Aplicar" para reaplicar o filtro ')
     
     if procura_imagem(imagem='imagens/img_planilha/bt_visualizar_todos.png', continuar_exec= True):
