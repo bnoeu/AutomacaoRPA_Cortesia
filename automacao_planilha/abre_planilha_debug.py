@@ -15,10 +15,10 @@ def abre_planilha(planilha = "debug_db_alltrips"): # Realiza a abertura da plani
         logging.debug('--- Clicando no meio da planilha de debug.')
         bot.click(990, 700) # Clica no meio da planilha, para "firmar" a tela.
     else: # Caso a tela da planilha não seja encontrada
-        print('--- Não encontrou a planilha')
+        logging.warning('--- Não encontrou a planilha')
         #TODO É necessario criar um script para reabrir a planilha caso não encontre
         exit(bot.alert('Não deu certo! '))
     
 if __name__ == '__main__':
-    bot.PAUSE = 1
+    bot.PAUSE = 0.6
     abre_planilha()

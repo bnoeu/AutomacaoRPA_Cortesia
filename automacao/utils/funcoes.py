@@ -95,14 +95,17 @@ def verifica_tela(nome_tela, manual=False):
         logging.info(F'--- A tela: {nome_tela} está fechada, Modo Manual: {True}, executando...')
         return False
     else:
-        exit(logging.critical(F'--- Tela: {nome_tela} está fechada, saindo do programa.'))
+        exit(logging.error(F'--- Tela: {nome_tela} está fechada, saindo do programa.'))
 
 
 def marca_lancado(texto_marcacao='Lancado'):
-    bot.PAUSE = 0.3
+    bot.PAUSE = 0.6
     tentativa = 0
-    logging.info(F'--- Abrindo planilha - MARCA_LANCADO, com parametro: {texto_marcacao}' )
+    
+    logging.info('--- Abrindo planilha')
     ahk.win_activate('debug_db_alltrips', title_match_mode= 2)
+    logging.info(F'--- Marcando planilha: {texto_marcacao}')
+    
     while tentativa < 3:
         try:
             ahk.win_wait_active(title= 'debug_db', title_match_mode= 2, timeout= 5)
@@ -132,9 +135,10 @@ def marca_lancado(texto_marcacao='Lancado'):
     bot.hotkey('CTRL', 'HOME')
     reaplica_filtro_status() # Reaplica o filtro da coluna "Status"
     bot.hotkey('CTRL', 'HOME')
-    print(F'--------------------- Processou NFE, situação: {texto_marcacao} ---------------------')
+    logging.info(F'--------------------- Processou NFE, situação: {texto_marcacao} ---------------------')
 
 def reaplica_filtro_status(): 
+    bot.PAUSE = 1.5
     ahk.win_activate('debug_db_alltrips', title_match_mode= 2)
     logging.debug('--- Reaplicando o filtro na coluna "Status" ')
     time.sleep(0.5)
@@ -145,10 +149,10 @@ def reaplica_filtro_status():
     bot.hotkey('ALT', 'DOWN') # Comando do excel para abrir o menu do filtro
     logging.debug('--- Navegou até celula A1 e abriu o filtro do status ')
     
-    while procura_imagem(imagem='imagens/img_planilha/bt_aplicar.png', continuar_exec= True, limite_tentativa= 10) is None:
+    while procura_imagem(imagem='imagens/img_planilha/bt_aplicar.png', continuar_exec= True, limite_tentativa= 2, confianca= 0.73) is None:
         time.sleep(0.5)
 
-    bot.click(procura_imagem(imagem='imagens/img_planilha/bt_aplicar.png', continuar_exec= True, limite_tentativa= 10))
+    bot.click(procura_imagem(imagem='imagens/img_planilha/bt_aplicar.png', continuar_exec= True, limite_tentativa= 2, confianca= 0.73))
     logging.debug('--- na tela do menu de filtro, clicou no botão "Aplicar" para reaplicar o filtro ')
     
     if procura_imagem(imagem='imagens/img_planilha/bt_visualizar_todos.png', continuar_exec= True):
@@ -160,7 +164,7 @@ def reaplica_filtro_status():
 def extrai_txt_img(imagem, area_tela, porce_escala = 400):
     time.sleep(0.5)
     img = bot.screenshot('imagens/img_geradas/' + imagem, region=area_tela) # Captura uma screenshot da área especificada da tela
-    logging.debug(F'--- Tirou print da imagem: {imagem} ----')
+    logging.debug(F'--- Tirou uma screenshot da imagem: {imagem} ----')
 
     img = cv2.imread('imagens/img_geradas/' + imagem) # Lê a imagem capturada usando o OpenCV
 
@@ -216,8 +220,6 @@ def verifica_ped_vazio(texto, pos):
         return True
 
 def corrige_nometela(novo_nome = "TopCompras"):    
-    
-    
     try: # Verifica se o topcon abriu SEM NOME
         ahk.win_wait(' (VM-CortesiaApli.CORTESIA.com)', title_match_mode= 1, timeout= 5)
     
@@ -225,7 +227,7 @@ def corrige_nometela(novo_nome = "TopCompras"):
         try: # Verifica se REALMENTE abriu com o nome normal
             if ahk.win_wait(novo_nome, title_match_mode= 1, timeout= 8):
                 logging.info('--- TopCompras abriu com o nome normal, prosseguindo.')
-                return
+                return True
             else:
                 exit(bot.alert('TopCompras não encontrado.'))
         except (TimeoutError, OSError):

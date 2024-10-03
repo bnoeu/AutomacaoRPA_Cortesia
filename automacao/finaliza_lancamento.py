@@ -31,10 +31,9 @@ def finaliza_lancamento(planilha_marcada = False, lancamento_concluido = False, 
         
         #! Mover para a função do tratamento de erros
         if ahk.win_exists('CsjTb', title_match_mode= 2): # Caso apareça a tela de campo obrigatorio (Aparece quando não preencher nenhum campo.)
+            logging.error('--- Apareceu a tela "campo obrigatorio" ( CsjTb ), reabrindo TopCompras para corrigir')
             ahk.win_close('CsjTb', title_match_mode= 2)
             abre_mercantil()
-            logging.error('--- Reabriu o mercantil, recomeçando o processo.')
-            #programa_principal()
         
         # 0. Verifica se ocorreu algo de transferencia
         realizou_transferencia = processo_transferencia()
@@ -93,6 +92,14 @@ def finaliza_lancamento(planilha_marcada = False, lancamento_concluido = False, 
         while ahk.win_exists('Espelho de Nota Fiscal', title_match_mode= 2):
             ahk.win_close('Espelho de Nota Fiscal', title_match_mode= 2)
 
+        # 5. Caso apareça a tela "Fornecedor não cadastrado"
+        if procura_imagem(imagem='imagens/img_topcon/txt_fornecedor_cadastrado.png', continuar_exec=True, limite_tentativa= 1, confianca= 0.74) is not False:
+            logging('--- Nota já lançada, marcando planilha!')
+            bot.press('ENTER')
+            bot.press('F2', presses = 2)
+            marca_lancado(texto_marcacao='Lancado_Manual')
+            break
+        
         if lancamento_concluido is True:
             time.sleep(0.5)
             ahk.win_activate('TopCompras', title_match_mode= 2)

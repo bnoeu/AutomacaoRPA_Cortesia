@@ -16,7 +16,7 @@ import pytesseract
 import pyautogui as bot
 
 from ahk import AHK
-from datetime import date
+from datetime import date, datetime
 from valida_pedido import valida_pedido
 from valida_lancamento import valida_lancamento
 from abre_topcon import abre_mercantil, abre_topcon
@@ -63,14 +63,13 @@ def valida_filial_estoque(filial_estoq = ""):
         return centro_custo
 
 def programa_principal():
-    bot.PAUSE = 0.25
+    bot.PAUSE = 0.6
     acabou_pedido = False
-    tentativa = 0       
-
-
-    print('---------------------------------------------------------------------------------------------------')
-    print('--- INICIANDO UM NOVO LANÇAMENTO DE NFE --- ')
-    print('---------------------------------------------------------------------------------------------------')
+    tentativa = 0
+    logging.info('')
+    logging.info('---------------------------------------------------------------------------------------------------')
+    logging.info('--- INICIANDO UM NOVO LANÇAMENTO DE NFE --- ')
+    logging.info('---------------------------------------------------------------------------------------------------')
     
 
     while acabou_pedido is False: # Realiza a validação do pedido
@@ -90,26 +89,20 @@ def programa_principal():
         logging.info('--- Pedido validado, retornando para o programa principal' )
 
 #* -------------------------- Continua o processo de lançamento da NFE -------------------------- 
-    # Verificar se o Topcon & TopCompras estão abertos
-    if ahk.win_exists('TopCon', title_match_mode=2) and ahk.win_exists('TopCompras', title_match_mode=2):
-        logging.info('--- TopCompras e Topcon estão abertos, processo pode iniciar')
-    else:
-        abre_topcon()
 
     logging.info('--- Preenchendo dados na tela principal do lançamento')
     ahk.win_activate('TopCompras', title_match_mode=2)
     ahk.win_wait_active('TopCompras', title_match_mode=2, timeout= 10)
     
     while procura_imagem(imagem='imagens/img_topcon/produtos_servicos.png', continuar_exec= True, limite_tentativa= 1, confianca= 0.74) is False:
-        time.sleep(0.2)
+        time.sleep(0.4)
         ahk.win_activate('TopCompras', title_match_mode=2, detect_hidden_windows= True)
         try:
             ahk.win_wait_active('TopCompras', title_match_mode=2, timeout= 10)
         except TimeoutError:
             bot.alert(exit('Topcompras não encontrado'))
-        time.sleep(0.2)
-
-    print(bot.PAUSE)
+        time.sleep(0.4)
+        
     bot.press('up')
     logging.info('--- Preenchendo filial de estoque')
     bot.write(filial_estoq)
@@ -124,7 +117,7 @@ def programa_principal():
     
     # Aguarda até o topcompras voltar a funcionar
     ahk.win_activate('TopCompras', title_match_mode= 2)
-    ahk.win_wait_active('TopCompras', title_match_mode= 2, timeout= 100)
+    ahk.win_wait_active('TopCompras', title_match_mode= 2, timeout= 70)
     
     # Caso o sistema informe que a data deve ser maior/igual a data inserida acima.
     if procura_imagem('imagens/img_topcon/data_invalida.png', continuar_exec= True):
@@ -135,7 +128,7 @@ def programa_principal():
         time.sleep(0.25)
         # Aguarda até o topcompras voltar a funcionar
         ahk.win_activate('TopCompras', title_match_mode= 2)
-        ahk.win_wait_active('TopCompras', title_match_mode= 2, timeout= 100)
+        ahk.win_wait_active('TopCompras', title_match_mode= 2, timeout= 70)
 
     try: # Aguarda a tela de erro do TopCon 
         ahk.win_wait('Topsys', title_match_mode= 2, timeout= 3)
@@ -152,7 +145,7 @@ def programa_principal():
 
     # Aguarda até o topcompras voltar a funcionar
     ahk.win_activate('TopCompras', title_match_mode= 2)
-    ahk.win_wait_active('TopCompras', title_match_mode= 2, timeout= 100)
+    ahk.win_wait_active('TopCompras', title_match_mode= 2, timeout= 70)
     
     logging.info(F'--- Trocando o centro de custo para {centro_custo}')
     bot.write(centro_custo)
@@ -168,7 +161,7 @@ def programa_principal():
             return True
         else: # Aguarda até o topcompras voltar a funcionar
             ahk.win_activate('TopCompras', title_match_mode= 2)
-            ahk.win_wait_active('TopCompras', title_match_mode= 2, timeout= 100)
+            ahk.win_wait_active('TopCompras', title_match_mode= 2, timeout= 70)
             tentativa_cod_desc += 1 
     else:
         logging.info(F'--- Apareceu o campo COD_DESC, tentativa: {tentativa_cod_desc} ')
@@ -186,14 +179,14 @@ def programa_principal():
             return True
         else: # Aguarda até o topcompras voltar a funcionar
             ahk.win_activate('TopCompras', title_match_mode= 2)
-            ahk.win_wait_active('TopCompras', title_match_mode= 2, timeout= 100)
+            ahk.win_wait_active('TopCompras', title_match_mode= 2, timeout= 70)
             tentativa_cod_desc += 1 
     else:
         logging.info(F'--- sumiu o campo "cod_desc", tentativa: {tentativa_cod_desc}')
 
     # Aguarda até o topcompras voltar a funcionar
     ahk.win_activate('TopCompras', title_match_mode= 2)
-    ahk.win_wait_active('TopCompras', title_match_mode= 2, timeout= 100)
+    ahk.win_wait_active('TopCompras', title_match_mode= 2, timeout= 70)
     bot.click(procura_imagem(imagem='imagens/img_topcon/txt_ValoresTotais.png', continuar_exec= True))
 
     # * -------------------------------------- VALIDAÇÃO TRANSPORTADOR --------------------------------------
@@ -253,12 +246,14 @@ def programa_principal():
     tela_prod_servico = 0
     while procura_imagem(imagem='imagens/img_topcon/botao_alterar.png', area=(100, 839, 300, 400), limite_tentativa= 1, continuar_exec= True, confianca= 0.74) is False:
         if tela_prod_servico > 15:
-            return True
+            logging.error('--- Não encontrou a tela produtos e serviços')
+            raise TimeoutError
         
         bot.click(procura_imagem(imagem='imagens/img_topcon/produtos_servicos.png', confianca= 0.74, limite_tentativa= 3, continuar_exec= True))
         # Aguarda até aparecer o botão "alterar"
         ahk.win_activate('TopCompras', title_match_mode=2)
         ahk.win_wait_active('TopCompras', title_match_mode=2, timeout= 30)
+        logging.info(F'--- Tentativa de procurar PRODUTO E SERVIÇOS: {tela_prod_servico}')
         tela_prod_servico += 1
     
     
@@ -355,26 +350,29 @@ def programa_principal():
             if tentativa > 10: # Caso a tela não feche.
                 exit(bot.alert('Não foi possivel fechar a tela "itens nota fiscal de compra" '))
         else:
-            print('--- Não fechou a tela "itens nota fiscal de compras" ')
+            logging.warning('--- Não fechou a tela "itens nota fiscal de compras" ')
     
     finaliza_lancamento() # Realiza todo o processo de finalização de lançamento.
     return True
 
 
 if __name__ == '__main__':
+    horario_inicio = datetime.now()
+    horario_inicio = F"automacao_D{horario_inicio.day}-{horario_inicio.month}__H{horario_inicio.hour}-{horario_inicio.minute}_"
+
     logging.basicConfig(
-        filename="automacao.log",
-        filemode="a",
-        encoding="utf-8",
-        level=logging.INFO,
-        format="{asctime} - {levelname} - {message}",
-        style="{",
+        filename= F"logs/{horario_inicio}.log",
+        filemode= "a",
+        encoding= "utf-8",
+        level= logging.INFO,
+        format= "{asctime} - {levelname} = {funcName} - {message}",
+        style= "{",
         )
     
     logging.info('------------------------ Iniciando um novo log ------------------------ ')
     os.system('taskkill /im AutoHotkey.exe /f /t') # Encerra todos os processos do AHK
     os.system('cls')
-    
+
     if 'VLPTIC1Z9HD33' in platform.node(): # Verifica qual sistema está rodando o script
         bot.FAILSAFE = True
     else:
@@ -384,7 +382,7 @@ if __name__ == '__main__':
         try:
             programa_principal()
         except (TimeoutError, ValueError, OSError):
-            logging.critical("A execução principal acusou algum erro, executando o script inteiro novamente.")
-            time.sleep(5)
+            logging.exception('--- A execução principal parou! Executando o script PROGRAMA PRINCIPAL novamente.')
+            #exit(bot.alert('Apresentou um erro critico na execução principal'))
 
 # TODO --- Caso NFE Faturada no final do mes, lançar com qual data?

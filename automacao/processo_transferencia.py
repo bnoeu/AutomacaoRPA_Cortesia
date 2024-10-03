@@ -32,7 +32,7 @@ def processo_transferencia():
                 
             contador_pdf = 0
             while True:  # Aguardar o .PDF
-                time.sleep(0.2)
+                time.sleep(0.4)
                 try:
                     ahk.win_wait('.pdf', title_match_mode=2, timeout= 8)
                 except TimeoutError:

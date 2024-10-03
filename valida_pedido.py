@@ -18,7 +18,7 @@ transportador = "111594"
 chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
 #Nome dos itens que constarem no "Itens XML"
 PEDRA_1 = ('BRITA]','BRITA1', 'PEDRA 01', 'PEDRA DI', 'BRITADA 01', 'PEDRA 1', 'PEDRA BRITADA 01', 'PEDRAT', 'PEDRA BRITADA 1', 'BRITADA 1', 
-           'BRITA 01', 'BRITA 1', 'BRITA NR "01"', 'BRITA O01')
+           'BRITA 01', 'BRITA 1', 'BRITA NR "01"', 'BRITA O01', 'PEDRA No 1', 'PEDRA1')
 PO_PEDRA = ('PO DE PEDRA', 'AREA INDUSTRIAL', 'INDUSTRIAL')
 BRITA_0 = ('BRITA 0', 'PEDRISCO LIMPO', 'BRITAD™', 'BRITAO', 'PEDRISCO LAVADDO')
 CIMENTO_CP3 = ('CP 111', 'teste')
@@ -48,7 +48,7 @@ mapeamento_imagens = {
 
 
 def valida_pedido():
-    bot.PAUSE = 0.25
+    bot.PAUSE = 0.6
     tentativa = 0
     img_pedido = 0
     item_pedido = ''
@@ -80,7 +80,7 @@ def valida_pedido():
 
     #Caso não tenha encontrado o texto em nenhuma lista. 
     if validou_itensXml is False:
-        logging.error(F'--- Não foi possivel encontrar: {txt_itensXML} em nenhuma lista.')
+        logging.error(F'--- Não foi possivel encontrar: "{txt_itensXML}" em nenhuma lista, marcando planilha com "padronizar item" ')
         bot.click(procura_imagem(imagem='imagens/img_topcon/bt_cancela.png'))
         marca_lancado(texto_marcacao='Padronizar_Item')
         return False
@@ -100,7 +100,7 @@ def valida_pedido():
             ahk.win_activate('Vinculação Itens da Nota', title_match_mode = 2)
             ahk.win_wait_active('Vinculação Itens da Nota', title_match_mode = 2, timeout= 30)
             bot.click(744, 230) #Clica para descer o menu e exibir o resto das opções
-            time.sleep(0.2)
+            time.sleep(0.4)
 
         posicoes = bot.locateAllOnScreen('imagens/img_pedidos/' + img_pedido, confidence= 0.92, grayscale=True, region=(0, 0, 850, 400))
 

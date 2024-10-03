@@ -5,7 +5,7 @@ import time
 import logging
 import pytesseract
 from ahk import AHK
-from utils.funcoes import procura_imagem, corrige_nometela
+from utils.funcoes import procura_imagem, corrige_nometela, configurar_logging
 import pyautogui as bot
 import os
 from colorama import Style
@@ -24,27 +24,40 @@ bot.FAILSAFE = False
 
 
 def abre_mercantil():
-    logging.info('--- Executando a função: ABRE MERCANTIL ' )
-    bot.PAUSE = 0.3
+    bot.PAUSE = 1
     verifica_topcompras = 0
     
-    corrige_nometela() # Verifica se o TopCompras não está com outro nome.
-    
-    while ahk.win_exists('TopCompras', title_match_mode= 2): # Realiza o fechamento do TopCompras, caso esteja aberto
-        ahk.win_close('TopCompras', title_match_mode=2)
-        time.sleep(0.5)
-        if verifica_topcompras > 10:
-            logging.warning('--- Tentou fechar o TopCompras porém não conseguiu! Fechando o remote por completo')
-            return False
-            
-        verifica_topcompras += 1
+    # Verificar se o TopCompras está aberto, caso não esteja, abre ele
+    if ahk.win_exists('TopCon', title_match_mode= 2):
+        logging.info('--- TopCon está aberto, pode prosseguir com a abertura do TopCompras')
     else:
-        logging.info('--- Modulo de compras não está aberto, abrindo o modulo')
+        logging.warning('--- TopCon está fechado! executando ABRE TOPCON')
+        abre_topcon()       
+    
+    if ahk.win_exists('TopCompras') is False:
+        corrige_nometela() # Verifica se o TopCompras não está com outro nome.
+        
+    while ahk.win_exists('TopCompras', title_match_mode= 2): # Realiza o fechamento do TopCompras, caso esteja aberto
+        logging.info('--- Tentando fechar o TopCompras')
+        ahk.win_close('TopCompras', title_match_mode=2, seconds_to_wait= 3)
+        
+        if ahk.win_exists('TopCompras', title_match_mode= 2) is False:
+            logging.info('--- Modulo de compras realmente está fechado, abrindo uma nova execução')
+            return True
+        
+        verifica_topcompras += 1
+        if verifica_topcompras > 10:
+            logging.warning('--- Não foi possivel fechar apenas o TopCompras, reiniciando Topcon & TopCompras')
+            fecha_execucoes()
+            
+    else:
+        logging.info('--- Modulo de compras realmente está fechado, abrindo uma nova execução')
             
     # Ativa o Topcon, e clica no topcompras, e executa a função para correção do nome.
     ahk.win_activate('TopCon', title_match_mode= 2)
     bot.click(procura_imagem(imagem='imagens/img_topcon/logo_topcompras.png'))
-    time.sleep(3)
+    logging.info('--- Na tela do Topcon, clicou no logo do topcompras ')
+    time.sleep(5)
     if ahk.win_exists(title= 'TopCompras - Versão', title_match_mode = 1) is False: # Caso não encontre o TopCompras
         corrige_nometela()
 
@@ -54,7 +67,7 @@ def abre_mercantil():
             logging.info('--- Encontrou a tela do interveniente, clicando no botão "OK"')
             ahk.win_activate('TopCompras (VM-CortesiaApli.CORTESIA.com)', title_match_mode= 2)
             ahk.win_wait_active('TopCompras (VM-CortesiaApli.CORTESIA.com)', title_match_mode= 1, timeout= 5)
-            time.sleep(0.2)
+            time.sleep(0.4)
             
             while procura_imagem(imagem='imagens/img_topcon/botao_ok.jpg', continuar_exec= True, confianca= 0.74, limite_tentativa= 1) is not False:
                 if procura_imagem(imagem='imagens/img_topcon/botao_ok.jpg', continuar_exec= True):
@@ -69,10 +82,11 @@ def abre_mercantil():
         logging.error('--- Apresentou um erro')
         time.sleep(0.5)
         abre_topcon()
-    
+    corrige_nometela() # Verifica se o TopCompras não está com outro nome.
     return navega_topcompras()
         
 def navega_topcompras():
+    bot.PAUSE = 1
     logging.info('--- Executando a função: navega topcompras ' )
     # Navegando entre os menus para abrir a opção "Compras - Mercantil"
     ahk.win_activate('TopCompras', title_match_mode= 2)
@@ -88,6 +102,7 @@ def navega_topcompras():
     return True
 
 def fecha_execucoes():
+    bot.PAUSE = 1
     logging.info('--- Iniciando fecha_execucoes, para fechar o TopCompras e o RDP ---')
     
     if ahk.win_exists('Vinculação Itens da Nota', title_match_mode = 2):
@@ -95,16 +110,22 @@ def fecha_execucoes():
         
     
     # Primeiro força o fechamento do TopCompras, para evitar erros de validações
+    limite_tentativas = 0
     while ahk.win_exists(title= "TopCompras", title_match_mode= 2):
-        time.sleep(0.2)
-        ahk.win_close(title= 'TopCompras', title_match_mode = 2, seconds_to_wait= 5)   
+        ahk.win_close(title= 'TopCompras', title_match_mode = 2, seconds_to_wait= 1)   
+        ahk.win_kill(title='TopCompras', title_match_mode= 2, seconds_to_wait= 1)
+        
+        limite_tentativas += 1
+        if limite_tentativas > 10:
+            os.system('taskkill /im mstsc.exe /f /t') # Força o fechamento do processo do RDP por completo
     else:
-        time.sleep(0.2)
+        time.sleep(0.25)
 
     #os.system('taskkill /im AutoHotkey.exe /f /t') # Encerra todos os processos do AHK
     os.system('taskkill /im mstsc.exe /f /t') # Força o fechamento do processo do RDP por completo
 
 def abre_topcon():
+    bot.PAUSE = 1
     if ahk.win_exists('RemoteApp Disconnected', title_match_mode= 2): # Caso fique aparecendo a tela "RemoteApp Disconnected"
         logging.debug('Fechando a tela "RemoteApp Disconnected" ')
         ahk.win_activate('RemoteApp Disconnected', title_match_mode= 2)
@@ -112,8 +133,6 @@ def abre_topcon():
         bot.press('ENTER')
     
     while True:
-        bot.PAUSE = 0.25
-        
         logging.info('--- Executando a função: ABRE TOPCON ' )
         fecha_execucoes() # Começa garantindo que fechou todas as execuções antigas.
         
@@ -177,14 +196,19 @@ def abre_topcon():
                     logging.info('--- Tela do Topcon já está aberta.')
                     break
         
+        return True
+        ''' #! Incluir todos os processo num chamado "reabertura_completa"
         # Com o programa TopCon aberto, realiza a abertura do modulo de compras (mercantil). 
         if abre_mercantil() is True:
             logging.info('--- processo concluido')
             break
         else:
             logging.critical('--- deu algum xabu')
+        '''
+
 
 if __name__ == '__main__':
-    bot.PAUSE = 0.25
-    fecha_execucoes()
-    abre_topcon()
+    bot.PAUSE = 1
+    configurar_logging(nome_arquivo= "logs/debug", nivel_log = logging.DEBUG)
+    #fecha_execucoes()
+    abre_mercantil()

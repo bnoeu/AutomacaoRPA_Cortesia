@@ -25,24 +25,28 @@ def conferencia_xml():
         ahk.win_activate('TopCompras', title_match_mode=2, detect_hidden_windows= True)
         time.sleep(0.25)
         
-        if procura_imagem(imagem='imagens/img_topcon/botao_sim.jpg', continuar_exec= True, limite_tentativa= 1, confianca= 0.73) is not False:
+        if procura_imagem(imagem='imagens/img_topcon/txt_fornecedor_cadastrado.png', continuar_exec=True, limite_tentativa= 1, confianca= 0.73) is not False:
+            texto_erro = "cadastrar_fornecedor"
+            bot.click(procura_imagem(imagem='imagens/img_topcon/bt_nao.png', continuar_exec= True))
+        
+        elif procura_imagem(imagem='imagens/img_topcon/botao_sim.jpg', continuar_exec= True, limite_tentativa= 1, confianca= 0.73) is not False:
             logging.info('--- XML Validado, indo para validação do pedido')
             ahk.win_activate('TopCompras', title_match_mode=2, detect_hidden_windows= True)
             bot.click(procura_imagem(imagem='imagens/img_topcon/botao_sim.jpg', continuar_exec=True))
             return True # Retorna os dados, confirmando que essa chave XML é valida.
     
-        if procura_imagem(imagem='imagens/img_topcon/chave_invalida.png', continuar_exec=True, limite_tentativa= 1, confianca= 0.73) is not False:
+        elif procura_imagem(imagem='imagens/img_topcon/chave_invalida.png', continuar_exec=True, limite_tentativa= 1, confianca= 0.73) is not False:
             texto_erro = "Lancado_Manual"         
         
-        if procura_imagem(imagem='imagens/img_topcon/naoencontrado_xml.png', continuar_exec=True, limite_tentativa= 1, confianca= 0.73) is not False:
+        elif procura_imagem(imagem='imagens/img_topcon/naoencontrado_xml.png', continuar_exec=True, limite_tentativa= 1, confianca= 0.73) is not False:
             texto_erro = "Aguardando_SEFAZ"
         
-        if procura_imagem(imagem='imagens/img_topcon/chave_44digitos.png', continuar_exec=True, limite_tentativa= 1, confianca= 0.73) is not False:
+        elif procura_imagem(imagem='imagens/img_topcon/chave_44digitos.png', continuar_exec=True, limite_tentativa= 1, confianca= 0.73) is not False:
             texto_erro = "Chave_invalida"
         
-        if procura_imagem(imagem='imagens/img_topcon/nfe_cancelada.png', continuar_exec=True, limite_tentativa= 1, confianca= 0.73) is not False:
+        elif procura_imagem(imagem='imagens/img_topcon/nfe_cancelada.png', continuar_exec=True, limite_tentativa= 1, confianca= 0.73) is not False:
             texto_erro = "NFE_Cancelada"
-        
+
         if texto_erro is not False: # Caso tenha apresentado algum erro.
             logging.info(F'--- Apresentou um erro: {texto_erro} ' )
             while True:
@@ -58,7 +62,7 @@ def conferencia_xml():
                     return False
         else:       
             time.sleep(0.25)
-            tentativa += 1
+        tentativa += 1
     else: # Caso exceta o limite de tentativas, tenta fechar e abrir a tela de compras.
         logging.warning('--- Excedeu o limite de tentativas de encontrar alguma tela, reabrindo mercantil')
         abre_mercantil()
