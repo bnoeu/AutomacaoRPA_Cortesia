@@ -19,7 +19,7 @@ from ahk import AHK
 from datetime import date, datetime
 from valida_pedido import valida_pedido
 from valida_lancamento import valida_lancamento
-from abre_topcon import abre_mercantil, abre_topcon
+from abre_topcon import abre_mercantil, abre_topcon, fecha_execucoes
 from automacao.finaliza_lancamento import finaliza_lancamento
 from utils.funcoes import marca_lancado, procura_imagem, extrai_txt_img
 
@@ -381,8 +381,10 @@ if __name__ == '__main__':
     while True:
         try:
             programa_principal()
-        except (TimeoutError, ValueError, OSError):
-            logging.exception('--- A execução principal parou! Executando o script PROGRAMA PRINCIPAL novamente.')
-            #exit(bot.alert('Apresentou um erro critico na execução principal'))
+        except (TimeoutError):
+            fecha_execucoes()
+            logging.exception('--- A execução principal apresentou Timeout! Executando o script PROGRAMA PRINCIPAL novamente.')
+        except(ValueError, OSError):
+            exit(bot.alert('Apresentou um erro critico na execução principal'))
 
 # TODO --- Caso NFE Faturada no final do mes, lançar com qual data?

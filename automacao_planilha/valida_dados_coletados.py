@@ -24,7 +24,7 @@ def valida_dados_coletados(dados_planilha = []):
         return False
     elif len(dados_planilha[4]) < 42 and len(dados_planilha[4]) > 1: # Caso a chave tenha menos de 42 digitos, ela é invalida!
         marca_lancado('chave_invalida')
-        return False 
+        return True 
     elif (len(dados_planilha[0]) < 4) or (len(dados_planilha[0]) == 5):
         marca_lancado('RE_Invalido')
         return False

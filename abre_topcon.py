@@ -24,7 +24,7 @@ bot.FAILSAFE = False
 
 
 def abre_mercantil():
-    bot.PAUSE = 1
+    bot.PAUSE = 0.1
     verifica_topcompras = 0
     
     # Verificar se o TopCompras está aberto, caso não esteja, abre ele
@@ -55,9 +55,9 @@ def abre_mercantil():
             
     # Ativa o Topcon, e clica no topcompras, e executa a função para correção do nome.
     ahk.win_activate('TopCon', title_match_mode= 2)
-    bot.click(procura_imagem(imagem='imagens/img_topcon/logo_topcompras.png'))
+    bot.doubleClick(procura_imagem(imagem='imagens/img_topcon/logo_topcompras.png'))
     logging.info('--- Na tela do Topcon, clicou no logo do topcompras ')
-    time.sleep(5)
+    time.sleep(8)
     if ahk.win_exists(title= 'TopCompras - Versão', title_match_mode = 1) is False: # Caso não encontre o TopCompras
         corrige_nometela()
 
@@ -103,12 +103,13 @@ def navega_topcompras():
 
 def fecha_execucoes():
     bot.PAUSE = 1
-    logging.info('--- Iniciando fecha_execucoes, para fechar o TopCompras e o RDP ---')
+    logging.info('--- Iniciando fecha execucoes, para fechar o TopCompras e o RDP ---')
     
     if ahk.win_exists('Vinculação Itens da Nota', title_match_mode = 2):
         ahk.win_close('Vinculação Itens da Nota', title_match_mode = 2, seconds_to_wait= 5)
+        ahk.win_wait_close('Vinculação Itens da Nota', title_match_mode = 2, timeout= 30)
+        logging.info('--- Fechou a tela "Vinculação itens da nota" ')
         
-    
     # Primeiro força o fechamento do TopCompras, para evitar erros de validações
     limite_tentativas = 0
     while ahk.win_exists(title= "TopCompras", title_match_mode= 2):
@@ -120,12 +121,15 @@ def fecha_execucoes():
             os.system('taskkill /im mstsc.exe /f /t') # Força o fechamento do processo do RDP por completo
     else:
         time.sleep(0.25)
+        logging.info('--- Fechou a tela "TopCompras" ')
 
     #os.system('taskkill /im AutoHotkey.exe /f /t') # Encerra todos os processos do AHK
     os.system('taskkill /im mstsc.exe /f /t') # Força o fechamento do processo do RDP por completo
+    logging.info('--- Fechou o processo MSTSC.EXE" ')
 
 def abre_topcon():
-    bot.PAUSE = 1
+    bot.PAUSE = 1.5
+    logging.info('--- Executando a função: ABRE TOPCON' )
     if ahk.win_exists('RemoteApp Disconnected', title_match_mode= 2): # Caso fique aparecendo a tela "RemoteApp Disconnected"
         logging.debug('Fechando a tela "RemoteApp Disconnected" ')
         ahk.win_activate('RemoteApp Disconnected', title_match_mode= 2)
@@ -133,7 +137,6 @@ def abre_topcon():
         bot.press('ENTER')
     
     while True:
-        logging.info('--- Executando a função: ABRE TOPCON ' )
         fecha_execucoes() # Começa garantindo que fechou todas as execuções antigas.
         
         logging.info('--- Iniciando o RemoteApp')
@@ -206,9 +209,8 @@ def abre_topcon():
             logging.critical('--- deu algum xabu')
         '''
 
-
 if __name__ == '__main__':
     bot.PAUSE = 1
-    configurar_logging(nome_arquivo= "logs/debug", nivel_log = logging.DEBUG)
+    configurar_logging(nome_arquivo= "/debug", nivel_log = logging.DEBUG)
     #fecha_execucoes()
     abre_mercantil()

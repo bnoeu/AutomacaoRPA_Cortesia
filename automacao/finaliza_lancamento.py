@@ -94,10 +94,18 @@ def finaliza_lancamento(planilha_marcada = False, lancamento_concluido = False, 
 
         # 5. Caso apareça a tela "Fornecedor não cadastrado"
         if procura_imagem(imagem='imagens/img_topcon/txt_fornecedor_cadastrado.png', continuar_exec=True, limite_tentativa= 1, confianca= 0.74) is not False:
-            logging('--- Nota já lançada, marcando planilha!')
+            logging.info('--- Nota já lançada, marcando planilha!')
             bot.press('ENTER')
             bot.press('F2', presses = 2)
             marca_lancado(texto_marcacao='Lancado_Manual')
+            break
+
+        # 6. Caso apareça a tela "Valor de frete maior"
+        if procura_imagem(imagem='imagens/img_topcon/txt_valor_frete.png', continuar_exec=True, limite_tentativa= 1, confianca= 0.74) is not False:
+            logging.info('--- Nota já lançada, marcando planilha!')
+            bot.press('ENTER')
+            bot.press('F2', presses = 2)
+            marca_lancado(texto_marcacao='Erro_Frete')
             break
         
         if lancamento_concluido is True:

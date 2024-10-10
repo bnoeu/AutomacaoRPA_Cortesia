@@ -7,7 +7,7 @@ import logging
 from datetime import datetime
 from ahk import AHK
 import pyautogui as bot
-from utils.funcoes import procura_imagem, abre_planilha_navegador
+from utils.funcoes import procura_imagem, abre_planilha_navegador, configurar_logging, msg_box
 from automacao_planilha.abre_planilha_debug import abre_planilha
 
 # --- Definição de parametros
@@ -33,7 +33,7 @@ def abre_planilha_navegador(link_planilha = alltrips):
 '''
 
 def encontra_ultimo_xml(ultimo_xml = ''):
-    bot.PAUSE = 1
+    bot.PAUSE = 1.5
     while True:
         logging.info(F'--- Iniciando a navegação até a ultima chave XML: {ultimo_xml}')
         ahk.win_activate('db_alltrips.xlsx', title_match_mode= 2)
@@ -106,15 +106,18 @@ def copia_dados(ultimo_xml):
             break
     
     if valor_copiado == "":
-        logging.info('--- Campo vazio, aguardando 10 minutos.')
         os.system('taskkill /im msedge.exe /f /t')
-        logging.warning('Fechando o EDGE')
-        time.sleep(100)
+        logging.info('Aguardando 10 minutos, para tentar encontrar uma nova nota, e fechando o EDGE')
+        msg_box("Campo vazio, aguardando 10 minutos", tempo = 600)
+        raise TimeoutError
     else:
+        ''' #! Deixou de ser necessario.
         if valor_copiado == ultimo_xml:
-            logging.warning('--- Erro, está na mesma chave!')
-        else:
-            logging.info(F'--- Uma nova chave foi inserida: {valor_copiado}')
+            bot.press('down')
+            logging.error('--- Erro, está na mesma chave!')
+            raise TimeoutError
+        '''
+        logging.info(F'--- Uma nova chave foi inserida: {valor_copiado}')
     
     # Inicia o processo de seleção dos dados
     logging.info('--- Iniciando o processo de seleção dos dados')    
@@ -159,11 +162,9 @@ def copia_dados(ultimo_xml):
             ahk.key_up('Control')
             raise TimeoutError
 
-
 def cola_dados(dados_copiados = "TESTE"):
-    print(bot.PAUSE)
+    #exit(bot.alert('Verificar script copia banco'))
     logging.info('--- Acessando a planilha de debug para COLAR os dados!')
-    print(len(dados_copiados))
     abre_planilha_navegador(planilha_debug)
     time.sleep(0.5)
     bot.hotkey('CTRL', 'HOME') # Navega até a celula A1.
@@ -190,18 +191,18 @@ def cola_dados(dados_copiados = "TESTE"):
         return True
 
 def main(ultimo_xml = chave_xml):
+    bot.PAUSE = 1.5
     dia_mes_atual = datetime.now() # Coleta a data atual, para validar se os dados são novos.
-    dois_dias_antes = dia_mes_atual.day - 2
+    dois_dias_antes = dia_mes_atual.day - 3
     dois_dias_antes = F"{dois_dias_antes}/"
-    bot.PAUSE = 1
     
     abre_planilha_navegador()
     encontra_ultimo_xml(ultimo_xml = ultimo_xml)
     dados_copiados = copia_dados(ultimo_xml)
     if dois_dias_antes in dados_copiados:
-        exit(bot.aler('Dia 26/ está nos dados copiados.'))
+        exit(bot.alert(F'Dia "{dois_dias_antes}" está nos dados copiados.'))
     else:
-        print(F'Não encontrou: {dois_dias_antes} nos dados copiados, os dados são novos!')
+        logging.info(F'Não encontrou: {dois_dias_antes} nos dados copiados, os dados são novos!')
     ahk.key_up('Shift')
     ahk.key_up('Control')
     colou_dados = cola_dados(dados_copiados)
@@ -209,4 +210,5 @@ def main(ultimo_xml = chave_xml):
         return True
 
 if __name__ == '__main__':
-    main(ultimo_xml= "35240929067113027809550070003121921395088932")
+    configurar_logging('debug', logging.DEBUG)
+    main(ultimo_xml= "31241062258884002422550010018045271643947946")

@@ -8,7 +8,7 @@ import pyautogui as bot
 from copia_alltrips import main as copia_banco
 from automacao_planilha.copia_linha_atual import copia_linha_atual
 from automacao_planilha.valida_dados_coletados import valida_dados_coletados
-from utils.funcoes import reaplica_filtro_status, abre_planilha_navegador
+from utils.funcoes import reaplica_filtro_status, abre_planilha_navegador, msg_box
 
 # --- Definição de parametros
 ahk = AHK()
@@ -26,18 +26,20 @@ def main():
                 dados_copiados = coleta_planilha()
             
             dados_validados = valida_dados_coletados(dados_copiados)
-        except (TimeoutError, ValueError, OSError):
-            logging.error("Os processos de coleta na PLANILHA deram erro, fechando planilha e executando novamente.")
+        except (TimeoutError) as texto_erro:
+            logging.exception("Os processos de coleta na PLANILHA deram erro, fechando planilha e executando novamente.")
+            msg_box(str(f"{texto_erro}"), tempo = 10)
+    
             ahk.win_kill('Edge', title_match_mode= 2, seconds_to_wait= 3)
             logging.warning('Fechando o EDGE')
-            time.sleep(5)          
+            time.sleep(5)
     else:
         logging.info('--- Processo de coleta da planilha foi executado corretamente.')
         return dados_copiados
 
 def coleta_planilha():
     while True:
-        bot.PAUSE = 0.5
+        bot.PAUSE = 0.2
         
         logging.info('--- Copiando dados e formatando na planilha de debug')
         reaplica_filtro_status()
@@ -52,8 +54,8 @@ def coleta_planilha():
         
         if validou_dados is True:    
             if len(dados_planilha[6]) > 1:
-                logging.warning(F'--- Dados copiados: {dados_planilha}')
-                logging.warning(F'--- Chegou na ultima NFE {chave_xml}')
+                logging.info(F'--- Dados copiados: {dados_planilha}')
+                logging.info(F'--- Chegou na ultima NFE {chave_xml}')
                 #exit(bot.alert(' Verificar o script do copia banco'))
                 copia_banco(chave_xml)
             else:
@@ -62,8 +64,8 @@ def coleta_planilha():
         else:
             logging.info(F'--- Copiando novamente pois os dados são invalidos: {dados_planilha}')
             if "RE_Invalido" in dados_planilha[6]:
-                logging.warning(F'--- Dados copiados: {dados_planilha}')
-                logging.warning(F'--- Chegou na ultima NFE {chave_xml}')
+                logging.info(F'--- Dados copiados: {dados_planilha}')
+                logging.info(F'--- Chegou na ultima NFE {chave_xml}')
                 #exit(bot.alert(' Verificar o script do copia banco'))
                 copia_banco(chave_xml)
             return False

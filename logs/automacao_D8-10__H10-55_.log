@@ -1,0 +1,7 @@
+2024-10-08 10:55:06,333 - INFO = <module> - ------------------------ Iniciando um novo log ------------------------ 
+2024-10-08 10:55:06,468 - INFO = programa_principal - 
+2024-10-08 10:55:06,468 - INFO = programa_principal - ---------------------------------------------------------------------------------------------------
+2024-10-08 10:55:06,468 - INFO = programa_principal - --- INICIANDO UM NOVO LANÇAMENTO DE NFE --- 
+2024-10-08 10:55:06,468 - INFO = programa_principal - ---------------------------------------------------------------------------------------------------
+2024-10-08 10:55:06,470 - INFO = abre_planilha_navegador - --- Tentando abrir a planilha: debug_db_alltrips.xlsx
+2024-10-08 10:55:06,575 - INFO = abre_planilha_navegador - --- Planilha já estava aberta, executou apenas um recarregamento

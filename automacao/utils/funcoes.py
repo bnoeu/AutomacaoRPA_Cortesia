@@ -50,6 +50,7 @@ def procura_imagem(imagem, limite_tentativa=5, area=(0, 0, 1920, 1080), continua
                 posicao_img = bot.locateCenterOnScreen(imagem, grayscale= True, confidence= confianca, region= area)
             except OSError:
                 logging.critical('--- Erro devido a resolução da maquina virtual, aguardando')
+                logging.exception()
                 time.sleep(15)
                 raise OSError
             else:

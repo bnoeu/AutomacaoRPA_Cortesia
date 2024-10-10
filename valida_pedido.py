@@ -20,7 +20,7 @@ chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
 PEDRA_1 = ('BRITA]','BRITA1', 'PEDRA 01', 'PEDRA DI', 'BRITADA 01', 'PEDRA 1', 'PEDRA BRITADA 01', 'PEDRAT', 'PEDRA BRITADA 1', 'BRITADA 1', 
            'BRITA 01', 'BRITA 1', 'BRITA NR "01"', 'BRITA O01', 'PEDRA No 1', 'PEDRA1')
 PO_PEDRA = ('PO DE PEDRA', 'AREA INDUSTRIAL', 'INDUSTRIAL')
-BRITA_0 = ('BRITA 0', 'PEDRISCO LIMPO', 'BRITAD™', 'BRITAO', 'PEDRISCO LAVADDO')
+BRITA_0 = ('BRITA 0', 'PEDRISCO LIMPO', 'BRITAD™', 'BRITAO', 'PEDRISCO LAVADDO', 'BRITA ZERO')
 CIMENTO_CP3 = ('CP 111', 'teste')
 CIMENTO_CP2 = ('CP II-E-40', '£-40', 'CIMENTO PORTLAND CP IIE-40 RS |', "CIMENTO PORTLAND CP I'E-40 RS.", "CIMENTO PORTLAND CP IE-40 RS")
 AREIA_RIO = ('AREIA LAVADA MEDIA', 'AREIA MEDIA', 'ARE A LAVADA MEDIA', 'AREA LAVADA MEDIA', 'AREIA LAVADA')
@@ -82,6 +82,8 @@ def valida_pedido():
     if validou_itensXml is False:
         logging.error(F'--- Não foi possivel encontrar: "{txt_itensXML}" em nenhuma lista, marcando planilha com "padronizar item" ')
         bot.click(procura_imagem(imagem='imagens/img_topcon/bt_cancela.png'))
+        ahk.win_close('Vinculação Itens da Nota', title_match_mode = 2)
+        ahk.win_wait_close('Vinculação Itens da Nota', title_match_mode = 2, timeout= 30)
         marca_lancado(texto_marcacao='Padronizar_Item')
         return False
 
