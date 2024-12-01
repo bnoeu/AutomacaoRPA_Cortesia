@@ -2,19 +2,19 @@
 # Para utilização na Cortesia Concreto.
 
 import time
-import logging
-#import cv2
-#import pytesseract
-from ahk import AHK
+import pytesseract
 import pyautogui as bot
+from utils.funcoes import ahk as ahk
+from utils.configura_logger import get_logger
 from utils.funcoes import marca_lancado, procura_imagem, extrai_txt_img, verifica_ped_vazio, corrige_nometela
 
 # --- Definição de parametros
-ahk = AHK()
 posicao_img = 0  # Define a variavel para utilização global dela.
 continuar = True
 numero_nf = "965999"
 transportador = "111594"
+logger = get_logger("automacao") # Obter logger configurado
+pytesseract.pytesseract.tesseract_cmd = r"C:\Tesseract-OCR\tesseract.exe"
 chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
 #Nome dos itens que constarem no "Itens XML"
 PEDRA_1 = ('BRITA]','BRITA1', 'PEDRA 01', 'PEDRA DI', 'BRITADA 01', 'PEDRA 1', 'PEDRA BRITADA 01', 'PEDRAT', 'PEDRA BRITADA 1', 'BRITADA 1', 
@@ -48,12 +48,12 @@ mapeamento_imagens = {
 
 
 def valida_pedido():
-    bot.PAUSE = 0.6
+    logger.info('--- Executando função: valida pedido' )
+    bot.PAUSE = 0.8
     tentativa = 0
     img_pedido = 0
     item_pedido = ''
     validou_itensXml = False
-    logging.info('--- Executando função: valida pedido' )
 
     ahk.win_activate('Vinculação Itens da Nota', title_match_mode = 2) #Aguarda a abertura da tela de vinculação de item versus nota
     try:
@@ -73,18 +73,17 @@ def valida_pedido():
                 #Verificação do nome no mapeamento
                 if (nome in mapeamento_imagens) and (validou_itensXml is False):
                     img_pedido = mapeamento_imagens[nome]
-                    logging.info(F'--- O item: {item_pedido} é igual ao item extraido: {txt_itensXML}, procurando a imagem: {img_pedido}')
+                    logger.info(F'--- O item: {item_pedido} é igual ao item extraido: {txt_itensXML}, procurando a imagem: {img_pedido}')
                     ahk.win_activate('Vinculação Itens da Nota', title_match_mode = 2)
                     validou_itensXml = True
                     break
 
     #Caso não tenha encontrado o texto em nenhuma lista. 
     if validou_itensXml is False:
-        logging.error(F'--- Não foi possivel encontrar: "{txt_itensXML}" em nenhuma lista, marcando planilha com "padronizar item" ')
-        bot.click(procura_imagem(imagem='imagens/img_topcon/bt_cancela.png'))
-        ahk.win_close('Vinculação Itens da Nota', title_match_mode = 2)
-        ahk.win_wait_close('Vinculação Itens da Nota', title_match_mode = 2, timeout= 30)
         marca_lancado(texto_marcacao='Padronizar_Item')
+        logger.error(F'--- Não foi possivel encontrar: "{txt_itensXML}" em nenhuma lista, marcando planilha com "padronizar item" ')
+        while ahk.win_exists('Vinculação Itens da Nota', title_match_mode = 2):
+            ahk.win_close('Vinculação Itens da Nota', title_match_mode = 2)
         return False
 
 #* --------------------------------- Pedidos Encontrados ---------------------------------
@@ -98,11 +97,11 @@ def valida_pedido():
         # Tenta encontrar a imagem do pedido e salva as posições onde encontrar
         
         if tentativa >= 1: # Caso seja a segunda tentativa, já baixa a lista de pedidos.
-            logging.info('--- Baixando a lista dos pedidos')
+            logger.info('--- Baixando a lista dos pedidos')
             ahk.win_activate('Vinculação Itens da Nota', title_match_mode = 2)
             ahk.win_wait_active('Vinculação Itens da Nota', title_match_mode = 2, timeout= 30)
             bot.click(744, 230) #Clica para descer o menu e exibir o resto das opções
-            time.sleep(0.4)
+            time.sleep(0.5)
 
         posicoes = bot.locateAllOnScreen('imagens/img_pedidos/' + img_pedido, confidence= 0.92, grayscale=True, region=(0, 0, 850, 400))
 
@@ -110,14 +109,14 @@ def valida_pedido():
         for pos in posicoes:
             contagem += 1
 
-        if contagem == 0: # Caso não encontre a imagem em  ( significa que falta pedido. )
-            logging.warning(F'--- Não encontrou {img_pedido}, saindo do processo.')
+        if contagem == 0: # Caso não encontre a imagem em ( significa que falta pedido. )
+            logger.warning(F'--- Não encontrou {img_pedido}, saindo do processo.')
+            marca_lancado(texto_marcacao= 'Pedido_Inexistente')
             ahk.win_activate('Vinculação Itens da Nota', title_match_mode = 2)
             ahk.win_wait_active('Vinculação Itens da Nota', title_match_mode = 2, timeout= 30)
             ahk.win_close('Vinculação Itens da Nota', title_match_mode = 2)
             ahk.win_wait_close('Vinculação Itens da Nota', title_match_mode = 2, timeout= 30)
             bot.press('F2')
-            marca_lancado(texto_marcacao= 'Pedido_Inexistente')
             vazio = False
             tentativa = 3
             return False # Retorna false pois não concluiu o processo.
@@ -126,19 +125,19 @@ def valida_pedido():
 
         #Verifica nas posições que encontrou
         for pos in posicoes:  # Tenta em todos pedidos encontrados
-            logging.info(F'--- Tentativa: {tentativa}, achou o {txt_itensXML} na posição {pos}')
+            logger.info(F'--- Tentativa: {tentativa}, achou o {txt_itensXML} na posição {pos}')
             ahk.win_activate('Vinculação Itens da Nota', title_match_mode = 2)
             time.sleep(0.5)
             
             bot.doubleClick(pos)  # Marca o pedido encontrado
             bot.click(procura_imagem(imagem='imagens/img_topcon/localizar.png'))
             vazio = verifica_ped_vazio(texto=txt_itensXML, pos=pos)
-            logging.info(F'--- Valor campo "item XML": {vazio}')
+            logger.debug(F'--- Valor campo "item XML": {vazio}')
             
             if vazio is not True:
                 bot.click(procura_imagem('imagens/img_topcon/vinc_xml_pedido.png',continuar_exec=True))
                 vazio = verifica_ped_vazio(texto=txt_itensXML, pos=pos)
-                logging.info(F'--- Valor campo "vazio": {vazio}')
+                logger.info(F'--- Valor campo "vazio": {vazio}')
                 if vazio is True:
                     tentativa = 3
                     break
@@ -149,23 +148,23 @@ def valida_pedido():
                 
                 #Confere se após clicar nos botões, ainda assim o campo ficou vazio.
                 if verifica_ped_vazio(texto=txt_itensXML, pos=pos) is not True:
-                    #logging.info(F'--- Não ficou vazio, desmarcando pedido, indo para proxima tentativa {tentativa}')
+                    #logger.info(F'--- Não ficou vazio, desmarcando pedido, indo para proxima tentativa {tentativa}')
                     bot.doubleClick(pos) # Clica novamente no mesmo pedido, para desmarcar
             else:
-                logging.info(F'--- Pedido validado, saindo do loop dos pedidos encontrados, valor do campo: {vazio}')
+                logger.success(F'--- Pedido validado! VALIDA PEDIDO concluida.  ( valor do campo: {vazio} )')
                 return True
 
         tentativa += 1
         
     else:
         if vazio is False:
-            logging.info('--- Acabou o pedido, fechando "vincula pedido" e marcando informação na planilha' )
+            logger.warning('--- Acabou o pedido, fechando "vincula pedido" e marcando informação na planilha' )
+            marca_lancado('Erro_Pedido_' + img_pedido)
             while ahk.win_exists('Vinculação Itens da Nota', title_match_mode = 2):
                 ahk.win_close('Vinculação Itens da Nota', title_match_mode = 2)
                 
             bot.press('F2')
             time.sleep(0.5)
-            marca_lancado('Erro_Pedido_' + img_pedido)
             return False
         
 if __name__ == '__main__':

@@ -4,12 +4,12 @@
 import os
 import time
 import cv2
-from datetime import datetime
-import logging
 import pytesseract
 import numpy as np
 from ahk import AHK
 import pyautogui as bot
+from datetime import datetime
+from utils.configura_logger import get_logger
 
 
 # --- Definição de parametros
@@ -18,29 +18,17 @@ posicao_img = 0  # Define a variavel para utilização global dela.
 continuar = True
 # tempo_inicio = time.time()
 chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
-pytesseract.pytesseract.tesseract_cmd = r"C:\Tesseract-OCR\tesseract.exe"
 bot.useImageNotFoundException(False)
-planilha_debug = "https://cortesiaconcreto-my.sharepoint.com/:x:/g/personal/bruno_silva_cortesiaconcreto_com_br/ETubFnXLMWREkm0e7ez30CMBnID3pHwfLgGWMHbLqk2l5A?rtime=n9xgTPCH3Eg"
+logger = get_logger("")
+planilha_debug = "https://cortesiaconcreto-my.sharepoint.com/:x:/g/personal/bruno_silva_cortesiaconcreto_com_br/ETubFnXLMWREkm0e7ez30CMBnID3pHwfLgGWMHbLqk2l5A?rtime=jFhSykjw3Eg"
 alltrips = "https://cortesiaconcreto-my.sharepoint.com/:x:/g/personal/bi_cortesiaconcreto_com_br/EQx5PclDGRFGkweQjtb3QckByyAsqydfI5za0MTuO9tjXg?e=RYfgcA.com"
 
-def configurar_logging(nome_arquivo, nivel_log = logging.INFO):
-    """Gera e configura o log
-    Args:
-        nome_arquivo (str): o nome que terá o log
-        nivel_log (_type_, optional): O nivel de log. Defaults to logging.INFO.
-    """
-    horario_inicio = datetime.now()
-    horario_inicio = F"D{horario_inicio.day}-{horario_inicio.month}__H{horario_inicio.hour}-{horario_inicio.minute}_"
-
-    logging.basicConfig(
-        filename= F"logs/{nome_arquivo}_{horario_inicio}.log",
-        filemode= "a",
-        encoding= "utf-8",
-        level= nivel_log,
-        format= "{asctime} - {levelname} - {message}",
-        style="{",
-        )
-
+def print_erro(nome_img = "erro"):
+    time_atual = str(datetime.now()).replace(":","_").replace(".","_")
+    caminho_erro = 'imagens/img_geradas/erros/' + F"{nome_img}" + time_atual + '.png'
+    img_erro = bot.screenshot()
+    img_erro.save(fp= caminho_erro)
+    return caminho_erro
 
 def procura_imagem(imagem, limite_tentativa=5, area=(0, 0, 1920, 1080), continuar_exec=False, confianca = 0.78, msg_continuar_exec = False, msg_confianca = False):
     """Função que realiza o processo de OCR na tela, retornando as coordenadas onde localizou a imagem especificada.
@@ -58,70 +46,61 @@ def procura_imagem(imagem, limite_tentativa=5, area=(0, 0, 1920, 1080), continua
         _type_: Retorna as posições onde encontrou a imagem.
     """    
     
-
     pausa_img = 0.2
     maquina_viva = False
     tentativa = 0   
-    logging.debug(F'--- Tentando encontrar: {imagem}')
+    logger.debug(F'--- Tentando encontrar: {imagem}')
     while tentativa < limite_tentativa:
         time.sleep(pausa_img)
         while maquina_viva is False:
             try:
                 posicao_img = bot.locateCenterOnScreen(imagem, grayscale= True, confidence= confianca, region= area)
             except OSError:
-                logging.critical('--- Erro devido a resolução da maquina virtual, aguardando')
+                logger.critical('--- Erro devido a resolução da maquina virtual, aguardando')
                 time.sleep(15)
                 raise OSError
             else:
                 maquina_viva = True
             
         if posicao_img is not None:
-            logging.debug(F'--- Encontrou {imagem} na posição: {posicao_img}')
+            logger.debug(F'--- Encontrou {imagem} na posição: {posicao_img} ( Tentativa: {tentativa}, Confiança: {confianca} )')
             break
-        
-        if msg_confianca is True:
-            if confianca < 0.73:
-                logging.debug(F'--- Valor atual da confiança da imagem: {confianca}', end= "")
-            else:
-                logging.debug(F', {confianca}', end= "")
-        
+                
         # Ajuste dos parametros
         confianca -= 0.02           
         tentativa += 1
         pausa_img += 0.05
-        
 
     #Caso seja para continuar
     if (continuar_exec is True) and (posicao_img is None): # Exibe a mensagem que o parametro está ativo
         if msg_continuar_exec is True:
-            logging.info('' + F'--- {imagem} não foi encontrada, continuando execução pois o parametro "continuar_exec" está habilitado')
+            logger.info('' + F'--- {imagem} não foi encontrada, continuando execução pois o parametro "continuar_exec" está habilitado')
         return False
     
     if tentativa >= limite_tentativa: # Caso exceda o limite de tentativas
-        logging.warning(F'--- Não encontrou a imagem: {imagem}')
+        logger.warning(F'--- Não encontrou a imagem: {imagem}, ( Tentativa: {tentativa}, Confiança: {confianca} ) ')
         time_atual = str(datetime.now()).replace(":","_").replace(".","_")
-        caminho_erro = 'imagens/img_geradas/' + 'erro' + time_atual + '.png'
+        caminho_erro = 'imagens/img_geradas/erros/' + 'erro' + time_atual + '.png'
         img_erro = bot.screenshot()
         img_erro.save(fp= caminho_erro)
         raise TimeoutError
-        
     return posicao_img
 
 def verifica_tela(nome_tela, manual=False):
     if ahk.win_exists(nome_tela):
-        logging.info(F'--- A tela: {nome_tela} está aberta')
+        logger.info(F'--- A tela: {nome_tela} está aberta')
         ahk.win_activate(nome_tela, title_match_mode=2)
         return True
     elif manual is True:
-        logging.info(F'--- A tela: {nome_tela} está fechada, Modo Manual: {True}, executando...')
+        logger.info(F'--- A tela: {nome_tela} está fechada, Modo Manual: {True}, executando...')
         return False
     else:
-        exit(logging.error(F'--- Tela: {nome_tela} está fechada, saindo do programa.'))
+        exit(logger.error(F'--- Tela: {nome_tela} está fechada, saindo do programa.'))
 
 def marca_lancado(texto_marcacao='Lancado'):
-    bot.PAUSE = 1
+    bot.PAUSE = 2
     tentativa = 0
-    logging.info(F'--- Abrindo planilha - MARCA_LANCADO, com parametro: {texto_marcacao}' )
+    logger.info(F'--- Abrindo planilha - MARCA_LANCADO, com parametro: {texto_marcacao}' )
     ahk.win_activate('debug_db_alltrips', title_match_mode= 2)
     while tentativa < 3:
         try:
@@ -132,21 +111,23 @@ def marca_lancado(texto_marcacao='Lancado'):
         else:
             break
         
-    time.sleep(0.25)
+    bot.PAUSE = 2
+    time.sleep(0.5)
     bot.hotkey('CTRL', 'HOME')
 
     # Navega até o campo "Status"
     bot.press('RIGHT', presses= 6)
     bot.press('DOWN')
+    time.sleep(1.5)
     
     # Informa o texto recebido pela função e passa para a celula ao lado, para inserir a data
     bot.write(texto_marcacao)
     bot.press('RIGHT')
+    time.sleep(1.5)
     hoje = datetime.now()
     hoje_formatado = hoje.strftime('%d/%m/%Y')
-    time.sleep(1)
-    bot.write(hoje_formatado, interval= 0.1)
-    time.sleep(0.25)
+    bot.write(hoje_formatado)
+    time.sleep(1.5)
     bot.click(960, 640) # Clica no meio da planilha
     time.sleep(0.25)
     
@@ -154,11 +135,11 @@ def marca_lancado(texto_marcacao='Lancado'):
     bot.hotkey('CTRL', 'HOME')
     reaplica_filtro_status() # Reaplica o filtro da coluna "Status"
     bot.hotkey('CTRL', 'HOME')
-    logging.info(F'--------------------- Processou NFE, situação: {texto_marcacao} ---------------------')
+    logger.info(F'--------------------- Processou NFE, situação: {texto_marcacao} ---------------------')
 
 def reaplica_filtro_status(): 
-    bot.PAUSE = 1
-    logging.info('--- Executando a função REAPLICA FILTRO STATUS')
+    logger.debug('--- Executando a função REAPLICA FILTRO STATUS')
+    bot.PAUSE = 1.5
     ahk.win_activate('debug_db_alltrips', title_match_mode= 2)
     time.sleep(1)
     bot.click(960, 640)
@@ -166,23 +147,24 @@ def reaplica_filtro_status():
     bot.hotkey('CTRL', 'HOME') # Navega até o campo A1
     bot.press('RIGHT', presses= 6) # Navega até o campo "Status"
     bot.hotkey('ALT', 'DOWN') # Comando do excel para abrir o menu do filtro
-    logging.info('--- Navegou até celula A1 e abriu o filtro do status ')
+    logger.info('--- Navegou até celula A1 e abriu o filtro do status ')
     ahk.win_activate('debug_db_alltrips', title_match_mode= 2)
     bot.click(procura_imagem(imagem='imagens/img_planilha/bt_aplicar.png'))
-    logging.info('--- Na tela do menu de filtro, clicou no botão "Aplicar" para reaplicar o filtro ')
+    logger.info('--- Na tela do menu de filtro, clicou no botão "Aplicar" para reaplicar o filtro ')
     
     if procura_imagem(imagem='imagens/img_planilha/bt_visualizar_todos.png', continuar_exec= True):
         bot.click(procura_imagem(imagem='imagens/img_planilha/bt_visualizar_todos.png', continuar_exec= True))
-        logging.info('--- Clicou para visualizar o filtro de todos.')
+        logger.info('--- Clicou para visualizar o filtro de todos.')
     
-    time.sleep(1)
+    time.sleep(2)
     bot.hotkey('CTRL', 'HOME') # Navega até o campo A1
+    logger.info('--- Filtro reaplicado com sucesso')
         
 
 def extrai_txt_img(imagem, area_tela, porce_escala = 400):
     time.sleep(0.25)
     img = bot.screenshot('imagens/img_geradas/' + imagem, region=area_tela) # Captura uma screenshot da área especificada da tela
-    logging.debug(F'--- Tirou print da imagem: {imagem} ----')
+    logger.debug(F'--- Tirou print da imagem: {imagem} ----')
 
     img = cv2.imread('imagens/img_geradas/' + imagem) # Lê a imagem capturada usando o OpenCV
 
@@ -215,14 +197,14 @@ def extrai_txt_img(imagem, area_tela, porce_escala = 400):
 
 def verifica_ped_vazio(texto, pos):
     texto_xml = extrai_txt_img(imagem='valida_itensxml.png', area_tela=(168, 407, 250, 20))
-    logging.info(F'--- Item da nota: {texto}, texto que ainda ficou: {texto_xml}, tamanho do texto {len(texto_xml)}')
+    logger.info(F'--- Item da nota: {texto}, texto que ainda ficou: {texto_xml}, tamanho do texto {len(texto_xml)}')
 
     # Verifica pelo tamanho do texto, se ainda ficou algum valor no campo "Itens do pedido"
     if len(texto_xml) > 5: 
-        logging.info('--- Itens XML ainda tem informação!')
+        logger.info('--- Itens XML ainda tem informação!')
         return False
     else:  # Caso fique vazio
-        logging.info('--- Itens XML ficou vazio! saindo da tela de vinculação')
+        logger.info('--- Itens XML ficou vazio! saindo da tela de vinculação')
         ahk.win_activate('Vinculação Itens da Nota', title_match_mode = 2)
         time.sleep(0.25)
         bot.click(procura_imagem(imagem='imagens/img_topcon/confirma.png'))
@@ -234,58 +216,53 @@ def verifica_ped_vazio(texto, pos):
             bot.click(procura_imagem(imagem='imagens/img_topcon/botao_ok.jpg', confianca= 0.73, limite_tentativa= 10))
 
         ahk.win_wait_close('Vinculação Itens da Nota', title_match_mode = 2, timeout= 30)
-        logging.info('--- Encerrado a função verifica pedido vazio!')
+        logger.info('--- Encerrado a função verifica pedido vazio!')
         return True
 
 def corrige_nometela(novo_nome = "TopCompras"):    
-    
-    
     try: # Verifica se o topcon abriu SEM NOME
         ahk.win_wait(' (VM-CortesiaApli.CORTESIA.com)', title_match_mode= 1, timeout= 5)
-    
     except (TimeoutError, OSError): # Apresenta Timeout caso esteja aberto com o nome normal.
         try: # Verifica se REALMENTE abriu com o nome normal
             if ahk.win_wait(novo_nome, title_match_mode= 1, timeout= 8):
-                logging.info('--- TopCompras abriu com o nome normal, prosseguindo.')
+                logger.debug('--- TopCompras abriu com o nome normal, prosseguindo.')
                 return
             else:
                 exit(bot.alert('TopCompras não encontrado.'))
         except (TimeoutError, OSError):
-            logging.warning("Não encontrou o TopCompras nem a tela sem nome")
+            logger.warning("Não encontrou o TopCompras nem a tela sem nome")
             return
     else:
         ahk.win_set_title(new_title= novo_nome, title= ' (VM-CortesiaApli.CORTESIA.com)', title_match_mode= 1, detect_hidden_windows= True)
-        logging.warning('--- Encontrou tela sem o nome, e realizou a correção!' )
-
+        logger.warning('--- Encontrou tela sem o nome, e realizou a correção!' )
 
 def abre_planilha_navegador(link_planilha = alltrips):
     if link_planilha == alltrips: # Planilha original
         planilha = "db_alltrips.xlsx" 
     else: # Planilha de debug
         planilha = "debug_db_alltrips.xlsx"   
-    
-    logging.info(F'--- Tentando abrir a planilha: {planilha}')
+
     if ahk.win_exists(planilha):
-        logging.info('--- Planilha já estava aberta, executou apenas um recarregamento')
         ahk.win_activate(planilha, title_match_mode= 2)
         bot.hotkey('CTRL', 'F5') # Recarrega a planilha limpando o cache
         time.sleep(8)
-        logging.info('--- Recarregou a planilha com sucesso.')
+        logger.info('--- Planilha já estava aberta, executou apenas um recarregamento')
         return True
     
     while ahk.win_exists("alltrips.xlsx", title_match_mode= 2): # Garante que a planilha não esteja aberta
         ahk.win_close('alltrips.xlsx', title_match_mode= 2)
         time.sleep(0.5)
     
-    logging.info('--- Abrindo a planilha no EDGE.')
+    logger.info(F'--- Tentando abrir a planilha: {planilha}')
     comando_iniciar = F'start msedge {link_planilha} -new-window -inprivate'
     os.system(comando_iniciar)
-    ahk.win_wait_active(planilha, title_match_mode = 2, timeout= 8)
+    ahk.win_wait_active(planilha, title_match_mode = 2, timeout= 18)
+    time.sleep(2)
     ahk.win_maximize(planilha)
-    time.sleep(10)
-    logging.info('--- Planilha aberta e maximizada.')
+    time.sleep(5)
+    logger.info('--- Planilha aberta e maximizada.')
 
-def msg_box(texto: str, tempo: int):
+def msg_box(texto: str, tempo: int = 60):
     """Exibe uma dialog box temporaria utilizando AHK
 
     Args:
@@ -299,9 +276,10 @@ def msg_box(texto: str, tempo: int):
 if __name__ == '__main__':
     bot.PAUSE = 0.6
     bot.FAILSAFE = False
+    print_erro()
     #msg_box("Teste", tempo = 10)
-    #abre_planilha_navegador()
-    reaplica_filtro_status()
+    #abre_planilha_navegador(link_planilha= planilha_debug)
+    #reaplica_filtro_status()
     #verifica_ped_vazio()
     #corrige_nometela()
     #marca_lancado('Teste')

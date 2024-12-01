@@ -1,0 +1,11 @@
+2024-11-29 00:48:31,422 - INFO = abre_topcon - --- Executando a função: ABRE TOPCON
+2024-11-29 00:48:31,705 - INFO = fecha_execucoes - --- Iniciando fecha execucoes, para fechar o TopCompras e o RDP ---
+2024-11-29 00:48:31,958 - INFO = fecha_execucoes - --- Fechou a tela "TopCompras" 
+2024-11-29 00:48:32,642 - INFO = fecha_execucoes - --- Fechou o processo MSTSC.EXE" 
+2024-11-29 00:48:32,643 - INFO = abre_topcon - --- Iniciando o RemoteApp
+2024-11-29 00:48:43,291 - INFO = abre_topcon - --- Tentando a tela: Windows Security
+2024-11-29 00:48:43,400 - INFO = abre_topcon - --- Encontrou com o nome Windows Security
+2024-11-29 00:48:43,510 - INFO = abre_topcon - --- Tentando a tela: Segurança do Windows
+2024-11-29 00:48:51,008 - INFO = abre_topcon - --- Abriu a tela "Windows Security", realizando o login" 
+2024-11-29 00:48:54,394 - INFO = abre_topcon - --- Login realizado no RemoteApp-Cortesia.rdp
+2024-11-29 00:49:01,503 - INFO = abre_topcon - --- Tela de login do topcon aberta

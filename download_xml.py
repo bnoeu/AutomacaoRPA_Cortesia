@@ -12,7 +12,7 @@ import pyautogui as bot
 
 
 # --- Definição de parametros
-ahk = AHK()
+from utils.funcoes import ahk as ahk
 bot.PAUSE = 0.6  # Pausa padrão do bot
 posicao_img = 0  # Define a variavel para utilização global dela.
 continuar = True

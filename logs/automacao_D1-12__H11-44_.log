@@ -1,0 +1,334 @@
+2024-12-01 11:45:06,075 - INFO - 393 = <module> - --- Iniciando o Try-Catch do PROGRAMA PRINCIPAL
+2024-12-01 11:45:06,075 - INFO - 85 = programa_principal - 
+
+
+
+2024-12-01 11:45:06,075 - INFO - 86 = programa_principal - ---------------------------------------------------------------------------------------------------
+2024-12-01 11:45:06,075 - INFO - 87 = programa_principal - --- INICIANDO UM NOVO LANÇAMENTO DE NFE --- 
+2024-12-01 11:45:06,075 - INFO - 88 = programa_principal - ---------------------------------------------------------------------------------------------------
+2024-12-01 11:45:15,073 - INFO - 253 = abre_planilha_navegador - --- Planilha já estava aberta, executou apenas um recarregamento
+2024-12-01 11:45:15,073 - INFO - 33 = coleta_planilha - --- Copiando dados e formatando na planilha de debug
+2024-12-01 11:45:22,208 - INFO - 150 = reaplica_filtro_status - --- Navegou até celula A1 e abriu o filtro do status 
+2024-12-01 11:45:22,935 - INFO - 66 = procura_imagem - --- Encontrou imagens/img_planilha/bt_aplicar.png na posição: Point(x=1407, y=961) ( Tentativa: 0, Confiança: 0.78 )
+2024-12-01 11:45:24,459 - INFO - 153 = reaplica_filtro_status - --- Na tela do menu de filtro, clicou no botão "Aplicar" para reaplicar o filtro 
+2024-12-01 11:45:24,875 - INFO - 66 = procura_imagem - --- Encontrou imagens/img_planilha/bt_visualizar_todos.png na posição: Point(x=1122, y=617) ( Tentativa: 0, Confiança: 0.78 )
+2024-12-01 11:45:25,286 - INFO - 66 = procura_imagem - --- Encontrou imagens/img_planilha/bt_visualizar_todos.png na posição: Point(x=1122, y=617) ( Tentativa: 0, Confiança: 0.78 )
+2024-12-01 11:45:26,787 - INFO - 157 = reaplica_filtro_status - --- Clicou para visualizar o filtro de todos.
+2024-12-01 11:45:30,290 - INFO - 161 = reaplica_filtro_status - --- Filtro reaplicado com sucesso
+2024-12-01 11:45:37,537 - INFO - 56 = processa_dados - --- Dados copiados com sucesso: 35241156899602000268550010008133731164089832
+2024-12-01 11:45:37,537 - SUCCESS - 15 = success - --- Processo de coleta da planilha foi executado corretamente.
+2024-12-01 11:45:37,538 - INFO - 33 = valida_lancamento - --- Abrindo TopCompras para iniciar o lançamento, dados copiados: ['112897', '', '', '1001-VILA PRUDENTE', '35241156899602000268550010008133731164089832', '6AGJBes1whc', '']
+2024-12-01 11:45:50,535 - WARNING - 236 = corrige_nometela - Não encontrou o TopCompras nem a tela sem nome
+2024-12-01 11:45:50,536 - WARNING - 41 = valida_lancamento - --- TopCompras e TopCon NÃO estão abertos, realizando abertura.
+2024-12-01 11:45:50,536 - INFO - 132 = abre_topcon - --- Executando a função: ABRE TOPCON
+2024-12-01 11:45:52,669 - INFO - 105 = fecha_execucoes - --- Iniciando fecha execucoes, para fechar o TopCompras e o RDP ---
+2024-12-01 11:45:52,921 - INFO - 123 = fecha_execucoes - --- Fechou a tela "TopCompras" 
+2024-12-01 11:45:53,445 - INFO - 128 = fecha_execucoes - --- Fechou o processo MSTSC.EXE" 
+2024-12-01 11:45:53,445 - INFO - 142 = abre_topcon - --- Iniciando o RemoteApp
+2024-12-01 11:46:04,139 - INFO - 150 = abre_topcon - --- Tentando a tela: Windows Security
+2024-12-01 11:46:04,238 - INFO - 156 = abre_topcon - --- Encontrou com o nome Windows Security
+2024-12-01 11:46:04,348 - INFO - 150 = abre_topcon - --- Tentando a tela: Segurança do Windows
+2024-12-01 11:46:11,854 - INFO - 165 = abre_topcon - --- Abriu a tela "Windows Security", realizando o login" 
+2024-12-01 11:46:15,229 - INFO - 173 = abre_topcon - --- Login realizado no RemoteApp-Cortesia.rdp
+2024-12-01 11:46:21,763 - INFO - 33 = abre_mercantil - --- TopCon está aberto, pode prosseguir com a abertura do TopCompras
+2024-12-01 11:46:34,761 - WARNING - 236 = corrige_nometela - Não encontrou o TopCompras nem a tela sem nome
+2024-12-01 11:46:34,762 - INFO - 52 = abre_mercantil - --- Modulo de compras realmente está fechado, abrindo uma nova execução
+2024-12-01 11:46:36,576 - WARNING - 81 = procura_imagem - --- Não encontrou a imagem: imagens/img_topcon/icone_modulo_compras.png
+2024-12-01 11:46:40,667 - ERROR - 398 = <module> - --- A execução principal apresentou erro! Executando o script PROGRAMA PRINCIPAL novamente.
+Traceback (most recent call last):
+  File "c:\Users\bruno.santos\Documents\GitHub\AutomacaoRPA_Cortesia\Materia_Prima.py", line 394, in <module>
+    programa_principal()
+  File "c:\Users\bruno.santos\Documents\GitHub\AutomacaoRPA_Cortesia\Materia_Prima.py", line 93, in programa_principal
+    dados_planilha = valida_lancamento() # Coleta e confere os dados do lançamento atual
+                     ^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\bruno.santos\Documents\GitHub\AutomacaoRPA_Cortesia\valida_lancamento.py", line 42, in valida_lancamento
+    abre_topcon()
+  File "c:\Users\bruno.santos\Documents\GitHub\AutomacaoRPA_Cortesia\abre_topcon.py", line 201, in abre_topcon
+    abre_mercantil()
+  File "c:\Users\bruno.santos\Documents\GitHub\AutomacaoRPA_Cortesia\abre_topcon.py", line 56, in abre_mercantil
+    bot.doubleClick(procura_imagem(imagem='imagens/img_topcon/icone_modulo_compras.png'))
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\bruno.santos\Documents\GitHub\AutomacaoRPA_Cortesia\utils\funcoes.py", line 86, in procura_imagem
+    raise TimeoutError
+TimeoutError
+2024-12-01 11:46:40,669 - INFO - 399 = <module> - --- Reiniciando o TopCon e TopCompras para garantir a execução correta.
+2024-12-01 11:46:40,670 - INFO - 132 = abre_topcon - --- Executando a função: ABRE TOPCON
+2024-12-01 11:46:40,670 - INFO - 105 = fecha_execucoes - --- Iniciando fecha execucoes, para fechar o TopCompras e o RDP ---
+2024-12-01 11:46:40,922 - INFO - 123 = fecha_execucoes - --- Fechou a tela "TopCompras" 
+2024-12-01 11:46:41,552 - INFO - 128 = fecha_execucoes - --- Fechou o processo MSTSC.EXE" 
+2024-12-01 11:46:41,552 - INFO - 142 = abre_topcon - --- Iniciando o RemoteApp
+2024-12-01 11:46:51,653 - INFO - 150 = abre_topcon - --- Tentando a tela: Windows Security
+2024-12-01 11:46:51,751 - INFO - 156 = abre_topcon - --- Encontrou com o nome Windows Security
+2024-12-01 11:46:51,864 - INFO - 150 = abre_topcon - --- Tentando a tela: Segurança do Windows
+2024-12-01 11:46:59,372 - INFO - 165 = abre_topcon - --- Abriu a tela "Windows Security", realizando o login" 
+2024-12-01 11:47:02,744 - INFO - 173 = abre_topcon - --- Login realizado no RemoteApp-Cortesia.rdp
+2024-12-01 11:47:07,563 - INFO - 33 = abre_mercantil - --- TopCon está aberto, pode prosseguir com a abertura do TopCompras
+2024-12-01 11:47:07,686 - WARNING - 240 = corrige_nometela - --- Encontrou tela sem o nome, e realizou a correção!
+2024-12-01 11:47:07,686 - INFO - 39 = abre_mercantil - --- Tentando fechar o TopCompras
+2024-12-01 11:47:07,947 - INFO - 43 = abre_mercantil - --- Modulo de compras realmente está fechado, abrindo uma nova execução
+2024-12-01 11:47:08,548 - INFO - 66 = procura_imagem - --- Encontrou imagens/img_topcon/txt_ServidorAplicacao.png na posição: Point(x=943, y=480) ( Tentativa: 0, Confiança: 0.74 )
+2024-12-01 11:47:08,548 - INFO - 183 = abre_topcon - --- Tela de login do topcon aberta
+2024-12-01 11:47:08,943 - INFO - 66 = procura_imagem - --- Encontrou imagens/img_topcon/txt_ServidorAplicacao.png na posição: Point(x=943, y=480) ( Tentativa: 0, Confiança: 0.78 )
+2024-12-01 11:47:10,308 - INFO - 393 = <module> - --- Iniciando o Try-Catch do PROGRAMA PRINCIPAL
+2024-12-01 11:47:10,309 - INFO - 85 = programa_principal - 
+
+
+
+2024-12-01 11:47:10,309 - INFO - 86 = programa_principal - ---------------------------------------------------------------------------------------------------
+2024-12-01 11:47:10,309 - INFO - 87 = programa_principal - --- INICIANDO UM NOVO LANÇAMENTO DE NFE --- 
+2024-12-01 11:47:10,309 - INFO - 88 = programa_principal - ---------------------------------------------------------------------------------------------------
+2024-12-01 11:47:19,030 - INFO - 253 = abre_planilha_navegador - --- Planilha já estava aberta, executou apenas um recarregamento
+2024-12-01 11:47:19,030 - INFO - 33 = coleta_planilha - --- Copiando dados e formatando na planilha de debug
+2024-12-01 11:47:26,172 - INFO - 150 = reaplica_filtro_status - --- Navegou até celula A1 e abriu o filtro do status 
+2024-12-01 11:47:26,695 - INFO - 66 = procura_imagem - --- Encontrou imagens/img_planilha/bt_aplicar.png na posição: Point(x=1407, y=961) ( Tentativa: 0, Confiança: 0.78 )
+2024-12-01 11:47:28,213 - INFO - 153 = reaplica_filtro_status - --- Na tela do menu de filtro, clicou no botão "Aplicar" para reaplicar o filtro 
+2024-12-01 11:47:28,626 - INFO - 66 = procura_imagem - --- Encontrou imagens/img_planilha/bt_visualizar_todos.png na posição: Point(x=1122, y=617) ( Tentativa: 0, Confiança: 0.78 )
+2024-12-01 11:47:29,038 - INFO - 66 = procura_imagem - --- Encontrou imagens/img_planilha/bt_visualizar_todos.png na posição: Point(x=1122, y=617) ( Tentativa: 0, Confiança: 0.78 )
+2024-12-01 11:47:30,546 - INFO - 157 = reaplica_filtro_status - --- Clicou para visualizar o filtro de todos.
+2024-12-01 11:47:34,048 - INFO - 161 = reaplica_filtro_status - --- Filtro reaplicado com sucesso
+2024-12-01 11:47:41,278 - INFO - 56 = processa_dados - --- Dados copiados com sucesso: 35241156899602000268550010008133731164089832
+2024-12-01 11:47:41,278 - SUCCESS - 15 = success - --- Processo de coleta da planilha foi executado corretamente.
+2024-12-01 11:47:41,278 - INFO - 33 = valida_lancamento - --- Abrindo TopCompras para iniciar o lançamento, dados copiados: ['112897', '', '', '1001-VILA PRUDENTE', '35241156899602000268550010008133731164089832', '6AGJBes1whc', '']
+2024-12-01 11:47:54,267 - WARNING - 236 = corrige_nometela - Não encontrou o TopCompras nem a tela sem nome
+2024-12-01 11:47:54,268 - WARNING - 41 = valida_lancamento - --- TopCompras e TopCon NÃO estão abertos, realizando abertura.
+2024-12-01 11:47:54,268 - INFO - 132 = abre_topcon - --- Executando a função: ABRE TOPCON
+2024-12-01 11:47:54,268 - INFO - 105 = fecha_execucoes - --- Iniciando fecha execucoes, para fechar o TopCompras e o RDP ---
+2024-12-01 11:47:54,521 - INFO - 123 = fecha_execucoes - --- Fechou a tela "TopCompras" 
+2024-12-01 11:47:55,037 - INFO - 128 = fecha_execucoes - --- Fechou o processo MSTSC.EXE" 
+2024-12-01 11:47:55,037 - INFO - 142 = abre_topcon - --- Iniciando o RemoteApp
+2024-12-01 11:48:05,142 - INFO - 150 = abre_topcon - --- Tentando a tela: Windows Security
+2024-12-01 11:48:05,253 - INFO - 156 = abre_topcon - --- Encontrou com o nome Windows Security
+2024-12-01 11:48:05,364 - INFO - 150 = abre_topcon - --- Tentando a tela: Segurança do Windows
+2024-12-01 11:48:12,864 - INFO - 165 = abre_topcon - --- Abriu a tela "Windows Security", realizando o login" 
+2024-12-01 11:48:16,242 - INFO - 173 = abre_topcon - --- Login realizado no RemoteApp-Cortesia.rdp
+2024-12-01 11:48:21,435 - INFO - 66 = procura_imagem - --- Encontrou imagens/img_topcon/txt_ServidorAplicacao.png na posição: Point(x=943, y=480) ( Tentativa: 0, Confiança: 0.74 )
+2024-12-01 11:48:21,435 - INFO - 183 = abre_topcon - --- Tela de login do topcon aberta
+2024-12-01 11:48:21,835 - INFO - 66 = procura_imagem - --- Encontrou imagens/img_topcon/txt_ServidorAplicacao.png na posição: Point(x=943, y=480) ( Tentativa: 0, Confiança: 0.78 )
+2024-12-01 11:48:30,399 - INFO - 132 = abre_topcon - --- Executando a função: ABRE TOPCON
+2024-12-01 11:48:30,399 - INFO - 105 = fecha_execucoes - --- Iniciando fecha execucoes, para fechar o TopCompras e o RDP ---
+2024-12-01 11:48:30,651 - INFO - 123 = fecha_execucoes - --- Fechou a tela "TopCompras" 
+2024-12-01 11:48:31,260 - INFO - 128 = fecha_execucoes - --- Fechou o processo MSTSC.EXE" 
+2024-12-01 11:48:31,260 - INFO - 142 = abre_topcon - --- Iniciando o RemoteApp
+2024-12-01 11:48:41,354 - INFO - 150 = abre_topcon - --- Tentando a tela: Windows Security
+2024-12-01 11:48:41,455 - INFO - 156 = abre_topcon - --- Encontrou com o nome Windows Security
+2024-12-01 11:48:41,573 - INFO - 150 = abre_topcon - --- Tentando a tela: Segurança do Windows
+2024-12-01 11:48:49,074 - INFO - 165 = abre_topcon - --- Abriu a tela "Windows Security", realizando o login" 
+2024-12-01 11:48:52,450 - INFO - 173 = abre_topcon - --- Login realizado no RemoteApp-Cortesia.rdp
+2024-12-01 11:48:57,334 - INFO - 33 = abre_mercantil - --- TopCon está aberto, pode prosseguir com a abertura do TopCompras
+2024-12-01 11:48:57,452 - WARNING - 240 = corrige_nometela - --- Encontrou tela sem o nome, e realizou a correção!
+2024-12-01 11:48:57,453 - INFO - 39 = abre_mercantil - --- Tentando fechar o TopCompras
+2024-12-01 11:48:58,787 - INFO - 43 = abre_mercantil - --- Modulo de compras realmente está fechado, abrindo uma nova execução
+2024-12-01 11:48:59,811 - INFO - 66 = procura_imagem - --- Encontrou imagens/img_topcon/logo_principal.png na posição: Point(x=123, y=69) ( Tentativa: 0, Confiança: 0.74 )
+2024-12-01 11:49:00,318 - INFO - 199 = abre_topcon - --- Tela do Topcon já está aberta.
+2024-12-01 11:49:00,318 - INFO - 45 = valida_lancamento - --- Alterando o TopCompras para o modo incluir
+2024-12-01 11:49:08,060 - ERROR - 398 = <module> - --- A execução principal apresentou erro! Executando o script PROGRAMA PRINCIPAL novamente.
+Traceback (most recent call last):
+  File "c:\Users\bruno.santos\Documents\GitHub\AutomacaoRPA_Cortesia\Materia_Prima.py", line 394, in <module>
+    programa_principal()
+  File "c:\Users\bruno.santos\Documents\GitHub\AutomacaoRPA_Cortesia\Materia_Prima.py", line 93, in programa_principal
+    dados_planilha = valida_lancamento() # Coleta e confere os dados do lançamento atual
+                     ^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\bruno.santos\Documents\GitHub\AutomacaoRPA_Cortesia\valida_lancamento.py", line 47, in valida_lancamento
+    ahk.win_wait_active('TopCompras', title_match_mode= 2, timeout= 3)
+  File "C:\Users\bruno.santos\AppData\Local\Programs\Python\Python311\Lib\site-packages\ahk\_sync\engine.py", line 3351, in win_wait_active
+    resp = self._transport.function_call('AHKWinWaitActive', args, blocking=blocking, engine=self)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\bruno.santos\AppData\Local\Programs\Python\Python311\Lib\site-packages\ahk\_sync\transport.py", line 532, in function_call
+    return self.send(request, engine=engine)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\bruno.santos\AppData\Local\Programs\Python\Python311\Lib\site-packages\ahk\_sync\transport.py", line 745, in send
+    return response.unpack()  # type: ignore
+           ^^^^^^^^^^^^^^^^^
+  File "C:\Users\bruno.santos\AppData\Local\Programs\Python\Python311\Lib\site-packages\ahk\message.py", line 216, in unpack
+    raise self._exception_type(s)
+TimeoutError: WinWait timed out waiting for window
+2024-12-01 11:49:08,062 - INFO - 399 = <module> - --- Reiniciando o TopCon e TopCompras para garantir a execução correta.
+2024-12-01 11:49:08,062 - INFO - 132 = abre_topcon - --- Executando a função: ABRE TOPCON
+2024-12-01 11:49:08,063 - INFO - 105 = fecha_execucoes - --- Iniciando fecha execucoes, para fechar o TopCompras e o RDP ---
+2024-12-01 11:49:08,315 - INFO - 123 = fecha_execucoes - --- Fechou a tela "TopCompras" 
+2024-12-01 11:49:08,920 - INFO - 128 = fecha_execucoes - --- Fechou o processo MSTSC.EXE" 
+2024-12-01 11:49:08,920 - INFO - 142 = abre_topcon - --- Iniciando o RemoteApp
+2024-12-01 11:49:19,024 - INFO - 150 = abre_topcon - --- Tentando a tela: Windows Security
+2024-12-01 11:49:19,130 - INFO - 156 = abre_topcon - --- Encontrou com o nome Windows Security
+2024-12-01 11:49:19,237 - INFO - 150 = abre_topcon - --- Tentando a tela: Segurança do Windows
+2024-12-01 11:49:26,744 - INFO - 165 = abre_topcon - --- Abriu a tela "Windows Security", realizando o login" 
+2024-12-01 11:49:30,121 - INFO - 173 = abre_topcon - --- Login realizado no RemoteApp-Cortesia.rdp
+2024-12-01 11:49:36,296 - INFO - 33 = abre_mercantil - --- TopCon está aberto, pode prosseguir com a abertura do TopCompras
+2024-12-01 11:49:49,295 - WARNING - 236 = corrige_nometela - Não encontrou o TopCompras nem a tela sem nome
+2024-12-01 11:49:49,295 - INFO - 52 = abre_mercantil - --- Modulo de compras realmente está fechado, abrindo uma nova execução
+2024-12-01 11:49:49,779 - INFO - 66 = procura_imagem - --- Encontrou imagens/img_topcon/icone_modulo_compras.png na posição: Point(x=72, y=811) ( Tentativa: 0, Confiança: 0.78 )
+2024-12-01 11:49:49,903 - INFO - 57 = abre_mercantil - --- Na tela do Topcon, clicou no logo do topcompras 
+2024-12-01 11:49:58,007 - WARNING - 240 = corrige_nometela - --- Encontrou tela sem o nome, e realizou a correção!
+2024-12-01 11:49:58,118 - INFO - 65 = abre_mercantil - --- Encontrou a tela do interveniente, clicando no botão "OK"
+2024-12-01 11:50:00,731 - INFO - 66 = procura_imagem - --- Encontrou imagens/img_topcon/botao_ok.jpg na posição: Point(x=939, y=704) ( Tentativa: 0, Confiança: 0.74 )
+2024-12-01 11:50:01,111 - INFO - 66 = procura_imagem - --- Encontrou imagens/img_topcon/botao_ok.jpg na posição: Point(x=1127, y=971) ( Tentativa: 0, Confiança: 0.78 )
+2024-12-01 11:50:01,111 - INFO - 72 = abre_mercantil - --- Encontrou a tela do interveniente, clicando no botão "OK"
+2024-12-01 11:50:03,679 - INFO - 79 = abre_mercantil - --- Fechou a tela dos intervenientes
+2024-12-01 11:50:08,787 - INFO - 231 = corrige_nometela - --- TopCompras abriu com o nome normal, prosseguindo.
+2024-12-01 11:50:08,787 - INFO - 89 = navega_topcompras - --- Executando a função: navega topcompras 
+2024-12-01 11:50:17,001 - INFO - 100 = navega_topcompras - --- TopCompras aberto!
+2024-12-01 11:50:18,059 - INFO - 66 = procura_imagem - --- Encontrou imagens/img_topcon/logo_principal.png na posição: Point(x=123, y=69) ( Tentativa: 0, Confiança: 0.74 )
+2024-12-01 11:50:18,563 - INFO - 199 = abre_topcon - --- Tela do Topcon já está aberta.
+2024-12-01 11:50:18,563 - INFO - 393 = <module> - --- Iniciando o Try-Catch do PROGRAMA PRINCIPAL
+2024-12-01 11:50:18,563 - INFO - 85 = programa_principal - 
+
+
+
+2024-12-01 11:50:18,563 - INFO - 86 = programa_principal - ---------------------------------------------------------------------------------------------------
+2024-12-01 11:50:18,563 - INFO - 87 = programa_principal - --- INICIANDO UM NOVO LANÇAMENTO DE NFE --- 
+2024-12-01 11:50:18,563 - INFO - 88 = programa_principal - ---------------------------------------------------------------------------------------------------
+2024-12-01 11:50:27,283 - INFO - 253 = abre_planilha_navegador - --- Planilha já estava aberta, executou apenas um recarregamento
+2024-12-01 11:50:27,283 - INFO - 33 = coleta_planilha - --- Copiando dados e formatando na planilha de debug
+2024-12-01 11:50:34,439 - INFO - 150 = reaplica_filtro_status - --- Navegou até celula A1 e abriu o filtro do status 
+2024-12-01 11:50:34,982 - INFO - 66 = procura_imagem - --- Encontrou imagens/img_planilha/bt_aplicar.png na posição: Point(x=1407, y=961) ( Tentativa: 0, Confiança: 0.78 )
+2024-12-01 11:50:36,492 - INFO - 153 = reaplica_filtro_status - --- Na tela do menu de filtro, clicou no botão "Aplicar" para reaplicar o filtro 
+2024-12-01 11:50:36,894 - INFO - 66 = procura_imagem - --- Encontrou imagens/img_planilha/bt_visualizar_todos.png na posição: Point(x=1122, y=617) ( Tentativa: 0, Confiança: 0.78 )
+2024-12-01 11:50:37,308 - INFO - 66 = procura_imagem - --- Encontrou imagens/img_planilha/bt_visualizar_todos.png na posição: Point(x=1122, y=617) ( Tentativa: 0, Confiança: 0.78 )
+2024-12-01 11:50:38,842 - INFO - 157 = reaplica_filtro_status - --- Clicou para visualizar o filtro de todos.
+2024-12-01 11:50:42,346 - INFO - 161 = reaplica_filtro_status - --- Filtro reaplicado com sucesso
+2024-12-01 11:50:49,599 - INFO - 56 = processa_dados - --- Dados copiados com sucesso: 35241156899602000268550010008133731164089832
+2024-12-01 11:50:49,599 - SUCCESS - 15 = success - --- Processo de coleta da planilha foi executado corretamente.
+2024-12-01 11:50:49,599 - INFO - 33 = valida_lancamento - --- Abrindo TopCompras para iniciar o lançamento, dados copiados: ['112897', '', '', '1001-VILA PRUDENTE', '35241156899602000268550010008133731164089832', '6AGJBes1whc', '']
+2024-12-01 11:50:49,601 - SUCCESS - 15 = success - --- TopCompras e Topcon estão abertos, processo pode iniciar
+2024-12-01 11:50:49,601 - INFO - 45 = valida_lancamento - --- Alterando o TopCompras para o modo incluir
+2024-12-01 11:50:49,832 - INFO - 50 = valida_lancamento - --- Verificando se está no modo Localizar.
+2024-12-01 11:50:51,532 - INFO - 54 = valida_lancamento - --- Não está no modo Localizar, enviando comando F2 para tentar entrar no modo, tentativa: 0
+2024-12-01 11:50:52,123 - INFO - 66 = procura_imagem - --- Encontrou imagens/img_topcon/txt_localizar.png na posição: Point(x=939, y=1001) ( Tentativa: 0, Confiança: 0.78 )
+2024-12-01 11:50:52,124 - INFO - 59 = valida_lancamento - --- Entrou no modo localizar, mudando para o modo incluir, tentativa: 0
+2024-12-01 11:50:52,427 - INFO - 50 = valida_lancamento - --- Verificando se está no modo Localizar.
+2024-12-01 11:50:52,823 - INFO - 66 = procura_imagem - --- Encontrou imagens/img_topcon/txt_inclui.png na posição: Point(x=925, y=1002) ( Tentativa: 0, Confiança: 0.78 )
+2024-12-01 11:50:54,408 - INFO - 81 = valida_lancamento - --- Entrou no modo incluir, continuando inserção da NFE
+2024-12-01 11:50:57,185 - INFO - 16 = conferencia_xml - --- Iniciando a função: CONFERENCIA XML ---
+2024-12-01 11:53:27,101 - WARNING - 72 = conferencia_xml - --- Excedeu o limite de tentativas de encontrar alguma tela, reabrindo mercantil
+2024-12-01 11:53:27,101 - INFO - 132 = abre_topcon - --- Executando a função: ABRE TOPCON
+2024-12-01 11:53:27,102 - INFO - 105 = fecha_execucoes - --- Iniciando fecha execucoes, para fechar o TopCompras e o RDP ---
+2024-12-01 11:53:28,757 - INFO - 123 = fecha_execucoes - --- Fechou a tela "TopCompras" 
+2024-12-01 11:53:29,318 - INFO - 128 = fecha_execucoes - --- Fechou o processo MSTSC.EXE" 
+2024-12-01 11:53:29,318 - INFO - 142 = abre_topcon - --- Iniciando o RemoteApp
+2024-12-01 11:53:39,417 - INFO - 150 = abre_topcon - --- Tentando a tela: Windows Security
+2024-12-01 11:53:39,528 - INFO - 156 = abre_topcon - --- Encontrou com o nome Windows Security
+2024-12-01 11:53:39,637 - INFO - 150 = abre_topcon - --- Tentando a tela: Segurança do Windows
+2024-12-01 11:53:47,130 - INFO - 165 = abre_topcon - --- Abriu a tela "Windows Security", realizando o login" 
+2024-12-01 11:53:50,532 - INFO - 173 = abre_topcon - --- Login realizado no RemoteApp-Cortesia.rdp
+2024-12-01 11:53:54,611 - INFO - 33 = abre_mercantil - --- TopCon está aberto, pode prosseguir com a abertura do TopCompras
+2024-12-01 11:54:07,614 - WARNING - 236 = corrige_nometela - Não encontrou o TopCompras nem a tela sem nome
+2024-12-01 11:54:07,615 - INFO - 52 = abre_mercantil - --- Modulo de compras realmente está fechado, abrindo uma nova execução
+2024-12-01 11:54:08,121 - INFO - 66 = procura_imagem - --- Encontrou imagens/img_topcon/icone_modulo_compras.png na posição: Point(x=72, y=811) ( Tentativa: 0, Confiança: 0.78 )
+2024-12-01 11:54:08,231 - INFO - 57 = abre_mercantil - --- Na tela do Topcon, clicou no logo do topcompras 
+2024-12-01 11:54:16,338 - INFO - 65 = abre_mercantil - --- Encontrou a tela do interveniente, clicando no botão "OK"
+2024-12-01 11:54:18,901 - INFO - 66 = procura_imagem - --- Encontrou imagens/img_topcon/botao_ok.jpg na posição: Point(x=939, y=704) ( Tentativa: 0, Confiança: 0.74 )
+2024-12-01 11:54:19,256 - INFO - 66 = procura_imagem - --- Encontrou imagens/img_topcon/botao_ok.jpg na posição: Point(x=1127, y=971) ( Tentativa: 0, Confiança: 0.78 )
+2024-12-01 11:54:19,256 - INFO - 72 = abre_mercantil - --- Encontrou a tela do interveniente, clicando no botão "OK"
+2024-12-01 11:54:21,815 - INFO - 79 = abre_mercantil - --- Fechou a tela dos intervenientes
+2024-12-01 11:54:26,929 - INFO - 231 = corrige_nometela - --- TopCompras abriu com o nome normal, prosseguindo.
+2024-12-01 11:54:26,929 - INFO - 89 = navega_topcompras - --- Executando a função: navega topcompras 
+2024-12-01 11:54:35,147 - INFO - 100 = navega_topcompras - --- TopCompras aberto!
+2024-12-01 11:54:36,171 - INFO - 66 = procura_imagem - --- Encontrou imagens/img_topcon/logo_principal.png na posição: Point(x=123, y=69) ( Tentativa: 0, Confiança: 0.74 )
+2024-12-01 11:54:36,673 - INFO - 199 = abre_topcon - --- Tela do Topcon já está aberta.
+2024-12-01 11:54:36,673 - SUCCESS - 15 = success - --- Validou o XML! Prosseguindo para a seleção do pedido: None
+2024-12-01 11:54:36,673 - INFO - 51 = valida_pedido - --- Executando função: valida pedido
+2024-12-01 11:55:04,677 - WARNING - 236 = corrige_nometela - Não encontrou o TopCompras nem a tela sem nome
+2024-12-01 11:55:06,159 - INFO - 103 = marca_lancado - --- Abrindo planilha - MARCA_LANCADO, com parametro: Padronizar_Item
+2024-12-01 11:55:34,856 - INFO - 150 = reaplica_filtro_status - --- Navegou até celula A1 e abriu o filtro do status 
+2024-12-01 11:55:35,394 - INFO - 66 = procura_imagem - --- Encontrou imagens/img_planilha/bt_aplicar.png na posição: Point(x=1407, y=961) ( Tentativa: 0, Confiança: 0.78 )
+2024-12-01 11:55:36,911 - INFO - 153 = reaplica_filtro_status - --- Na tela do menu de filtro, clicou no botão "Aplicar" para reaplicar o filtro 
+2024-12-01 11:55:42,133 - INFO - 161 = reaplica_filtro_status - --- Filtro reaplicado com sucesso
+2024-12-01 11:55:43,635 - INFO - 138 = marca_lancado - --------------------- Processou NFE, situação: Padronizar_Item ---------------------
+2024-12-01 11:55:43,635 - ERROR - 84 = valida_pedido - --- Não foi possivel encontrar: "" em nenhuma lista, marcando planilha com "padronizar item" 
+2024-12-01 11:55:52,359 - INFO - 253 = abre_planilha_navegador - --- Planilha já estava aberta, executou apenas um recarregamento
+2024-12-01 11:55:52,359 - INFO - 33 = coleta_planilha - --- Copiando dados e formatando na planilha de debug
+2024-12-01 11:55:59,489 - INFO - 150 = reaplica_filtro_status - --- Navegou até celula A1 e abriu o filtro do status 
+2024-12-01 11:56:00,029 - INFO - 66 = procura_imagem - --- Encontrou imagens/img_planilha/bt_aplicar.png na posição: Point(x=1407, y=961) ( Tentativa: 0, Confiança: 0.78 )
+2024-12-01 11:56:01,547 - INFO - 153 = reaplica_filtro_status - --- Na tela do menu de filtro, clicou no botão "Aplicar" para reaplicar o filtro 
+2024-12-01 11:56:01,959 - INFO - 66 = procura_imagem - --- Encontrou imagens/img_planilha/bt_visualizar_todos.png na posição: Point(x=1122, y=617) ( Tentativa: 0, Confiança: 0.78 )
+2024-12-01 11:56:02,375 - INFO - 66 = procura_imagem - --- Encontrou imagens/img_planilha/bt_visualizar_todos.png na posição: Point(x=1122, y=617) ( Tentativa: 0, Confiança: 0.78 )
+2024-12-01 11:56:03,885 - INFO - 157 = reaplica_filtro_status - --- Clicou para visualizar o filtro de todos.
+2024-12-01 11:56:07,392 - INFO - 161 = reaplica_filtro_status - --- Filtro reaplicado com sucesso
+2024-12-01 11:56:14,629 - INFO - 56 = processa_dados - --- Dados copiados com sucesso: 35241156899602000268550010008133721459200672
+2024-12-01 11:56:14,629 - SUCCESS - 15 = success - --- Processo de coleta da planilha foi executado corretamente.
+2024-12-01 11:56:14,629 - INFO - 33 = valida_lancamento - --- Abrindo TopCompras para iniciar o lançamento, dados copiados: ['112897', '', '', '1001-VILA PRUDENTE', '35241156899602000268550010008133721459200672', 'S28donX34dQ', '']
+2024-12-01 11:56:14,631 - SUCCESS - 15 = success - --- TopCompras e Topcon estão abertos, processo pode iniciar
+2024-12-01 11:56:14,631 - INFO - 45 = valida_lancamento - --- Alterando o TopCompras para o modo incluir
+2024-12-01 11:56:14,871 - INFO - 50 = valida_lancamento - --- Verificando se está no modo Localizar.
+2024-12-01 11:56:16,592 - INFO - 54 = valida_lancamento - --- Não está no modo Localizar, enviando comando F2 para tentar entrar no modo, tentativa: 0
+2024-12-01 11:56:17,180 - INFO - 66 = procura_imagem - --- Encontrou imagens/img_topcon/txt_localizar.png na posição: Point(x=939, y=1001) ( Tentativa: 0, Confiança: 0.78 )
+2024-12-01 11:56:17,180 - INFO - 59 = valida_lancamento - --- Entrou no modo localizar, mudando para o modo incluir, tentativa: 0
+2024-12-01 11:56:17,489 - INFO - 50 = valida_lancamento - --- Verificando se está no modo Localizar.
+2024-12-01 11:56:17,906 - INFO - 66 = procura_imagem - --- Encontrou imagens/img_topcon/txt_inclui.png na posição: Point(x=925, y=1002) ( Tentativa: 0, Confiança: 0.78 )
+2024-12-01 11:56:19,494 - INFO - 81 = valida_lancamento - --- Entrou no modo incluir, continuando inserção da NFE
+2024-12-01 11:56:22,273 - INFO - 16 = conferencia_xml - --- Iniciando a função: CONFERENCIA XML ---
+2024-12-01 11:56:29,653 - INFO - 66 = procura_imagem - --- Encontrou imagens/img_topcon/botao_sim.jpg na posição: Point(x=989, y=626) ( Tentativa: 0, Confiança: 0.73 )
+2024-12-01 11:56:29,653 - INFO - 31 = conferencia_xml - --- XML Validado, indo para validação do pedido
+2024-12-01 11:56:30,138 - INFO - 66 = procura_imagem - --- Encontrou imagens/img_topcon/botao_sim.jpg na posição: Point(x=989, y=626) ( Tentativa: 0, Confiança: 0.78 )
+2024-12-01 11:56:30,358 - SUCCESS - 15 = success - --- Validou o XML! Prosseguindo para a seleção do pedido: True,0
+2024-12-01 11:57:27,776 - INFO - 150 = reaplica_filtro_status - --- Navegou até celula A1 e abriu o filtro do status 
+2024-12-01 11:57:28,286 - INFO - 66 = procura_imagem - --- Encontrou imagens/img_planilha/bt_aplicar.png na posição: Point(x=1407, y=961) ( Tentativa: 0, Confiança: 0.78 )
+2024-12-01 11:57:29,797 - INFO - 153 = reaplica_filtro_status - --- Na tela do menu de filtro, clicou no botão "Aplicar" para reaplicar o filtro 
+2024-12-01 11:57:35,006 - INFO - 161 = reaplica_filtro_status - --- Filtro reaplicado com sucesso
+2024-12-01 11:57:36,508 - INFO - 138 = marca_lancado - --------------------- Processou NFE, situação: Padronizar_Item ---------------------
+2024-12-01 11:57:36,508 - ERROR - 84 = valida_pedido - --- Não foi possivel encontrar: "" em nenhuma lista, marcando planilha com "padronizar item" 
+2024-12-01 11:57:45,226 - INFO - 253 = abre_planilha_navegador - --- Planilha já estava aberta, executou apenas um recarregamento
+2024-12-01 11:57:45,226 - INFO - 33 = coleta_planilha - --- Copiando dados e formatando na planilha de debug
+2024-12-01 11:57:52,372 - INFO - 150 = reaplica_filtro_status - --- Navegou até celula A1 e abriu o filtro do status 
+2024-12-01 11:57:52,917 - INFO - 66 = procura_imagem - --- Encontrou imagens/img_planilha/bt_aplicar.png na posição: Point(x=1407, y=961) ( Tentativa: 0, Confiança: 0.78 )
+2024-12-01 11:57:54,483 - INFO - 153 = reaplica_filtro_status - --- Na tela do menu de filtro, clicou no botão "Aplicar" para reaplicar o filtro 
+2024-12-01 11:57:54,894 - INFO - 66 = procura_imagem - --- Encontrou imagens/img_planilha/bt_visualizar_todos.png na posição: Point(x=1122, y=617) ( Tentativa: 0, Confiança: 0.78 )
+2024-12-01 11:57:55,317 - INFO - 66 = procura_imagem - --- Encontrou imagens/img_planilha/bt_visualizar_todos.png na posição: Point(x=1122, y=617) ( Tentativa: 0, Confiança: 0.78 )
+2024-12-01 11:57:56,828 - INFO - 157 = reaplica_filtro_status - --- Clicou para visualizar o filtro de todos.
+2024-12-01 11:58:00,333 - INFO - 161 = reaplica_filtro_status - --- Filtro reaplicado com sucesso
+2024-12-01 11:58:07,570 - INFO - 56 = processa_dados - --- Dados copiados com sucesso: 35241156899602000268550010008133731164089832
+2024-12-01 11:58:07,570 - SUCCESS - 15 = success - --- Processo de coleta da planilha foi executado corretamente.
+2024-12-01 11:58:07,570 - INFO - 33 = valida_lancamento - --- Abrindo TopCompras para iniciar o lançamento, dados copiados: ['112897', '', '', '1001-VILA PRUDENTE', '35241156899602000268550010008133731164089832', '40m2N_rMnWM', '']
+2024-12-01 11:58:07,572 - SUCCESS - 15 = success - --- TopCompras e Topcon estão abertos, processo pode iniciar
+2024-12-01 11:58:07,572 - INFO - 45 = valida_lancamento - --- Alterando o TopCompras para o modo incluir
+2024-12-01 11:58:15,844 - ERROR - 398 = <module> - --- A execução principal apresentou erro! Executando o script PROGRAMA PRINCIPAL novamente.
+Traceback (most recent call last):
+  File "c:\Users\bruno.santos\Documents\GitHub\AutomacaoRPA_Cortesia\Materia_Prima.py", line 394, in <module>
+    programa_principal()
+  File "c:\Users\bruno.santos\Documents\GitHub\AutomacaoRPA_Cortesia\Materia_Prima.py", line 93, in programa_principal
+    dados_planilha = valida_lancamento() # Coleta e confere os dados do lançamento atual
+                     ^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\bruno.santos\Documents\GitHub\AutomacaoRPA_Cortesia\valida_lancamento.py", line 47, in valida_lancamento
+    ahk.win_wait_active('TopCompras', title_match_mode= 2, timeout= 3)
+  File "C:\Users\bruno.santos\AppData\Local\Programs\Python\Python311\Lib\site-packages\ahk\_sync\engine.py", line 3351, in win_wait_active
+    resp = self._transport.function_call('AHKWinWaitActive', args, blocking=blocking, engine=self)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\bruno.santos\AppData\Local\Programs\Python\Python311\Lib\site-packages\ahk\_sync\transport.py", line 532, in function_call
+    return self.send(request, engine=engine)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\bruno.santos\AppData\Local\Programs\Python\Python311\Lib\site-packages\ahk\_sync\transport.py", line 745, in send
+    return response.unpack()  # type: ignore
+           ^^^^^^^^^^^^^^^^^
+  File "C:\Users\bruno.santos\AppData\Local\Programs\Python\Python311\Lib\site-packages\ahk\message.py", line 216, in unpack
+    raise self._exception_type(s)
+TimeoutError: WinWait timed out waiting for window
+2024-12-01 11:58:15,846 - INFO - 399 = <module> - --- Reiniciando o TopCon e TopCompras para garantir a execução correta.
+2024-12-01 11:58:15,846 - INFO - 132 = abre_topcon - --- Executando a função: ABRE TOPCON
+2024-12-01 11:58:15,847 - INFO - 105 = fecha_execucoes - --- Iniciando fecha execucoes, para fechar o TopCompras e o RDP ---
+2024-12-01 11:58:40,865 - INFO - 123 = fecha_execucoes - --- Fechou a tela "TopCompras" 
+2024-12-01 11:58:41,435 - INFO - 128 = fecha_execucoes - --- Fechou o processo MSTSC.EXE" 
+2024-12-01 11:58:41,435 - INFO - 142 = abre_topcon - --- Iniciando o RemoteApp
+2024-12-01 11:58:51,548 - INFO - 150 = abre_topcon - --- Tentando a tela: Windows Security
+2024-12-01 11:58:51,646 - INFO - 156 = abre_topcon - --- Encontrou com o nome Windows Security
+2024-12-01 11:58:51,758 - INFO - 150 = abre_topcon - --- Tentando a tela: Segurança do Windows
+2024-12-01 11:58:59,253 - INFO - 165 = abre_topcon - --- Abriu a tela "Windows Security", realizando o login" 
+2024-12-01 11:59:02,648 - INFO - 173 = abre_topcon - --- Login realizado no RemoteApp-Cortesia.rdp
+2024-12-01 11:59:06,878 - INFO - 33 = abre_mercantil - --- TopCon está aberto, pode prosseguir com a abertura do TopCompras
+2024-12-01 11:59:06,879 - INFO - 39 = abre_mercantil - --- Tentando fechar o TopCompras
+2024-12-01 11:59:09,991 - INFO - 39 = abre_mercantil - --- Tentando fechar o TopCompras
+2024-12-01 11:59:13,099 - INFO - 39 = abre_mercantil - --- Tentando fechar o TopCompras
+2024-12-01 11:59:16,210 - INFO - 39 = abre_mercantil - --- Tentando fechar o TopCompras
+2024-12-01 11:59:19,324 - INFO - 39 = abre_mercantil - --- Tentando fechar o TopCompras
+2024-12-01 11:59:22,443 - INFO - 39 = abre_mercantil - --- Tentando fechar o TopCompras
+2024-12-01 11:59:25,560 - INFO - 39 = abre_mercantil - --- Tentando fechar o TopCompras
+2024-12-01 11:59:28,664 - INFO - 39 = abre_mercantil - --- Tentando fechar o TopCompras
+2024-12-01 11:59:31,776 - INFO - 39 = abre_mercantil - --- Tentando fechar o TopCompras
+2024-12-01 11:59:34,887 - INFO - 39 = abre_mercantil - --- Tentando fechar o TopCompras
+2024-12-01 11:59:37,990 - INFO - 39 = abre_mercantil - --- Tentando fechar o TopCompras
+2024-12-01 11:59:41,100 - WARNING - 48 = abre_mercantil - --- Não foi possivel fechar apenas o TopCompras, reiniciando Topcon & TopCompras
+2024-12-01 11:59:41,101 - INFO - 105 = fecha_execucoes - --- Iniciando fecha execucoes, para fechar o TopCompras e o RDP ---
+2024-12-01 11:59:41,508 - INFO - 110 = fecha_execucoes - --- Fechou a tela "Vinculação itens da nota" 
+2024-12-01 11:59:42,263 - INFO - 123 = fecha_execucoes - --- Fechou a tela "TopCompras" 
+2024-12-01 11:59:42,839 - INFO - 128 = fecha_execucoes - --- Fechou o processo MSTSC.EXE" 
+2024-12-01 11:59:42,840 - INFO - 52 = abre_mercantil - --- Modulo de compras realmente está fechado, abrindo uma nova execução
+2024-12-01 11:59:44,577 - WARNING - 81 = procura_imagem - --- Não encontrou a imagem: imagens/img_topcon/icone_modulo_compras.png

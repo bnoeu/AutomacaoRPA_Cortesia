@@ -1,13 +1,12 @@
 import time
-from ahk import AHK
-import pyautogui as bot
 import pyperclip
-import logging
-
-ahk = AHK() # --- Definição de parametros
+import pyautogui as bot
+from utils.configura_logger import get_logger
+from utils.funcoes import ahk as ahk # --- Definição de parametros
 
 
 def  copia_linha_atual():
+    logger = get_logger("script1")
     bot.PAUSE = 0.2
     dados_planilha = []
     coluna_atual = 0
@@ -27,6 +26,6 @@ def  copia_linha_atual():
             bot.press('right')
             coluna_atual += 1
         else:
-            logging.error(F'Copiou o texto "Recuperando Dados", tentando copiar novamente {dados_planilha}')
+            logger.debug(F'Copiou o texto "Recuperando Dados", tentando copiar novamente {dados_planilha}')
 
     return dados_planilha

@@ -1,0 +1,441 @@
+2024-11-30 23:26:53,812 - INFO - 80 = programa_principal - 
+
+
+
+2024-11-30 23:26:53,814 - INFO - 81 = programa_principal - ---------------------------------------------------------------------------------------------------
+2024-11-30 23:26:53,814 - INFO - 82 = programa_principal - --- INICIANDO UM NOVO LANÇAMENTO DE NFE --- 
+2024-11-30 23:26:53,814 - INFO - 83 = programa_principal - ---------------------------------------------------------------------------------------------------
+2024-11-30 23:27:02,847 - INFO - 261 = abre_planilha_navegador - --- Planilha já estava aberta, executou apenas um recarregamento
+2024-11-30 23:27:02,847 - INFO - 33 = coleta_planilha - --- Copiando dados e formatando na planilha de debug
+2024-11-30 23:27:10,001 - INFO - 158 = reaplica_filtro_status - --- Navegou até celula A1 e abriu o filtro do status 
+2024-11-30 23:27:12,141 - INFO - 161 = reaplica_filtro_status - --- Na tela do menu de filtro, clicou no botão "Aplicar" para reaplicar o filtro 
+2024-11-30 23:27:14,489 - INFO - 165 = reaplica_filtro_status - --- Clicou para visualizar o filtro de todos.
+2024-11-30 23:27:17,997 - INFO - 169 = reaplica_filtro_status - --- Filtro reaplicado com sucesso
+2024-11-30 23:27:25,238 - INFO - 56 = processa_dados - --- Dados copiados com sucesso: 35241133039223000979550010003824011681852846
+2024-11-30 23:27:25,238 - SUCCESS - 15 = success - --- Processo de coleta da planilha foi executado corretamente.
+2024-11-30 23:27:25,238 - INFO - 33 = valida_lancamento - --- Abrindo TopCompras para iniciar o lançamento, dados copiados: ['112551', 'SILO 8', '', '1004-JAGUARE', '35241133039223000979550010003824011681852846', 'uMUdn4zPRJ4', '']
+2024-11-30 23:27:25,240 - SUCCESS - 15 = success - --- TopCompras e Topcon estão abertos, processo pode iniciar
+2024-11-30 23:27:25,240 - INFO - 45 = valida_lancamento - --- Alterando o TopCompras para o modo incluir
+2024-11-30 23:27:25,478 - INFO - 50 = valida_lancamento - --- Verificando se está no modo Localizar.
+2024-11-30 23:27:27,490 - INFO - 81 = valida_lancamento - --- Entrou no modo incluir, continuando inserção da NFE
+2024-11-30 23:27:30,264 - INFO - 16 = conferencia_xml - --- Iniciando a função: CONFERENCIA XML ---
+2024-11-30 23:27:31,943 - INFO - 51 = conferencia_xml - --- Apresentou um erro: Lancado_Manual
+2024-11-30 23:27:31,943 - INFO - 111 = marca_lancado - --- Abrindo planilha - MARCA_LANCADO, com parametro: Lancado_Manual
+2024-11-30 23:28:00,669 - INFO - 158 = reaplica_filtro_status - --- Navegou até celula A1 e abriu o filtro do status 
+2024-11-30 23:28:02,722 - INFO - 161 = reaplica_filtro_status - --- Na tela do menu de filtro, clicou no botão "Aplicar" para reaplicar o filtro 
+2024-11-30 23:28:07,944 - INFO - 169 = reaplica_filtro_status - --- Filtro reaplicado com sucesso
+2024-11-30 23:28:09,446 - INFO - 146 = marca_lancado - --------------------- Processou NFE, situação: Lancado_Manual ---------------------
+2024-11-30 23:28:13,034 - INFO - 57 = conferencia_xml - --- Tela de erro fechada, alterando a tela para o modo "localiza" para ficar correto o proximo lançamento, tentativa: 0
+2024-11-30 23:28:18,925 - INFO - 57 = conferencia_xml - --- Tela de erro fechada, alterando a tela para o modo "localiza" para ficar correto o proximo lançamento, tentativa: 1
+2024-11-30 23:28:24,833 - INFO - 57 = conferencia_xml - --- Tela de erro fechada, alterando a tela para o modo "localiza" para ficar correto o proximo lançamento, tentativa: 2
+2024-11-30 23:28:30,726 - INFO - 57 = conferencia_xml - --- Tela de erro fechada, alterando a tela para o modo "localiza" para ficar correto o proximo lançamento, tentativa: 3
+2024-11-30 23:28:36,610 - INFO - 57 = conferencia_xml - --- Tela de erro fechada, alterando a tela para o modo "localiza" para ficar correto o proximo lançamento, tentativa: 4
+2024-11-30 23:28:38,361 - ERROR - 65 = conferencia_xml - --- Não foi possivel alterar a tela para o modo LOCALIZAR!
+2024-11-30 23:28:38,361 - ERROR - 388 = <module> - --- A execução principal apresentou erro! Executando o script PROGRAMA PRINCIPAL novamente.
+Traceback (most recent call last):
+  File "c:\Users\bruno.santos\Documents\GitHub\AutomacaoRPA_Cortesia\Materia_Prima.py", line 384, in <module>
+    programa_principal()
+  File "c:\Users\bruno.santos\Documents\GitHub\AutomacaoRPA_Cortesia\Materia_Prima.py", line 88, in programa_principal
+    dados_planilha = valida_lancamento() # Coleta e confere os dados do lançamento atual
+                     ^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\bruno.santos\Documents\GitHub\AutomacaoRPA_Cortesia\valida_lancamento.py", line 90, in valida_lancamento
+    validou_xml = conferencia_xml() # Confere qual tela será apresentada.
+                 ^^^^^^^^^^^^^^^^^
+  File "c:\Users\bruno.santos\Documents\GitHub\AutomacaoRPA_Cortesia\automacao\conferencia_xml.py", line 66, in conferencia_xml
+    raise TimeoutError
+TimeoutError
+2024-11-30 23:28:46,936 - INFO - 80 = programa_principal - 
+
+
+
+2024-11-30 23:28:46,936 - INFO - 81 = programa_principal - ---------------------------------------------------------------------------------------------------
+2024-11-30 23:28:46,936 - INFO - 82 = programa_principal - --- INICIANDO UM NOVO LANÇAMENTO DE NFE --- 
+2024-11-30 23:28:46,936 - INFO - 83 = programa_principal - ---------------------------------------------------------------------------------------------------
+2024-11-30 23:28:55,654 - INFO - 261 = abre_planilha_navegador - --- Planilha já estava aberta, executou apenas um recarregamento
+2024-11-30 23:28:55,654 - INFO - 33 = coleta_planilha - --- Copiando dados e formatando na planilha de debug
+2024-11-30 23:29:02,783 - INFO - 158 = reaplica_filtro_status - --- Navegou até celula A1 e abriu o filtro do status 
+2024-11-30 23:29:04,846 - INFO - 161 = reaplica_filtro_status - --- Na tela do menu de filtro, clicou no botão "Aplicar" para reaplicar o filtro 
+2024-11-30 23:29:07,186 - INFO - 165 = reaplica_filtro_status - --- Clicou para visualizar o filtro de todos.
+2024-11-30 23:29:10,688 - INFO - 169 = reaplica_filtro_status - --- Filtro reaplicado com sucesso
+2024-11-30 23:29:17,923 - INFO - 56 = processa_dados - --- Dados copiados com sucesso: 35241121511742000151550050002721291006152256
+2024-11-30 23:29:17,924 - SUCCESS - 15 = success - --- Processo de coleta da planilha foi executado corretamente.
+2024-11-30 23:29:17,924 - INFO - 33 = valida_lancamento - --- Abrindo TopCompras para iniciar o lançamento, dados copiados: ['112618', '', '', '1003-BARUERI', '35241121511742000151550050002721291006152256', '15RlNlbEF6g', '']
+2024-11-30 23:29:17,926 - SUCCESS - 15 = success - --- TopCompras e Topcon estão abertos, processo pode iniciar
+2024-11-30 23:29:17,926 - INFO - 45 = valida_lancamento - --- Alterando o TopCompras para o modo incluir
+2024-11-30 23:29:18,167 - INFO - 50 = valida_lancamento - --- Verificando se está no modo Localizar.
+2024-11-30 23:29:20,136 - INFO - 81 = valida_lancamento - --- Entrou no modo incluir, continuando inserção da NFE
+2024-11-30 23:29:22,907 - INFO - 16 = conferencia_xml - --- Iniciando a função: CONFERENCIA XML ---
+2024-11-30 23:29:24,563 - INFO - 51 = conferencia_xml - --- Apresentou um erro: Lancado_Manual
+2024-11-30 23:29:24,563 - INFO - 111 = marca_lancado - --- Abrindo planilha - MARCA_LANCADO, com parametro: Lancado_Manual
+2024-11-30 23:29:53,251 - INFO - 158 = reaplica_filtro_status - --- Navegou até celula A1 e abriu o filtro do status 
+2024-11-30 23:29:55,285 - INFO - 161 = reaplica_filtro_status - --- Na tela do menu de filtro, clicou no botão "Aplicar" para reaplicar o filtro 
+2024-11-30 23:30:00,506 - INFO - 169 = reaplica_filtro_status - --- Filtro reaplicado com sucesso
+2024-11-30 23:30:02,009 - INFO - 146 = marca_lancado - --------------------- Processou NFE, situação: Lancado_Manual ---------------------
+2024-11-30 23:30:05,631 - INFO - 57 = conferencia_xml - --- Tela de erro fechada, alterando a tela para o modo "localiza" para ficar correto o proximo lançamento, tentativa: 0
+2024-11-30 23:30:11,565 - INFO - 57 = conferencia_xml - --- Tela de erro fechada, alterando a tela para o modo "localiza" para ficar correto o proximo lançamento, tentativa: 1
+2024-11-30 23:30:17,485 - INFO - 57 = conferencia_xml - --- Tela de erro fechada, alterando a tela para o modo "localiza" para ficar correto o proximo lançamento, tentativa: 2
+2024-11-30 23:30:23,395 - INFO - 57 = conferencia_xml - --- Tela de erro fechada, alterando a tela para o modo "localiza" para ficar correto o proximo lançamento, tentativa: 3
+2024-11-30 23:30:29,307 - INFO - 57 = conferencia_xml - --- Tela de erro fechada, alterando a tela para o modo "localiza" para ficar correto o proximo lançamento, tentativa: 4
+2024-11-30 23:30:31,059 - ERROR - 65 = conferencia_xml - --- Não foi possivel alterar a tela para o modo LOCALIZAR!
+2024-11-30 23:30:31,059 - ERROR - 388 = <module> - --- A execução principal apresentou erro! Executando o script PROGRAMA PRINCIPAL novamente.
+Traceback (most recent call last):
+  File "c:\Users\bruno.santos\Documents\GitHub\AutomacaoRPA_Cortesia\Materia_Prima.py", line 384, in <module>
+    programa_principal()
+  File "c:\Users\bruno.santos\Documents\GitHub\AutomacaoRPA_Cortesia\Materia_Prima.py", line 88, in programa_principal
+    dados_planilha = valida_lancamento() # Coleta e confere os dados do lançamento atual
+                     ^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\bruno.santos\Documents\GitHub\AutomacaoRPA_Cortesia\valida_lancamento.py", line 90, in valida_lancamento
+    validou_xml = conferencia_xml() # Confere qual tela será apresentada.
+                 ^^^^^^^^^^^^^^^^^
+  File "c:\Users\bruno.santos\Documents\GitHub\AutomacaoRPA_Cortesia\automacao\conferencia_xml.py", line 66, in conferencia_xml
+    raise TimeoutError
+TimeoutError
+2024-11-30 23:30:40,866 - INFO - 80 = programa_principal - 
+
+
+
+2024-11-30 23:30:40,866 - INFO - 81 = programa_principal - ---------------------------------------------------------------------------------------------------
+2024-11-30 23:30:40,866 - INFO - 82 = programa_principal - --- INICIANDO UM NOVO LANÇAMENTO DE NFE --- 
+2024-11-30 23:30:40,866 - INFO - 83 = programa_principal - ---------------------------------------------------------------------------------------------------
+2024-11-30 23:30:49,592 - INFO - 261 = abre_planilha_navegador - --- Planilha já estava aberta, executou apenas um recarregamento
+2024-11-30 23:30:49,592 - INFO - 33 = coleta_planilha - --- Copiando dados e formatando na planilha de debug
+2024-11-30 23:30:56,707 - INFO - 158 = reaplica_filtro_status - --- Navegou até celula A1 e abriu o filtro do status 
+2024-11-30 23:30:58,773 - INFO - 161 = reaplica_filtro_status - --- Na tela do menu de filtro, clicou no botão "Aplicar" para reaplicar o filtro 
+2024-11-30 23:31:04,000 - INFO - 169 = reaplica_filtro_status - --- Filtro reaplicado com sucesso
+2024-11-30 23:31:11,232 - INFO - 56 = processa_dados - --- Dados copiados com sucesso: 35241133039223000979550010003824181044816153
+2024-11-30 23:31:11,233 - SUCCESS - 15 = success - --- Processo de coleta da planilha foi executado corretamente.
+2024-11-30 23:31:11,233 - INFO - 33 = valida_lancamento - --- Abrindo TopCompras para iniciar o lançamento, dados copiados: ['112888', 'SILO 1', '', '1008-MOGI DAS CRUZES', '35241133039223000979550010003824181044816153', 'CDU2DLDDPUE', '']
+2024-11-30 23:31:11,235 - SUCCESS - 15 = success - --- TopCompras e Topcon estão abertos, processo pode iniciar
+2024-11-30 23:31:11,235 - INFO - 45 = valida_lancamento - --- Alterando o TopCompras para o modo incluir
+2024-11-30 23:31:11,455 - INFO - 50 = valida_lancamento - --- Verificando se está no modo Localizar.
+2024-11-30 23:31:13,462 - INFO - 81 = valida_lancamento - --- Entrou no modo incluir, continuando inserção da NFE
+2024-11-30 23:31:16,232 - INFO - 16 = conferencia_xml - --- Iniciando a função: CONFERENCIA XML ---
+2024-11-30 23:31:17,944 - INFO - 51 = conferencia_xml - --- Apresentou um erro: Lancado_Manual
+2024-11-30 23:31:17,944 - INFO - 111 = marca_lancado - --- Abrindo planilha - MARCA_LANCADO, com parametro: Lancado_Manual
+2024-11-30 23:31:46,639 - INFO - 158 = reaplica_filtro_status - --- Navegou até celula A1 e abriu o filtro do status 
+2024-11-30 23:31:48,698 - INFO - 161 = reaplica_filtro_status - --- Na tela do menu de filtro, clicou no botão "Aplicar" para reaplicar o filtro 
+2024-11-30 23:31:53,918 - INFO - 169 = reaplica_filtro_status - --- Filtro reaplicado com sucesso
+2024-11-30 23:31:55,423 - INFO - 146 = marca_lancado - --------------------- Processou NFE, situação: Lancado_Manual ---------------------
+2024-11-30 23:31:59,039 - INFO - 57 = conferencia_xml - --- Tela de erro fechada, alterando a tela para o modo "localiza" para ficar correto o proximo lançamento, tentativa: 0
+2024-11-30 23:32:04,949 - INFO - 57 = conferencia_xml - --- Tela de erro fechada, alterando a tela para o modo "localiza" para ficar correto o proximo lançamento, tentativa: 1
+2024-11-30 23:32:10,855 - INFO - 57 = conferencia_xml - --- Tela de erro fechada, alterando a tela para o modo "localiza" para ficar correto o proximo lançamento, tentativa: 2
+2024-11-30 23:32:16,748 - INFO - 57 = conferencia_xml - --- Tela de erro fechada, alterando a tela para o modo "localiza" para ficar correto o proximo lançamento, tentativa: 3
+2024-11-30 23:32:22,649 - INFO - 57 = conferencia_xml - --- Tela de erro fechada, alterando a tela para o modo "localiza" para ficar correto o proximo lançamento, tentativa: 4
+2024-11-30 23:32:24,400 - ERROR - 65 = conferencia_xml - --- Não foi possivel alterar a tela para o modo LOCALIZAR!
+2024-11-30 23:32:24,400 - ERROR - 388 = <module> - --- A execução principal apresentou erro! Executando o script PROGRAMA PRINCIPAL novamente.
+Traceback (most recent call last):
+  File "c:\Users\bruno.santos\Documents\GitHub\AutomacaoRPA_Cortesia\Materia_Prima.py", line 384, in <module>
+    programa_principal()
+  File "c:\Users\bruno.santos\Documents\GitHub\AutomacaoRPA_Cortesia\Materia_Prima.py", line 88, in programa_principal
+    dados_planilha = valida_lancamento() # Coleta e confere os dados do lançamento atual
+                     ^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\bruno.santos\Documents\GitHub\AutomacaoRPA_Cortesia\valida_lancamento.py", line 90, in valida_lancamento
+    validou_xml = conferencia_xml() # Confere qual tela será apresentada.
+                 ^^^^^^^^^^^^^^^^^
+  File "c:\Users\bruno.santos\Documents\GitHub\AutomacaoRPA_Cortesia\automacao\conferencia_xml.py", line 66, in conferencia_xml
+    raise TimeoutError
+TimeoutError
+2024-11-30 23:32:34,444 - INFO - 80 = programa_principal - 
+
+
+
+2024-11-30 23:32:34,444 - INFO - 81 = programa_principal - ---------------------------------------------------------------------------------------------------
+2024-11-30 23:32:34,444 - INFO - 82 = programa_principal - --- INICIANDO UM NOVO LANÇAMENTO DE NFE --- 
+2024-11-30 23:32:34,444 - INFO - 83 = programa_principal - ---------------------------------------------------------------------------------------------------
+2024-11-30 23:32:43,171 - INFO - 261 = abre_planilha_navegador - --- Planilha já estava aberta, executou apenas um recarregamento
+2024-11-30 23:32:43,171 - INFO - 33 = coleta_planilha - --- Copiando dados e formatando na planilha de debug
+2024-11-30 23:32:50,316 - INFO - 158 = reaplica_filtro_status - --- Navegou até celula A1 e abriu o filtro do status 
+2024-11-30 23:32:52,371 - INFO - 161 = reaplica_filtro_status - --- Na tela do menu de filtro, clicou no botão "Aplicar" para reaplicar o filtro 
+2024-11-30 23:32:54,766 - INFO - 165 = reaplica_filtro_status - --- Clicou para visualizar o filtro de todos.
+2024-11-30 23:32:58,269 - INFO - 169 = reaplica_filtro_status - --- Filtro reaplicado com sucesso
+2024-11-30 23:33:05,507 - INFO - 56 = processa_dados - --- Dados copiados com sucesso: 35241116904055000328550010000093521975318648
+2024-11-30 23:33:05,507 - SUCCESS - 15 = success - --- Processo de coleta da planilha foi executado corretamente.
+2024-11-30 23:33:05,507 - INFO - 33 = valida_lancamento - --- Abrindo TopCompras para iniciar o lançamento, dados copiados: ['112531', '', '', '1008-MOGI DAS CRUZES', '35241116904055000328550010000093521975318648', 'faPgSwIZpV8', '']
+2024-11-30 23:33:05,508 - SUCCESS - 15 = success - --- TopCompras e Topcon estão abertos, processo pode iniciar
+2024-11-30 23:33:05,509 - INFO - 45 = valida_lancamento - --- Alterando o TopCompras para o modo incluir
+2024-11-30 23:33:05,742 - INFO - 50 = valida_lancamento - --- Verificando se está no modo Localizar.
+2024-11-30 23:33:07,715 - INFO - 81 = valida_lancamento - --- Entrou no modo incluir, continuando inserção da NFE
+2024-11-30 23:33:10,486 - INFO - 16 = conferencia_xml - --- Iniciando a função: CONFERENCIA XML ---
+2024-11-30 23:33:12,134 - INFO - 51 = conferencia_xml - --- Apresentou um erro: Lancado_Manual
+2024-11-30 23:33:12,134 - INFO - 111 = marca_lancado - --- Abrindo planilha - MARCA_LANCADO, com parametro: Lancado_Manual
+2024-11-30 23:33:40,828 - INFO - 158 = reaplica_filtro_status - --- Navegou até celula A1 e abriu o filtro do status 
+2024-11-30 23:33:42,874 - INFO - 161 = reaplica_filtro_status - --- Na tela do menu de filtro, clicou no botão "Aplicar" para reaplicar o filtro 
+2024-11-30 23:33:48,102 - INFO - 169 = reaplica_filtro_status - --- Filtro reaplicado com sucesso
+2024-11-30 23:33:49,604 - INFO - 146 = marca_lancado - --------------------- Processou NFE, situação: Lancado_Manual ---------------------
+2024-11-30 23:33:53,210 - INFO - 57 = conferencia_xml - --- Tela de erro fechada, alterando a tela para o modo "localiza" para ficar correto o proximo lançamento, tentativa: 0
+2024-11-30 23:33:59,120 - INFO - 57 = conferencia_xml - --- Tela de erro fechada, alterando a tela para o modo "localiza" para ficar correto o proximo lançamento, tentativa: 1
+2024-11-30 23:34:05,020 - INFO - 57 = conferencia_xml - --- Tela de erro fechada, alterando a tela para o modo "localiza" para ficar correto o proximo lançamento, tentativa: 2
+2024-11-30 23:34:10,904 - INFO - 57 = conferencia_xml - --- Tela de erro fechada, alterando a tela para o modo "localiza" para ficar correto o proximo lançamento, tentativa: 3
+2024-11-30 23:34:16,804 - INFO - 57 = conferencia_xml - --- Tela de erro fechada, alterando a tela para o modo "localiza" para ficar correto o proximo lançamento, tentativa: 4
+2024-11-30 23:34:18,563 - ERROR - 65 = conferencia_xml - --- Não foi possivel alterar a tela para o modo LOCALIZAR!
+2024-11-30 23:34:18,563 - ERROR - 388 = <module> - --- A execução principal apresentou erro! Executando o script PROGRAMA PRINCIPAL novamente.
+Traceback (most recent call last):
+  File "c:\Users\bruno.santos\Documents\GitHub\AutomacaoRPA_Cortesia\Materia_Prima.py", line 384, in <module>
+    programa_principal()
+  File "c:\Users\bruno.santos\Documents\GitHub\AutomacaoRPA_Cortesia\Materia_Prima.py", line 88, in programa_principal
+    dados_planilha = valida_lancamento() # Coleta e confere os dados do lançamento atual
+                     ^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\bruno.santos\Documents\GitHub\AutomacaoRPA_Cortesia\valida_lancamento.py", line 90, in valida_lancamento
+    validou_xml = conferencia_xml() # Confere qual tela será apresentada.
+                 ^^^^^^^^^^^^^^^^^
+  File "c:\Users\bruno.santos\Documents\GitHub\AutomacaoRPA_Cortesia\automacao\conferencia_xml.py", line 66, in conferencia_xml
+    raise TimeoutError
+TimeoutError
+2024-11-30 23:34:27,974 - INFO - 80 = programa_principal - 
+
+
+
+2024-11-30 23:34:27,974 - INFO - 81 = programa_principal - ---------------------------------------------------------------------------------------------------
+2024-11-30 23:34:27,974 - INFO - 82 = programa_principal - --- INICIANDO UM NOVO LANÇAMENTO DE NFE --- 
+2024-11-30 23:34:27,974 - INFO - 83 = programa_principal - ---------------------------------------------------------------------------------------------------
+2024-11-30 23:34:36,709 - INFO - 261 = abre_planilha_navegador - --- Planilha já estava aberta, executou apenas um recarregamento
+2024-11-30 23:34:36,709 - INFO - 33 = coleta_planilha - --- Copiando dados e formatando na planilha de debug
+2024-11-30 23:34:43,859 - INFO - 158 = reaplica_filtro_status - --- Navegou até celula A1 e abriu o filtro do status 
+2024-11-30 23:34:45,914 - INFO - 161 = reaplica_filtro_status - --- Na tela do menu de filtro, clicou no botão "Aplicar" para reaplicar o filtro 
+2024-11-30 23:34:48,268 - INFO - 165 = reaplica_filtro_status - --- Clicou para visualizar o filtro de todos.
+2024-11-30 23:34:51,774 - INFO - 169 = reaplica_filtro_status - --- Filtro reaplicado com sucesso
+2024-11-30 23:34:59,005 - INFO - 56 = processa_dados - --- Dados copiados com sucesso: 35241100934199000125550010003696201003558039
+2024-11-30 23:34:59,005 - SUCCESS - 15 = success - --- Processo de coleta da planilha foi executado corretamente.
+2024-11-30 23:34:59,005 - INFO - 33 = valida_lancamento - --- Abrindo TopCompras para iniciar o lançamento, dados copiados: ['112639', '', '', '1001-VILA PRUDENTE', '35241100934199000125550010003696201003558039', '4tu1VbawLEg', '']
+2024-11-30 23:34:59,006 - SUCCESS - 15 = success - --- TopCompras e Topcon estão abertos, processo pode iniciar
+2024-11-30 23:34:59,006 - INFO - 45 = valida_lancamento - --- Alterando o TopCompras para o modo incluir
+2024-11-30 23:34:59,242 - INFO - 50 = valida_lancamento - --- Verificando se está no modo Localizar.
+2024-11-30 23:35:01,233 - INFO - 81 = valida_lancamento - --- Entrou no modo incluir, continuando inserção da NFE
+2024-11-30 23:35:03,999 - INFO - 16 = conferencia_xml - --- Iniciando a função: CONFERENCIA XML ---
+2024-11-30 23:35:05,678 - INFO - 51 = conferencia_xml - --- Apresentou um erro: Lancado_Manual
+2024-11-30 23:35:05,679 - INFO - 111 = marca_lancado - --- Abrindo planilha - MARCA_LANCADO, com parametro: Lancado_Manual
+2024-11-30 23:35:34,370 - INFO - 158 = reaplica_filtro_status - --- Navegou até celula A1 e abriu o filtro do status 
+2024-11-30 23:35:36,431 - INFO - 161 = reaplica_filtro_status - --- Na tela do menu de filtro, clicou no botão "Aplicar" para reaplicar o filtro 
+2024-11-30 23:35:41,644 - INFO - 169 = reaplica_filtro_status - --- Filtro reaplicado com sucesso
+2024-11-30 23:35:43,146 - INFO - 146 = marca_lancado - --------------------- Processou NFE, situação: Lancado_Manual ---------------------
+2024-11-30 23:35:46,766 - INFO - 57 = conferencia_xml - --- Tela de erro fechada, alterando a tela para o modo "localiza" para ficar correto o proximo lançamento, tentativa: 0
+2024-11-30 23:35:52,670 - INFO - 57 = conferencia_xml - --- Tela de erro fechada, alterando a tela para o modo "localiza" para ficar correto o proximo lançamento, tentativa: 1
+2024-11-30 23:35:58,567 - INFO - 57 = conferencia_xml - --- Tela de erro fechada, alterando a tela para o modo "localiza" para ficar correto o proximo lançamento, tentativa: 2
+2024-11-30 23:36:04,492 - INFO - 57 = conferencia_xml - --- Tela de erro fechada, alterando a tela para o modo "localiza" para ficar correto o proximo lançamento, tentativa: 3
+2024-11-30 23:36:10,379 - INFO - 57 = conferencia_xml - --- Tela de erro fechada, alterando a tela para o modo "localiza" para ficar correto o proximo lançamento, tentativa: 4
+2024-11-30 23:36:12,131 - ERROR - 65 = conferencia_xml - --- Não foi possivel alterar a tela para o modo LOCALIZAR!
+2024-11-30 23:36:12,131 - ERROR - 388 = <module> - --- A execução principal apresentou erro! Executando o script PROGRAMA PRINCIPAL novamente.
+Traceback (most recent call last):
+  File "c:\Users\bruno.santos\Documents\GitHub\AutomacaoRPA_Cortesia\Materia_Prima.py", line 384, in <module>
+    programa_principal()
+  File "c:\Users\bruno.santos\Documents\GitHub\AutomacaoRPA_Cortesia\Materia_Prima.py", line 88, in programa_principal
+    dados_planilha = valida_lancamento() # Coleta e confere os dados do lançamento atual
+                     ^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\bruno.santos\Documents\GitHub\AutomacaoRPA_Cortesia\valida_lancamento.py", line 90, in valida_lancamento
+    validou_xml = conferencia_xml() # Confere qual tela será apresentada.
+                 ^^^^^^^^^^^^^^^^^
+  File "c:\Users\bruno.santos\Documents\GitHub\AutomacaoRPA_Cortesia\automacao\conferencia_xml.py", line 66, in conferencia_xml
+    raise TimeoutError
+TimeoutError
+2024-11-30 23:36:21,719 - INFO - 80 = programa_principal - 
+
+
+
+2024-11-30 23:36:21,719 - INFO - 81 = programa_principal - ---------------------------------------------------------------------------------------------------
+2024-11-30 23:36:21,719 - INFO - 82 = programa_principal - --- INICIANDO UM NOVO LANÇAMENTO DE NFE --- 
+2024-11-30 23:36:21,719 - INFO - 83 = programa_principal - ---------------------------------------------------------------------------------------------------
+2024-11-30 23:36:30,453 - INFO - 261 = abre_planilha_navegador - --- Planilha já estava aberta, executou apenas um recarregamento
+2024-11-30 23:36:30,453 - INFO - 33 = coleta_planilha - --- Copiando dados e formatando na planilha de debug
+2024-11-30 23:36:37,600 - INFO - 158 = reaplica_filtro_status - --- Navegou até celula A1 e abriu o filtro do status 
+2024-11-30 23:36:39,708 - INFO - 161 = reaplica_filtro_status - --- Na tela do menu de filtro, clicou no botão "Aplicar" para reaplicar o filtro 
+2024-11-30 23:36:42,064 - INFO - 165 = reaplica_filtro_status - --- Clicou para visualizar o filtro de todos.
+2024-11-30 23:36:45,566 - INFO - 169 = reaplica_filtro_status - --- Filtro reaplicado com sucesso
+2024-11-30 23:36:52,810 - INFO - 56 = processa_dados - --- Dados copiados com sucesso: 35241100934199000125550010003696191003558020
+2024-11-30 23:36:52,810 - SUCCESS - 15 = success - --- Processo de coleta da planilha foi executado corretamente.
+2024-11-30 23:36:52,810 - INFO - 33 = valida_lancamento - --- Abrindo TopCompras para iniciar o lançamento, dados copiados: ['112639', '', '', '1001-VILA PRUDENTE', '35241100934199000125550010003696191003558020', 'nmKJsiDUCb0', '']
+2024-11-30 23:36:52,812 - SUCCESS - 15 = success - --- TopCompras e Topcon estão abertos, processo pode iniciar
+2024-11-30 23:36:52,812 - INFO - 45 = valida_lancamento - --- Alterando o TopCompras para o modo incluir
+2024-11-30 23:36:53,038 - INFO - 50 = valida_lancamento - --- Verificando se está no modo Localizar.
+2024-11-30 23:36:55,052 - INFO - 81 = valida_lancamento - --- Entrou no modo incluir, continuando inserção da NFE
+2024-11-30 23:36:57,827 - INFO - 16 = conferencia_xml - --- Iniciando a função: CONFERENCIA XML ---
+2024-11-30 23:36:59,484 - INFO - 51 = conferencia_xml - --- Apresentou um erro: Lancado_Manual
+2024-11-30 23:36:59,484 - INFO - 111 = marca_lancado - --- Abrindo planilha - MARCA_LANCADO, com parametro: Lancado_Manual
+2024-11-30 23:37:28,147 - INFO - 158 = reaplica_filtro_status - --- Navegou até celula A1 e abriu o filtro do status 
+2024-11-30 23:37:30,181 - INFO - 161 = reaplica_filtro_status - --- Na tela do menu de filtro, clicou no botão "Aplicar" para reaplicar o filtro 
+2024-11-30 23:37:35,394 - INFO - 169 = reaplica_filtro_status - --- Filtro reaplicado com sucesso
+2024-11-30 23:37:36,896 - INFO - 146 = marca_lancado - --------------------- Processou NFE, situação: Lancado_Manual ---------------------
+2024-11-30 23:37:40,499 - INFO - 57 = conferencia_xml - --- Tela de erro fechada, alterando a tela para o modo "localiza" para ficar correto o proximo lançamento, tentativa: 0
+2024-11-30 23:37:46,421 - INFO - 57 = conferencia_xml - --- Tela de erro fechada, alterando a tela para o modo "localiza" para ficar correto o proximo lançamento, tentativa: 1
+2024-11-30 23:37:52,329 - INFO - 57 = conferencia_xml - --- Tela de erro fechada, alterando a tela para o modo "localiza" para ficar correto o proximo lançamento, tentativa: 2
+2024-11-30 23:37:58,220 - INFO - 57 = conferencia_xml - --- Tela de erro fechada, alterando a tela para o modo "localiza" para ficar correto o proximo lançamento, tentativa: 3
+2024-11-30 23:38:04,132 - INFO - 57 = conferencia_xml - --- Tela de erro fechada, alterando a tela para o modo "localiza" para ficar correto o proximo lançamento, tentativa: 4
+2024-11-30 23:38:05,884 - ERROR - 65 = conferencia_xml - --- Não foi possivel alterar a tela para o modo LOCALIZAR!
+2024-11-30 23:38:05,884 - ERROR - 388 = <module> - --- A execução principal apresentou erro! Executando o script PROGRAMA PRINCIPAL novamente.
+Traceback (most recent call last):
+  File "c:\Users\bruno.santos\Documents\GitHub\AutomacaoRPA_Cortesia\Materia_Prima.py", line 384, in <module>
+    programa_principal()
+  File "c:\Users\bruno.santos\Documents\GitHub\AutomacaoRPA_Cortesia\Materia_Prima.py", line 88, in programa_principal
+    dados_planilha = valida_lancamento() # Coleta e confere os dados do lançamento atual
+                     ^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\bruno.santos\Documents\GitHub\AutomacaoRPA_Cortesia\valida_lancamento.py", line 90, in valida_lancamento
+    validou_xml = conferencia_xml() # Confere qual tela será apresentada.
+                 ^^^^^^^^^^^^^^^^^
+  File "c:\Users\bruno.santos\Documents\GitHub\AutomacaoRPA_Cortesia\automacao\conferencia_xml.py", line 66, in conferencia_xml
+    raise TimeoutError
+TimeoutError
+2024-11-30 23:38:15,873 - INFO - 80 = programa_principal - 
+
+
+
+2024-11-30 23:38:15,873 - INFO - 81 = programa_principal - ---------------------------------------------------------------------------------------------------
+2024-11-30 23:38:15,873 - INFO - 82 = programa_principal - --- INICIANDO UM NOVO LANÇAMENTO DE NFE --- 
+2024-11-30 23:38:15,873 - INFO - 83 = programa_principal - ---------------------------------------------------------------------------------------------------
+2024-11-30 23:38:24,596 - INFO - 261 = abre_planilha_navegador - --- Planilha já estava aberta, executou apenas um recarregamento
+2024-11-30 23:38:24,596 - INFO - 33 = coleta_planilha - --- Copiando dados e formatando na planilha de debug
+2024-11-30 23:38:31,754 - INFO - 158 = reaplica_filtro_status - --- Navegou até celula A1 e abriu o filtro do status 
+2024-11-30 23:38:33,801 - INFO - 161 = reaplica_filtro_status - --- Na tela do menu de filtro, clicou no botão "Aplicar" para reaplicar o filtro 
+2024-11-30 23:38:36,155 - INFO - 165 = reaplica_filtro_status - --- Clicou para visualizar o filtro de todos.
+2024-11-30 23:38:39,658 - INFO - 169 = reaplica_filtro_status - --- Filtro reaplicado com sucesso
+2024-11-30 23:38:46,899 - INFO - 56 = processa_dados - --- Dados copiados com sucesso: 35241149034010000137550010010491901403350353
+2024-11-30 23:38:46,899 - SUCCESS - 15 = success - --- Processo de coleta da planilha foi executado corretamente.
+2024-11-30 23:38:46,899 - INFO - 33 = valida_lancamento - --- Abrindo TopCompras para iniciar o lançamento, dados copiados: ['112530', '', '', '1001-VILA PRUDENTE', '35241149034010000137550010010491901403350353', 'EIYZdHkGd04', '']
+2024-11-30 23:38:46,901 - SUCCESS - 15 = success - --- TopCompras e Topcon estão abertos, processo pode iniciar
+2024-11-30 23:38:46,901 - INFO - 45 = valida_lancamento - --- Alterando o TopCompras para o modo incluir
+2024-11-30 23:38:47,131 - INFO - 50 = valida_lancamento - --- Verificando se está no modo Localizar.
+2024-11-30 23:38:49,136 - INFO - 81 = valida_lancamento - --- Entrou no modo incluir, continuando inserção da NFE
+2024-11-30 23:38:51,903 - INFO - 16 = conferencia_xml - --- Iniciando a função: CONFERENCIA XML ---
+2024-11-30 23:38:53,538 - INFO - 51 = conferencia_xml - --- Apresentou um erro: Lancado_Manual
+2024-11-30 23:38:53,538 - INFO - 111 = marca_lancado - --- Abrindo planilha - MARCA_LANCADO, com parametro: Lancado_Manual
+2024-11-30 23:39:22,235 - INFO - 158 = reaplica_filtro_status - --- Navegou até celula A1 e abriu o filtro do status 
+2024-11-30 23:39:24,284 - INFO - 161 = reaplica_filtro_status - --- Na tela do menu de filtro, clicou no botão "Aplicar" para reaplicar o filtro 
+2024-11-30 23:39:29,508 - INFO - 169 = reaplica_filtro_status - --- Filtro reaplicado com sucesso
+2024-11-30 23:39:31,011 - INFO - 146 = marca_lancado - --------------------- Processou NFE, situação: Lancado_Manual ---------------------
+2024-11-30 23:39:34,628 - INFO - 57 = conferencia_xml - --- Tela de erro fechada, alterando a tela para o modo "localiza" para ficar correto o proximo lançamento, tentativa: 0
+2024-11-30 23:39:40,556 - INFO - 57 = conferencia_xml - --- Tela de erro fechada, alterando a tela para o modo "localiza" para ficar correto o proximo lançamento, tentativa: 1
+2024-11-30 23:39:46,452 - INFO - 57 = conferencia_xml - --- Tela de erro fechada, alterando a tela para o modo "localiza" para ficar correto o proximo lançamento, tentativa: 2
+2024-11-30 23:39:52,354 - INFO - 57 = conferencia_xml - --- Tela de erro fechada, alterando a tela para o modo "localiza" para ficar correto o proximo lançamento, tentativa: 3
+2024-11-30 23:39:58,265 - INFO - 57 = conferencia_xml - --- Tela de erro fechada, alterando a tela para o modo "localiza" para ficar correto o proximo lançamento, tentativa: 4
+2024-11-30 23:40:00,017 - ERROR - 65 = conferencia_xml - --- Não foi possivel alterar a tela para o modo LOCALIZAR!
+2024-11-30 23:40:00,017 - ERROR - 388 = <module> - --- A execução principal apresentou erro! Executando o script PROGRAMA PRINCIPAL novamente.
+Traceback (most recent call last):
+  File "c:\Users\bruno.santos\Documents\GitHub\AutomacaoRPA_Cortesia\Materia_Prima.py", line 384, in <module>
+    programa_principal()
+  File "c:\Users\bruno.santos\Documents\GitHub\AutomacaoRPA_Cortesia\Materia_Prima.py", line 88, in programa_principal
+    dados_planilha = valida_lancamento() # Coleta e confere os dados do lançamento atual
+                     ^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\bruno.santos\Documents\GitHub\AutomacaoRPA_Cortesia\valida_lancamento.py", line 90, in valida_lancamento
+    validou_xml = conferencia_xml() # Confere qual tela será apresentada.
+                 ^^^^^^^^^^^^^^^^^
+  File "c:\Users\bruno.santos\Documents\GitHub\AutomacaoRPA_Cortesia\automacao\conferencia_xml.py", line 66, in conferencia_xml
+    raise TimeoutError
+TimeoutError
+2024-11-30 23:40:10,420 - INFO - 80 = programa_principal - 
+
+
+
+2024-11-30 23:40:10,420 - INFO - 81 = programa_principal - ---------------------------------------------------------------------------------------------------
+2024-11-30 23:40:10,420 - INFO - 82 = programa_principal - --- INICIANDO UM NOVO LANÇAMENTO DE NFE --- 
+2024-11-30 23:40:10,420 - INFO - 83 = programa_principal - ---------------------------------------------------------------------------------------------------
+2024-11-30 23:40:19,144 - INFO - 261 = abre_planilha_navegador - --- Planilha já estava aberta, executou apenas um recarregamento
+2024-11-30 23:40:19,144 - INFO - 33 = coleta_planilha - --- Copiando dados e formatando na planilha de debug
+2024-11-30 23:40:26,297 - INFO - 158 = reaplica_filtro_status - --- Navegou até celula A1 e abriu o filtro do status 
+2024-11-30 23:40:28,367 - INFO - 161 = reaplica_filtro_status - --- Na tela do menu de filtro, clicou no botão "Aplicar" para reaplicar o filtro 
+2024-11-30 23:40:30,717 - INFO - 165 = reaplica_filtro_status - --- Clicou para visualizar o filtro de todos.
+2024-11-30 23:40:34,222 - INFO - 169 = reaplica_filtro_status - --- Filtro reaplicado com sucesso
+2024-11-30 23:40:41,474 - INFO - 56 = processa_dados - --- Dados copiados com sucesso: 35241149034010000137550010010491891828450218
+2024-11-30 23:40:41,474 - SUCCESS - 15 = success - --- Processo de coleta da planilha foi executado corretamente.
+2024-11-30 23:40:41,474 - INFO - 33 = valida_lancamento - --- Abrindo TopCompras para iniciar o lançamento, dados copiados: ['112530', '', '', '1001-VILA PRUDENTE', '35241149034010000137550010010491891828450218', 'pw-N-MJWXAI', '']
+2024-11-30 23:40:41,476 - SUCCESS - 15 = success - --- TopCompras e Topcon estão abertos, processo pode iniciar
+2024-11-30 23:40:41,476 - INFO - 45 = valida_lancamento - --- Alterando o TopCompras para o modo incluir
+2024-11-30 23:40:41,712 - INFO - 50 = valida_lancamento - --- Verificando se está no modo Localizar.
+2024-11-30 23:40:43,715 - INFO - 81 = valida_lancamento - --- Entrou no modo incluir, continuando inserção da NFE
+2024-11-30 23:40:46,491 - INFO - 16 = conferencia_xml - --- Iniciando a função: CONFERENCIA XML ---
+2024-11-30 23:40:48,195 - INFO - 51 = conferencia_xml - --- Apresentou um erro: Lancado_Manual
+2024-11-30 23:40:48,195 - INFO - 111 = marca_lancado - --- Abrindo planilha - MARCA_LANCADO, com parametro: Lancado_Manual
+2024-11-30 23:41:16,891 - INFO - 158 = reaplica_filtro_status - --- Navegou até celula A1 e abriu o filtro do status 
+2024-11-30 23:41:18,923 - INFO - 161 = reaplica_filtro_status - --- Na tela do menu de filtro, clicou no botão "Aplicar" para reaplicar o filtro 
+2024-11-30 23:41:24,135 - INFO - 169 = reaplica_filtro_status - --- Filtro reaplicado com sucesso
+2024-11-30 23:41:25,642 - INFO - 146 = marca_lancado - --------------------- Processou NFE, situação: Lancado_Manual ---------------------
+2024-11-30 23:41:29,251 - INFO - 57 = conferencia_xml - --- Tela de erro fechada, alterando a tela para o modo "localiza" para ficar correto o proximo lançamento, tentativa: 0
+2024-11-30 23:41:35,150 - INFO - 57 = conferencia_xml - --- Tela de erro fechada, alterando a tela para o modo "localiza" para ficar correto o proximo lançamento, tentativa: 1
+2024-11-30 23:41:41,059 - INFO - 57 = conferencia_xml - --- Tela de erro fechada, alterando a tela para o modo "localiza" para ficar correto o proximo lançamento, tentativa: 2
+2024-11-30 23:41:46,972 - INFO - 57 = conferencia_xml - --- Tela de erro fechada, alterando a tela para o modo "localiza" para ficar correto o proximo lançamento, tentativa: 3
+2024-11-30 23:41:52,859 - INFO - 57 = conferencia_xml - --- Tela de erro fechada, alterando a tela para o modo "localiza" para ficar correto o proximo lançamento, tentativa: 4
+2024-11-30 23:41:54,610 - ERROR - 65 = conferencia_xml - --- Não foi possivel alterar a tela para o modo LOCALIZAR!
+2024-11-30 23:41:54,610 - ERROR - 388 = <module> - --- A execução principal apresentou erro! Executando o script PROGRAMA PRINCIPAL novamente.
+Traceback (most recent call last):
+  File "c:\Users\bruno.santos\Documents\GitHub\AutomacaoRPA_Cortesia\Materia_Prima.py", line 384, in <module>
+    programa_principal()
+  File "c:\Users\bruno.santos\Documents\GitHub\AutomacaoRPA_Cortesia\Materia_Prima.py", line 88, in programa_principal
+    dados_planilha = valida_lancamento() # Coleta e confere os dados do lançamento atual
+                     ^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\bruno.santos\Documents\GitHub\AutomacaoRPA_Cortesia\valida_lancamento.py", line 90, in valida_lancamento
+    validou_xml = conferencia_xml() # Confere qual tela será apresentada.
+                 ^^^^^^^^^^^^^^^^^
+  File "c:\Users\bruno.santos\Documents\GitHub\AutomacaoRPA_Cortesia\automacao\conferencia_xml.py", line 66, in conferencia_xml
+    raise TimeoutError
+TimeoutError
+2024-11-30 23:42:04,314 - INFO - 80 = programa_principal - 
+
+
+
+2024-11-30 23:42:04,315 - INFO - 81 = programa_principal - ---------------------------------------------------------------------------------------------------
+2024-11-30 23:42:04,315 - INFO - 82 = programa_principal - --- INICIANDO UM NOVO LANÇAMENTO DE NFE --- 
+2024-11-30 23:42:04,315 - INFO - 83 = programa_principal - ---------------------------------------------------------------------------------------------------
+2024-11-30 23:42:13,047 - INFO - 261 = abre_planilha_navegador - --- Planilha já estava aberta, executou apenas um recarregamento
+2024-11-30 23:42:13,047 - INFO - 33 = coleta_planilha - --- Copiando dados e formatando na planilha de debug
+2024-11-30 23:42:20,182 - INFO - 158 = reaplica_filtro_status - --- Navegou até celula A1 e abriu o filtro do status 
+2024-11-30 23:42:22,253 - INFO - 161 = reaplica_filtro_status - --- Na tela do menu de filtro, clicou no botão "Aplicar" para reaplicar o filtro 
+2024-11-30 23:42:24,616 - INFO - 165 = reaplica_filtro_status - --- Clicou para visualizar o filtro de todos.
+2024-11-30 23:42:28,118 - INFO - 169 = reaplica_filtro_status - --- Filtro reaplicado com sucesso
+2024-11-30 23:42:35,362 - INFO - 56 = processa_dados - --- Dados copiados com sucesso: 35241149034010000137550010010491851401316620
+2024-11-30 23:42:35,362 - SUCCESS - 15 = success - --- Processo de coleta da planilha foi executado corretamente.
+2024-11-30 23:42:35,362 - INFO - 33 = valida_lancamento - --- Abrindo TopCompras para iniciar o lançamento, dados copiados: ['112826', '', '', '1001-VILA PRUDENTE', '35241149034010000137550010010491851401316620', 'W9pFO-UwS4I', '']
+2024-11-30 23:42:35,362 - SUCCESS - 15 = success - --- TopCompras e Topcon estão abertos, processo pode iniciar
+2024-11-30 23:42:35,362 - INFO - 45 = valida_lancamento - --- Alterando o TopCompras para o modo incluir
+2024-11-30 23:42:35,602 - INFO - 50 = valida_lancamento - --- Verificando se está no modo Localizar.
+2024-11-30 23:42:37,606 - INFO - 81 = valida_lancamento - --- Entrou no modo incluir, continuando inserção da NFE
+2024-11-30 23:42:40,377 - INFO - 16 = conferencia_xml - --- Iniciando a função: CONFERENCIA XML ---
+2024-11-30 23:42:42,080 - INFO - 51 = conferencia_xml - --- Apresentou um erro: Lancado_Manual
+2024-11-30 23:42:42,080 - INFO - 111 = marca_lancado - --- Abrindo planilha - MARCA_LANCADO, com parametro: Lancado_Manual
+2024-11-30 23:43:10,756 - INFO - 158 = reaplica_filtro_status - --- Navegou até celula A1 e abriu o filtro do status 
+2024-11-30 23:43:12,800 - INFO - 161 = reaplica_filtro_status - --- Na tela do menu de filtro, clicou no botão "Aplicar" para reaplicar o filtro 
+2024-11-30 23:43:18,026 - INFO - 169 = reaplica_filtro_status - --- Filtro reaplicado com sucesso
+2024-11-30 23:43:19,528 - INFO - 146 = marca_lancado - --------------------- Processou NFE, situação: Lancado_Manual ---------------------
+2024-11-30 23:43:23,146 - INFO - 57 = conferencia_xml - --- Tela de erro fechada, alterando a tela para o modo "localiza" para ficar correto o proximo lançamento, tentativa: 0
+2024-11-30 23:43:29,041 - INFO - 57 = conferencia_xml - --- Tela de erro fechada, alterando a tela para o modo "localiza" para ficar correto o proximo lançamento, tentativa: 1
+2024-11-30 23:43:34,930 - INFO - 57 = conferencia_xml - --- Tela de erro fechada, alterando a tela para o modo "localiza" para ficar correto o proximo lançamento, tentativa: 2
+2024-11-30 23:43:40,845 - INFO - 57 = conferencia_xml - --- Tela de erro fechada, alterando a tela para o modo "localiza" para ficar correto o proximo lançamento, tentativa: 3
+2024-11-30 23:43:46,750 - INFO - 57 = conferencia_xml - --- Tela de erro fechada, alterando a tela para o modo "localiza" para ficar correto o proximo lançamento, tentativa: 4
+2024-11-30 23:43:48,502 - ERROR - 65 = conferencia_xml - --- Não foi possivel alterar a tela para o modo LOCALIZAR!
+2024-11-30 23:43:48,502 - ERROR - 388 = <module> - --- A execução principal apresentou erro! Executando o script PROGRAMA PRINCIPAL novamente.
+Traceback (most recent call last):
+  File "c:\Users\bruno.santos\Documents\GitHub\AutomacaoRPA_Cortesia\Materia_Prima.py", line 384, in <module>
+    programa_principal()
+  File "c:\Users\bruno.santos\Documents\GitHub\AutomacaoRPA_Cortesia\Materia_Prima.py", line 88, in programa_principal
+    dados_planilha = valida_lancamento() # Coleta e confere os dados do lançamento atual
+                     ^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\bruno.santos\Documents\GitHub\AutomacaoRPA_Cortesia\valida_lancamento.py", line 90, in valida_lancamento
+    validou_xml = conferencia_xml() # Confere qual tela será apresentada.
+                 ^^^^^^^^^^^^^^^^^
+  File "c:\Users\bruno.santos\Documents\GitHub\AutomacaoRPA_Cortesia\automacao\conferencia_xml.py", line 66, in conferencia_xml
+    raise TimeoutError
+TimeoutError
+2024-11-30 23:43:58,521 - INFO - 80 = programa_principal - 
+
+
+
+2024-11-30 23:43:58,522 - INFO - 81 = programa_principal - ---------------------------------------------------------------------------------------------------
+2024-11-30 23:43:58,522 - INFO - 82 = programa_principal - --- INICIANDO UM NOVO LANÇAMENTO DE NFE --- 
+2024-11-30 23:43:58,522 - INFO - 83 = programa_principal - ---------------------------------------------------------------------------------------------------
+2024-11-30 23:44:07,248 - INFO - 261 = abre_planilha_navegador - --- Planilha já estava aberta, executou apenas um recarregamento
+2024-11-30 23:44:07,248 - INFO - 33 = coleta_planilha - --- Copiando dados e formatando na planilha de debug
+2024-11-30 23:44:14,394 - INFO - 158 = reaplica_filtro_status - --- Navegou até celula A1 e abriu o filtro do status 
+2024-11-30 23:44:16,459 - INFO - 161 = reaplica_filtro_status - --- Na tela do menu de filtro, clicou no botão "Aplicar" para reaplicar o filtro 
+2024-11-30 23:44:18,818 - INFO - 165 = reaplica_filtro_status - --- Clicou para visualizar o filtro de todos.
+2024-11-30 23:44:22,329 - INFO - 169 = reaplica_filtro_status - --- Filtro reaplicado com sucesso
+2024-11-30 23:44:29,590 - INFO - 56 = processa_dados - --- Dados copiados com sucesso: 35241149034010000137550010010491861210564081
+2024-11-30 23:44:29,590 - SUCCESS - 15 = success - --- Processo de coleta da planilha foi executado corretamente.
+2024-11-30 23:44:29,590 - INFO - 33 = valida_lancamento - --- Abrindo TopCompras para iniciar o lançamento, dados copiados: ['112826', '', '', '1001-VILA PRUDENTE', '35241149034010000137550010010491861210564081', 'cP02wIRWiUY', '']
+2024-11-30 23:44:29,592 - SUCCESS - 15 = success - --- TopCompras e Topcon estão abertos, processo pode iniciar
+2024-11-30 23:44:29,592 - INFO - 45 = valida_lancamento - --- Alterando o TopCompras para o modo incluir
+2024-11-30 23:44:29,824 - INFO - 50 = valida_lancamento - --- Verificando se está no modo Localizar.
+2024-11-30 23:44:31,828 - INFO - 81 = valida_lancamento - --- Entrou no modo incluir, continuando inserção da NFE
+2024-11-30 23:44:34,601 - INFO - 16 = conferencia_xml - --- Iniciando a função: CONFERENCIA XML ---
+2024-11-30 23:44:36,394 - INFO - 51 = conferencia_xml - --- Apresentou um erro: Lancado_Manual
+2024-11-30 23:44:36,394 - INFO - 111 = marca_lancado - --- Abrindo planilha - MARCA_LANCADO, com parametro: Lancado_Manual
+2024-11-30 23:45:05,066 - INFO - 158 = reaplica_filtro_status - --- Navegou até celula A1 e abriu o filtro do status 
+2024-11-30 23:45:07,137 - INFO - 161 = reaplica_filtro_status - --- Na tela do menu de filtro, clicou no botão "Aplicar" para reaplicar o filtro 
+2024-11-30 23:45:12,358 - INFO - 169 = reaplica_filtro_status - --- Filtro reaplicado com sucesso
+2024-11-30 23:45:13,860 - INFO - 146 = marca_lancado - --------------------- Processou NFE, situação: Lancado_Manual ---------------------
+2024-11-30 23:45:17,470 - INFO - 57 = conferencia_xml - --- Tela de erro fechada, alterando a tela para o modo "localiza" para ficar correto o proximo lançamento, tentativa: 0

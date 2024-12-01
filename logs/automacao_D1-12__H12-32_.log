@@ -1,0 +1,14 @@
+2024-12-01 12:32:19,475 - INFO - 132 = abre_topcon - --- Executando a função: ABRE TOPCON
+2024-12-01 12:32:19,738 - INFO - 105 = fecha_execucoes - --- Iniciando fecha execucoes, para fechar o TopCompras e o RDP ---
+2024-12-01 12:32:20,001 - INFO - 123 = fecha_execucoes - --- Fechou a tela "TopCompras" 
+2024-12-01 12:32:20,890 - INFO - 128 = fecha_execucoes - --- Fechou o processo MSTSC.EXE" 
+2024-12-01 12:32:20,890 - INFO - 142 = abre_topcon - --- Iniciando o RemoteApp
+2024-12-01 12:32:31,744 - INFO - 150 = abre_topcon - --- Tentando a tela: Windows Security
+2024-12-01 12:32:31,961 - INFO - 156 = abre_topcon - --- Encontrou com o nome Windows Security
+2024-12-01 12:32:32,070 - INFO - 150 = abre_topcon - --- Tentando a tela: Segurança do Windows
+2024-12-01 12:32:39,570 - INFO - 165 = abre_topcon - --- Abriu a tela "Windows Security", realizando o login" 
+2024-12-01 12:32:42,954 - INFO - 173 = abre_topcon - --- Login realizado no RemoteApp-Cortesia.rdp
+2024-12-01 12:32:49,883 - INFO - 33 = abre_mercantil - --- TopCon está aberto, pode prosseguir com a abertura do TopCompras
+2024-12-01 12:33:02,893 - WARNING - 236 = corrige_nometela - Não encontrou o TopCompras nem a tela sem nome
+2024-12-01 12:33:02,893 - INFO - 52 = abre_mercantil - --- Modulo de compras realmente está fechado, abrindo uma nova execução
+2024-12-01 12:33:04,709 - WARNING - 81 = procura_imagem - --- Não encontrou a imagem: imagens/img_topcon/icone_modulo_compras.png

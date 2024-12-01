@@ -1,0 +1,70 @@
+2024-12-01 14:50:53,123 - INFO - 110 = abre_topcon - --- Executando a função: ABRE TOPCON
+2024-12-01 14:50:53,397 - INFO - 83 = fecha_execucoes - --- Iniciando fecha execucoes, para fechar o TopCompras e o RDP ---
+2024-12-01 14:50:54,134 - INFO - 101 = fecha_execucoes - --- Fechou a tela "TopCompras" 
+2024-12-01 14:50:54,641 - INFO - 106 = fecha_execucoes - --- Fechou o processo MSTSC.EXE" 
+2024-12-01 14:50:54,641 - INFO - 120 = abre_topcon - --- Iniciando o RemoteApp
+2024-12-01 14:51:04,838 - INFO - 128 = abre_topcon - --- Tentando a tela: Windows Security
+2024-12-01 14:51:04,953 - INFO - 134 = abre_topcon - --- Encontrou com o nome Windows Security
+2024-12-01 14:51:05,050 - INFO - 128 = abre_topcon - --- Tentando a tela: Segurança do Windows
+2024-12-01 14:51:12,560 - INFO - 143 = abre_topcon - --- Abriu a tela "Windows Security", realizando o login" 
+2024-12-01 14:51:15,934 - INFO - 151 = abre_topcon - --- Login realizado no RemoteApp-Cortesia.rdp
+2024-12-01 14:51:15,934 - INFO - 28 = abre_mercantil - --- Realizando a abertura do modulo de compras
+2024-12-01 14:51:24,548 - INFO - 66 = procura_imagem - --- Encontrou imagens/img_topcon/icone_modulo_compras.png na posição: Point(x=71, y=811) ( Tentativa: 0, Confiança: 0.67 )
+2024-12-01 14:51:30,270 - INFO - 66 = procura_imagem - --- Encontrou imagens/img_topcon/botao_ok.jpg na posição: Point(x=1127, y=971) ( Tentativa: 0, Confiança: 0.78 )
+2024-12-01 14:51:30,489 - INFO - 67 = navega_topcompras - --- Executando a função: navega topcompras 
+2024-12-01 14:51:38,746 - INFO - 78 = navega_topcompras - --- TopCompras aberto!
+2024-12-01 14:51:38,746 - INFO - 396 = <module> - --- Iniciando o Try-Catch do PROGRAMA PRINCIPAL
+2024-12-01 14:51:38,746 - INFO - 85 = programa_principal - 
+
+
+
+2024-12-01 14:51:38,746 - INFO - 86 = programa_principal - ---------------------------------------------------------------------------------------------------
+2024-12-01 14:51:38,746 - INFO - 87 = programa_principal - --- INICIANDO UM NOVO LANÇAMENTO DE NFE --- 
+2024-12-01 14:51:38,746 - INFO - 88 = programa_principal - ---------------------------------------------------------------------------------------------------
+2024-12-01 14:51:47,468 - INFO - 249 = abre_planilha_navegador - --- Planilha já estava aberta, executou apenas um recarregamento
+2024-12-01 14:51:47,469 - INFO - 33 = coleta_planilha - --- Copiando dados e formatando na planilha de debug
+2024-12-01 14:51:54,618 - INFO - 150 = reaplica_filtro_status - --- Navegou até celula A1 e abriu o filtro do status 
+2024-12-01 14:51:55,151 - INFO - 66 = procura_imagem - --- Encontrou imagens/img_planilha/bt_aplicar.png na posição: Point(x=1407, y=961) ( Tentativa: 0, Confiança: 0.78 )
+2024-12-01 14:51:56,669 - INFO - 153 = reaplica_filtro_status - --- Na tela do menu de filtro, clicou no botão "Aplicar" para reaplicar o filtro 
+2024-12-01 14:51:57,080 - INFO - 66 = procura_imagem - --- Encontrou imagens/img_planilha/bt_visualizar_todos.png na posição: Point(x=1122, y=617) ( Tentativa: 0, Confiança: 0.78 )
+2024-12-01 14:51:57,503 - INFO - 66 = procura_imagem - --- Encontrou imagens/img_planilha/bt_visualizar_todos.png na posição: Point(x=1122, y=617) ( Tentativa: 0, Confiança: 0.78 )
+2024-12-01 14:51:59,013 - INFO - 157 = reaplica_filtro_status - --- Clicou para visualizar o filtro de todos.
+2024-12-01 14:52:02,519 - INFO - 161 = reaplica_filtro_status - --- Filtro reaplicado com sucesso
+2024-12-01 14:52:09,753 - INFO - 56 = processa_dados - --- Dados copiados com sucesso: 35241156899602000268550010008133731164089832
+2024-12-01 14:52:09,753 - SUCCESS - 15 = success - --- Processo de coleta da planilha foi executado corretamente.
+2024-12-01 14:52:09,753 - INFO - 31 = valida_lancamento - --- Alterando o TopCompras para o modo incluir
+2024-12-01 14:52:09,989 - INFO - 36 = valida_lancamento - --- Verificando se está no modo Localizar.
+2024-12-01 14:52:11,706 - INFO - 40 = valida_lancamento - --- Não está no modo Localizar, enviando comando F2 para tentar entrar no modo, tentativa: 0
+2024-12-01 14:52:12,306 - INFO - 66 = procura_imagem - --- Encontrou imagens/img_topcon/txt_localizar.png na posição: Point(x=939, y=1001) ( Tentativa: 0, Confiança: 0.78 )
+2024-12-01 14:52:12,306 - INFO - 45 = valida_lancamento - --- Entrou no modo localizar, mudando para o modo incluir, tentativa: 0
+2024-12-01 14:52:12,626 - INFO - 36 = valida_lancamento - --- Verificando se está no modo Localizar.
+2024-12-01 14:52:13,012 - INFO - 66 = procura_imagem - --- Encontrou imagens/img_topcon/txt_inclui.png na posição: Point(x=925, y=1002) ( Tentativa: 0, Confiança: 0.78 )
+2024-12-01 14:52:14,612 - INFO - 67 = valida_lancamento - --- Entrou no modo incluir, continuando inserção da NFE
+2024-12-01 14:52:17,385 - INFO - 16 = conferencia_xml - --- Iniciando a função: CONFERENCIA XML ---
+2024-12-01 14:52:21,727 - INFO - 66 = procura_imagem - --- Encontrou imagens/img_topcon/botao_sim.jpg na posição: Point(x=989, y=626) ( Tentativa: 0, Confiança: 0.73 )
+2024-12-01 14:52:21,727 - INFO - 31 = conferencia_xml - --- XML Validado, indo para validação do pedido
+2024-12-01 14:52:22,194 - INFO - 66 = procura_imagem - --- Encontrou imagens/img_topcon/botao_sim.jpg na posição: Point(x=989, y=626) ( Tentativa: 0, Confiança: 0.78 )
+2024-12-01 14:52:22,413 - SUCCESS - 15 = success - --- Validou o XML! Prosseguindo para a seleção do pedido: True
+2024-12-01 14:52:22,413 - INFO - 51 = valida_pedido - --- Executando função: valida pedido
+2024-12-01 14:52:23,936 - INFO - 76 = valida_pedido - --- O item: BRITADA 01 é igual ao item extraido: PEDRA BRITADA 01, procurando a imagem: PED_BRITA1.jpg
+2024-12-01 14:52:24,436 - INFO - 128 = valida_pedido - --- Tentativa: 0, achou o PEDRA BRITADA 01 na posição Box(left=270, top=226, width=69, height=19)
+2024-12-01 14:52:26,211 - INFO - 66 = procura_imagem - --- Encontrou imagens/img_topcon/localizar.png na posição: Point(x=856, y=194) ( Tentativa: 0, Confiança: 0.78 )
+2024-12-01 14:52:27,833 - INFO - 200 = verifica_ped_vazio - --- Item da nota: PEDRA BRITADA 01, texto que ainda ficou: PEDRA BRITADA 01, tamanho do texto 16
+2024-12-01 14:52:27,833 - INFO - 204 = verifica_ped_vazio - --- Itens XML ainda tem informação!
+2024-12-01 14:52:27,833 - INFO - 135 = valida_pedido - --- Valor campo "item XML": False
+2024-12-01 14:52:28,235 - INFO - 66 = procura_imagem - --- Encontrou imagens/img_topcon/vinc_xml_pedido.png na posição: Point(x=1091, y=612) ( Tentativa: 0, Confiança: 0.78 )
+2024-12-01 14:52:29,820 - INFO - 200 = verifica_ped_vazio - --- Item da nota: PEDRA BRITADA 01, texto que ainda ficou: PEDRA BRITADA 01, tamanho do texto 16
+2024-12-01 14:52:29,820 - INFO - 204 = verifica_ped_vazio - --- Itens XML ainda tem informação!
+2024-12-01 14:52:29,820 - INFO - 140 = valida_pedido - --- Valor campo "vazio": False
+2024-12-01 14:52:33,960 - INFO - 200 = verifica_ped_vazio - --- Item da nota: PEDRA BRITADA 01, texto que ainda ficou: PEDRA BRITADA 01, tamanho do texto 16
+2024-12-01 14:52:33,960 - INFO - 204 = verifica_ped_vazio - --- Itens XML ainda tem informação!
+2024-12-01 14:52:34,772 - INFO - 128 = valida_pedido - --- Tentativa: 0, achou o PEDRA BRITADA 01 na posição Box(left=270, top=274, width=69, height=19)
+2024-12-01 14:52:36,568 - INFO - 66 = procura_imagem - --- Encontrou imagens/img_topcon/localizar.png na posição: Point(x=856, y=194) ( Tentativa: 0, Confiança: 0.78 )
+2024-12-01 14:52:38,226 - INFO - 200 = verifica_ped_vazio - --- Item da nota: PEDRA BRITADA 01, texto que ainda ficou: I, tamanho do texto 1
+2024-12-01 14:52:38,226 - INFO - 207 = verifica_ped_vazio - --- Itens XML ficou vazio! saindo da tela de vinculação
+2024-12-01 14:52:38,955 - INFO - 66 = procura_imagem - --- Encontrou imagens/img_topcon/confirma.png na posição: Point(x=1026, y=914) ( Tentativa: 0, Confiança: 0.78 )
+2024-12-01 14:52:40,608 - INFO - 66 = procura_imagem - --- Encontrou imagens/img_topcon/botao_ok.jpg na posição: Point(x=1070, y=627) ( Tentativa: 0, Confiança: 0.73 )
+2024-12-01 14:52:41,523 - INFO - 219 = verifica_ped_vazio - --- Encerrado a função verifica pedido vazio!
+2024-12-01 14:52:41,523 - INFO - 135 = valida_pedido - --- Valor campo "item XML": True
+2024-12-01 14:52:41,523 - SUCCESS - 15 = success - --- Pedido validado, saindo do loop dos pedidos encontrados, valor do campo: True
+2024-12-01 14:52:41,523 - SUCCESS - 15 = success - --- Pedido validado, retornando para o programa principal

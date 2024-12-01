@@ -9,7 +9,7 @@ from utils.funcoes import marca_lancado
 
 
 # --- Definição de parametros
-ahk = AHK()
+from utils.funcoes import ahk as ahk
 
 dados_planilha = ['Status', 'teste']
 
@@ -27,7 +27,7 @@ def valida_dados_coletados(dados_planilha = []):
         return True 
     elif (len(dados_planilha[0]) < 4) or (len(dados_planilha[0]) == 5):
         marca_lancado('RE_Invalido')
-        return False
+        return True
     else:
         return True # Dados validados
         
