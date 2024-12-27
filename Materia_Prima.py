@@ -2,7 +2,7 @@
 # Para utilização na Cortesia Concreto.
 
 #! Link da planilha
-# https://cortesiaconcreto-my.sharepoint.com/:x:/g/personal/bi_cortesiaconcreto_com_br/EW_8FZwWFYVAol4MpV1GglkBJEaJaDx6cfuClnesIu60Ng?e=pveECF
+# https://cortesiaconcreto-my.sharepoint.com/:x:/g/personal/bi_cortesiaconcreto_com_br/EQx5PclDGRFGkweQjtb3QckByyAsqydfI5za0MTuO9tjXg
 # Debug db alltrips
 # https://cortesiaconcreto-my.sharepoint.com/:x:/g/personal/bruno_silva_cortesiaconcreto_com_br/ETubFnXLMWREkm0e7ez30CMBnID3pHwfLgGWMHbLqk2l5A?rtime=n9xgTPCH3Eg
 # db_alltrips no paulo, apenas leitura
@@ -14,15 +14,16 @@ import platform
 import traceback
 import pytesseract
 import pyautogui as bot
-from utils.funcoes import ahk as ahk
+from utils.funcoes import ahk as ahk, msg_box
 from datetime import date, datetime
-from abre_topcon import abre_topcon
-from valida_pedido import valida_pedido
+from abre_topcon import main as abre_topcon
+from valida_pedido import main as valida_pedido
 from utils.enviar_email import enviar_email
 from utils.configura_logger import get_logger
 from valida_lancamento import valida_lancamento
-from automacao.finaliza_lancamento import finaliza_lancamento
-from utils.funcoes import marca_lancado, procura_imagem, extrai_txt_img
+from finaliza_lancamento import finaliza_lancamento
+from utils.funcoes import marca_lancado, procura_imagem
+from preenche_local import main as preenche_local
 
 
 #* Definição de parametros
@@ -57,35 +58,43 @@ def valida_filial_estoque(filial_estoq = ""):
     elif filial_estoq == '1036':
         centro_custo = 'PERUS'
     else:
+        marca_lancado()
         exit(F'Filial de estoque não padronizada: {filial_estoq}')
     
     if centro_custo != "":
         return centro_custo
 
+
 def verifica_horario():
     while True:
         hora_atual = datetime.now().time() # Obter o horário atual
-        hora_inicio_pausa = datetime.strptime("00:00", "%H:%M").time() # Definir o horário de inicio de referência (02:00)
-        hora_final_pausa = datetime.strptime("01:00", "%H:%M").time() # Definir o horário de inicio de referência (02:00)
+        for i in range (0, 1):
+            if i < 1:
+                print('--- Verificando se passou das 23h')
+                hora_inicio_pausa = datetime.strptime("23:00", "%H:%M").time() # Definir o horário de inicio de referência (02:00)
+                hora_final_pausa = datetime.strptime("23:59", "%H:%M").time() # Definir o horário de inicio de referência (02:00)
+            else:
+                print('--- Verificando é madrugada')
+                hora_inicio_pausa = datetime.strptime("00:00", "%H:%M").time() # Definir o horário de inicio de referência (02:00)
+                hora_final_pausa = datetime.strptime("02:20", "%H:%M").time() # Definir o horário de inicio de referência (02:00)
 
-        if hora_atual > hora_inicio_pausa and hora_atual < hora_final_pausa:
-            logger.info(F'--- São: {hora_atual}, aguardando 1 hora para tentar novamente.')
-            time.sleep(7200)
+            if hora_atual > hora_inicio_pausa and hora_atual < hora_final_pausa:
+                logger.warning(F'--- São: {hora_atual}, aguardando 2 hora para tentar novamente.')
+                msg_box(F"São: {hora_atual}, aguardando 2 hora para tentar novamente", 7200)
         else:
             return
 
 def programa_principal():
     global qtd_notas_lancadas
-    bot.PAUSE = 0.6
+    bot.PAUSE = 1
     acabou_pedido = False
-    tentativa = 0
 
+    #* Confere o horario dessa execução.
+    verifica_horario()
     logger.info("\n\n\n")
     logger.info('---------------------------------------------------------------------------------------------------')
     logger.info('--- INICIANDO UM NOVO LANÇAMENTO DE NFE --- ')
     logger.info('---------------------------------------------------------------------------------------------------')
-
-    verifica_horario() # Confere o horario dessa execução.
 
     while acabou_pedido is False: # Realiza a validação do pedido
         dados_planilha = valida_lancamento() # Coleta e confere os dados do lançamento atual
@@ -99,7 +108,6 @@ def programa_principal():
         chave_xml = dados_planilha[4]
         acabou_pedido = valida_pedido() # Verifica se o pedido está valido.
 
-    #bot.alert('Teste!')
 #* -------------------------- Continua o processo de lançamento da NFE -------------------------- 
     logger.info('--- Preenchendo dados na tela principal do lançamento')
     ahk.win_activate('TopCompras', title_match_mode=2)
@@ -120,8 +128,9 @@ def programa_principal():
     logger.info('--- Realizando validação/alteração da data')
     hoje = date.today()
     hoje = hoje.strftime("%d%m%y")  # dd/mm/YY
+    bot.write(hoje)
     bot.press('ENTER')
-    
+
     # Aguarda até o topcompras voltar a funcionar
     ahk.win_activate('TopCompras', title_match_mode= 2)
     ahk.win_wait_active('TopCompras', title_match_mode= 2, timeout= 70)
@@ -132,7 +141,7 @@ def programa_principal():
         bot.press('enter')          
         bot.write(hoje)
         bot.press('enter')
-        time.sleep(0.25)
+        time.sleep(0.4)
         # Aguarda até o topcompras voltar a funcionar
         ahk.win_activate('TopCompras', title_match_mode= 2)
         ahk.win_wait_active('TopCompras', title_match_mode= 2, timeout= 70)
@@ -148,7 +157,7 @@ def programa_principal():
             bot.press('enter')          
             bot.write(hoje)
             bot.press('enter')
-            time.sleep(0.25)
+            time.sleep(0.4)
 
     # Aguarda até o topcompras voltar a funcionar
     ahk.win_activate('TopCompras', title_match_mode= 2)
@@ -160,7 +169,7 @@ def programa_principal():
     logger.info('--- Aguarda aparecer o campo cod_desc')
     tentativa_cod_desc = 0
     while procura_imagem(imagem='imagens/img_topcon/cod_desc.png', continuar_exec=True, confianca= 0.74, limite_tentativa= 1) is False:
-        time.sleep(0.25)
+        time.sleep(0.4)
         if tentativa_cod_desc >= 100:
             logger.info('--- Não foi possivel encontrar o campo cod_desc, reiniciando o processo.')
             time.sleep(0.5)
@@ -207,7 +216,7 @@ def programa_principal():
     tentativa_achar_camp_re = 0
     while procura_imagem(imagem='imagens/img_topcon/campo_re_0.png', continuar_exec= True, limite_tentativa= 1, confianca= 0.74) is False:
         logger.info(F'Tentativa: {tentativa_achar_camp_re}')
-        time.sleep(0.25)
+        time.sleep(0.4)
         tentativa_achar_camp_re += 1
         if tentativa_achar_camp_re >= 10:
             logger.info('--- Limite de tentativas de achar o campo "RE", reabrindo topcompras e reiniciando o processo.')
@@ -218,7 +227,7 @@ def programa_principal():
         logger.info('--- Campo RE habilitado, preenchendo.')
         # Preenche o campo do transportador e verifica se aconteceu algum erro.
         bot.write(cracha_mot)  # ID transportador
-        time.sleep(0.25)
+        time.sleep(0.4)
         bot.press('enter')
 
     logger.info('--- Aguardando validar o campo do transportador')
@@ -235,14 +244,14 @@ def programa_principal():
         bot.press('enter')
 
     # Verifica se o campo da placa ficou preenchido
-    time.sleep(0.25)
+    time.sleep(0.4)
     if procura_imagem('imagens/img_topcon/campo_placa.png', confianca= 0.74, continuar_exec=True) is not False:
         logger.info('--- Encontrou o campo vazio, inserindo XXX0000')
         ahk.win_activate('TopCompras', title_match_mode=2)
         bot.click(procura_imagem('imagens/img_topcon/campo_placa.png', continuar_exec=True))
         bot.write('XXX0000')
         bot.press('ENTER')
-        time.sleep(0.25)
+        time.sleep(0.4)
     else:
         logger.info('--- Não achou o campo ou já está preenchido')
 
@@ -269,109 +278,23 @@ def programa_principal():
         return True
     
     #* Realiza a extração da quantidade de toneladas
-    valor_escala = 200
-    while True:
-        while True: # Realiza a extração das toneladas.
-            try:
-                qtd_ton = extrai_txt_img(imagem='img_toneladas.png', area_tela=(892, 577, 70, 20), porce_escala= valor_escala).strip()
-                qtd_ton = qtd_ton.replace(",", ".")
-                qtd_ton = float(qtd_ton)
-            except ValueError:
-                valor_escala += 10
-            else:
-                logger.debug(F'--- Texto coletado da quantidade: {qtd_ton}, Valor escala: {valor_escala}')
-                break
+    preenche_local(silo1, silo2)
 
-        logger.info('--- Abrindo a tela "Itens nota fiscal de compra" ')
-        bot.click(procura_imagem(imagem='imagens/img_topcon/botao_alterar.png', area=(100, 839, 300, 400)))
-        while procura_imagem(imagem='imagens/img_topcon/valor_cofins.png', continuar_exec= True, limite_tentativa= 1, confianca= 0.74) is False:
-            logger.info('--- Aguardando aparecer a tela "Itens nota fiscal de compra" ')
-        
-        ahk.win_activate('TopCompras', title_match_mode=2)
-        ahk.win_wait_active('TopCompras', title_match_mode=2, timeout= 30)
-        time.sleep(0.25)
-        logger.info('--- Preenchendo SILO e quantidade')
-        if ('SILO' in silo1) or ('SILO' in silo2):
-            bot.click(851, 443)  # Clica na linha para informar o primeiro silo
-            if ('SILO' in silo1) and ('SILO' in silo2):  
-                qtd_ton = str((qtd_ton / 2)) # Realiza a divisão da quantidade de cimento, pois será distribuido em dois silos!
-                qtd_ton = qtd_ton.replace(".", ",")
-                logger.info(F'--- Foi informado dois silos, preenchendo... {silo1} e {silo2}, quantidade: {qtd_ton}')
-                bot.write(silo1)
-                bot.press('ENTER')
-                bot.write(str(qtd_ton))
-                bot.press('ENTER')
-                bot.write(silo2)
-                bot.press('ENTER')
-                bot.write(str(qtd_ton))
-                bot.press('ENTER')
-            else:
-                logger.info(F'--- Foi informado UM silo, preenchendo... {silo1}, quantidade: {qtd_ton}')
-                qtd_ton = str(qtd_ton)
-                qtd_ton = qtd_ton.replace(".", ",")
-                bot.write(silo1)
-                bot.write(silo2)
-                bot.press('ENTER')
-                bot.write(str(qtd_ton))
-                bot.press('ENTER')
-        else: # Caso não tenha coletado nenhum silo.            
-            if procura_imagem(imagem='imagens/img_topcon/txt_cimento.png', limite_tentativa= 1, continuar_exec= True):
-                marca_lancado(texto_marcacao= 'Faltou_InfoSilo')
-                logger.info('--- Não foi informado nenhum SILO, porém a nota é de cimento!' )
-                ahk.win_activate('TopCompras', title_match_mode=2)
-                bot.click(procura_imagem(imagem='imagens/img_topcon/txt_cimento.png', limite_tentativa= 1, continuar_exec= True))
-                bot.press('ESC')
-                time.sleep(0.25)
-                return True
-            else: # Caso realmente seja de agregado.
-                logger.info('--- Nota de agregado, continuando o processo!')
-            
-            bot.click(procura_imagem(imagem='imagens/img_topcon/confirma.png'))
-            break
-
-
-        #* Confirma ou cancela os processo executados na tela "itens nota fiscal de compras "
-        bot.click(procura_imagem(imagem='imagens/img_topcon/confirma.png'))       
-        if procura_imagem(imagem='imagens/img_topcon/txt_ErroAtribuida.png', limite_tentativa = 6, continuar_exec = True) is False:
-            logger.info('--- Preenchimento completo, saindo do loop.' )
-            break
-        else:
-            logger.warning(F'--- Falha, executando novamente a coleta das toneladas. Escala atual: {valor_escala}' )
-            valor_escala += 10
-            while procura_imagem(imagem='imagens/img_topcon/confirma.png', continuar_exec=True, limite_tentativa= 1, confianca= 0.74) is not False:
-                bot.press('ENTER')
-                bot.press('ESC')
-                time.sleep(0.25)
-            
-        while procura_imagem(imagem='imagens/img_topcon/confirma.png', continuar_exec=True) is not False:
-            ahk.win_activate('TopCompras', title_match_mode=2)
-            logger.info('--- Aguardando fechamento da tela do botão "Alterar" ')
-            time.sleep(0.25)
-
-            if procura_imagem(imagem='imagens/img_topcon/local_estoque_obrigatorio.png', continuar_exec=True):
-                marca_lancado("Erro local estoque")
-                ahk.win_activate('TopCompras', title_match_mode=2)
-                bot.click(procura_imagem(imagem='imagens/img_topcon/botao_ok.jpg', continuar_exec=True))
-                bot.click(procura_imagem(imagem='imagens/img_topcon/bt_cancela.png', continuar_exec=True))
-                return False
-                
-            tentativa += 1
-            if tentativa > 10: # Caso a tela não feche.
-                exit(bot.alert('Não foi possivel fechar a tela "itens nota fiscal de compra" '))
-        else:
-            logger.warning('--- Não fechou a tela "itens nota fiscal de compras" ')
-    
+    #* Finaliza o processo de lançamento
     finaliza_lancamento() # Realiza todo o processo de finalização de lançamento.
     qtd_notas_lancadas += 1
     print(F"Quantidade de NFS lançadas: {qtd_notas_lancadas}")
     return True
 
 
-if __name__ == '__main__':
+def main():
     enviar_email("brunobola2010@gmail.com", "RPA Cortesia iniciando nova execução", "Realizando uma nova execução da função {PROGRAMA_PRINCIPAL}!")
-    logger = get_logger("automacao") # Obter logger configurado
-    tentativa = 0
 
+
+if __name__ == '__main__':
+    #main()
+
+    logger = get_logger("automacao") # Obter logger configurado
     os.system('taskkill /im AutoHotkey.exe /f /t') # Encerra todos os processos do AHK
     os.system('cls')
 
@@ -379,22 +302,37 @@ if __name__ == '__main__':
     if 'VLPTIC1Z9HD33' not in platform.node(): 
         bot.FAILSAFE = False
 
-    #* Garante a primeira abertura do TopCon e TopCompras
+    tentativa = 0
+    tempo_pausa = 600 # 10 minutos
+    verifica_horario() # Confere o horario dessa execução.
     abre_topcon()
-
-    while tentativa < 5:
+    
+    while tentativa < 10:
         try:
             logger.info('--- Iniciando o Try-Catch do PROGRAMA PRINCIPAL')
+            verifica_horario() # Confere o horario dessa execução.
             programa_principal()
-            print(F'- Tentativa: {tentativa}')
-        except Exception:
-            enviar_email("brunobola2010@gmail.com", "RPA Cortesia apresentou erro", F"Erro coletado: \n {traceback.format_exc()}")
-            logger.exception('--- A execução principal apresentou erro! Executando o script PROGRAMA PRINCIPAL novamente.')
-            logger.info("--- Reiniciando o TopCon e TopCompras para garantir a execução correta.")
-            tentativa += 1
+        except Exception as ultimo_erro:
+            tb = traceback.format_exc()
+            # Usar o traceback para obter o arquivo onde ocorreu o erro
+            last_trace = traceback.extract_tb(ultimo_erro.__traceback__)[-1]  # Última entrada do traceback
+            arquivo_erro = os.path.basename(last_trace.filename) # Nome do arquivo
+            enviar_email("brunobola2010@gmail.com", F"[RPA Cortesia] Apresentou erro na task: {arquivo_erro}, tentativa: {tentativa}", F"Erro coletado: \n {traceback.format_exc()}")
+            logger.exception(F'--- A execução principal apresentou erro! Executando o script principal novamente, tentativa: {tentativa}')
+            print(F'--- Tentativa: {tentativa}')
+            if tentativa > 1:
+                logger.info(F"Pausando por algum tempo {tempo_pausa} segundos antes da proxima tentativa")
+                time.sleep(600)
+                tempo_pausa = tempo_pausa * 1,2
             abre_topcon()
+            tentativa += 1
         except(KeyboardInterrupt) as e:
-            enviar_email("brunobola2010@gmail.com", "RPA Cortesia apresentou erro", F"Execução pausada pelo usuario!{e}")
+            enviar_email("brunobola2010@gmail.com", "[RPA Cortesia] Apresentou erro", F"Execução pausada pelo usuario!{e}")
             exit(logger.critical("Execução pausada pelo usuario"))
+        else:
+            tentativa = 0
+    else:
+        enviar_email("brunobola2010@gmail.com", F"[RPA Cortesia] Erro catastrofico!: {arquivo_erro}", F"Erro coletado: \n {traceback.format_exc()}")
+        logger.critical(F'--- A execução principal apresentou erro! Executando o script principal novamente, tentativa: {tentativa}')
             
 # TODO --- Caso NFE Faturada no final do mes, lançar com qual data?

@@ -1,4 +1,0 @@
-2024-12-01 13:57:21,810 - INFO - 28 = abre_mercantil - --- Realizando a abertura do modulo de compras
-2024-12-01 13:57:22,769 - INFO - 66 = procura_imagem - --- Encontrou imagens/img_topcon/icone_modulo_compras.png na posição: Point(x=71, y=811) ( Tentativa: 0, Confiança: 0.67 )
-2024-12-01 13:57:51,090 - INFO - 28 = abre_mercantil - --- Realizando a abertura do modulo de compras
-2024-12-01 13:57:55,548 - WARNING - 81 = procura_imagem - --- Não encontrou a imagem: imagens/img_topcon/icone_modulo_compras.png, ( Tentativa: 10, Confiança: 0.46999999999999986 ) 

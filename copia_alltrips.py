@@ -19,10 +19,10 @@ def encontra_ultimo_xml(ultimo_xml = ''):
     bot.PAUSE = 1.5
     while True:
         logger.info(F'--- Iniciando a navegação até a ultima chave XML: {ultimo_xml}')
-        ahk.win_activate('db_alltrips.xlsx', title_match_mode= 2)
-        ahk.win_wait_active('db_alltrips.xlsx', title_match_mode= 2, timeout= 5)
+        ahk.win_activate('db_alltrips.xlsx', title_match_mode= 1)
+        ahk.win_wait_active('db_alltrips.xlsx', title_match_mode= 1, timeout= 5)
         try:
-            ahk.win_wait_active('db_alltrips.xlsx', title_match_mode= 2, timeout= 10)
+            ahk.win_wait_active('db_alltrips.xlsx', title_match_mode= 1, timeout= 10)
         except TimeoutError:
             logger.warning('--- Planilha não encontrada!')
             return False
@@ -35,10 +35,12 @@ def encontra_ultimo_xml(ultimo_xml = ''):
         logger.info('--- Navegou até a D. Inserção')
         bot.hotkey('ALT', 'DOWN') # Abre o menu do filtro
         time.sleep(5)
-        bot.click(procura_imagem(imagem='imagens/img_planilha/icone_organiza_A_Z.png')) # Clica no botão "organizar do mais antigo ao mais novo"
+        ahk.win_activate('db_alltrips.xlsx', title_match_mode= 1)
+        time.sleep(0.5)
+        bot.click(procura_imagem(imagem='imagens/img_planilha/icone_organiza_A_Z.png', continuar_exec= True)) # Clica no botão "organizar do mais antigo ao mais novo"
         logger.info('--- Organizou a planilha da forma "da menor para a maior" ')
         time.sleep(0.5)
-        ahk.win_activate('db_alltrips.xlsx', title_match_mode= 2)
+        ahk.win_activate('db_alltrips.xlsx', title_match_mode= 1)
         bot.click(960, 630) # Clica no meio da planilha para "ativar" a navegação dentro dela.
 
         #Abre o menu de pesquisa
@@ -80,7 +82,7 @@ def copia_dados(ultimo_xml):
 
         hora_inicio_pausa = datetime.strptime("02:00", "%H:%M").time() # Definir o horário de inicio de referência (02:00)
         hora_final_pausa = datetime.strptime("04:00", "%H:%M").time() # Definir o horario final de referencia (04:00)
-        ahk.win_activate('db_alltrips.xlsx', title_match_mode= 2)
+        ahk.win_activate('db_alltrips.xlsx', title_match_mode= 1)
         bot.press('DOWN') # Navega até a proxima linha após a ultima chave.
 
         # 1. Caso o campo esteja vazio, significa que ainda não foram inseridas novas notas, e para o processo.
@@ -129,17 +131,17 @@ def copia_dados(ultimo_xml):
     ahk.key_press('right') # Avança para a ultima coluna
     tentativa_copia = 0
     logger.info('--- Pressionou SHIFT e CONTROL, indo até a ultima coluna preenchida')
-    while True: # Executa a copia, e verifica se os dados são validos
-        time.sleep(1)
+    for i in range (0, 5):
+        time.sleep(0.5)
         ahk.key_up('Shift')
-        time.sleep(1)
+        time.sleep(0.5)
         ahk.key_up('Control')
-        time.sleep(1)
+        time.sleep(0.5)
         bot.hotkey('ctrl', 'c')
-        time.sleep(1)
+        time.sleep(0.5)
         dados_copiados = ahk.get_clipboard()
 
-        if "," in dados_copiados: # Verifica se os dados foram copiados com sucesso
+        if ("/" in dados_copiados) or ("/2025" in dados_copiados) or ("," in dados_copiados): # Verifica se os dados foram copiados com sucesso
             logger.info('--- Novos dados copiados com sucesso da planilha db_alltrips')
             return dados_copiados
         else:
@@ -156,11 +158,12 @@ def copia_dados(ultimo_xml):
             ahk.key_up('Shift')
             time.sleep(1)
             ahk.key_up('Control')
-            raise TimeoutError
+            raise Exception("Excedeu o limite de tentativas de copiar os dados, soltando SHIFT e CONTROL")
 
 def cola_dados(dados_copiados = "TESTE"):
-    logger.info('--- Acessando a planilha de debug para COLAR os dados!')
     abre_planilha_navegador(planilha_debug)
+    bot.PAUSE = 2
+    logger.info('--- Acessando a planilha de debug para COLAR os dados!')
     time.sleep(0.5)
     bot.hotkey('CTRL', 'HOME') # Navega até a celula A1.
     bot.press('DOWN', presses= 2) # Proxima linha que deveria estar sem informação.
@@ -173,36 +176,41 @@ def cola_dados(dados_copiados = "TESTE"):
     time.sleep(0.5)
     logger.info('--- Copiado e colado com sucesso! Fechando a planilha original.')
     ahk.win_activate('db_alltrips.xlsx', title_match_mode= 1)
-    cont_win_kill = 0
-    while ahk.win_exists('db_alltrips.xlsx', title_match_mode= 1):
-        time.sleep(0.25)
+
+    for i in range (0, 15):
+        logger.info("--- Fechando a planilha do banco ORIGINAL antes de prosseguir.")
+        time.sleep(0.4)
         ahk.win_kill('db_alltrips.xlsx', title_match_mode= 1) # Força o fechamento da planilha com o banco puro.
-        cont_win_kill += 1
-        if cont_win_kill > 15:
-            logger.warning('--- não conseguiu fechar a planilha original')
-            raise TimeoutError
+        if ahk.win_exists('db_alltrips.xlsx', title_match_mode= 1) is False:
+            break
     else:
-        logger.info('--- Fechou a planilha com os dados originais')
-        return True
+        logger.error('--- Não conseguiu fechar a planilha original')
+        raise Exception("Não conseguiu fechar a planilha original")
+    
 
 def main(ultimo_xml = chave_xml):
     bot.PAUSE = 1.5
     dia_mes_atual = datetime.now() # Coleta a data atual, para validar se os dados são novos.
-    dois_dias_antes = dia_mes_atual.day - 3
-    dois_dias_antes = F"{dois_dias_antes}/"
+    quatro_dias_antes = dia_mes_atual.day - 4
+    quatro_dias_antes = F"{quatro_dias_antes}/"
 
+    #* Abre a planilha do db_alltrips (banco original)
     abre_planilha_navegador()
     encontra_ultimo_xml(ultimo_xml = ultimo_xml)
+
     dados_copiados = copia_dados(ultimo_xml)
-    if dois_dias_antes in dados_copiados:
-        exit(bot.alert(F'Dia "{dois_dias_antes}" está nos dados copiados.'))
+
+    if quatro_dias_antes in dados_copiados:
+        raise Exception(F'Dia "{quatro_dias_antes}" está nos dados copiados.')
     else:
-        logger.info(F'Não encontrou: {dois_dias_antes} nos dados copiados, os dados são novos!')
+        logger.info(F'Não encontrou: {quatro_dias_antes} nos dados copiados, os dados são novos!')
+
     ahk.key_up('Shift')
     ahk.key_up('Control')
+
     colou_dados = cola_dados(dados_copiados)
     if colou_dados is True:
         return True
 
 if __name__ == '__main__':
-    main(ultimo_xml= "35241133039223000979550010003814191171628324")
+    main(ultimo_xml= "35241233039223000979550010003836571296060514")

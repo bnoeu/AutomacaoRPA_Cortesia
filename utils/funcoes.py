@@ -9,7 +9,11 @@ import numpy as np
 from ahk import AHK
 import pyautogui as bot
 from datetime import datetime
-from utils.configura_logger import get_logger
+
+if __name__ == '__main__':
+    from configura_logger import get_logger
+else:
+    from .configura_logger import get_logger
 
 
 # --- Definição de parametros
@@ -30,7 +34,7 @@ def print_erro(nome_img = "erro"):
     img_erro.save(fp= caminho_erro)
     return caminho_erro
 
-def procura_imagem(imagem, limite_tentativa=5, area=(0, 0, 1920, 1080), continuar_exec=False, confianca = 0.78, msg_continuar_exec = False, msg_confianca = False):
+def procura_imagem(imagem, limite_tentativa=7, area=(0, 0, 1920, 1080), continuar_exec=False, confianca = 0.78, msg_continuar_exec = False, msg_confianca = False):
     """Função que realiza o processo de OCR na tela, retornando as coordenadas onde localizou a imagem especificada.
 
     Args:
@@ -71,10 +75,9 @@ def procura_imagem(imagem, limite_tentativa=5, area=(0, 0, 1920, 1080), continua
         tentativa += 1
         pausa_img += 0.05
 
-    #Caso seja para continuar
+    #* Caso seja para continuar
     if (continuar_exec is True) and (posicao_img is None): # Exibe a mensagem que o parametro está ativo
-        if msg_continuar_exec is True:
-            logger.info('' + F'--- {imagem} não foi encontrada, continuando execução pois o parametro "continuar_exec" está habilitado')
+        logger.debug('' + F'--- {imagem} não foi encontrada, "continuar_exec" está habilitado (Tentativa: {tentativa}, Confiança {confianca}, Area: {area})')
         return False
     
     if tentativa >= limite_tentativa: # Caso exceda o limite de tentativas
@@ -97,39 +100,32 @@ def verifica_tela(nome_tela, manual=False):
     else:
         exit(logger.error(F'--- Tela: {nome_tela} está fechada, saindo do programa.'))
 
-def marca_lancado(texto_marcacao='Lancado'):
-    bot.PAUSE = 2
+def marca_lancado(texto_marcacao='teste_08_12'):
+    bot.PAUSE = 1
     tentativa = 0
+
     logger.info(F'--- Abrindo planilha - MARCA_LANCADO, com parametro: {texto_marcacao}' )
     ahk.win_activate('debug_db_alltrips', title_match_mode= 2)
-    while tentativa < 3:
-        try:
-            ahk.win_wait_active(title= 'debug_db', title_match_mode= 2, timeout= 5)
-        except TimeoutError:
-            ahk.win_activate('debug_db_alltrips', title_match_mode= 2)
-            tentativa += 1
-        else:
-            break
-        
-    bot.PAUSE = 2
+    ahk.win_wait_active('debug_db_alltrips', title_match_mode= 2, timeout= 30)
+
     time.sleep(0.5)
     bot.hotkey('CTRL', 'HOME')
 
     # Navega até o campo "Status"
     bot.press('RIGHT', presses= 6)
     bot.press('DOWN')
-    time.sleep(1.5)
+    time.sleep(1)
     
     # Informa o texto recebido pela função e passa para a celula ao lado, para inserir a data
     bot.write(texto_marcacao)
     bot.press('RIGHT')
-    time.sleep(1.5)
+    time.sleep(1)
     hoje = datetime.now()
     hoje_formatado = hoje.strftime('%d/%m/%Y')
     bot.write(hoje_formatado)
-    time.sleep(1.5)
+    time.sleep(1)
     bot.click(960, 640) # Clica no meio da planilha
-    time.sleep(0.25)
+    time.sleep(0.4)
     
     # Retorna a planilha para o modo "Somente Exibição (Botão Verde)"
     bot.hotkey('CTRL', 'HOME')
@@ -137,9 +133,10 @@ def marca_lancado(texto_marcacao='Lancado'):
     bot.hotkey('CTRL', 'HOME')
     logger.info(F'--------------------- Processou NFE, situação: {texto_marcacao} ---------------------')
 
+
 def reaplica_filtro_status(): 
+    bot.PAUSE = 1
     logger.debug('--- Executando a função REAPLICA FILTRO STATUS')
-    bot.PAUSE = 1.5
     ahk.win_activate('debug_db_alltrips', title_match_mode= 2)
     time.sleep(1)
     bot.click(960, 640)
@@ -149,20 +146,30 @@ def reaplica_filtro_status():
     bot.hotkey('ALT', 'DOWN') # Comando do excel para abrir o menu do filtro
     logger.info('--- Navegou até celula A1 e abriu o filtro do status ')
     ahk.win_activate('debug_db_alltrips', title_match_mode= 2)
-    bot.click(procura_imagem(imagem='imagens/img_planilha/bt_aplicar.png'))
-    logger.info('--- Na tela do menu de filtro, clicou no botão "Aplicar" para reaplicar o filtro ')
+
+    #* Aguarda e clica no botão "Aplicar"
+    for i in range(0, 10):
+        ahk.win_activate('debug_db_alltrips', title_match_mode= 2)
+        time.sleep(0.5)
+        if procura_imagem(imagem='imagens/img_planilha/bt_aplicar.png', continuar_exec= True):
+            bot.click(procura_imagem(imagem='imagens/img_planilha/bt_aplicar.png', continuar_exec= True))
+            logger.info('--- Na tela do menu de filtro, clicou no botão "Aplicar" para reaplicar o filtro ')
+            time.sleep(0.5)
+            break
+        if i >= 9:
+            logger.error('--- Não encontrou o botão APLICAR!')
+            procura_imagem(imagem='imagens/img_planilha/bt_aplicar.png', limite_tentativa= 1)
     
-    if procura_imagem(imagem='imagens/img_planilha/bt_visualizar_todos.png', continuar_exec= True):
+    
+    if procura_imagem(imagem='imagens/img_planilha/bt_visualizar_todos.png', continuar_exec= True, limite_tentativa= 3):
         bot.click(procura_imagem(imagem='imagens/img_planilha/bt_visualizar_todos.png', continuar_exec= True))
         logger.info('--- Clicou para visualizar o filtro de todos.')
     
-    time.sleep(2)
     bot.hotkey('CTRL', 'HOME') # Navega até o campo A1
-    logger.info('--- Filtro reaplicado com sucesso')
-        
+
 
 def extrai_txt_img(imagem, area_tela, porce_escala = 400):
-    time.sleep(0.25)
+    time.sleep(0.4)
     img = bot.screenshot('imagens/img_geradas/' + imagem, region=area_tela) # Captura uma screenshot da área especificada da tela
     logger.debug(F'--- Tirou print da imagem: {imagem} ----')
 
@@ -196,23 +203,22 @@ def extrai_txt_img(imagem, area_tela, porce_escala = 400):
     return texto
 
 def verifica_ped_vazio(texto, pos):
+    ahk.win_activate('Vinculação Itens da Nota', title_match_mode = 2)
     texto_xml = extrai_txt_img(imagem='valida_itensxml.png', area_tela=(168, 407, 250, 20))
-    logger.info(F'--- Item da nota: {texto}, texto que ainda ficou: {texto_xml}, tamanho do texto {len(texto_xml)}')
+    logger.debug(F'--- Item da nota: {texto}, texto que ainda ficou: {texto_xml}, tamanho do texto {len(texto_xml)}')
 
     # Verifica pelo tamanho do texto, se ainda ficou algum valor no campo "Itens do pedido"
     if len(texto_xml) > 5: 
-        logger.info('--- Itens XML ainda tem informação!')
+        logger.warning('--- Itens XML ainda tem informação!')
         return False
     else:  # Caso fique vazio
         logger.info('--- Itens XML ficou vazio! saindo da tela de vinculação')
-        ahk.win_activate('Vinculação Itens da Nota', title_match_mode = 2)
-        time.sleep(0.25)
         bot.click(procura_imagem(imagem='imagens/img_topcon/confirma.png'))
         
         ahk.win_wait_active('TopCompras (VM-CortesiaApli.CORTESIA.com)', title_match_mode = 2, timeout= 30)
         while ahk.win_exists('TopCompras (VM-CortesiaApli.CORTESIA.com)', title_match_mode = 2):
             ahk.win_activate('TopCompras (VM-CortesiaApli.CORTESIA.com)', title_match_mode = 2)
-            time.sleep(0.25)
+            time.sleep(0.4)
             bot.click(procura_imagem(imagem='imagens/img_topcon/botao_ok.jpg', confianca= 0.73, limite_tentativa= 10))
 
         ahk.win_wait_close('Vinculação Itens da Nota', title_match_mode = 2, timeout= 30)
@@ -242,25 +248,61 @@ def abre_planilha_navegador(link_planilha = alltrips):
     else: # Planilha de debug
         planilha = "debug_db_alltrips.xlsx"   
 
+    #* Verifica se a planilha já esta aberta
     if ahk.win_exists(planilha):
+        logger.debug('--- Planilha já está aberta!')
         ahk.win_activate(planilha, title_match_mode= 2)
+        ahk.win_maximize(planilha, title_match_mode= 2)
         bot.hotkey('CTRL', 'F5') # Recarrega a planilha limpando o cache
-        time.sleep(8)
-        logger.info('--- Planilha já estava aberta, executou apenas um recarregamento')
+
+        #* Verifica se a planilha realmente já recarregou
+        for i in range (0, 30):
+            time.sleep(0.4)
+            #if procura_imagem(imagem='imagens/img_planilha/icone_excel.png', continuar_exec= True, limite_tentativa= 1):
+            if procura_imagem(imagem='imagens/img_planilha/txt_status.png', continuar_exec= True, limite_tentativa= 1):
+                if procura_imagem(imagem='imagens/img_planilha/txt_status.png', continuar_exec= True, limite_tentativa= 1):
+                    if procura_imagem(imagem='imagens/img_planilha/icone_nuvem.png', continuar_exec= True, limite_tentativa= 1):
+                        break
+            if i == 30:
+                logger.erro('--- Planilha não carregou corretamente!')
+                raise Exception('--- Planilha não carregou corretamente!')
+            
+        logger.info('--- Executou apenas um recarregamento')
         return True
+    else:
+        logger.info('--- Planilha fechada, abrindo uma nova execução!')
+        os.system('taskkill /im msedge.exe /f /t')
     
-    while ahk.win_exists("alltrips.xlsx", title_match_mode= 2): # Garante que a planilha não esteja aberta
+    #* Garante que a planilha ORIGINAL não esteja aberta
+    while ahk.win_exists("alltrips.xlsx", title_match_mode= 1): # Garante que a planilha não esteja aberta
+        logger.info('--- Forçou o fechamento da planilha ORIGINAL do AllTrips')
         ahk.win_close('alltrips.xlsx', title_match_mode= 2)
-        time.sleep(0.5)
+        os.system('taskkill /im msedge.exe /f /t')
+        time.sleep(0.4)
     
-    logger.info(F'--- Tentando abrir a planilha: {planilha}')
+    logger.info(F'--- Realizando uma nova execução da planilha: {planilha}')    
     comando_iniciar = F'start msedge {link_planilha} -new-window -inprivate'
     os.system(comando_iniciar)
-    ahk.win_wait_active(planilha, title_match_mode = 2, timeout= 18)
-    time.sleep(2)
-    ahk.win_maximize(planilha)
-    time.sleep(5)
-    logger.info('--- Planilha aberta e maximizada.')
+    time.sleep(3)
+    
+    #* Aguarda a planilha abrir no EDGE e maximiza
+    for i in range (0, 30):
+        time.sleep(0.4)
+        ahk.win_activate(planilha, title_match_mode = 2)
+        if ahk.win_is_active(planilha, title_match_mode = 2):
+            ahk.win_maximize(planilha)
+            time.sleep(0.5)
+            logger.info('--- Planilha aberta e maximizada! procurando icone do EXCEL')
+            if procura_imagem(imagem='imagens/img_planilha/icone_excel.png', continuar_exec= True):
+                logger.info('--- Encontrou o icone do excel, procurando texto "STATUS" ')
+                if procura_imagem(imagem='imagens/img_planilha/txt_status.png', continuar_exec= True):
+                    logger.success('--- Todas validações realizadas, planilha realmente aberta!')
+                    return True
+        if i == 29:
+            logger.error('--- Planilha não abriu corretamente!')
+            raise Exception('--- Planilha não abriu corretamente!')
+    logger.success('--- Planilha aberta e maximizada.')
+    
 
 def msg_box(texto: str, tempo: int = 60):
     """Exibe uma dialog box temporaria utilizando AHK
@@ -276,10 +318,10 @@ def msg_box(texto: str, tempo: int = 60):
 if __name__ == '__main__':
     bot.PAUSE = 0.6
     bot.FAILSAFE = False
-    print_erro()
+    #print_erro()
     #msg_box("Teste", tempo = 10)
-    #abre_planilha_navegador(link_planilha= planilha_debug)
+    abre_planilha_navegador(alltrips)
     #reaplica_filtro_status()
     #verifica_ped_vazio()
     #corrige_nometela()
-    #marca_lancado('Teste')
+    marca_lancado()

@@ -2,6 +2,7 @@
 # Para utilização na Cortesia Concreto.
 
 import time
+import os
 from utils.configura_logger import get_logger
 import pyautogui as bot
 from copia_alltrips import main as copia_banco
@@ -15,14 +16,6 @@ from utils.funcoes import ahk as ahk
 logger = get_logger("script1")
 planilha_debug = "https://cortesiaconcreto-my.sharepoint.com/:x:/g/personal/bruno_silva_cortesiaconcreto_com_br/ETubFnXLMWREkm0e7ez30CMBnID3pHwfLgGWMHbLqk2l5A?rtime=jFhSykjw3Eg"
 
-def main():
-    while True:
-        abre_planilha_navegador(planilha_debug)
-        dados_copiados = coleta_dados()
-        if dados_copiados:
-            logger.success('--- Processo de coleta da planilha foi executado corretamente.')
-            return dados_copiados
-
 def coleta_dados():
     dados_copiados = False
     while not dados_copiados:
@@ -31,12 +24,10 @@ def coleta_dados():
 
 def coleta_planilha():
     logger.info('--- Copiando dados e formatando na planilha de debug')
-    bot.PAUSE = 0.5
     while True:
         reaplica_filtro_status()
         bot.hotkey('CTRL', 'HOME')
         bot.press('DOWN')
-        
         dados_planilha = copia_linha_atual()
         if valida_dados(dados_planilha):
             return processa_dados(dados_planilha)
@@ -53,15 +44,33 @@ def processa_dados(dados_planilha):
         logger.info(F'--- Chegou na última NFE {chave_xml}')
         copia_banco(chave_xml)
     else:
-        logger.info(F'--- Dados copiados com sucesso: {dados_planilha[4]}')
+        logger.info(F'--- Dados copiados com sucesso: {dados_planilha}')
     return dados_planilha
 
 def handle_timeout(texto_erro):
-    logger.exception("Os processos de coleta na PLANILHA deram erro, fechando planilha e executando novamente.")
+    logger.exception("Os processos de coleta na PLANILHA apresentaram erro, fechando o EDGE")
     msg_box(str(f"{texto_erro}"), tempo=10)
     ahk.win_kill('Edge', title_match_mode=2, seconds_to_wait=3)
-    logger.warning('Fechando o EDGE')
     time.sleep(5)
+
+def main():
+    bot.PAUSE = 1.5
+    ultimo_erro = ""
+
+    for i in range(0, 1):
+        try:
+            abre_planilha_navegador(planilha_debug)
+            dados_copiados = coleta_dados()
+            if dados_copiados:
+                logger.success('--- Processo de coleta da planilha foi executado corretamente.')
+                return dados_copiados
+        except Exception as e:
+            ultimo_erro = e
+            handle_timeout(texto_erro = ultimo_erro)
+    else:
+        logger.critical("--- Número maximo de tentativas de executar o COLETA PLANILHA.PY ")
+        os.system('taskkill /im msedge.exe /f /t') # Encerra todos os processos do msedge
+        raise Exception(F"Número maximo de tentativas de executar o COLETA PLANILHA.py, erro coletado: {ultimo_erro}")
 
 if __name__ == '__main__':
     main()

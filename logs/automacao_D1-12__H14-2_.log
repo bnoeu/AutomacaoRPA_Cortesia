@@ -1,3 +1,0 @@
-2024-12-01 14:02:11,531 - INFO - 28 = abre_mercantil - --- Realizando a abertura do modulo de compras
-2024-12-01 14:02:11,801 - INFO - 33 = abre_mercantil - --- Tentando fechar o TopCompras
-2024-12-01 14:02:12,300 - INFO - 37 = abre_mercantil - --- Modulo de compras realmente está fechado, abrindo uma nova execução
