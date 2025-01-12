@@ -26,7 +26,7 @@ senha_rdp = '4Pyth0n@'
 #* Novo usuario
 bot.FAILSAFE = False
 login_rdp = 'b.santos'
-senha_rdp = 'Cortesia@123'
+senha_rdp = 'C0rtesi@2024'
 
 def abre_mercantil():
     #bot.alert(F"Valor da pausa: {bot.PAUSE}")
