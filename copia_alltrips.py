@@ -1,15 +1,19 @@
 # Para utilização na Cortesia Concreto.
 # -*- Criado por Bruno da Silva Santos. -*-
 
+from ast import Raise
+from logging import raiseExceptions
 import os
+from sys import exception
 import time
-from datetime import datetime
 import pyautogui as bot
+from datetime import datetime
+from utils.funcoes import ahk as ahk
 from utils.configura_logger import get_logger
-from utils.funcoes import procura_imagem, abre_planilha_navegador, msg_box
+from utils.funcoes import procura_imagem, abre_planilha_navegador, msg_box, verifica_horario
+
 
 # --- Definição de parametros
-from utils.funcoes import ahk as ahk
 chave_xml = ""
 logger = get_logger("script1")
 planilha_debug = "https://cortesiaconcreto-my.sharepoint.com/:x:/g/personal/bruno_silva_cortesiaconcreto_com_br/ETubFnXLMWREkm0e7ez30CMBnID3pHwfLgGWMHbLqk2l5A?rtime=n9xgTPCH3Eg"
@@ -70,23 +74,45 @@ def encontra_ultimo_xml(ultimo_xml = ''):
             logger.warning(F'--- Ops... não está na ultima chave {ultimo_xml}, navegando novamente.')
             raise TimeoutError
 
-def copia_dados(ultimo_xml):
+def valida_nova_chave_inserida():
+    logger.info('--- Verificando se existe uma nova chave NFE.')
+
+    ahk.win_activate('db_alltrips.xlsx', title_match_mode= 1)
+    bot.press('DOWN') # Navega até a proxima linha após a ultima chave.
+
+    while True: # Executa o processo de copia dos dados
+        bot.hotkey('ctrl', 'c')
+        if 'Recuperando' in ahk.get_clipboard():
+            logger.info('--- Tentando copiar novamente.')
+            time.sleep(0.4)
+        else:
+            logger.info('--- Dado copiado com sucesso, realizando avaliação.')
+            valor_copiado = ahk.get_clipboard()
+            break
+
+    #* Executa a validação dos dados copiados
+    if valor_copiado == "": # 1. Caso o campo esteja vazio, significa que ainda não foram inseridas novas notas, e para o processo.
+        logger.info('--- Valor copiado está vazio! Aguardando 15 minutos antes de tentar novamente')
+        time.sleep(900)
+        return False
+    elif len(valor_copiado) < 20 or len(valor_copiado) > 44:
+        logger.warning(F'--- Valor copiado é invalido: {valor_copiado}')
+        return False
+    else: # 2. Caso o campo esteja com uma chave XML nova, prossegue.
+        logger.info(F'--- Uma nova chave foi inserida: {valor_copiado}, saindo do loop')
+        return True
+
+
+def copia_dados():
     bot.PAUSE = 1
-    pausa_padrao = 600 # 10 Minutos
-    tentativas = 0
     dados_copiados = ""
 
+    ''' #! Substituido pela função "Valida nova chave inserida"
     logger.info('--- Iniciando o processo de cópia.')
     while tentativas < 4:
-        hora_atual = datetime.now().time() # Obter o horário atual
-
-        hora_inicio_pausa = datetime.strptime("02:00", "%H:%M").time() # Definir o horário de inicio de referência (02:00)
-        hora_final_pausa = datetime.strptime("04:00", "%H:%M").time() # Definir o horario final de referencia (04:00)
         ahk.win_activate('db_alltrips.xlsx', title_match_mode= 1)
         bot.press('DOWN') # Navega até a proxima linha após a ultima chave.
 
-        # 1. Caso o campo esteja vazio, significa que ainda não foram inseridas novas notas, e para o processo.
-        # 2. Caso o campo esteja com uma chave XML nova, prossegue.
         while True: # Executa o processo de copia dos dados
             bot.hotkey('ctrl', 'c')
             if 'Recuperando' in ahk.get_clipboard():
@@ -97,28 +123,26 @@ def copia_dados(ultimo_xml):
                 valor_copiado = ahk.get_clipboard()
                 break
 
-        if valor_copiado == "":
-            logger.info(F'Verificando o horario atual: {hora_atual}')
+        #* Executa a validação dos dados copiados
+        if valor_copiado == "": # 1. Caso o campo esteja vazio, significa que ainda não foram inseridas novas notas, e para o processo.
+            logger.info(F'--- Valor copiado está vazio! Valor: {valor_copiado}, pausando script por {pausa_padrao / 60} minutos')
+            time.sleep(pausa_padrao)
+            pausa_padrao += 600 # Adicona +10 mintuso a pausa
+            verifica_horario()
             os.system('taskkill /im msedge.exe /f /t')
-            if hora_atual > hora_inicio_pausa and hora_atual < hora_final_pausa: # Verificar se o horário atual é maior que 02:00
-                logger.info(F"{hora_atual.strftime('%H:%M')} é maior que {hora_inicio_pausa}. pausando o script por 3 horas")
-                msg_box(F"{hora_atual.strftime('%H:%M')} é maior que {hora_inicio_pausa}. pausando o script por 3 horas", tempo= 10800)
-            else:
-                msg_box(F"Campo vazio, aguardando {pausa_padrao / 60} minutos, tentativa: {tentativas}", tempo = pausa_padrao)
-                logger.info(F"Campo vazio, aguardando {pausa_padrao / 60} minutos, tentativa {tentativas}")                
-                if tentativas > 1:
-                    pausa_padrao = pausa_padrao * 3
-                    logger.warning(F'Tentou encontrar uma nova nota mais de {tentativas} vezes, aumentando tempo da pausa para: {pausa_padrao / 60}')
-                tentativas += 1
-        else:
+        elif len(valor_copiado) < 20 or len(valor_copiado) > 44:
+            logger.warning(F'--- Valor copiado é invalido: {valor_copiado}')
+            continue
+        else: # 2. Caso o campo esteja com uma chave XML nova, prossegue.
             logger.info(F'--- Uma nova chave foi inserida: {valor_copiado}, saindo do loop')
             break
     else:
-        logger.error(F'Tentou encontrar uma nova nota mais de {tentativas}')
-        raise TimeoutError
+        logger.error(F'--- Não encontrou uma NFE nova! Tentativa: {tentativas}')
+        raise Exception('Não encontrou uma NFE nova! Tentativa: {tentativas}')
+    '''
 
     # Inicia o processo de seleção dos dados
-    logger.info('--- Iniciando o processo de seleção dos dados')
+    logger.info('--- Iniciando o processo de seleção dos dados novos')
     time.sleep(1)
     bot.press('LEFT', presses= 4) # Navega até a coluna "RE"
     time.sleep(1)
@@ -142,7 +166,7 @@ def copia_dados(ultimo_xml):
         dados_copiados = ahk.get_clipboard()
 
         if ("/" in dados_copiados) or ("/2025" in dados_copiados) or ("," in dados_copiados): # Verifica se os dados foram copiados com sucesso
-            logger.info('--- Novos dados copiados com sucesso da planilha db_alltrips')
+            logger.success('--- Novos dados copiados com sucesso da planilha db_alltrips')
             return dados_copiados
         else:
             ahk.key_down('Shift') # Segura a tecla SHIFT
@@ -195,10 +219,17 @@ def main(ultimo_xml = chave_xml):
     quatro_dias_antes = F"{quatro_dias_antes}/"
 
     #* Abre a planilha do db_alltrips (banco original)
-    abre_planilha_navegador()
-    encontra_ultimo_xml(ultimo_xml = ultimo_xml)
+    for i in range(0, 5):
+        abre_planilha_navegador()
+        encontra_ultimo_xml(ultimo_xml = ultimo_xml)
 
-    dados_copiados = copia_dados(ultimo_xml)
+        if valida_nova_chave_inserida() is True:
+            dados_copiados = copia_dados()
+            if dados_copiados != "":
+                break
+
+    else:
+        raise Exception(F"--- Falhou as: {i} tentativas da task COPIA ALLTRIPS")
 
     if quatro_dias_antes in dados_copiados:
         raise Exception(F'Dia "{quatro_dias_antes}" está nos dados copiados.')
@@ -213,4 +244,4 @@ def main(ultimo_xml = chave_xml):
         return True
 
 if __name__ == '__main__':
-    main(ultimo_xml= "35241233039223000979550010003836571296060514")
+    main(ultimo_xml= "31250160869336008100550000012631171697762610")
