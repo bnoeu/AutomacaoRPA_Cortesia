@@ -14,17 +14,17 @@ import platform
 import traceback
 import pytesseract
 import pyautogui as bot
-from utils.funcoes import ahk as ahk, msg_box
-from datetime import date, datetime
+from utils.funcoes import ahk as ahk
+from datetime import date
 from abre_topcon import main as abre_topcon
 from valida_pedido import main as valida_pedido
 from utils.enviar_email import enviar_email
 from utils.configura_logger import get_logger
 from valida_lancamento import valida_lancamento
 from finaliza_lancamento import finaliza_lancamento
-from utils.funcoes import marca_lancado, procura_imagem
-from preenche_local import main as preenche_local
 
+from utils.funcoes import marca_lancado, procura_imagem, verifica_horario
+from preenche_local import main as preenche_local
 
 #* Definição de parametros
 posicao_img = 0
@@ -64,7 +64,7 @@ def valida_filial_estoque(filial_estoq = ""):
     if centro_custo != "":
         return centro_custo
 
-
+'''
 def verifica_horario():
     while True:
         hora_atual = datetime.now().time() # Obter o horário atual
@@ -74,7 +74,7 @@ def verifica_horario():
                 hora_inicio_pausa = datetime.strptime("23:00", "%H:%M").time() # Definir o horário de inicio de referência (02:00)
                 hora_final_pausa = datetime.strptime("23:59", "%H:%M").time() # Definir o horário de inicio de referência (02:00)
             else:
-                print('--- Verificando é madrugada')
+                print('--- Verificando se é madrugada')
                 hora_inicio_pausa = datetime.strptime("00:00", "%H:%M").time() # Definir o horário de inicio de referência (02:00)
                 hora_final_pausa = datetime.strptime("02:20", "%H:%M").time() # Definir o horário de inicio de referência (02:00)
 
@@ -83,6 +83,7 @@ def verifica_horario():
                 msg_box(F"São: {hora_atual}, aguardando 2 hora para tentar novamente", 7200)
         else:
             return
+'''
 
 def programa_principal():
     global qtd_notas_lancadas
@@ -131,15 +132,15 @@ def programa_principal():
     bot.write(hoje)
     bot.press('ENTER')
 
-    # Aguarda até o topcompras voltar a funcionar
     ahk.win_activate('TopCompras', title_match_mode= 2)
+    # Aguarda até o topcompras voltar a funcionar
     ahk.win_wait_active('TopCompras', title_match_mode= 2, timeout= 70)
-    
+
     # Caso o sistema informe que a data deve ser maior/igual a data inserida acima.
     if procura_imagem('imagens/img_topcon/data_invalida.png', continuar_exec= True):
         logger.warning('--- Precisa mudar a data, inserindo a data de hoje')
         bot.press('enter')          
-        bot.write(hoje)
+        #bot.write(hoje)
         bot.press('enter')
         time.sleep(0.4)
         # Aguarda até o topcompras voltar a funcionar
@@ -313,26 +314,36 @@ if __name__ == '__main__':
             verifica_horario() # Confere o horario dessa execução.
             programa_principal()
         except Exception as ultimo_erro:
-            tb = traceback.format_exc()
-            # Usar o traceback para obter o arquivo onde ocorreu o erro
+            #tb = traceback.format_exc() # Usar o traceback para obter o arquivo onde ocorreu o erro
             last_trace = traceback.extract_tb(ultimo_erro.__traceback__)[-1]  # Última entrada do traceback
             arquivo_erro = os.path.basename(last_trace.filename) # Nome do arquivo
+
+
             enviar_email("brunobola2010@gmail.com", F"[RPA Cortesia] Apresentou erro na task: {arquivo_erro}, tentativa: {tentativa}", F"Erro coletado: \n {traceback.format_exc()}")
             logger.exception(F'--- A execução principal apresentou erro! Executando o script principal novamente, tentativa: {tentativa}')
-            print(F'--- Tentativa: {tentativa}')
-            if tentativa > 1:
+
+            #* Realiza as verificações antes da proxima tentativa
+            verifica_horario() # Confere o horario dessa execução.
+
+            if (tentativa > 5) and (tentativa < 9): # Começa a pausar o script após a 5º execução
                 logger.info(F"Pausando por algum tempo {tempo_pausa} segundos antes da proxima tentativa")
-                time.sleep(600)
-                tempo_pausa = tempo_pausa * 1,2
+                time.sleep(900)
+                tempo_pausa = tempo_pausa * 1.5
+            if tentativa > 9:
+                enviar_email("brunobola2010@gmail.com", F"[RPA Cortesia] Erro catastrofico: {arquivo_erro}", F"Erro coletado: \n {traceback.format_exc()}")
+                logger.critical(F'--- A execução principal apresentou erro! Executando o script principal novamente, tentativa: {tentativa}')
+                break
+
             abre_topcon()
             tentativa += 1
+
         except(KeyboardInterrupt) as e:
-            enviar_email("brunobola2010@gmail.com", "[RPA Cortesia] Apresentou erro", F"Execução pausada pelo usuario!{e}")
+            enviar_email("brunobola2010@gmail.com", "[RPA Cortesia] Apresentou erro", F"Execução pausada pelo usuario! \n {e}")
             exit(logger.critical("Execução pausada pelo usuario"))
         else:
             tentativa = 0
     else:
-        enviar_email("brunobola2010@gmail.com", F"[RPA Cortesia] Erro catastrofico!: {arquivo_erro}", F"Erro coletado: \n {traceback.format_exc()}")
-        logger.critical(F'--- A execução principal apresentou erro! Executando o script principal novamente, tentativa: {tentativa}')
+        enviar_email("brunobola2010@gmail.com", "[RPA Cortesia] Executou todas as tentativas")
+        logger.critical('--- A execução principal executou todas as tentativas')
             
 # TODO --- Caso NFE Faturada no final do mes, lançar com qual data?
