@@ -1,7 +1,0 @@
-2024-12-01 14:06:57,896 - INFO - 28 = abre_mercantil - --- Realizando a abertura do modulo de compras
-2024-12-01 14:06:58,117 - INFO - 33 = abre_mercantil - --- Janela do TopCompras já aberta, forçando o fechamento
-2024-12-01 14:06:58,371 - INFO - 33 = abre_mercantil - --- Janela do TopCompras já aberta, forçando o fechamento
-2024-12-01 14:06:59,643 - INFO - 37 = abre_mercantil - --- Modulo de compras realmente está fechado, abrindo nova execução do modulo
-2024-12-01 14:07:00,276 - INFO - 66 = procura_imagem - --- Encontrou imagens/img_topcon/icone_modulo_compras.png na posição: Point(x=71, y=811) ( Tentativa: 0, Confiança: 0.67 )
-2024-12-01 14:07:02,494 - INFO - 57 = navega_topcompras - --- Executando a função: navega topcompras 
-2024-12-01 14:07:10,708 - INFO - 68 = navega_topcompras - --- TopCompras aberto!

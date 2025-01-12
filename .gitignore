@@ -11,3 +11,5 @@ teste.py
 /utils/__pycache__
 /utils/__pycache__
 automacao.log
+/debug
+/logs

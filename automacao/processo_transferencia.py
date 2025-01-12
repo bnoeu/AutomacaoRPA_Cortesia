@@ -2,7 +2,7 @@ import time
 import pytesseract
 import pyautogui as bot
 from utils.funcoes import procura_imagem  
-from abre_topcon import abre_topcon
+from abre_topcon import main as abre_topcon
 from utils.configura_logger import get_logger
 
 # --- Definição de parametros

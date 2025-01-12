@@ -7,7 +7,7 @@ import datetime
 import pytesseract
 import numpy as np
 import pyautogui as bot
-from utils.configura_logger import get_logger
+from .configura_logger import get_logger
 
 
 # --- Definição de parametros
@@ -37,7 +37,7 @@ def procura_imagem(imagem, limite_tentativa=5, area=(0, 0, 1920, 1080), continua
         _type_: Retorna as posições onde encontrou a imagem.
     """    
     
-    #from abre_topcon import abre_topcon
+    #from abre_topcon import main as abre_topcon
     #from Materia_Prima import programa_principal
     pausa_img = 0.3
     #hoje = datetime.date.today()
@@ -151,8 +151,14 @@ def reaplica_filtro_status():
     bot.hotkey('ALT', 'DOWN') # Comando do excel para abrir o menu do filtro
     logger.debug('--- Navegou até celula A1 e abriu o filtro do status ')
     
-    while procura_imagem(imagem='imagens/img_planilha/bt_aplicar.png', continuar_exec= True, limite_tentativa= 2, confianca= 0.73) is None:
+    for i in range (0, 10):
         time.sleep(0.5)
+        ahk.win_activate('debug_db_alltrips', title_match_mode= 2)
+        if procura_imagem(imagem='imagens/img_planilha/bt_aplicar.png', continuar_exec= True, limite_tentativa= 3):
+            break
+    else:
+        procura_imagem(imagem='imagens/img_planilha/bt_aplicar.png', limite_tentativa= 1)
+
 
     bot.click(procura_imagem(imagem='imagens/img_planilha/bt_aplicar.png', continuar_exec= True, limite_tentativa= 2, confianca= 0.73))
     logger.debug('--- na tela do menu de filtro, clicou no botão "Aplicar" para reaplicar o filtro ')
@@ -209,7 +215,7 @@ def verifica_ped_vazio(texto, pos):
     else:  # Caso fique vazio
         logger.info('--- Itens XML ficou vazio! saindo da tela de vinculação')
         ahk.win_activate('Vinculação Itens da Nota', title_match_mode = 2)
-        time.sleep(0.25)
+        time.sleep(0.4)
         bot.click(procura_imagem(imagem='imagens/img_topcon/confirma.png'))
         
         ahk.win_wait_active('TopCompras (VM-CortesiaApli.CORTESIA.com)', title_match_mode = 2, timeout= 30)
@@ -238,7 +244,7 @@ def corrige_nometela(novo_nome = "TopCompras"):
             return
     else:
         ahk.win_set_title(new_title= novo_nome, title= ' (VM-CortesiaApli.CORTESIA.com)', title_match_mode= 1, detect_hidden_windows= True)
-        logger.warning('--- Encontrou tela sem o nome, e realizou a correção!' )
+        logger.error('--- Encontrou tela sem o nome, e realizou a correção!' )
             
 if __name__ == '__main__':
     bot.PAUSE = 1.5
