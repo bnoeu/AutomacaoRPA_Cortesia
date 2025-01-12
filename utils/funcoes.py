@@ -102,7 +102,6 @@ def verifica_tela(nome_tela, manual=False):
 
 def marca_lancado(texto_marcacao='teste_08_12'):
     bot.PAUSE = 1
-    tentativa = 0
 
     logger.info(F'--- Abrindo planilha - MARCA_LANCADO, com parametro: {texto_marcacao}' )
     ahk.win_activate('debug_db_alltrips', title_match_mode= 2)
@@ -314,7 +313,26 @@ def msg_box(texto: str, tempo: int = 60):
     ahk.msg_box(text= texto, blocking= False)
     time.sleep(tempo)
     ahk.win_close('Message', title_match_mode= 2)
-            
+
+def verifica_horario():
+    while True:
+        hora_atual = datetime.now().time() # Obter o horário atual
+        for i in range (0, 1):
+            if i < 1:
+                print('--- Verificando se passou das 23h')
+                hora_inicio_pausa = datetime.strptime("23:00", "%H:%M").time() # Definir o horário de inicio de referência (02:00)
+                hora_final_pausa = datetime.strptime("23:59", "%H:%M").time() # Definir o horário de inicio de referência (02:00)
+            else:
+                print('--- Verificando se é madrugada')
+                hora_inicio_pausa = datetime.strptime("00:00", "%H:%M").time() # Definir o horário de inicio de referência (02:00)
+                hora_final_pausa = datetime.strptime("02:20", "%H:%M").time() # Definir o horário de inicio de referência (02:00)
+
+            if hora_atual > hora_inicio_pausa and hora_atual < hora_final_pausa:
+                logger.warning(F'--- São: {hora_atual}, aguardando 2 hora para tentar novamente.')
+                msg_box(F"São: {hora_atual}, aguardando 2 hora para tentar novamente", 7200)
+        else:
+            return
+
 if __name__ == '__main__':
     bot.PAUSE = 0.6
     bot.FAILSAFE = False
