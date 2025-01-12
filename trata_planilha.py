@@ -215,8 +215,8 @@ def consulta_linhas():
     conn.close()
 
 def main():
-    #planilha_para_banco() #* Transformar ela em banco de dados
-    consulta_linhas()
+    planilha_para_banco() #* Transformar ela em banco de dados
+    #consulta_linhas()
 
     pass
 
