@@ -1,5 +1,5 @@
-# -*- Criado por Bruno da Silva Santos. -*-
 # Para utilização na Cortesia Concreto.
+# -*- Criado por Bruno da Silva Santos. -*-
 
 import os
 import time
@@ -20,7 +20,6 @@ else:
 ahk = AHK()
 posicao_img = 0  # Define a variavel para utilização global dela.
 continuar = True
-# tempo_inicio = time.time()
 chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
 bot.useImageNotFoundException(False)
 logger = get_logger("")
@@ -34,7 +33,7 @@ def print_erro(nome_img = "erro"):
     img_erro.save(fp= caminho_erro)
     return caminho_erro
 
-def procura_imagem(imagem, limite_tentativa=7, area=(0, 0, 1920, 1080), continuar_exec=False, confianca = 0.78, msg_continuar_exec = False, msg_confianca = False):
+def procura_imagem(imagem, limite_tentativa=5, area=(0, 0, 1920, 1080), continuar_exec=False, confianca = 0.75, msg_continuar_exec = False, msg_confianca = False):
     """Função que realiza o processo de OCR na tela, retornando as coordenadas onde localizou a imagem especificada.
 
     Args:
@@ -50,7 +49,7 @@ def procura_imagem(imagem, limite_tentativa=7, area=(0, 0, 1920, 1080), continua
         _type_: Retorna as posições onde encontrou a imagem.
     """    
     
-    pausa_img = 0.2
+    pausa_img = 0.1
     maquina_viva = False
     tentativa = 0   
     logger.debug(F'--- Tentando encontrar: {imagem}')
@@ -59,8 +58,8 @@ def procura_imagem(imagem, limite_tentativa=7, area=(0, 0, 1920, 1080), continua
         while maquina_viva is False:
             try:
                 posicao_img = bot.locateCenterOnScreen(imagem, grayscale= True, confidence= confianca, region= area)
-            except OSError:
-                logger.critical('--- Erro devido a resolução da maquina virtual, aguardando')
+            except OSError as e:
+                logger.critical(F'--- Erro devido a resolução da maquina virtual, aguardando, erro coletado: \n{e}')
                 time.sleep(15)
                 raise OSError
             else:
@@ -77,7 +76,7 @@ def procura_imagem(imagem, limite_tentativa=7, area=(0, 0, 1920, 1080), continua
 
     #* Caso seja para continuar
     if (continuar_exec is True) and (posicao_img is None): # Exibe a mensagem que o parametro está ativo
-        logger.debug('' + F'--- {imagem} não foi encontrada, "continuar_exec" está habilitado (Tentativa: {tentativa}, Confiança {confianca}, Area: {area})')
+        logger.debug('' + F'--- {imagem} não foi encontrada, "continuar_exec" está habilitado (Tentativa: {tentativa}, Confiança {confianca}, Pausa: {pausa_img} Area: {area})')
         return False
     
     if tentativa >= limite_tentativa: # Caso exceda o limite de tentativas
@@ -86,7 +85,8 @@ def procura_imagem(imagem, limite_tentativa=7, area=(0, 0, 1920, 1080), continua
         caminho_erro = 'imagens/img_geradas/erros/' + 'erro' + time_atual + '.png'
         img_erro = bot.screenshot()
         img_erro.save(fp= caminho_erro)
-        raise TimeoutError
+        ahk.get_active_window()
+        raise Exception(F"--- Falhou ao procurar imagem: {imagem}, confiança: {confianca}")
     return posicao_img
 
 def verifica_tela(nome_tela, manual=False):
@@ -101,19 +101,24 @@ def verifica_tela(nome_tela, manual=False):
         exit(logger.error(F'--- Tela: {nome_tela} está fechada, saindo do programa.'))
 
 def marca_lancado(texto_marcacao='teste_08_12'):
-    bot.PAUSE = 1
+    bot.PAUSE = 0.5
 
     logger.info(F'--- Abrindo planilha - MARCA_LANCADO, com parametro: {texto_marcacao}' )
+    ativar_janela('debug_db_alltrips', 30)
+    ''' #! Substituido pela logica a cima
+    time.sleep(1)
     ahk.win_activate('debug_db_alltrips', title_match_mode= 2)
-    ahk.win_wait_active('debug_db_alltrips', title_match_mode= 2, timeout= 30)
+    ahk.win_wait_active('debug_db_alltrips', title_match_mode= 2, timeout= 30, detect_hidden_windows = True)
+    '''
 
-    time.sleep(0.5)
+    time.sleep(1)
     bot.hotkey('CTRL', 'HOME')
 
     # Navega até o campo "Status"
     bot.press('RIGHT', presses= 6)
     bot.press('DOWN')
     time.sleep(1)
+    exit(bot.alert("Verificar"))
     
     # Informa o texto recebido pela função e passa para a celula ao lado, para inserir a data
     bot.write(texto_marcacao)
@@ -132,40 +137,50 @@ def marca_lancado(texto_marcacao='teste_08_12'):
     bot.hotkey('CTRL', 'HOME')
     logger.info(F'--------------------- Processou NFE, situação: {texto_marcacao} ---------------------')
 
-
 def reaplica_filtro_status(): 
     bot.PAUSE = 1
     logger.debug('--- Executando a função REAPLICA FILTRO STATUS')
     ahk.win_activate('debug_db_alltrips', title_match_mode= 2)
-    time.sleep(1)
+    ahk.win_wait_active('debug_db_alltrips', title_match_mode= 2, timeout= 15)
+    time.sleep(1.5)
+
+    #* Clica no meio da tela, para garantir que está sem nenhuma outra tela aberta
     bot.click(960, 640)
     
+    #* Inicia navamento até o campo "A1"
     bot.hotkey('CTRL', 'HOME') # Navega até o campo A1
+
+    #* Navega até a coluna "STATUS" e abre o menu com as opções
     bot.press('RIGHT', presses= 6) # Navega até o campo "Status"
     bot.hotkey('ALT', 'DOWN') # Comando do excel para abrir o menu do filtro
     logger.info('--- Navegou até celula A1 e abriu o filtro do status ')
     ahk.win_activate('debug_db_alltrips', title_match_mode= 2)
 
-    #* Aguarda e clica no botão "Aplicar"
+    #* Procura pelo botão aplicar, e clica nele! Caso não encontre lança uma exceção.
     for i in range(0, 10):
         ahk.win_activate('debug_db_alltrips', title_match_mode= 2)
         time.sleep(0.5)
+
+        #* Procura pelo botão "APLICAR"
         if procura_imagem(imagem='imagens/img_planilha/bt_aplicar.png', continuar_exec= True):
             bot.click(procura_imagem(imagem='imagens/img_planilha/bt_aplicar.png', continuar_exec= True))
             logger.info('--- Na tela do menu de filtro, clicou no botão "Aplicar" para reaplicar o filtro ')
             time.sleep(0.5)
             break
+        
+        #* Caso exceda o maximo de tentativas de encontrar o botão
         if i >= 9:
             logger.error('--- Não encontrou o botão APLICAR!')
             procura_imagem(imagem='imagens/img_planilha/bt_aplicar.png', limite_tentativa= 1)
     
-    
+    #* Verifica se a tela "APLICAR FILTRO PARA TODOS" apareceu
     if procura_imagem(imagem='imagens/img_planilha/bt_visualizar_todos.png', continuar_exec= True, limite_tentativa= 3):
         bot.click(procura_imagem(imagem='imagens/img_planilha/bt_visualizar_todos.png', continuar_exec= True))
         logger.info('--- Clicou para visualizar o filtro de todos.')
     
+    #* Concluiu a validação que o filtro está aplicado
+    logger.success("--- Filtro da coluna status aplicado!")
     bot.hotkey('CTRL', 'HOME') # Navega até o campo A1
-
 
 def extrai_txt_img(imagem, area_tela, porce_escala = 400):
     time.sleep(0.4)
@@ -247,21 +262,24 @@ def abre_planilha_navegador(link_planilha = alltrips):
     else: # Planilha de debug
         planilha = "debug_db_alltrips.xlsx"   
 
+    logger.info(F'--- Iniciando função ABRE PLANILHA NAVEGADOR, abrindo: {planilha}')
+
     #* Verifica se a planilha já esta aberta
     if ahk.win_exists(planilha):
         logger.debug('--- Planilha já está aberta!')
-        ahk.win_activate(planilha, title_match_mode= 2)
+
+        ativar_janela(planilha, 30)
         ahk.win_maximize(planilha, title_match_mode= 2)
+        time.sleep(0.5)
         bot.hotkey('CTRL', 'F5') # Recarrega a planilha limpando o cache
 
-        #* Verifica se a planilha realmente já recarregou
+    #* Verifica se a planilha realmente já recarregou
+        time.sleep(0.4)
         for i in range (0, 30):
-            time.sleep(0.4)
-            #if procura_imagem(imagem='imagens/img_planilha/icone_excel.png', continuar_exec= True, limite_tentativa= 1):
-            if procura_imagem(imagem='imagens/img_planilha/txt_status.png', continuar_exec= True, limite_tentativa= 1):
-                if procura_imagem(imagem='imagens/img_planilha/txt_status.png', continuar_exec= True, limite_tentativa= 1):
-                    if procura_imagem(imagem='imagens/img_planilha/icone_nuvem.png', continuar_exec= True, limite_tentativa= 1):
-                        break
+            ativar_janela(planilha, 30)
+            if procura_imagem(imagem='imagens/img_planilha/txt_status.png', continuar_exec= True):
+                if procura_imagem(imagem='imagens/img_planilha/icone_nuvem.png', continuar_exec= True):
+                    break
             if i == 30:
                 logger.erro('--- Planilha não carregou corretamente!')
                 raise Exception('--- Planilha não carregou corretamente!')
@@ -271,7 +289,7 @@ def abre_planilha_navegador(link_planilha = alltrips):
     else:
         logger.info('--- Planilha fechada, abrindo uma nova execução!')
         os.system('taskkill /im msedge.exe /f /t')
-    
+
     #* Garante que a planilha ORIGINAL não esteja aberta
     while ahk.win_exists("alltrips.xlsx", title_match_mode= 1): # Garante que a planilha não esteja aberta
         logger.info('--- Forçou o fechamento da planilha ORIGINAL do AllTrips')
@@ -285,21 +303,25 @@ def abre_planilha_navegador(link_planilha = alltrips):
     time.sleep(3)
     
     #* Aguarda a planilha abrir no EDGE e maximiza
-    for i in range (0, 30):
+    for i in range (0, 10):
         time.sleep(0.4)
         ahk.win_activate(planilha, title_match_mode = 2)
+        time.sleep(0.4)
         if ahk.win_is_active(planilha, title_match_mode = 2):
             ahk.win_maximize(planilha)
             time.sleep(0.5)
             logger.info('--- Planilha aberta e maximizada! procurando icone do EXCEL')
             if procura_imagem(imagem='imagens/img_planilha/icone_excel.png', continuar_exec= True):
-                logger.info('--- Encontrou o icone do excel, procurando texto "STATUS" ')
-                if procura_imagem(imagem='imagens/img_planilha/txt_status.png', continuar_exec= True):
-                    logger.success('--- Todas validações realizadas, planilha realmente aberta!')
-                    return True
-        if i == 29:
+                logger.info('--- Encontrou o icone do excel! procurando texto "STATUS" ')
+                time.sleep(2)
+                logger.success('--- Todas validações realizadas, planilha realmente aberta!')
+                return True
+        
+        if i >= 9:
             logger.error('--- Planilha não abriu corretamente!')
             raise Exception('--- Planilha não abriu corretamente!')
+        
+        bot.press('F5')
     logger.success('--- Planilha aberta e maximizada.')
     
 
@@ -325,7 +347,7 @@ def verifica_horario():
             else:
                 print('--- Verificando se é madrugada')
                 hora_inicio_pausa = datetime.strptime("00:00", "%H:%M").time() # Definir o horário de inicio de referência (02:00)
-                hora_final_pausa = datetime.strptime("02:20", "%H:%M").time() # Definir o horário de inicio de referência (02:00)
+                hora_final_pausa = datetime.strptime("02:30", "%H:%M").time() # Definir o horário de inicio de referência (02:00)
 
             if hora_atual > hora_inicio_pausa and hora_atual < hora_final_pausa:
                 logger.warning(F'--- São: {hora_atual}, aguardando 2 hora para tentar novamente.')
@@ -333,12 +355,25 @@ def verifica_horario():
         else:
             return
 
+def ativar_janela(nome_janela, timeout=10):
+    """ Tenta realizar a ativação de uma janela, e aguarda até ela estar aberta
+
+    Args:
+        nome_janela (_type_): Nome da janela que será aberta
+        timeout (int, optional): Tempo em segundos que aguardará até a janela estar aberta. Valor padrão: 10.
+    """
+    logger.debug(F'--- Tentando ativar/abrir a janela: {nome_janela} ---' )
+    ahk.win_activate(nome_janela, title_match_mode=2)
+    ahk.win_wait_active(nome_janela, title_match_mode=2, timeout=timeout)
+    time.sleep(0.25)
+
 if __name__ == '__main__':
     bot.PAUSE = 0.6
     bot.FAILSAFE = False
     #print_erro()
-    #msg_box("Teste", tempo = 10)
-    abre_planilha_navegador(alltrips)
+    #msg_box("Teste", tempo = 1000)
+    #abre_planilha_navegador(planilha_debug)
+    #bot.alert("Executou")
     #reaplica_filtro_status()
     #verifica_ped_vazio()
     #corrige_nometela()

@@ -32,11 +32,41 @@ def planilha_para_banco(nome_planilha = "debug_db_alltrips"):
             conn.close()
 
 def banco_para_planilha():
-    db_file = "db_alltrips/debug_alltrips.sqlite"  # Substitua pelo caminho onde o banco será criado
+    """
+    Converte uma tabela de um banco SQLite para uma planilha Excel.
+
+    Parâmetros:
+        db_file (str): Caminho para o banco de dados SQLite.
+        table_name (str): Nome da tabela no banco de dados.
+        output_file (str): Caminho para o arquivo Excel de saída.
+    """
+
+    db_file = "db_alltrips/debug_db_alltrips.sqlite"  # Substitua pelo caminho onde o banco será criado
     conn = sqlite3.connect(db_file)
+    output_file = "db_alltrips/saida_planilha.xlsx"  # Substitua pelo caminho do arquivo Excel de saída
 
 
-def atualiza_linha(chave_xml = ""):
+    try:
+        # Conectar ao banco SQLite
+        conn = sqlite3.connect(db_file)
+        
+        # Ler a tabela para um DataFrame
+        df = pd.read_sql_query("SELECT * FROM debug_db_alltrips", conn)
+        
+        # Exportar o DataFrame para uma planilha Excel
+        df.to_excel(output_file, index=False)
+        print(f"Banco convertido para planilha com sucesso! Arquivo: {output_file}")
+    
+    except Exception as e:
+        print(f"Erro: {e}")
+    
+    finally:
+        # Garantir que a conexão seja fechada
+        if 'conn' in locals():
+            conn.close()
+
+
+def atualiza_linha(novos_dados = ()):
     # Retorna as linhas da tabela
     db_file = "db_alltrips/debug_db_alltrips.sqlite"  # Substitua pelo caminho onde o banco será criado
     conn = sqlite3.connect(db_file)
@@ -47,10 +77,9 @@ def atualiza_linha(chave_xml = ""):
     # Atualiza dados de alguma linha
     cur.execute("""
         UPDATE debug_db_alltrips
-        SET [status] = 'Lancado_RPA', [D. Lancamento] = ?
+        SET [status] = ?
         WHERE [cod barras] = ?
-        
-    """, chave_xml)
+    """, novos_dados)
 
     # Confirme as alterações
     conn.commit()
@@ -198,33 +227,34 @@ def consulta_linhas():
 
 
     linha = tabela.fetchone()
-    print(type(linha))
-    exit()
-
-    # Exibe os dados, linha por linha
-    for row in tabela:
-        '''
-        if verifica_linha_existe(row[4]) is True:
-            insere_linha_debug(row)
-        '''
-        print(row)
-        time.sleep(1)
+    linha_atual = linha
 
     # Fechando conexão
     cur.close()
     conn.close()
 
-def main():
-    planilha_para_banco() #* Transformar ela em banco de dados
-    #consulta_linhas()
+    return linha_atual
 
-    pass
+
+
+def main():
+    linha = consulta_linhas()
+    return linha
 
 if __name__ == '__main__':
+    banco_para_planilha()
+    exit()
+
+    dados = ("TESTE_LANCAMENTO", "33250133051624000197550010003334201000000011", "VbrKV7MAtKY")
+
+    atualiza_linha(dados)
+    '''
     hoje = datetime.now()
     hoje_formatado = hoje.strftime('%d/%m/%Y')
 
-    main()
+    linha = main()
+    print(linha)
+    '''
 
 '''
     #verifica_linha_existe()
@@ -234,7 +264,7 @@ if __name__ == '__main__':
     # Mesmo para UM valor, precisa estar dentro de uma tupla
     #xml = (hoje_formatado, "35240333039223000979550010003644991606443464")
 
-    #atualiza_linha(chave_xml= xml)
+    atualiza_linha(chave_xml= xml)
     #consulta_linhas_original()
     #coleta_banco_original()
 

@@ -11,7 +11,7 @@ def  copia_linha_atual():
     dados_planilha = []
     coluna_atual = 0
     
-    while coluna_atual < 7: # Navega entre os 6 campos, realizando a copia um por um, e inserindo na lista Dados Planilha.
+    while coluna_atual < 9: # Navega entre os 6 campos, realizando a copia um por um, e inserindo na lista Dados Planilha.
         while True:
             bot.hotkey('ctrl', 'c')
             time.sleep(0.2)

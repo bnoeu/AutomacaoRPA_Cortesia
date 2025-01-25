@@ -5,9 +5,9 @@ import os
 import time
 import pytesseract
 import pyautogui as bot
-from utils.funcoes import ahk as ahk
+from utils.funcoes import ahk as ahk, msg_box
 from utils.configura_logger import get_logger
-from utils.funcoes import procura_imagem, corrige_nometela
+from utils.funcoes import procura_imagem, corrige_nometela, ativar_janela
 #from colorama import Style
 
 # Definição de parametros
@@ -28,46 +28,62 @@ bot.FAILSAFE = False
 login_rdp = 'b.santos'
 senha_rdp = 'C0rtesi@2024'
 
-def abre_mercantil():
-    #bot.alert(F"Valor da pausa: {bot.PAUSE}")
-    logger.info('--- Realizando a abertura do modulo de compras')
-    verifica_topcompras = 0
+def fechar_tela_nota_compra():
+    logger.info('--- Executando função FECHAR TELA NOTA COMPRA')
+    ativar_janela('TopCompras')
     
-    #* Realiza o fechamento do TopCompras, caso esteja aberto
-    while ahk.win_exists('TopCompras', title_match_mode= 2): 
-        logger.info('--- Janela do TopCompras já aberta, forçando o fechamento')
-        ahk.win_close('TopCompras', title_match_mode=2, seconds_to_wait= 3)
-        
-        if ahk.win_exists('TopCompras', title_match_mode= 2) is False:
-            logger.info('--- Modulo de compras realmente está fechado, abrindo nova execução do modulo')
-            break
-        
-        verifica_topcompras += 1
-        if verifica_topcompras > 10:
-            logger.warning('--- Não foi possivel fechar apenas o TopCompras, reiniciando Topcon & TopCompras')
-            fecha_execucoes()
+    #* Verifica se a tela "6201 NOTA FISCAL DE COMPRA" está aberta
+    if procura_imagem(imagem='imagens/img_topcon/produtos_servicos.png', continuar_exec= True):
+        logger.info('--- Encontrou a tela "6201 NOTA FISCAL DE COMPRA" realizando fechamento')
+        bot.click(procura_imagem(imagem='imagens/img_topcon/bt_fechar.PNG', continuar_exec= True))
+        time.sleep(0.5)
 
-    #* Clica para abrir o modulo de compras
-    time.sleep(8)
-    ahk.win_activate('TopCon', title_match_mode= 2)
-    ahk.win_wait_active('TopCon', title_match_mode= 2, timeout= 30)
+    #* Verifica se realmente fechou a tela "6201 NOTA FISCAL DE COMPRA"
+    if procura_imagem(imagem='imagens/img_topcon/produtos_servicos.png', continuar_exec= True) is False:
+        logger.info('--- Realmente fechou a tela 6201 NOTA FISCAL DE COMPRA')
+
+def fechar_topcompras():
+    """ #* Garante o fechamento do TopCompras, caso ele esteja aberto
+    """    
+    
+    for i in range (0, 11):
+        logger.info('--- Janela do TopCompras está aberta, forçando o fechamento')
+        ahk.win_close('TopCompras', title_match_mode=2, seconds_to_wait= 3)
+        time.sleep(0.5)
+
+        if ahk.win_exists('TopCompras', title_match_mode= 2) is False:
+            logger.info('--- Modulo de compras realmente está fechado! Pode continuar a abertura')
+            return True        
+        
+        if i > 10:
+            logger.warning('--- Não foi possivel fechar apenas o TopCompras, reiniciando Topcon & TopCompras')
+            raise Exception('--- Não foi possivel fechar apenas o TopCompras, reiniciando Topcon & TopCompras')
+
+
+def abre_mercantil():
+    logger.info('--- Realizando a abertura do modulo de compras')
+
+    ativar_janela('TopCon', 30)
+    logger.info('--- Clicando para abrir o modulo de compras')
     bot.click(procura_imagem(imagem='imagens/img_topcon/icone_modulo_compras.png', confianca= 0.67, limite_tentativa= 10))
     
     #* Caso não encontre o TopCompras, tenta corrigir o nome
-    #if ahk.win_exists(title= 'TopCompras - Versão', title_match_mode = 1) is False: 
     corrige_nometela()
     
     #* Verifica se o pop-up "interveniente" está aberto
-    for i in range (0, 5):
-        bot.click(procura_imagem(imagem='imagens/img_topcon/botao_ok.jpg', continuar_exec= True))
+    while ahk.win_exists("TopCompras (VM-CortesiaApli.CORTESIA.com)", title_match_mode= 2):
+        ahk.win_close("TopCompras (VM-CortesiaApli.CORTESIA.com)", title_match_mode= 2)
+        logger.info('--- Fechando a tela "interveniente" ')
+        #bot.click(procura_imagem(imagem='imagens/img_topcon/botao_ok.jpg', continuar_exec= True))
 
-    logger.success("Concluiu a task ABRE MERCANTIL")
-        
+    if procura_imagem('imagens/img_topcon/txt_mov_material.PNG'):
+        logger.success("Concluiu a task ABRE MERCANTIL")
+    
+
 def navega_topcompras():
     logger.info('--- Executando a função: navega topcompras ' )
     # Navegando entre os menus para abrir a opção "Compras - Mercantil"
-    ahk.win_activate('TopCompras', title_match_mode= 2)
-    ahk.win_wait_active('TopCompras', title_match_mode= 2, timeout= 30)
+    ativar_janela('TopCompras', 30)
     time.sleep(2)
     bot.click(900, 900)
     bot.press('ALT')
@@ -75,8 +91,9 @@ def navega_topcompras():
     bot.press('DOWN', presses= 7, interval= 0.05)
     bot.press('ENTER')
     time.sleep(0.5)
-    logger.success("Concluiu a task NAVEGA TOPCOMPRAS")
+    logger.success("Concluiu a função NAVEGA TOPCOMPRAS")
     return True
+
 
 def fecha_execucoes():
     """#* Realiza o fechamento completo do TopCon e TopCompras
@@ -111,21 +128,21 @@ def fecha_execucoes():
 
     logger.success('--- Concluiu a task FECHA EXECUÇÕES')
 
+
 def login_topcon():
+    logger.info('--- Realizando login no TOPCON')
     #* Se o modulo de compras estiver fechado, realiza o login no TopCon
     if ahk.win_exists('TopCompras', title_match_mode= 2) is False: 
         time.sleep(8)
-        ahk.win_activate('TopCon', title_match_mode= 2)
-        ahk.win_wait_active('TopCon', title_match_mode= 2, timeout= 30)
+        ativar_janela('TopCon', 30)
         
         #* Valida se realmente realizou o Login no TopCon ou se já iniciou logado
         for i in range(0, 5):
-            time.sleep(0.5)
+            time.sleep(0.2)
             if procura_imagem(imagem='imagens/img_topcon/logo_topcon_grande.png', continuar_exec= True):
-                time.sleep(0.5)
+                time.sleep(0.2)
                 logger.info('--- Tela do Topcon está aberta!')
                 ahk.win_maximize('TopCon', title_match_mode= 2)
-                logger.success("--- Concluiu a task LOGIN TOPCON")
                 break
 
             #* Aguarda até aparecer o campo do servidor de aplicação
@@ -148,6 +165,10 @@ def login_topcon():
             else: #* Caso não encontre a tela do para realizar o Login no TopCon
                 raise Exception("Login no Topcon não foi concluido!")
 
+    if procura_imagem('imagens/img_topcon/txt_OLA_BRUNO.png'):
+        logger.success("Concluiu o Login no TopCon")
+
+
 def abre_topcon():
     logger.info('--- Executando a função: ABRE TOPCON' )
 
@@ -167,13 +188,14 @@ def abre_topcon():
         tela_login_rdp = False
         
         for i in range (0, 10):
-            time.sleep(0.5)
+            time.sleep(0.2)
             if ahk.win_exists('TopCon', title_match_mode= 2):
                 return True
-
-        for i in range (0, 5):
-            time.sleep(0.4)
-            if procura_imagem(imagem='imagens/img_topcon/txt_ServidorAplicacao.png', continuar_exec= True):
+        
+        #* Verifica se abriu alguma das telas de segurança de execução do RDP
+        for i in range (0, 15):
+            time.sleep(0.2)
+            if procura_imagem(imagem='imagens/img_topcon/txt_ServidorAplicacao.png', continuar_exec= True, limite_tentativa= 3):
                 tela_login_rdp = True
                 break
 
@@ -183,9 +205,9 @@ def abre_topcon():
             for tela in telas_seguranca:
                 logger.info(F'--- Tentando a tela: {tela}')
                 try:
-                    ahk.win_wait_active(tela, title_match_mode= 2, timeout= 7)
+                    ahk.win_wait_active(tela, title_match_mode= 2, timeout= 3)
                 except TimeoutError:
-                    time.sleep(0.5)
+                    time.sleep(0.2)
                 else:
                     logger.info(F'--- Encontrou com o nome {tela}')
                     tela_login_rdp = tela
@@ -199,11 +221,11 @@ def abre_topcon():
         #* Realiza o login no RDP, que deve utilizar as informações de login do usuario "CORTESIA\BARBARA.K"
         if ahk.win_exists(tela_login_rdp, title_match_mode= 2):
             logger.info(F'--- Abriu a tela "{tela_login_rdp}", realizando o login" ')
-            ahk.win_activate(tela_login_rdp, title_match_mode= 2)
-            ahk.win_wait_active(tela_login_rdp, title_match_mode= 2, timeout = 10)
+
+            ativar_janela(tela_login_rdp, 10)
             
             #* Insere os dados de login.
-            bot.write(senha_rdp, interval= 0.25) #Senha BRUNO.S 
+            bot.write(senha_rdp, interval= 0.1) #Senha BRUNO.S 
             bot.press('TAB', presses= 3, interval= 0.05) # Navega até o botão "Ok"
             bot.press('ENTER')
             logger.info('--- Login realizado no RemoteApp-Cortesia.rdp')
@@ -252,13 +274,14 @@ def abre_topcon():
 def main():
     ultimo_erro = ""
     for tentativa in range(0, 7):
+        bot.PAUSE = 0.25
         logger.info(F"Tentativa de abrir o topcon: {tentativa}")
         try:
             time.sleep(0.5)
-            bot.PAUSE = 1
             fecha_execucoes()
             abre_topcon()
             login_topcon()
+            fechar_topcompras()
             abre_mercantil()
             navega_topcompras()
             if tentativa >= 6:
@@ -270,13 +293,24 @@ def main():
                 return ultimo_erro
             logger.error(F"Apresentou um erro! {ultimo_erro}")
         else:
-            logger.success("Executou a TASK ABRE TOCPON com sucesso!")
+            logger.success("Executou o ABRE_TOPCON.PY com sucesso!")
             break
-    else:
+    else:   
         raise ultimo_erro
     
 if __name__ == '__main__':
-    #fecha_execucoes()
-    #abre_topcon()
-    #login_topcon()
+    tempo_inicial = time.time()
     main()
+
+    # Linha específica onde você quer medir o tempo
+    end_time = time.time()
+    elapsed_time = end_time - tempo_inicial
+    medicao_minutos = elapsed_time / 60
+    print(f"Tempo decorrido: {medicao_minutos:.2f} segundos")
+    bot.alert("acabou")
+
+    '''
+    fechar_tela_nota_compra()
+    navega_topcompras()
+    msg_box("Conclui a TASK Abre TopCon", 10)
+    '''

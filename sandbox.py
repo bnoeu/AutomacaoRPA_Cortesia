@@ -1,12 +1,17 @@
-import time
 import pyautogui as bot
+'''
+import time
+from abre_topcon import abre_topcon
 from utils.funcoes import ahk as ahk
 from utils.funcoes import procura_imagem
+from trata_planilha import main as consulta_linha
+from trata_planilha import atualiza_linha
+'''
+import subprocess
 
+bot.alert("Teste")
 
-ahk.win_activate('TopCompras', title_match_mode= 2)
-ahk.win_wait_active('TopCompras', title_match_mode= 2, timeout= 70)
+subprocess.Popen("notepad")
+print("Teste!")
 
-if procura_imagem('imagens/img_topcon/cadastramento_bruno.png', continuar_exec= True, msg_confianca= True):
-    bot.alert("Encontrou!")
-#bot.click(procura_imagem('imagens/img_topcon/cadastramento_bruno.png', continuar_exec= True, msg_confianca= True))
+#bot.click(procura_imagem(imagem='imagens/img_topcon/botao_ok.jpg', continuar_exec= True))

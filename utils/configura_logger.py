@@ -31,7 +31,7 @@ def get_logger(name, print_terminal = False):
     #* Gerar o nome do arquivo de log apenas na primeira execução
     if LOG_FILE is None:
         horario_inicio = datetime.now()
-        LOG_FILE = f"logs/automacao_D{horario_inicio.day}-{horario_inicio.month}__H{horario_inicio.hour}-{horario_inicio.minute}_.log"
+        LOG_FILE = f"logs/automacao_D{horario_inicio.day}-{horario_inicio.month}-{horario_inicio.year}__H{horario_inicio.hour}-{horario_inicio.minute}_.log"
 
     #* Configurar o logger
     logger = logging.getLogger(name)

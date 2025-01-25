@@ -36,7 +36,7 @@ def conferencia_xml():
             return True # Retorna os dados, confirmando que essa chave XML é valida.
 
         elif procura_imagem(imagem='imagens/img_topcon/chave_invalida.png', continuar_exec=True, limite_tentativa= 1, confianca= 0.73) is not False:
-            texto_erro = "Lancado_Manual"  
+            texto_erro = "Lancado_Manual"
 
         elif procura_imagem(imagem='imagens/img_topcon/txt_fornecedor_cadastrado.png', continuar_exec=True, limite_tentativa= 1, confianca= 0.73) is not False:
             texto_erro = "cadastrar_fornecedor"

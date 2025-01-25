@@ -4,13 +4,14 @@
 from ast import Raise
 from logging import raiseExceptions
 import os
+from re import split
 from sys import exception
 import time
 import pyautogui as bot
 from datetime import datetime
 from utils.funcoes import ahk as ahk
 from utils.configura_logger import get_logger
-from utils.funcoes import procura_imagem, abre_planilha_navegador, msg_box, verifica_horario
+from utils.funcoes import procura_imagem, abre_planilha_navegador, msg_box, verifica_horario, ativar_janela
 
 
 # --- Definição de parametros
@@ -40,10 +41,10 @@ def encontra_ultimo_xml(ultimo_xml = ''):
         bot.hotkey('ALT', 'DOWN') # Abre o menu do filtro
         time.sleep(5)
         ahk.win_activate('db_alltrips.xlsx', title_match_mode= 1)
-        time.sleep(0.5)
+        time.sleep(0.25)
         bot.click(procura_imagem(imagem='imagens/img_planilha/icone_organiza_A_Z.png', continuar_exec= True)) # Clica no botão "organizar do mais antigo ao mais novo"
         logger.info('--- Organizou a planilha da forma "da menor para a maior" ')
-        time.sleep(0.5)
+        time.sleep(0.25)
         ahk.win_activate('db_alltrips.xlsx', title_match_mode= 1)
         bot.click(960, 630) # Clica no meio da planilha para "ativar" a navegação dentro dela.
 
@@ -142,42 +143,51 @@ def copia_dados():
     '''
 
     # Inicia o processo de seleção dos dados
+    ativar_janela("db_alltrips.xlsx")
     logger.info('--- Iniciando o processo de seleção dos dados novos')
-    time.sleep(1)
+    time.sleep(0.25)
     bot.press('LEFT', presses= 4) # Navega até a coluna "RE"
-    time.sleep(1)
+    time.sleep(0.25)
     ahk.key_down('Shift') # Segura a tecla SHIFT
-    time.sleep(1)
+    time.sleep(0.25)
     ahk.key_down('Control') # Segura a tecla CTRL
-    time.sleep(1)
+    time.sleep(0.25)
     ahk.key_press('down') # Com shift + ctrl pressionado, navega até a ultima linha da planilha
-    time.sleep(1)
+    time.sleep(0.25)
     ahk.key_press('right') # Avança para a ultima coluna
-    tentativa_copia = 0
     logger.info('--- Pressionou SHIFT e CONTROL, indo até a ultima coluna preenchida')
-    for i in range (0, 5):
-        time.sleep(0.5)
+    for i in range (0, 9):
+        time.sleep(0.25)
         ahk.key_up('Shift')
-        time.sleep(0.5)
+        time.sleep(0.25)
         ahk.key_up('Control')
-        time.sleep(0.5)
+        time.sleep(0.25)
         bot.hotkey('ctrl', 'c')
-        time.sleep(0.5)
+        time.sleep(0.25)
         dados_copiados = ahk.get_clipboard()
+        time.sleep(0.5)
 
-        if ("/" in dados_copiados) or ("/2025" in dados_copiados) or ("," in dados_copiados): # Verifica se os dados foram copiados com sucesso
-            logger.success('--- Novos dados copiados com sucesso da planilha db_alltrips')
-            return dados_copiados
+         #* Script de validação original
+        if "/2025" in dados_copiados:
+            print(dados_copiados)
+            logger.info('--- Encontrou "/2024" nos dados copiados!')
+            break
+
+        if i >= 8:
+            if ("/" in dados_copiados) or ("/2025" in dados_copiados) or ("," in dados_copiados): # Verifica se os dados foram copiados com sucesso
+                logger.success('--- Novos dados copiados com sucesso da planilha db_alltrips')
+                print('--- Novos dados copiados com sucesso da planilha db_alltrips')
+                return dados_copiados
         else:
             ahk.key_down('Shift') # Segura a tecla SHIFT
-            time.sleep(1)
-            ahk.key_down('Control')
-            time.sleep(1)
+            time.sleep(0.25)
+            ahk.key_down('Control') # Segura a tecla CTRL
+            time.sleep(0.25)
             ahk.key_press('right') # Avança para a ultima coluna
-            time.sleep(1)
+            time.sleep(0.25)
+            ativar_janela("db_alltrips.xlsx")
 
-        tentativa_copia += 1
-        if tentativa_copia > 10: # Verifica se excedeu o limite de tentativas de copiar os dados.
+        if i >= 9: # Verifica se excedeu o limite de tentativas de copiar os dados.
             logger.error('--- Excedeu o limite de tentativas de copiar os dados, soltando SHIFT e CONTROL')
             ahk.key_up('Shift')
             time.sleep(1)
@@ -186,9 +196,10 @@ def copia_dados():
 
 def cola_dados(dados_copiados = "TESTE"):
     abre_planilha_navegador(planilha_debug)
-    bot.PAUSE = 2
+    bot.PAUSE = 1
     logger.info('--- Acessando a planilha de debug para COLAR os dados!')
-    time.sleep(0.5)
+    time.sleep(3)
+    ativar_janela('db_alltrips.xlsx')
     bot.hotkey('CTRL', 'HOME') # Navega até a celula A1.
     bot.press('DOWN', presses= 2) # Proxima linha que deveria estar sem informação.
     logger.info('--- Navegou até a proxima linha sem informações')
@@ -197,8 +208,9 @@ def cola_dados(dados_copiados = "TESTE"):
     bot.press('C') # Vai até a opção "Inicio"
     bot.press('V') # Abre o menu de "Colar"
     bot.press('V') # Seleciona a opção "Colar somente valores"
-    time.sleep(0.5)
+    time.sleep(0.25)
     logger.info('--- Copiado e colado com sucesso! Fechando a planilha original.')
+
     ahk.win_activate('db_alltrips.xlsx', title_match_mode= 1)
 
     for i in range (0, 15):
@@ -210,7 +222,7 @@ def cola_dados(dados_copiados = "TESTE"):
     else:
         logger.error('--- Não conseguiu fechar a planilha original')
         raise Exception("Não conseguiu fechar a planilha original")
-    
+
 
 def main(ultimo_xml = chave_xml):
     bot.PAUSE = 1.5
@@ -227,7 +239,6 @@ def main(ultimo_xml = chave_xml):
             dados_copiados = copia_dados()
             if dados_copiados != "":
                 break
-
     else:
         raise Exception(F"--- Falhou as: {i} tentativas da task COPIA ALLTRIPS")
 
@@ -238,10 +249,18 @@ def main(ultimo_xml = chave_xml):
 
     ahk.key_up('Shift')
     ahk.key_up('Control')
+    ahk.key_release('Shift') # Segura a tecla SHIFT
+    ahk.key_release('Control')
 
     colou_dados = cola_dados(dados_copiados)
     if colou_dados is True:
         return True
 
 if __name__ == '__main__':
-    main(ultimo_xml= "31250160869336008100550000012631171697762610")
+    #main(ultimo_xml= "35250149034010000137550010010590191519789876")
+    exit(bot.alert("Terminou"))
+    ultimo_xml = "35250149034010000137550010010590191519789876"
+    abre_planilha_navegador()
+    encontra_ultimo_xml(ultimo_xml = ultimo_xml)
+    dados = copia_dados()
+    print(dados)

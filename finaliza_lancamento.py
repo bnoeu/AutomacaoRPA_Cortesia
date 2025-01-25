@@ -4,8 +4,10 @@ import pyautogui as bot
 from datetime import date, timedelta
 from abre_topcon import main as abre_topcon
 from utils.configura_logger import get_logger
-from utils.funcoes import marca_lancado, procura_imagem
+from utils.funcoes import marca_lancado, procura_imagem, ativar_janela
 from automacao.processo_transferencia import processo_transferencia
+from alterar_localizar import alterar_localizar
+
 
 # --- Definição de parametros
 from utils.funcoes import ahk as ahk
@@ -17,23 +19,46 @@ tempo_inicio = time.time()
 chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
 logger = get_logger("finaliza_lancamento") # Obter logger configurado
 
+def janelas_erro():
+    telas_erro = ('Topsys', 'CsjTb')
+
+    for tela in telas_erro:
+        logger.debug(F'--- Tentando encontrar a tela: {tela}')
+        if ahk.win_exists(tela, title_match_mode= 2):
+            logger.error(F'--- Encontrou o pop-up de erro: "{tela}" necessario validar manualmente')
+            bot.click(procura_imagem(imagem='imagens/img_topcon/botao_ok.jpg', continuar_exec=True))
+            marca_lancado(texto_marcacao = F'Erro_{tela}')
+            return True
+
+
+def janelas_sucesso():
+    tela = "TopCompras (VM-CortesiaApli.CORTESIA.com)"
+
+    logger.debug(F'--- Tentando encontrar a tela: {tela}')
+    if ahk.win_exists(tela, title_match_mode= 1):
+        logger.info(F'--- Encontrou uma tela de sucesso! Tela: {tela}')
+        ahk.win_activate('TopCompras (VM-CortesiaApli.CORTESIA.com)', title_match_mode=2)
+        ahk.win_wait_active('TopCompras (VM-CortesiaApli.CORTESIA.com)', title_match_mode=2, timeout= 30)
+        return True
+
 
 def finaliza_lancamento(planilha_marcada = False, lancamento_concluido = False, realizou_transferencia = False, tentativas_telas = 0):
     logger.info('--- Iniciando a função de finalização de lançamento, enviando PAGEDOWN ---' )
-    ahk.win_activate('TopCompras', title_match_mode=2)
-    ahk.win_wait_active('TopCompras', title_match_mode=2, timeout= 10)
-
+    ativar_janela('TopCompras')
     bot.press('pagedown')  # Conclui o lançamento
 
+
+    logger.info('--- Tentando validar a tela que apresentou no sistema ---' )
     while True:
-        ahk.win_activate('TopCompras', title_match_mode=2) # Para manter o TopCompras aberto.
-        ahk.win_wait('TopCompras', title_match_mode = 2, timeout= 50)
-        
-        #! Mover para a função do tratamento de erros
-        if ahk.win_exists('CsjTb', title_match_mode= 2): # Caso apareça a tela de campo obrigatorio (Aparece quando não preencher nenhum campo.)
-            ahk.win_close('CsjTb', title_match_mode= 2)
-            raise Exception('--- Apareceu a tela "campo obrigatorio" ( CsjTb ), reabrindo TopCompras para corrigir')
-        
+        time.sleep(0.4)
+        #* Verifica se apresentou alguma das telas de erro!
+        if janelas_erro() is True:
+            logger.info('--- Finalizou a task FINALIZA LANCAMENTO, pois apareceu uma tela de erro.' )
+            return False 
+        if janelas_sucesso() is True:
+            break
+
+    while True:        
         # 0. Verifica se ocorreu algo de transferencia
         realizou_transferencia = processo_transferencia()
         time.sleep(0.5)
@@ -73,6 +98,11 @@ def finaliza_lancamento(planilha_marcada = False, lancamento_concluido = False, 
                     logger.info(F'--- Não realizou transferencia! Pode continuar na mesma execução do TopCon! (valor do realizou transf: {realizou_transferencia})')
                     ahk.win_activate('TopCompras', title_match_mode= 2)
                     for i in range (0, 5):
+                        if alterar_localizar():
+                            lancamento_concluido = True
+                            return True
+
+                        ''' #! Substituido pela logica a cima.
                         bot.press('F3', presses = 1)
                         bot.press('F2', presses = 1)
                         time.sleep(0.4)
@@ -81,6 +111,7 @@ def finaliza_lancamento(planilha_marcada = False, lancamento_concluido = False, 
                             logger.info('--- Entrou no modo localizar, lançamento realmente concluido\n')
                             lancamento_concluido = True
                             return True
+                        '''
                     
         # 3. Caso apareça "deseja imprimir o espelho da nota?"
         if procura_imagem(imagem='imagens/img_topcon/txt_espelhonota.png', continuar_exec=True, limite_tentativa= 1, confianca= 0.74) is not False:

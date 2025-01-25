@@ -204,4 +204,12 @@ def main():
     
 
 if __name__ == '__main__':
-    print(main())
+    tempo_inicial = time.time()
+    main()
+
+    # Linha específica onde você quer medir o tempo
+    end_time = time.time()
+    elapsed_time = end_time - tempo_inicial
+    medicao_minutos = elapsed_time / 60
+    print(f"Tempo decorrido: {medicao_minutos:.2f} segundos")
+    bot.alert("acabou")

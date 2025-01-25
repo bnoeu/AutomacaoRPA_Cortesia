@@ -8,33 +8,44 @@
 # db_alltrips no paulo, apenas leitura
 #  
 
+#*'''
+#* A resolução da maquina precisa ser: 1920 x 1080, com a aproximação em "150%"
+#*'''
+
 import os
 import time
 import platform
 import traceback
 import pytesseract
 import pyautogui as bot
+from datetime import date, datetime
 from utils.funcoes import ahk as ahk
-from datetime import date
 from abre_topcon import main as abre_topcon
-from valida_pedido import main as valida_pedido
 from utils.enviar_email import enviar_email
 from utils.configura_logger import get_logger
+from valida_pedido import main as valida_pedido
 from valida_lancamento import valida_lancamento
-from finaliza_lancamento import finaliza_lancamento
-
-from utils.funcoes import marca_lancado, procura_imagem, verifica_horario
 from preenche_local import main as preenche_local
+from finaliza_lancamento import finaliza_lancamento
+from utils.funcoes import marca_lancado, procura_imagem, verifica_horario, ativar_janela
 
 #* Definição de parametros
 posicao_img = 0
 continuar = True
 qtd_notas_lancadas = 0
-tempo_inicio = time.time()
+tempo_inicial = time.time()
 bot.LOG_SCREENSHOTS = True  
 bot.LOG_SCREENSHOTS_LIMIT = 5
 chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
 pytesseract.pytesseract.tesseract_cmd = r"C:\Tesseract-OCR\tesseract.exe"
+
+def calcula_tempo_processo(tempo_inicial):
+    # Linha específica onde você quer medir o tempo
+    end_time = time.time()
+    elapsed_time = end_time - tempo_inicial
+    medicao_minutos = elapsed_time / 60
+    print(f"Tempo decorrido: {medicao_minutos:.2f} segundos")
+    exit(bot.alert("acabou"))
 
 def valida_filial_estoque(filial_estoq = ""):
     if filial_estoq == '1001':
@@ -58,37 +69,48 @@ def valida_filial_estoque(filial_estoq = ""):
     elif filial_estoq == '1036':
         centro_custo = 'PERUS'
     else:
-        marca_lancado()
+        marca_lancado(texto_marcacao= "Filial_nao_cadastrada")
         exit(F'Filial de estoque não padronizada: {filial_estoq}')
     
     if centro_custo != "":
         return centro_custo
 
-'''
-def verifica_horario():
-    while True:
-        hora_atual = datetime.now().time() # Obter o horário atual
-        for i in range (0, 1):
-            if i < 1:
-                print('--- Verificando se passou das 23h')
-                hora_inicio_pausa = datetime.strptime("23:00", "%H:%M").time() # Definir o horário de inicio de referência (02:00)
-                hora_final_pausa = datetime.strptime("23:59", "%H:%M").time() # Definir o horário de inicio de referência (02:00)
-            else:
-                print('--- Verificando se é madrugada')
-                hora_inicio_pausa = datetime.strptime("00:00", "%H:%M").time() # Definir o horário de inicio de referência (02:00)
-                hora_final_pausa = datetime.strptime("02:20", "%H:%M").time() # Definir o horário de inicio de referência (02:00)
+def coleta_valida_dados():
+    #* Realiza a validação do pedido
+    acabou_pedido = False
 
-            if hora_atual > hora_inicio_pausa and hora_atual < hora_final_pausa:
-                logger.warning(F'--- São: {hora_atual}, aguardando 2 hora para tentar novamente.')
-                msg_box(F"São: {hora_atual}, aguardando 2 hora para tentar novamente", 7200)
-        else:
-            return
-'''
+    while acabou_pedido is False: 
+        dados_planilha = valida_lancamento() # Coleta e confere os dados do lançamento atual
+        acabou_pedido = valida_pedido() # Verifica se o pedido está valido.
+    else:
+        print(dados_planilha)
+        return dados_planilha
+
+        '''
+        # Passa todos osdados parasuas variaveis.
+        cracha_mot = dados_planilha[0]
+        silo1 = dados_planilha[1]
+        silo2 = dados_planilha[2]
+        filial_estoq = dados_planilha[3].split('-') # Recebe por exemplo: ['1001', 'VILA PRUDENTE']
+        filial_estoq = filial_estoq[0] # O dado é passado assim: ['1001', 'VILA PRUDENTE'], aqui formata para '1001'
+        centro_custo = valida_filial_estoque(filial_estoq) # Realiza a validação da filial de estoque.
+        chave_xml = dados_planilha[4]
+        '''
+
+def formata_data_coletada(dados_copiados):
+    data_copiada = dados_copiados.split(' ')
+    data_copiada = data_copiada[0]
+    
+    # Converter para objeto datetime
+    data_obj = datetime.strptime(data_copiada, "%d/%m/%y")
+
+    # Converter para o formato desejado
+    data_formatada = data_obj.strftime("%d/%m/%Y")
+    return data_formatada
 
 def programa_principal():
     global qtd_notas_lancadas
     bot.PAUSE = 1
-    acabou_pedido = False
 
     #* Confere o horario dessa execução.
     verifica_horario()
@@ -97,7 +119,20 @@ def programa_principal():
     logger.info('--- INICIANDO UM NOVO LANÇAMENTO DE NFE --- ')
     logger.info('---------------------------------------------------------------------------------------------------')
 
-    while acabou_pedido is False: # Realiza a validação do pedido
+    #* Passa todos os dados para as suas variaveis.
+    dados_planilha = coleta_valida_dados()
+    silo1 = dados_planilha[1]
+    silo2 = dados_planilha[2]
+    chave_xml = dados_planilha[4]
+    cracha_mot = dados_planilha[0]
+    filial_estoq = dados_planilha[3].split('-') # Recebe por exemplo: ['1001', 'VILA PRUDENTE']
+    filial_estoq = filial_estoq[0] # O dado é passado assim: ['1001', 'VILA PRUDENTE'], aqui formata para '1001'
+    centro_custo = valida_filial_estoque(filial_estoq) # Realiza a validação da filial de estoque.
+    data_formatada = formata_data_coletada(dados_planilha[8])
+
+    '''
+    #* Realiza a validação do pedido
+    while acabou_pedido is False: 
         dados_planilha = valida_lancamento() # Coleta e confere os dados do lançamento atual
         # Passa todos osdados parasuas variaveis.
         cracha_mot = dados_planilha[0]
@@ -108,44 +143,54 @@ def programa_principal():
         centro_custo = valida_filial_estoque(filial_estoq) # Realiza a validação da filial de estoque.
         chave_xml = dados_planilha[4]
         acabou_pedido = valida_pedido() # Verifica se o pedido está valido.
+    '''
+
 
 #* -------------------------- Continua o processo de lançamento da NFE -------------------------- 
     logger.info('--- Preenchendo dados na tela principal do lançamento')
-    ahk.win_activate('TopCompras', title_match_mode=2)
-    ahk.win_wait_active('TopCompras', title_match_mode=2, timeout= 10)
+    ativar_janela('TopCompras')
 
     #* Aguarda até aparecer o botão "Produtos e serviços", isso valida que fechou a tela de vinculação de pedido
-    while procura_imagem(imagem='imagens/img_topcon/produtos_servicos.png', continuar_exec= True, limite_tentativa= 1, confianca= 0.74) is False:
-        time.sleep(0.4)
-        ahk.win_activate('TopCompras', title_match_mode=2, detect_hidden_windows= True)
-        ahk.win_wait_active('TopCompras', title_match_mode=2, timeout= 10)
+    while procura_imagem(imagem='imagens/img_topcon/produtos_servicos.png', continuar_exec= True) is False:
+        ativar_janela('TopCompras')
 
     logger.info('--- Preenchendo filial de estoque')
     bot.press('up')
     bot.write(filial_estoq)
     bot.press('TAB', presses= 2) # Confirma a informação da nova filial de estoque
     
+    '''
+    # String com a data e hora
+    data_hora_str = dados_planilha[8]
+
+    # Convertendo para um objeto datetime
+    data_hora = datetime.strptime(data_hora_str, "%Y-%m-%d %H:%M:%S")
+
+    # Formatando para o formato "dd/mm/YYYY"
+    data_formatada = data_hora.strftime("%d/%m/%Y")
+
+    print(data_formatada)
+    '''
+
+
     #* Alteração da data
     logger.info('--- Realizando validação/alteração da data')
     hoje = date.today()
     hoje = hoje.strftime("%d%m%y")  # dd/mm/YY
-    bot.write(hoje)
+    bot.write(data_formatada)
     bot.press('ENTER')
-
-    ahk.win_activate('TopCompras', title_match_mode= 2)
-    # Aguarda até o topcompras voltar a funcionar
-    ahk.win_wait_active('TopCompras', title_match_mode= 2, timeout= 70)
+    ativar_janela('TopCompras', 70)
 
     # Caso o sistema informe que a data deve ser maior/igual a data inserida acima.
     if procura_imagem('imagens/img_topcon/data_invalida.png', continuar_exec= True):
-        logger.warning('--- Precisa mudar a data, inserindo a data de hoje')
-        bot.press('enter')          
-        #bot.write(hoje)
+        logger.warning('--- Precisa mudar a data, inserindo a data de hoje!')
+        #bot.alert("Apresentou tela erro")
+        ahk.win_close("TopCompras (VM-CortesiaApli.CORTESIA.com)", title_match_mode= 2)
+        time.sleep(0.5)        
+        bot.write(hoje)
         bot.press('enter')
-        time.sleep(0.4)
         # Aguarda até o topcompras voltar a funcionar
-        ahk.win_activate('TopCompras', title_match_mode= 2)
-        ahk.win_wait_active('TopCompras', title_match_mode= 2, timeout= 70)
+        ativar_janela('TopCompras', 70)
 
     try: # Aguarda a tela de erro do TopCon 
         ahk.win_wait('Topsys', title_match_mode= 2, timeout= 3)
@@ -160,11 +205,10 @@ def programa_principal():
             bot.press('enter')
             time.sleep(0.4)
 
-    # Aguarda até o topcompras voltar a funcionar
-    ahk.win_activate('TopCompras', title_match_mode= 2)
-    ahk.win_wait_active('TopCompras', title_match_mode= 2, timeout= 70)
-    
+    #calcula_tempo_processo(tempo_inicial)
+
     logger.info(F'--- Trocando o centro de custo para {centro_custo}')
+    ativar_janela('TopCompras', 70)
     bot.write(centro_custo)
     ahk.win_activate('TopCompras', title_match_mode= 2)
     logger.info('--- Aguarda aparecer o campo cod_desc')
@@ -177,8 +221,7 @@ def programa_principal():
             abre_topcon()
             return True
         else: # Aguarda até o topcompras voltar a funcionar
-            ahk.win_activate('TopCompras', title_match_mode= 2)
-            ahk.win_wait_active('TopCompras', title_match_mode= 2, timeout= 70)
+            ativar_janela('TopCompras', 70)
             tentativa_cod_desc += 1 
     else:
         logger.info(F'--- Apareceu o campo COD_DESC, tentativa: {tentativa_cod_desc} ')
@@ -195,15 +238,13 @@ def programa_principal():
             abre_topcon()
             return True
         else: # Aguarda até o topcompras voltar a funcionar
-            ahk.win_activate('TopCompras', title_match_mode= 2)
-            ahk.win_wait_active('TopCompras', title_match_mode= 2, timeout= 70)
+            ativar_janela('TopCompras', 70)
             tentativa_cod_desc += 1 
     else:
         logger.info(F'--- sumiu o campo "cod_desc", tentativa: {tentativa_cod_desc}')
 
     # Aguarda até o topcompras voltar a funcionar
-    ahk.win_activate('TopCompras', title_match_mode= 2)
-    ahk.win_wait_active('TopCompras', title_match_mode= 2, timeout= 70)
+    ativar_janela('TopCompras', 70)
     bot.click(procura_imagem(imagem='imagens/img_topcon/txt_ValoresTotais.png', continuar_exec= True))
 
     # * -------------------------------------- VALIDAÇÃO TRANSPORTADOR --------------------------------------
@@ -257,8 +298,7 @@ def programa_principal():
         logger.info('--- Não achou o campo ou já está preenchido')
 
     # * -------------------------------------- Aba Produtos e serviços --------------------------------------
-    ahk.win_activate('TopCompras', title_match_mode=2)
-    ahk.win_wait_active('TopCompras', title_match_mode=2, timeout= 15)
+    ativar_janela('TopCompras')
     logger.info('--- Navegando para a aba Produtos e Servicos')
     tela_prod_servico = 0
     while procura_imagem(imagem='imagens/img_topcon/botao_alterar.png', area=(100, 839, 300, 400), limite_tentativa= 1, continuar_exec= True, confianca= 0.74) is False:
@@ -268,8 +308,7 @@ def programa_principal():
         
         bot.click(procura_imagem(imagem='imagens/img_topcon/produtos_servicos.png', confianca= 0.74, limite_tentativa= 3, continuar_exec= True))
         # Aguarda até aparecer o botão "alterar"
-        ahk.win_activate('TopCompras', title_match_mode=2)
-        ahk.win_wait_active('TopCompras', title_match_mode=2, timeout= 30)
+        ativar_janela('TopCompras', 30)
         logger.info(F'--- Tentativa de procurar PRODUTO E SERVIÇOS: {tela_prod_servico}')
         tela_prod_servico += 1
     
@@ -285,11 +324,15 @@ def programa_principal():
     finaliza_lancamento() # Realiza todo o processo de finalização de lançamento.
     qtd_notas_lancadas += 1
     print(F"Quantidade de NFS lançadas: {qtd_notas_lancadas}")
+    logger.info(F"Quantidade de NFS lançadas: {qtd_notas_lancadas}")
     return True
 
 
 def main():
     enviar_email("brunobola2010@gmail.com", "RPA Cortesia iniciando nova execução", "Realizando uma nova execução da função {PROGRAMA_PRINCIPAL}!")
+
+def trata_erro():
+    pass
 
 
 if __name__ == '__main__':
@@ -314,10 +357,8 @@ if __name__ == '__main__':
             verifica_horario() # Confere o horario dessa execução.
             programa_principal()
         except Exception as ultimo_erro:
-            #tb = traceback.format_exc() # Usar o traceback para obter o arquivo onde ocorreu o erro
             last_trace = traceback.extract_tb(ultimo_erro.__traceback__)[-1]  # Última entrada do traceback
             arquivo_erro = os.path.basename(last_trace.filename) # Nome do arquivo
-
 
             enviar_email("brunobola2010@gmail.com", F"[RPA Cortesia] Apresentou erro na task: {arquivo_erro}, tentativa: {tentativa}", F"Erro coletado: \n {traceback.format_exc()}")
             logger.exception(F'--- A execução principal apresentou erro! Executando o script principal novamente, tentativa: {tentativa}')
@@ -343,7 +384,7 @@ if __name__ == '__main__':
         else:
             tentativa = 0
     else:
-        enviar_email("brunobola2010@gmail.com", "[RPA Cortesia] Executou todas as tentativas")
+        enviar_email("brunobola2010@gmail.com", "[RPA Cortesia] Executou todas as tentativas", "A execução principal executou todas as tentativas e quebrou")
         logger.critical('--- A execução principal executou todas as tentativas')
             
 # TODO --- Caso NFE Faturada no final do mes, lançar com qual data?

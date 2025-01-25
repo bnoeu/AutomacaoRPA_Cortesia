@@ -3,10 +3,10 @@
 
 import time
 import pyautogui as bot
-from abre_topcon import main as abre_topcon
+from abre_topcon import main as abre_topcon, fechar_tela_nota_compra, navega_topcompras
 from automacao.conferencia_xml import conferencia_xml
 from coleta_planilha import main as coleta_planilha
-from utils.funcoes import procura_imagem
+from utils.funcoes import ativar_janela, procura_imagem
 from utils.configura_logger import get_logger
 
 
@@ -18,11 +18,14 @@ logger = get_logger("script1")
 def altera_topcon_incluir():
     logger.info('--- Alterando o TopCompras para o modo incluir')
     
-    for i in range(0, 15):
+    for i in range(0, 6):
         logger.info('--- Verificando se está no modo Localizar.')
+        ativar_janela('TopCompras')
+        '''
         ahk.win_activate('TopCompras', title_match_mode= 2)
         ahk.win_wait_active('TopCompras', title_match_mode= 2, timeout= 15)
-        time.sleep(1)
+        '''
+        time.sleep(1.5)
         
         if procura_imagem(imagem='imagens/img_topcon/txt_inclui.png', continuar_exec= True, area= (852, 956, 1368, 1045)):
             logger.info('--- Está no modo "incluir", enviando comando F2 para entrar no modo "Localizar"')
@@ -38,7 +41,20 @@ def altera_topcon_incluir():
             logger.success('--- Está no modo "Incluir", lançamento pode continuar!')
             break
 
-        if i > 13:        
+        if procura_imagem(imagem='imagens/img_topcon/txt_existe_nota_transferencia.png', continuar_exec= True):
+            logger.warning('--- Encontrou a tela "existe nota fiscal de transferencia" ')
+            ahk.win_activate("TopCompras (VM-CortesiaApli.CORTESIA.com)", title_match_mode= 2)
+            bot.click(procura_imagem(imagem='imagens/img_topcon/botao_ok.jpg'))
+            if ahk.win_exists("TopCompras (VM-CortesiaApli.CORTESIA.com)", title_match_mode= 2):
+                ahk.win_close("TopCompras (VM-CortesiaApli.CORTESIA.com)", title_match_mode= 2)
+            break
+
+        if i == 3:
+            fechar_tela_nota_compra()
+            navega_topcompras()
+
+        if i >= 5:
+            bot.alert("Limite de tentativas")        
             logger.error('--- Atingiu o maximo de tentativas de alterar os botões ---')
             raise Exception("Atingiu o maximo de tentativas de alterar os botões")
     
@@ -53,7 +69,7 @@ def valida_lancamento():
         dados_planilha = False
         while dados_planilha is False:
             dados_planilha = coleta_planilha() # Recebe os dados coletados da planilha, já validados e formatados.
-    
+
         #* Trata a chave XML, removendo os espaços caso exista.
         chave_xml = dados_planilha[4].strip()
 
@@ -72,6 +88,13 @@ def valida_lancamento():
             return dados_planilha # Após todas as validações, retorna os dados para a execução principal
 
 if __name__ == '__main__':
+    tempo_inicial = time.time()
     valida_lancamento()
     #altera_topcon_incluir()
     
+    # Linha específica onde você quer medir o tempo
+    end_time = time.time()
+    elapsed_time = end_time - tempo_inicial
+    medicao_minutos = elapsed_time / 60
+    print(f"Tempo decorrido: {medicao_minutos:.2f} segundos")
+    bot.alert("acabou")
