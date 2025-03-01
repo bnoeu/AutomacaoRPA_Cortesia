@@ -1,6 +1,7 @@
-import logging
-from datetime import datetime
 import os
+import logging
+import platform
+from datetime import datetime
 
 # Variável global para armazenar o nome do arquivo de log
 LOG_FILE = None
@@ -57,7 +58,7 @@ def get_logger(name, print_terminal = False):
         logger.addHandler(debug_handler)
 
         # Handler para o terminal (opcional)
-        if print_terminal:
+        if print_terminal is True or ("DESKTOP-O0874TE" in platform.node()):
             stream_handler = logging.StreamHandler()
             stream_handler.setLevel(logging.DEBUG)
             stream_handler.setFormatter(formatter)

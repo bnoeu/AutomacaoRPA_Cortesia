@@ -29,7 +29,7 @@ def coleta_planilha():
     logger.info('--- Copiando dados e formatando na planilha de debug')
     while True:
         reaplica_filtro_status()
-        time.sleep(5)
+        time.sleep(0.25)
         bot.hotkey('CTRL', 'HOME')
         bot.press('DOWN')
 
@@ -59,13 +59,14 @@ def handle_timeout(texto_erro):
     time.sleep(5)
 
 def main():
-    bot.PAUSE = 1.5
+    bot.PAUSE = 1.25
     ultimo_erro = ""
 
-    for i in range(0, 1):
+    for i in range(0, 3):
         logger.debug(F"--- Executando a tentativa {i} de executar o COLETA PLANILHA.py ")
         try:
             abre_planilha_navegador(planilha_debug)
+
             dados_copiados = coleta_dados()
             if dados_copiados:
                 logger.success('--- Processo de coleta da planilha foi executado corretamente.')
@@ -89,20 +90,23 @@ def formata_data_coletada(dados_copiados):
     data_formatada = data_obj.strftime("%d/%m/%Y")
     return data_formatada
 
-if __name__ == '__main__':
-    bot.PAUSE = 2
-    tempo_inicial = time.time()
-    dados_copiados = main()
-
-    print(dados_copiados)
-
-    data_formatada = formata_data_coletada(dados_copiados[8])
-    
-    print(data_formatada)
-
+def calculo_tempo_final(tempo_inicial: float):
     # Linha específica onde você quer medir o tempo
     end_time = time.time()
     elapsed_time = end_time - tempo_inicial
     medicao_minutos = elapsed_time / 60
     print(f"Tempo decorrido: {medicao_minutos:.2f} segundos")
-    bot.alert("acabou")
+
+
+if __name__ == '__main__':
+    tempo_inicial = time.time()
+
+    dados_copiados = main()
+
+    # Exibe os dados copiados
+    print(dados_copiados)
+    data_formatada = formata_data_coletada(dados_copiados[8])
+    print(data_formatada)
+    
+    # Calcula o tempo que levou para realizar a ação
+    calculo_tempo_final(tempo_inicial)

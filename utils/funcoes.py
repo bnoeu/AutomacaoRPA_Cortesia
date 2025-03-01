@@ -137,11 +137,11 @@ def marca_lancado(texto_marcacao='teste_08_12'):
     logger.info(F'--------------------- Processou NFE, situação: {texto_marcacao} ---------------------')
 
 def reaplica_filtro_status(): 
-    bot.PAUSE = 1
+    bot.PAUSE = 0.25
     logger.debug('--- Executando a função REAPLICA FILTRO STATUS')
     ahk.win_activate('debug_db_alltrips', title_match_mode= 2)
     ahk.win_wait_active('debug_db_alltrips', title_match_mode= 2, timeout= 15)
-    time.sleep(1.5)
+    time.sleep(0.5)
 
     #* Clica no meio da tela, para garantir que está sem nenhuma outra tela aberta
     bot.click(960, 640)
@@ -267,16 +267,16 @@ def abre_planilha_navegador(link_planilha = alltrips):
     if ahk.win_exists(planilha):
         logger.debug('--- Planilha já está aberta!')
 
-        ativar_janela(planilha, 30)
+        ativar_janela(planilha, 5)
         ahk.win_maximize(planilha, title_match_mode= 2)
-        time.sleep(5)
+        time.sleep(0.2)
         bot.hotkey('CTRL', 'F5') # Recarrega a planilha limpando o cache
         time.sleep(5)
 
     #* Verifica se a planilha realmente já recarrego
         for i in range (0, 30):
-            ativar_janela(planilha, 30)
-            time.sleep(5)
+            ativar_janela(planilha, 5)
+            time.sleep(0.25)
             if procura_imagem(imagem='imagens/img_planilha/txt_status.png', continuar_exec= True):
                 if procura_imagem(imagem='imagens/img_planilha/icone_nuvem.png', continuar_exec= True):
                     break
@@ -355,7 +355,7 @@ def verifica_horario():
         else:
             return
 
-def ativar_janela(nome_janela, timeout=10):
+def ativar_janela(nome_janela, timeout= 5):
     """ Tenta realizar a ativação de uma janela, e aguarda até ela estar aberta
 
     Args:
@@ -365,7 +365,33 @@ def ativar_janela(nome_janela, timeout=10):
     logger.debug(F'--- Tentando ativar/abrir a janela: {nome_janela} ---' )
     ahk.win_activate(nome_janela, title_match_mode=2)
     ahk.win_wait_active(nome_janela, title_match_mode=2, timeout=timeout)
-    time.sleep(0.25)
+    time.sleep(0.1)
+
+def move_telas_direita(tela:str):
+    """ Move a {tela} para a esquerda
+
+    Args:
+        tela (str): nome da tela que será movida
+    """    
+    
+    posicao = ahk.win_get_position(tela, title_match_mode = 2)
+
+    if type(posicao) is not tuple:
+        return
+
+    if posicao[0] < -110:
+        ahk.win_activate(tela, title_match_mode = 2)
+    
+        ahk.key_down('LShift')
+        ahk.key_down('LWin')
+        ahk.key_press('left')
+        ahk.key_release('LShift')
+        ahk.key_release('LWin')
+
+        #ahk.win_maximize(tela, title_match_mode = 2)
+    else:
+        return
+
 
 if __name__ == '__main__':
     bot.PAUSE = 0.6
