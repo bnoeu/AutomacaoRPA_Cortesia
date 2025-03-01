@@ -54,8 +54,8 @@ def altera_topcon_incluir():
             navega_topcompras()
 
         if i >= 5:
-            bot.alert("Limite de tentativas")        
             logger.error('--- Atingiu o maximo de tentativas de alterar os botões ---')
+            #bot.alert("Limite de tentativas de alterar o topcon para o modo incluir")        
             raise Exception("Atingiu o maximo de tentativas de alterar os botões")
     
 

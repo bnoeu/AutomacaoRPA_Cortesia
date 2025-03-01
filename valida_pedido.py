@@ -6,7 +6,7 @@ import pytesseract
 import pyautogui as bot
 from utils.funcoes import ahk as ahk
 from utils.configura_logger import get_logger
-from utils.funcoes import marca_lancado, procura_imagem, extrai_txt_img, verifica_ped_vazio, corrige_nometela
+from utils.funcoes import marca_lancado, procura_imagem, extrai_txt_img, verifica_ped_vazio, corrige_nometela, print_erro
 
 # --- Definição de parametros
 posicao_img = 0  # Define a variavel para utilização global dela.
@@ -101,11 +101,11 @@ def valida_pedido():
         #* Tenta encontrar a imagem do pedido e salva as posições onde encontrar
         
         #* Caso seja a segunda tentativa, já baixa a lista de pedidos.
-        if tentativa >= 1: 
+        if tentativa >= 1 and tentativa <= 3: 
             logger.info(F'--- Está na tentativa: {tentativa} de vincular pedido, baixando a lista dos pedidos')
             ahk.win_activate('Vinculação Itens da Nota', title_match_mode = 2)
             ahk.win_wait_active('Vinculação Itens da Nota', title_match_mode = 2, timeout= 30)
-            bot.click(744, 230) #Clica para descer o menu e exibir o resto das opções
+            bot.click(748, 310) #Clica para descer o menu e exibir o resto das opções
             time.sleep(0.4)
 
         #* Procura o pedido na tela "6201 - Vinculação Itens da Nota" e conta quantos itens encontrou
@@ -117,6 +117,7 @@ def valida_pedido():
         #* Caso não encontre a imagem em na tela de vinculação de pedido ( significa que falta pedido. )
         if contagem == 0: 
             logger.warning(F'--- Não encontrou: {img_pedido}, NÃO EXISTE PEDIDO! Saindo do processo.')
+            print_erro()
             marca_lancado(texto_marcacao= 'Pedido_Inexistente')
             ahk.win_activate('Vinculação Itens da Nota', title_match_mode = 2)
             ahk.win_wait_active('Vinculação Itens da Nota', title_match_mode = 2, timeout= 30)
@@ -176,12 +177,13 @@ def valida_pedido():
 
 #* Aguarda a abertura da tela "Vinculação Itens da Nota"
 def verifica_tela_vinculacao():
+    logger.info('--- Executando a função VERIFICA TELA VINCULAÇÃO --- ')
     #* Aguarda a abertura da tela "Vinculação Itens da Nota"
     for i in range(0, 10):
         ahk.win_activate('Vinculação Itens da Nota', title_match_mode = 2)
         time.sleep(0.4)
         if ahk.win_is_active('Vinculação Itens da Nota', title_match_mode = 2):
-            logger.debug('Tela "Vinculação Itens da Nota" aberta!')
+            logger.info('Tela "Vinculação Itens da Nota" aberta!')
             break
         if i == 10:
             logger.error('Não encontrou a tela "Vinculação Itens da Nota" ')
@@ -189,6 +191,7 @@ def verifica_tela_vinculacao():
 
 #* Verifica se a tela "Vinculação itens da Nota" carregou e está exibindo o botão "localizar"
 def valida_bt_localizar():
+    logger.info('--- Executando a função VALIDA BT LOCALIZAR --- ')
     for i in range (0, 10):
         if procura_imagem(imagem='imagens/img_topcon/localizar.png', continuar_exec= True):
             logger.info('--- Tela "Vinculação itens da NOTA" carregou e encontrou o botão "LOCALIZAR" ')
@@ -198,6 +201,7 @@ def valida_bt_localizar():
             raise Exception('Tela "Vinculação itens da NOTA" não carregou corretamente')
 
 def main():
+    logger.info('--- Executando o arquivo VALIDA PEDIDO --- ')
     verifica_tela_vinculacao()
     valida_bt_localizar()
     return valida_pedido()

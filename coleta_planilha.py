@@ -29,6 +29,7 @@ def coleta_planilha():
     logger.info('--- Copiando dados e formatando na planilha de debug')
     while True:
         reaplica_filtro_status()
+        time.sleep(5)
         bot.hotkey('CTRL', 'HOME')
         bot.press('DOWN')
 
@@ -62,6 +63,7 @@ def main():
     ultimo_erro = ""
 
     for i in range(0, 1):
+        logger.debug(F"--- Executando a tentativa {i} de executar o COLETA PLANILHA.py ")
         try:
             abre_planilha_navegador(planilha_debug)
             dados_copiados = coleta_dados()
@@ -88,22 +90,13 @@ def formata_data_coletada(dados_copiados):
     return data_formatada
 
 if __name__ == '__main__':
+    bot.PAUSE = 2
     tempo_inicial = time.time()
     dados_copiados = main()
 
     print(dados_copiados)
 
     data_formatada = formata_data_coletada(dados_copiados[8])
-    '''
-    data_copiada = dados_copiados[8].split(' ')
-    data_copiada = data_copiada[0]
-    
-    # Converter para objeto datetime
-    data_obj = datetime.strptime(data_copiada, "%d/%m/%y")
-
-    # Converter para o formato desejado
-    data_formatada = data_obj.strftime("%d/%m/%Y")
-    '''
     
     print(data_formatada)
 

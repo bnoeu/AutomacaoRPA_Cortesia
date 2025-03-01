@@ -26,7 +26,7 @@ senha_rdp = '4Pyth0n@'
 #* Novo usuario
 bot.FAILSAFE = False
 login_rdp = 'b.santos'
-senha_rdp = 'C0rtesi@2024'
+senha_rdp = 'C0rtesi@2025'
 
 def fechar_tela_nota_compra():
     logger.info('--- Executando função FECHAR TELA NOTA COMPRA')
@@ -71,13 +71,19 @@ def abre_mercantil():
     corrige_nometela()
     
     #* Verifica se o pop-up "interveniente" está aberto
-    while ahk.win_exists("TopCompras (VM-CortesiaApli.CORTESIA.com)", title_match_mode= 2):
-        ahk.win_close("TopCompras (VM-CortesiaApli.CORTESIA.com)", title_match_mode= 2)
-        logger.info('--- Fechando a tela "interveniente" ')
-        #bot.click(procura_imagem(imagem='imagens/img_topcon/botao_ok.jpg', continuar_exec= True))
+    for i in range (0, 10):
+        if ahk.win_exists("TopCompras (VM-CortesiaApli.CORTESIA.com)", title_match_mode= 2):
+            ahk.win_close("TopCompras (VM-CortesiaApli.CORTESIA.com)", title_match_mode= 2, seconds_to_wait= 2)
+            logger.info('--- Fechando a tela "interveniente" ')
+            #bot.click(procura_imagem(imagem='imagens/img_topcon/botao_ok.jpg', continuar_exec= True))
 
-    if procura_imagem('imagens/img_topcon/txt_mov_material.PNG'):
-        logger.success("Concluiu a task ABRE MERCANTIL")
+        if i >= 9:
+            logger.error(F"Não foi possivel fechar a tela 'interveniente' (TopCompras (VM-CortesiaApli.CORTESIA.com)! Tentativas executadas: {i}")
+            raise Exception('Não foi possivel fechar a tela "TopCompras (VM-CortesiaApli.CORTESIA.com)", necessario reiniciar o TopCon')
+
+        if procura_imagem('imagens/img_topcon/txt_mov_material.PNG'):
+            logger.success("Concluiu a task ABRE MERCANTIL")
+            break
     
 
 def navega_topcompras():
@@ -121,7 +127,8 @@ def fecha_execucoes():
         time.sleep(0.4)
         logger.info('--- Fechou a tela "TopCompras" ')
 
-    os.system('taskkill /PID 872 /f /t') # Força o fechamento do processo do RDP por completo
+    logger.info('--- Fechando os processos do RemoteDesktop ---')
+    #os.system('taskkill /PID 872 /f /t') # Força o fechamento do processo do RDP por completo
     os.system('taskkill /im wksprt.exe /f /t') # Força o fechamento do processo do RDP por completo
     os.system('taskkill /im mstsc.exe /f /t') # Força o fechamento do processo do RDP por completo
     logger.info('--- Os processos wksprt e mstsc.exe do RDP')
@@ -307,6 +314,7 @@ if __name__ == '__main__':
     elapsed_time = end_time - tempo_inicial
     medicao_minutos = elapsed_time / 60
     print(f"Tempo decorrido: {medicao_minutos:.2f} segundos")
+    time.sleep(1)
     bot.alert("acabou")
 
     '''

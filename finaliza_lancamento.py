@@ -47,7 +47,6 @@ def finaliza_lancamento(planilha_marcada = False, lancamento_concluido = False, 
     ativar_janela('TopCompras')
     bot.press('pagedown')  # Conclui o lançamento
 
-
     logger.info('--- Tentando validar a tela que apresentou no sistema ---' )
     while True:
         time.sleep(0.4)
@@ -67,6 +66,15 @@ def finaliza_lancamento(planilha_marcada = False, lancamento_concluido = False, 
             marca_lancado(texto_marcacao='Lancado_Manual')
             ahk.win_wait('TopCompras', title_match_mode = 2, timeout= 50)
             logger.info('--- Nota já lançada, marcando planilha!')
+            bot.press('ENTER')
+            bot.press('F2', presses = 2)
+            break
+
+        if procura_imagem(imagem='imagens/img_topcon/txt_existe_diferenca_pedido.png', continuar_exec=True, limite_tentativa= 1, confianca= 0.74) is not False:
+            marca_lancado(texto_marcacao='Diferenca_ValorPedido')
+            ahk.win_wait('TopCompras', title_match_mode = 2, timeout= 50)
+            ahk.win_activate('TopCompras', title_match_mode = 2)
+            logger.info('--- Existe diferença de valor entre o pedido e a nota fiscal!')
             bot.press('ENTER')
             bot.press('F2', presses = 2)
             break

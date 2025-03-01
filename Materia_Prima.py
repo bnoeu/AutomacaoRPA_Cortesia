@@ -18,7 +18,7 @@ import platform
 import traceback
 import pytesseract
 import pyautogui as bot
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from utils.funcoes import ahk as ahk
 from abre_topcon import main as abre_topcon
 from utils.enviar_email import enviar_email
@@ -33,11 +33,11 @@ from utils.funcoes import marca_lancado, procura_imagem, verifica_horario, ativa
 posicao_img = 0
 continuar = True
 qtd_notas_lancadas = 0
-tempo_inicial = time.time()
 bot.LOG_SCREENSHOTS = True  
 bot.LOG_SCREENSHOTS_LIMIT = 5
 chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
 pytesseract.pytesseract.tesseract_cmd = r"C:\Tesseract-OCR\tesseract.exe"
+logger = get_logger("automacao", print_terminal= True) # Obter logger configurado
 
 def calcula_tempo_processo(tempo_inicial):
     # Linha específica onde você quer medir o tempo
@@ -76,6 +76,7 @@ def valida_filial_estoque(filial_estoq = ""):
         return centro_custo
 
 def coleta_valida_dados():
+    logger.info('--- Executando COLETA VALIDA DADOS ')
     #* Realiza a validação do pedido
     acabou_pedido = False
 
@@ -98,15 +99,25 @@ def coleta_valida_dados():
         '''
 
 def formata_data_coletada(dados_copiados):
-    data_copiada = dados_copiados.split(' ')
-    data_copiada = data_copiada[0]
-    
-    # Converter para objeto datetime
-    data_obj = datetime.strptime(data_copiada, "%d/%m/%y")
+    data_copiada = dados_copiados.split(' ')[0]  # Pega apenas a parte da data
+    print(F"Data copiada: {data_copiada}")
+    # Converter a string para objeto datetime.date
+    data_obj = datetime.strptime(data_copiada, "%d/%m/%y").date()
 
-    # Converter para o formato desejado
-    data_formatada = data_obj.strftime("%d/%m/%Y")
-    return data_formatada
+    # Obtém a data de amanhã como objeto date
+    amanha_data = coleta_proximo_dia()
+
+    # Comparação correta entre objetos date
+    if data_obj >= amanha_data:
+        print("--- A data coletada é do próximo dia! Alterando para a data atual.")
+        return date.today().strftime("%d/%m/%y")  # Retorna a data atual formatada
+    
+    print("--- A data coletada é válida!")
+    return data_obj.strftime("%d/%m/%y")  # Retorna a data coletada formatada
+
+def coleta_proximo_dia():
+    # Retorna a data de amanhã como objeto date
+    return date.today() + timedelta(days=1)
 
 def programa_principal():
     global qtd_notas_lancadas
@@ -121,6 +132,7 @@ def programa_principal():
 
     #* Passa todos os dados para as suas variaveis.
     dados_planilha = coleta_valida_dados()
+    tempo_inicial = time.time()
     silo1 = dados_planilha[1]
     silo2 = dados_planilha[2]
     chave_xml = dados_planilha[4]
@@ -129,21 +141,6 @@ def programa_principal():
     filial_estoq = filial_estoq[0] # O dado é passado assim: ['1001', 'VILA PRUDENTE'], aqui formata para '1001'
     centro_custo = valida_filial_estoque(filial_estoq) # Realiza a validação da filial de estoque.
     data_formatada = formata_data_coletada(dados_planilha[8])
-
-    '''
-    #* Realiza a validação do pedido
-    while acabou_pedido is False: 
-        dados_planilha = valida_lancamento() # Coleta e confere os dados do lançamento atual
-        # Passa todos osdados parasuas variaveis.
-        cracha_mot = dados_planilha[0]
-        silo1 = dados_planilha[1]
-        silo2 = dados_planilha[2]
-        filial_estoq = dados_planilha[3].split('-') # Recebe por exemplo: ['1001', 'VILA PRUDENTE']
-        filial_estoq = filial_estoq[0] # O dado é passado assim: ['1001', 'VILA PRUDENTE'], aqui formata para '1001'
-        centro_custo = valida_filial_estoque(filial_estoq) # Realiza a validação da filial de estoque.
-        chave_xml = dados_planilha[4]
-        acabou_pedido = valida_pedido() # Verifica se o pedido está valido.
-    '''
 
 
 #* -------------------------- Continua o processo de lançamento da NFE -------------------------- 
@@ -177,11 +174,16 @@ def programa_principal():
     logger.info('--- Realizando validação/alteração da data')
     hoje = date.today()
     hoje = hoje.strftime("%d%m%y")  # dd/mm/YY
+    logger.info(F'--- Inserindo a data coletada: {data_formatada} e apertando ENTER')
+
+
     bot.write(data_formatada)
     bot.press('ENTER')
+
     ativar_janela('TopCompras', 70)
 
     # Caso o sistema informe que a data deve ser maior/igual a data inserida acima.
+    logger.info('--- Verificando se apareceu data')
     if procura_imagem('imagens/img_topcon/data_invalida.png', continuar_exec= True):
         logger.warning('--- Precisa mudar a data, inserindo a data de hoje!')
         #bot.alert("Apresentou tela erro")
@@ -325,20 +327,18 @@ def programa_principal():
     qtd_notas_lancadas += 1
     print(F"Quantidade de NFS lançadas: {qtd_notas_lancadas}")
     logger.info(F"Quantidade de NFS lançadas: {qtd_notas_lancadas}")
+
+    # Valida a medição de tempo
+    end_time = time.time()
+    elapsed_time = end_time - tempo_inicial
+    medicao_minutos = elapsed_time / 60
+    print(f"Tempo decorrido: {medicao_minutos:.2f} segundos")
+    #exit(bot.alert(F"Lançamento concluido! \n Tempo que levou: {medicao_minutos:.2f}"))
+
     return True
 
 
 def main():
-    enviar_email("brunobola2010@gmail.com", "RPA Cortesia iniciando nova execução", "Realizando uma nova execução da função {PROGRAMA_PRINCIPAL}!")
-
-def trata_erro():
-    pass
-
-
-if __name__ == '__main__':
-    #main()
-
-    logger = get_logger("automacao") # Obter logger configurado
     os.system('taskkill /im AutoHotkey.exe /f /t') # Encerra todos os processos do AHK
     os.system('cls')
 
@@ -346,32 +346,65 @@ if __name__ == '__main__':
     if 'VLPTIC1Z9HD33' not in platform.node(): 
         bot.FAILSAFE = False
 
-    tentativa = 0
-    tempo_pausa = 600 # 10 minutos
     verifica_horario() # Confere o horario dessa execução.
     abre_topcon()
+
+
+    #enviar_email("brunobola2010@gmail.com", "RPA Cortesia iniciando nova execução", "Realizando uma nova execução da função {PROGRAMA_PRINCIPAL}!")
+
+def trata_erro(ultimo_erro, tentativa):
+    last_trace = traceback.extract_tb(ultimo_erro.__traceback__)[-1]  # Última entrada do traceback
+    arquivo_erro = os.path.basename(last_trace.filename) # Nome do arquivo
+
+    # Captura o traceback completo
+    erro_traceback = traceback.format_exc()
+    erro_tipo = type(ultimo_erro).__name__
+    erro_mensagem = str(ultimo_erro)
+
+    # Mensagem detalhada do erro
+    mensagem_erro = (
+        f"Erro ocorrido durante a execução do RPA:\n\n"
+        f"Tipo do erro: {erro_tipo}\n"
+        f"Mensagem: {erro_mensagem}\n\n"
+        f"Traceback:\n{erro_traceback}"
+    )
+
+    return arquivo_erro, mensagem_erro
+
+
+if __name__ == '__main__':
+    tentativa = 0
+    tempo_inicial = time.time()
+    tempo_pausa = 600 # 10 minutos
     
+    #* Realiza os processos inicias da execução da automação
+    main()
+
     while tentativa < 10:
         try:
             logger.info('--- Iniciando o Try-Catch do PROGRAMA PRINCIPAL')
-            verifica_horario() # Confere o horario dessa execução.
+            verifica_horario()
             programa_principal()
         except Exception as ultimo_erro:
-            last_trace = traceback.extract_tb(ultimo_erro.__traceback__)[-1]  # Última entrada do traceback
-            arquivo_erro = os.path.basename(last_trace.filename) # Nome do arquivo
+            arquivo_erro, mensagem_erro = trata_erro(ultimo_erro, tentativa)
 
-            enviar_email("brunobola2010@gmail.com", F"[RPA Cortesia] Apresentou erro na task: {arquivo_erro}, tentativa: {tentativa}", F"Erro coletado: \n {traceback.format_exc()}")
-            logger.exception(F'--- A execução principal apresentou erro! Executando o script principal novamente, tentativa: {tentativa}')
+            #enviar_email("brunobola2010@gmail.com", F"[RPA Cortesia] Apresentou erro na task: {arquivo_erro}, tentativa: {tentativa}", F"Erro coletado: \n {mensagem_erro}")
+            logger.exception(F'--- A execução principal apresentou erro! Tentativa: {tentativa}')
 
             #* Realiza as verificações antes da proxima tentativa
-            verifica_horario() # Confere o horario dessa execução.
+            verifica_horario()
 
-            if (tentativa > 5) and (tentativa < 9): # Começa a pausar o script após a 5º execução
-                logger.info(F"Pausando por algum tempo {tempo_pausa} segundos antes da proxima tentativa")
-                time.sleep(900)
-                tempo_pausa = tempo_pausa * 1.5
+            if tentativa > 5: # Começa a pausar o script após a 5º execução
+                logger.info(F"Pausando por: {tempo_pausa} segundos antes da proxima tentativa")
+                time.sleep(tempo_pausa)
+                tempo_pausa *= 0.5
+
             if tentativa > 9:
-                enviar_email("brunobola2010@gmail.com", F"[RPA Cortesia] Erro catastrofico: {arquivo_erro}", F"Erro coletado: \n {traceback.format_exc()}")
+                enviar_email(
+                    "brunobola2010@gmail.com",
+                    f"[RPA Cortesia] Erro catastrofico: {arquivo_erro}",
+                    f"Erro coletado: \n{traceback.format_exc()}"
+                )
                 logger.critical(F'--- A execução principal apresentou erro! Executando o script principal novamente, tentativa: {tentativa}')
                 break
 
@@ -379,12 +412,16 @@ if __name__ == '__main__':
             tentativa += 1
 
         except(KeyboardInterrupt) as e:
-            enviar_email("brunobola2010@gmail.com", "[RPA Cortesia] Apresentou erro", F"Execução pausada pelo usuario! \n {e}")
             exit(logger.critical("Execução pausada pelo usuario"))
         else:
             tentativa = 0
     else:
         enviar_email("brunobola2010@gmail.com", "[RPA Cortesia] Executou todas as tentativas", "A execução principal executou todas as tentativas e quebrou")
         logger.critical('--- A execução principal executou todas as tentativas')
-            
-# TODO --- Caso NFE Faturada no final do mes, lançar com qual data?
+
+        # Log do erro crítico no sistema
+        logger.critical("A execução principal falhou com erro crítico.")
+        logger.critical(mensagem_erro)
+
+
+# TODO --- Caso NFE Faturada no final do mes, lançar com qual data?24/02/2025

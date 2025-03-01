@@ -111,23 +111,22 @@ def marca_lancado(texto_marcacao='teste_08_12'):
     ahk.win_wait_active('debug_db_alltrips', title_match_mode= 2, timeout= 30, detect_hidden_windows = True)
     '''
 
-    time.sleep(1)
+    time.sleep(0.5)
     bot.hotkey('CTRL', 'HOME')
 
     # Navega até o campo "Status"
     bot.press('RIGHT', presses= 6)
     bot.press('DOWN')
-    time.sleep(1)
-    exit(bot.alert("Verificar"))
+    time.sleep(0.5)
     
     # Informa o texto recebido pela função e passa para a celula ao lado, para inserir a data
     bot.write(texto_marcacao)
     bot.press('RIGHT')
-    time.sleep(1)
+    time.sleep(0.5)
     hoje = datetime.now()
     hoje_formatado = hoje.strftime('%d/%m/%Y')
     bot.write(hoje_formatado)
-    time.sleep(1)
+    time.sleep(0.5)
     bot.click(960, 640) # Clica no meio da planilha
     time.sleep(0.4)
     
@@ -270,13 +269,14 @@ def abre_planilha_navegador(link_planilha = alltrips):
 
         ativar_janela(planilha, 30)
         ahk.win_maximize(planilha, title_match_mode= 2)
-        time.sleep(0.5)
+        time.sleep(5)
         bot.hotkey('CTRL', 'F5') # Recarrega a planilha limpando o cache
+        time.sleep(5)
 
-    #* Verifica se a planilha realmente já recarregou
-        time.sleep(0.4)
+    #* Verifica se a planilha realmente já recarrego
         for i in range (0, 30):
             ativar_janela(planilha, 30)
+            time.sleep(5)
             if procura_imagem(imagem='imagens/img_planilha/txt_status.png', continuar_exec= True):
                 if procura_imagem(imagem='imagens/img_planilha/icone_nuvem.png', continuar_exec= True):
                     break
@@ -295,21 +295,21 @@ def abre_planilha_navegador(link_planilha = alltrips):
         logger.info('--- Forçou o fechamento da planilha ORIGINAL do AllTrips')
         ahk.win_close('alltrips.xlsx', title_match_mode= 2)
         os.system('taskkill /im msedge.exe /f /t')
-        time.sleep(0.4)
+        time.sleep(1)
     
     logger.info(F'--- Realizando uma nova execução da planilha: {planilha}')    
     comando_iniciar = F'start msedge {link_planilha} -new-window -inprivate'
     os.system(comando_iniciar)
-    time.sleep(3)
+    time.sleep(5)
     
     #* Aguarda a planilha abrir no EDGE e maximiza
     for i in range (0, 10):
-        time.sleep(0.4)
+        time.sleep(1)
         ahk.win_activate(planilha, title_match_mode = 2)
-        time.sleep(0.4)
+        time.sleep(1)
         if ahk.win_is_active(planilha, title_match_mode = 2):
             ahk.win_maximize(planilha)
-            time.sleep(0.5)
+            time.sleep(2)
             logger.info('--- Planilha aberta e maximizada! procurando icone do EXCEL')
             if procura_imagem(imagem='imagens/img_planilha/icone_excel.png', continuar_exec= True):
                 logger.info('--- Encontrou o icone do excel! procurando texto "STATUS" ')

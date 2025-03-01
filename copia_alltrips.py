@@ -1,17 +1,12 @@
 # Para utilização na Cortesia Concreto.
 # -*- Criado por Bruno da Silva Santos. -*-
 
-from ast import Raise
-from logging import raiseExceptions
-import os
-from re import split
-from sys import exception
 import time
 import pyautogui as bot
 from datetime import datetime
 from utils.funcoes import ahk as ahk
 from utils.configura_logger import get_logger
-from utils.funcoes import procura_imagem, abre_planilha_navegador, msg_box, verifica_horario, ativar_janela
+from utils.funcoes import procura_imagem, abre_planilha_navegador, msg_box, ativar_janela
 
 
 # --- Definição de parametros
@@ -21,7 +16,7 @@ planilha_debug = "https://cortesiaconcreto-my.sharepoint.com/:x:/g/personal/brun
 
 
 def encontra_ultimo_xml(ultimo_xml = ''):
-    bot.PAUSE = 1.5
+    bot.PAUSE = 2
     while True:
         logger.info(F'--- Iniciando a navegação até a ultima chave XML: {ultimo_xml}')
         ahk.win_activate('db_alltrips.xlsx', title_match_mode= 1)
@@ -75,7 +70,8 @@ def encontra_ultimo_xml(ultimo_xml = ''):
             logger.warning(F'--- Ops... não está na ultima chave {ultimo_xml}, navegando novamente.')
             raise TimeoutError
 
-def valida_nova_chave_inserida():
+def valida_nova_chave_inserida(tentativa):
+    tempo_pausa = tentativa * 1800  # Multiplica a tentativa por 30 minutos, como são 4, o maximo é 2 horas
     logger.info('--- Verificando se existe uma nova chave NFE.')
 
     ahk.win_activate('db_alltrips.xlsx', title_match_mode= 1)
@@ -93,8 +89,8 @@ def valida_nova_chave_inserida():
 
     #* Executa a validação dos dados copiados
     if valor_copiado == "": # 1. Caso o campo esteja vazio, significa que ainda não foram inseridas novas notas, e para o processo.
-        logger.info('--- Valor copiado está vazio! Aguardando 15 minutos antes de tentar novamente')
-        time.sleep(900)
+        logger.info(F'--- Valor copiado está vazio! Aguardando {tempo_pausa / 60} minutos antes de tentar novamente')
+        time.sleep(tempo_pausa)
         return False
     elif len(valor_copiado) < 20 or len(valor_copiado) > 44:
         logger.warning(F'--- Valor copiado é invalido: {valor_copiado}')
@@ -145,33 +141,32 @@ def copia_dados():
     # Inicia o processo de seleção dos dados
     ativar_janela("db_alltrips.xlsx")
     logger.info('--- Iniciando o processo de seleção dos dados novos')
-    time.sleep(0.25)
+    time.sleep(0.5)
     bot.press('LEFT', presses= 4) # Navega até a coluna "RE"
-    time.sleep(0.25)
+    time.sleep(0.5)
     ahk.key_down('Shift') # Segura a tecla SHIFT
-    time.sleep(0.25)
+    time.sleep(0.5)
     ahk.key_down('Control') # Segura a tecla CTRL
-    time.sleep(0.25)
+    time.sleep(0.5)
     ahk.key_press('down') # Com shift + ctrl pressionado, navega até a ultima linha da planilha
-    time.sleep(0.25)
+    time.sleep(0.5)
     ahk.key_press('right') # Avança para a ultima coluna
     logger.info('--- Pressionou SHIFT e CONTROL, indo até a ultima coluna preenchida')
     for i in range (0, 9):
-        time.sleep(0.25)
+        time.sleep(0.5)
         ahk.key_up('Shift')
-        time.sleep(0.25)
+        time.sleep(0.5)
         ahk.key_up('Control')
-        time.sleep(0.25)
+        time.sleep(0.5)
         bot.hotkey('ctrl', 'c')
-        time.sleep(0.25)
+        time.sleep(0.5)
         dados_copiados = ahk.get_clipboard()
         time.sleep(0.5)
 
          #* Script de validação original
         if "/2025" in dados_copiados:
-            print(dados_copiados)
-            logger.info('--- Encontrou "/2024" nos dados copiados!')
-            break
+            logger.info('--- Encontrou "/2025" que indica os dados da coluna "D. Inserção" nos dados copiados!')
+            return dados_copiados
 
         if i >= 8:
             if ("/" in dados_copiados) or ("/2025" in dados_copiados) or ("," in dados_copiados): # Verifica se os dados foram copiados com sucesso
@@ -185,6 +180,7 @@ def copia_dados():
             time.sleep(0.25)
             ahk.key_press('right') # Avança para a ultima coluna
             time.sleep(0.25)
+            logger.debug('--- Ainda não encontrou a coluna das datas! Tentando novamente')
             ativar_janela("db_alltrips.xlsx")
 
         if i >= 9: # Verifica se excedeu o limite de tentativas de copiar os dados.
@@ -223,30 +219,50 @@ def cola_dados(dados_copiados = "TESTE"):
         logger.error('--- Não conseguiu fechar a planilha original')
         raise Exception("Não conseguiu fechar a planilha original")
 
+def verifica_quatro_dias(dados_copiados):
+    """ Compara os dados copiados e verifica se consta alguma nota que a data é de quatro dias atrás.
 
-def main(ultimo_xml = chave_xml):
-    bot.PAUSE = 1.5
+    Args:
+        dados_copiados (_type_): Recebe os dados coletados
+
+    Raises:
+        Exception: "Dia "{quatro_dias_antes}" está nos dados copiados"
+    """
+
     dia_mes_atual = datetime.now() # Coleta a data atual, para validar se os dados são novos.
     quatro_dias_antes = dia_mes_atual.day - 4
-    quatro_dias_antes = F"{quatro_dias_antes}/"
-
-    #* Abre a planilha do db_alltrips (banco original)
-    for i in range(0, 5):
-        abre_planilha_navegador()
-        encontra_ultimo_xml(ultimo_xml = ultimo_xml)
-
-        if valida_nova_chave_inserida() is True:
-            dados_copiados = copia_dados()
-            if dados_copiados != "":
-                break
-    else:
-        raise Exception(F"--- Falhou as: {i} tentativas da task COPIA ALLTRIPS")
+    quatro_dias_antes = F"{quatro_dias_antes}/25"
 
     if quatro_dias_antes in dados_copiados:
+        logger.debug(F'Verificando se o dia: {quatro_dias_antes} está nos dados copiados...')
         raise Exception(F'Dia "{quatro_dias_antes}" está nos dados copiados.')
     else:
         logger.info(F'Não encontrou: {quatro_dias_antes} nos dados copiados, os dados são novos!')
 
+
+def main(ultimo_xml = chave_xml):
+    bot.PAUSE = 2
+
+    logger.info('Iniciando função COPIA BANCO ( COPIA ALL TRIPS)')
+
+    #* Abre a planilha do db_alltrips (banco original)
+    for tentativa in range(0, 5):
+        abre_planilha_navegador()
+        encontra_ultimo_xml(ultimo_xml = ultimo_xml)
+
+
+        if valida_nova_chave_inserida(tentativa) is True:
+            dados_copiados = copia_dados()
+            print(dados_copiados)
+            if dados_copiados != "":
+                break
+    else:
+        raise Exception(F"--- Falhou as: {tentativa} tentativas da task COPIA ALLTRIPS")
+
+    #* Verifica se consta alguma nota que a data é de quatro dias atrás.
+    verifica_quatro_dias(dados_copiados)
+
+    #* Libera as teclas para evitar problemas.
     ahk.key_up('Shift')
     ahk.key_up('Control')
     ahk.key_release('Shift') # Segura a tecla SHIFT
@@ -257,10 +273,12 @@ def main(ultimo_xml = chave_xml):
         return True
 
 if __name__ == '__main__':
-    #main(ultimo_xml= "35250149034010000137550010010590191519789876")
-    exit(bot.alert("Terminou"))
-    ultimo_xml = "35250149034010000137550010010590191519789876"
-    abre_planilha_navegador()
-    encontra_ultimo_xml(ultimo_xml = ultimo_xml)
-    dados = copia_dados()
-    print(dados)
+    main(ultimo_xml= "35250249034010000137550010010639801961068338")
+    
+
+    #exit(bot.alert("Terminou"))
+    #ultimo_xml = "35250149034010000137550010010590191519789876"
+    #abre_planilha_navegador()
+    #encontra_ultimo_xml(ultimo_xml = ultimo_xml)
+    #dados = copia_dados()
+    #print(dados)

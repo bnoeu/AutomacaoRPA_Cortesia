@@ -44,8 +44,8 @@ def alterar_localizar():
             
 
         if i >= 4:
-            bot.alert("Limite de tentativas")        
             logger.error('--- Atingiu o maximo de tentativas de alterar os botões ---')
+            #bot.alert("Limite de tentativas de alterar os botões")        
             raise Exception("Atingiu o maximo de tentativas de alterar os botões")
         
 
