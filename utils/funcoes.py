@@ -365,7 +365,7 @@ def ativar_janela(nome_janela, timeout= 5):
     logger.debug(F'--- Tentando ativar/abrir a janela: {nome_janela} ---' )
     ahk.win_activate(nome_janela, title_match_mode=2)
     ahk.win_wait_active(nome_janela, title_match_mode=2, timeout=timeout)
-    time.sleep(0.1)
+    time.sleep(0.25)
 
 def move_telas_direita(tela:str):
     """ Move a {tela} para a esquerda
