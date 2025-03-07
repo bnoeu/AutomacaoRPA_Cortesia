@@ -337,21 +337,6 @@ def programa_principal():
 
     return True
 
-
-def main():
-    os.system('taskkill /im AutoHotkey.exe /f /t') # Encerra todos os processos do AHK
-    os.system('cls')
-
-    #* Verifica qual sistema está rodando o script
-    if 'VLPTIC1Z9HD33' not in platform.node(): 
-        bot.FAILSAFE = False
-
-    verifica_horario() # Confere o horario dessa execução.
-    abre_topcon()
-
-
-    #enviar_email("brunobola2010@gmail.com", "RPA Cortesia iniciando nova execução", "Realizando uma nova execução da função {PROGRAMA_PRINCIPAL}!")
-
 def trata_erro(ultimo_erro, tentativa):
     last_trace = traceback.extract_tb(ultimo_erro.__traceback__)[-1]  # Última entrada do traceback
     arquivo_erro = os.path.basename(last_trace.filename) # Nome do arquivo
@@ -370,6 +355,23 @@ def trata_erro(ultimo_erro, tentativa):
     )
 
     return arquivo_erro, mensagem_erro
+
+
+def main():
+    os.system('taskkill /im AutoHotkey.exe /f /t') # Encerra todos os processos do AHK
+    os.system('cls')
+
+    #* Verifica qual sistema está rodando o script
+    if 'VLPTIC1Z9HD33' not in platform.node(): 
+        bot.FAILSAFE = False
+
+    verifica_horario() # Confere o horario dessa execução.
+    abre_topcon()
+
+
+    #enviar_email("brunobola2010@gmail.com", "RPA Cortesia iniciando nova execução", "Realizando uma nova execução da função {PROGRAMA_PRINCIPAL}!")
+
+
 
 
 if __name__ == '__main__':
