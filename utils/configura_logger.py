@@ -20,9 +20,15 @@ logging.Logger.success = success
 
 # Função para configurar o logger
 def get_logger(name, print_terminal = False):
-    """
-    Retorna um logger configurado com um arquivo de log compartilhado.
-    """
+    """Retorna um logger configurado com um arquivo de log compartilhado.
+
+    Args:
+        name (_type_): _description_
+        print_terminal (bool, optional): Caso queira printar o log no terminal. Defaults to False.
+
+    Returns:
+        _type_: _description_
+    """    
     global LOG_FILE
 
     # Garantir que os diretórios "logs" e "debug" existam
