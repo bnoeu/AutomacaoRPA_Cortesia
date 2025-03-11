@@ -128,11 +128,13 @@ def main():
         print("Chave é de um CTE-E")
 
 
+def clica_img(img, deslocar_y, deslocar_x, limite_tentativa=5, area=(0, 0, 1920, 1080), continuar_exec=False, confianca = 0.75):
+    """Procura uma imagem, e clica na posição onde encontrar ela 
+    """    
+
+    posicao_texto = procura_imagem('imagens/bt_pagina_inicial.png')
+    bot.click()
+
 if __name__ == '__main__':
-    data_copiada = "24/02/2025 21:07"
-
-    data_obj = datetime.strptime(data_copiada, "%d/%m/%y").date()
-    
-    print(data_obj)
-
-    #main()
+    posicao_texto = procura_imagem('imagens/bt_pagina_inicial.png')
+    print(posicao_texto[0] + 100)

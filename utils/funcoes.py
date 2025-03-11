@@ -47,9 +47,9 @@ def procura_imagem(imagem, limite_tentativa=5, area=(0, 0, 1920, 1080), continua
         _type_: Retorna as posições onde encontrou a imagem.
     """    
     
-    pausa_img = 0.1
+    pausa_img = 0.12
     maquina_viva = False
-    tentativa = 0   
+    tentativa = 0  
     logger.debug(F'--- Tentando encontrar: {imagem}')
     while tentativa < limite_tentativa:
         time.sleep(pausa_img)
