@@ -33,7 +33,7 @@ def print_erro(nome_img = "erro"):
     img_erro.save(fp= caminho_erro)
     return caminho_erro
 
-def procura_imagem(imagem, limite_tentativa=5, area=(0, 0, 1920, 1080), continuar_exec=False, confianca = 0.75, msg_continuar_exec = False, msg_confianca = False):
+def procura_imagem(imagem, limite_tentativa=5, area=(0, 0, 1920, 1080), continuar_exec=False, confianca = 0.75):
     """Função que realiza o processo de OCR na tela, retornando as coordenadas onde localizou a imagem especificada.
 
     Args:
@@ -42,8 +42,6 @@ def procura_imagem(imagem, limite_tentativa=5, area=(0, 0, 1920, 1080), continua
         area (tuple, optional): Area onde deseja procurar. Defaults to (0, 0, 1920, 1080).
         continuar_exec (bool, optional): Continua a execução caso não encontre. Defaults to False.
         confianca (float, optional): _description_. Defaults to 0.78.
-        msg_continuar_exec (bool, optional): _description_. Defaults to False.
-        msg_confianca (bool, optional): _description_. Defaults to False.
 
     Returns:
         _type_: Retorna as posições onde encontrou a imagem.
