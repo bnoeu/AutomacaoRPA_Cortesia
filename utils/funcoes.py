@@ -156,13 +156,13 @@ def reaplica_filtro_status():
     #* Procura pelo botão aplicar, e clica nele! Caso não encontre lança uma exceção.
     for i in range(0, 10):
         ahk.win_activate('debug_db_alltrips', title_match_mode= 2)
-        time.sleep(0.5)
+        time.sleep(1)
 
         #* Procura pelo botão "APLICAR"
         if procura_imagem(imagem='imagens/img_planilha/bt_aplicar.png', continuar_exec= True):
             bot.click(procura_imagem(imagem='imagens/img_planilha/bt_aplicar.png', continuar_exec= True))
             logger.info('--- Na tela do menu de filtro, clicou no botão "Aplicar" para reaplicar o filtro ')
-            time.sleep(0.5)
+            time.sleep(1)
             break
         
         #* Caso exceda o maximo de tentativas de encontrar o botão
