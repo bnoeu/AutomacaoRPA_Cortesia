@@ -104,40 +104,6 @@ def copia_dados():
     bot.PAUSE = 1
     dados_copiados = ""
 
-    ''' #! Substituido pela função "Valida nova chave inserida"
-    logger.info('--- Iniciando o processo de cópia.')
-    while tentativas < 4:
-        ahk.win_activate('db_alltrips.xlsx', title_match_mode= 1)
-        bot.press('DOWN') # Navega até a proxima linha após a ultima chave.
-
-        while True: # Executa o processo de copia dos dados
-            bot.hotkey('ctrl', 'c')
-            if 'Recuperando' in ahk.get_clipboard():
-                logger.info('--- Tentando copiar novamente.')
-                time.sleep(0.4)
-            else:
-                logger.info('--- Dado copiado com sucesso, realizando avaliação.')
-                valor_copiado = ahk.get_clipboard()
-                break
-
-        #* Executa a validação dos dados copiados
-        if valor_copiado == "": # 1. Caso o campo esteja vazio, significa que ainda não foram inseridas novas notas, e para o processo.
-            logger.info(F'--- Valor copiado está vazio! Valor: {valor_copiado}, pausando script por {pausa_padrao / 60} minutos')
-            time.sleep(pausa_padrao)
-            pausa_padrao += 600 # Adicona +10 mintuso a pausa
-            verifica_horario()
-            os.system('taskkill /im msedge.exe /f /t')
-        elif len(valor_copiado) < 20 or len(valor_copiado) > 44:
-            logger.warning(F'--- Valor copiado é invalido: {valor_copiado}')
-            continue
-        else: # 2. Caso o campo esteja com uma chave XML nova, prossegue.
-            logger.info(F'--- Uma nova chave foi inserida: {valor_copiado}, saindo do loop')
-            break
-    else:
-        logger.error(F'--- Não encontrou uma NFE nova! Tentativa: {tentativas}')
-        raise Exception('Não encontrou uma NFE nova! Tentativa: {tentativas}')
-    '''
-
     # Inicia o processo de seleção dos dados
     ativar_janela("db_alltrips.xlsx")
     logger.info('--- Iniciando o processo de seleção dos dados novos')
