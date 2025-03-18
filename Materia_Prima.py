@@ -155,20 +155,6 @@ def programa_principal():
     bot.press('up')
     bot.write(filial_estoq)
     bot.press('TAB', presses= 2) # Confirma a informação da nova filial de estoque
-    
-    '''
-    # String com a data e hora
-    data_hora_str = dados_planilha[8]
-
-    # Convertendo para um objeto datetime
-    data_hora = datetime.strptime(data_hora_str, "%Y-%m-%d %H:%M:%S")
-
-    # Formatando para o formato "dd/mm/YYYY"
-    data_formatada = data_hora.strftime("%d/%m/%Y")
-
-    print(data_formatada)
-    '''
-
 
     #* Alteração da data
     logger.info('--- Realizando validação/alteração da data')
