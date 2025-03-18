@@ -71,6 +71,7 @@ def valida_lancamento():
     while validou_xml is False:        
         dados_planilha = False
         while dados_planilha is False:
+            time.sleep(0.2)
             dados_planilha = coleta_planilha() # Recebe os dados coletados da planilha, já validados e formatados.
 
         #* Trata a chave XML, removendo os espaços caso exista.
