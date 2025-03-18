@@ -99,7 +99,7 @@ def verifica_tela(nome_tela, manual=False):
         exit(logger.error(F'--- Tela: {nome_tela} está fechada, saindo do programa.'))
 
 def marca_lancado(texto_marcacao='teste_08_12'):
-    bot.PAUSE = 0.5
+    bot.PAUSE = 0.2
 
     logger.info(F'--- Abrindo planilha - MARCA_LANCADO, com parametro: {texto_marcacao}' )
     ativar_janela('debug_db_alltrips', 30)
@@ -109,24 +109,24 @@ def marca_lancado(texto_marcacao='teste_08_12'):
     ahk.win_wait_active('debug_db_alltrips', title_match_mode= 2, timeout= 30, detect_hidden_windows = True)
     '''
 
-    time.sleep(0.5)
+    time.sleep(1)
     bot.hotkey('CTRL', 'HOME')
 
     # Navega até o campo "Status"
     bot.press('RIGHT', presses= 6)
     bot.press('DOWN')
-    time.sleep(0.5)
+    time.sleep(0.8)
     
     # Informa o texto recebido pela função e passa para a celula ao lado, para inserir a data
     bot.write(texto_marcacao)
     bot.press('RIGHT')
-    time.sleep(0.5)
+    time.sleep(0.2)
     hoje = datetime.now()
     hoje_formatado = hoje.strftime('%d/%m/%Y')
     bot.write(hoje_formatado)
-    time.sleep(0.5)
+    time.sleep(0.2)
     bot.click(960, 640) # Clica no meio da planilha
-    time.sleep(0.4)
+    time.sleep(0.2)
     
     # Retorna a planilha para o modo "Somente Exibição (Botão Verde)"
     bot.hotkey('CTRL', 'HOME')
@@ -137,6 +137,7 @@ def marca_lancado(texto_marcacao='teste_08_12'):
 def reaplica_filtro_status(): 
     bot.PAUSE = 0.25
     logger.debug('--- Executando a função REAPLICA FILTRO STATUS')
+    time.sleep(0.2)
     ahk.win_activate('debug_db_alltrips', title_match_mode= 2)
     ahk.win_wait_active('debug_db_alltrips', title_match_mode= 2, timeout= 15)
     time.sleep(0.5)
@@ -150,19 +151,20 @@ def reaplica_filtro_status():
     #* Navega até a coluna "STATUS" e abre o menu com as opções
     bot.press('RIGHT', presses= 6) # Navega até o campo "Status"
     bot.hotkey('ALT', 'DOWN') # Comando do excel para abrir o menu do filtro
+    time.sleep(0.2)
     logger.info('--- Navegou até celula A1 e abriu o filtro do status ')
     ahk.win_activate('debug_db_alltrips', title_match_mode= 2)
 
     #* Procura pelo botão aplicar, e clica nele! Caso não encontre lança uma exceção.
     for i in range(0, 10):
         ahk.win_activate('debug_db_alltrips', title_match_mode= 2)
-        time.sleep(1)
+        time.sleep(1.5)
 
         #* Procura pelo botão "APLICAR"
         if procura_imagem(imagem='imagens/img_planilha/bt_aplicar.png', continuar_exec= True):
             bot.click(procura_imagem(imagem='imagens/img_planilha/bt_aplicar.png', continuar_exec= True))
             logger.info('--- Na tela do menu de filtro, clicou no botão "Aplicar" para reaplicar o filtro ')
-            time.sleep(1)
+            time.sleep(0.2)
             break
         
         #* Caso exceda o maximo de tentativas de encontrar o botão

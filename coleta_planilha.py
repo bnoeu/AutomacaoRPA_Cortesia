@@ -26,14 +26,18 @@ def coleta_dados():
     return dados_copiados
 
 def coleta_planilha():
+    bot.PAUSE = 1
     logger.info('--- Copiando dados e formatando na planilha de debug')
     while True:
-        reaplica_filtro_status()
-        time.sleep(0.25)
+        #reaplica_filtro_status()
+        time.sleep(0.4)
+        ahk.win_activate("debug_db", title_match_mode = 2)
+        time.sleep(1)
         bot.hotkey('CTRL', 'HOME')
         bot.press('DOWN')
 
         dados_planilha = copia_linha_atual()
+        time.sleep(0.4)
 
         if valida_dados(dados_planilha):
             return processa_dados(dados_planilha)
