@@ -241,41 +241,6 @@ def abre_topcon():
         elif ahk.win_exists('TopCon (VM-CortesiaApli.CORTESIA.com)', title_match_mode= 2): 
             logger.info('--- Tela de login do Topcon já está aberta, prosseguindo para o login')
 
-        '''
-        
-        #* Se o modulo de compras estiver fechado, realiza o login no TopCon
-        if ahk.win_exists('TopCompras', title_match_mode= 2) is False: 
-            time.sleep(8)
-            ahk.win_activate('TopCon', title_match_mode= 2)
-            ahk.win_wait_active('TopCon', title_match_mode= 2, timeout= 30)
-            
-            for i in range(0, 5):
-                #* Valida se realmente realizou o Login no TopCon ou se já iniciou logado
-                time.sleep(2)
-                if procura_imagem(imagem='imagens/img_topcon/logo_topcon_grande.png', continuar_exec= True):
-                    time.sleep(0.5)
-                    logger.info('--- Tela do Topcon está aberta!')
-                    ahk.win_maximize('TopCompras', title_match_mode= 2)
-                    break
-
-                #* Aguarda até aparecer o campo do servidor de aplicação
-                if procura_imagem(imagem='imagens/img_topcon/txt_ServidorAplicacao.png', continuar_exec= True): 
-                    logger.info('--- Tela de login do topcon aberta')
-                    bot.click(procura_imagem(imagem='imagens/img_topcon/txt_ServidorAplicacao.png'))
-                    bot.press('tab', presses= 2, interval= 0.005)
-                    bot.press('backspace')
-                    
-                    #* Insere os dados de login do usuario BRUNO.S
-                    bot.write('BRUNO.S')
-                    bot.press('tab')
-                    bot.write('rockie')
-                    bot.press('tab')
-                    bot.press('enter')
-                    time.sleep(0.5)
-                else: #* Caso não encontre a tela do para realizar o Login no TopCon
-                    raise Exception("Login no Topcon não foi concluido!")
-'''
-
         logger.success("Concluiu a task ABRE TOPCON")
         return True
 
