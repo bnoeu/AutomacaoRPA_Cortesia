@@ -64,9 +64,11 @@ def abre_mercantil():
     logger.info('--- Realizando a abertura do modulo de compras')
 
     ativar_janela('TopCon', 30)
+    time.sleep(0.2)
     logger.info('--- Clicando para abrir o modulo de compras')
-    bot.click(procura_imagem(imagem='imagens/img_topcon/icone_modulo_compras.png', confianca= 0.67, limite_tentativa= 10))
-    
+    bot.click(procura_imagem(imagem='imagens/img_topcon/icone_modulo_compras.png', limite_tentativa= 15))
+    time.sleep(0.2)
+
     #* Caso não encontre o TopCompras, tenta corrigir o nome
     corrige_nometela()
     
