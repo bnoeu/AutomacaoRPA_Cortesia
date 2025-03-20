@@ -343,7 +343,7 @@ def verifica_horario():
         for i in range (0, 1):
             if i < 1:
                 print('--- Verificando se passou das 23h')
-                hora_inicio_pausa = datetime.strptime("23:00", "%H:%M").time() # Definir o horário de inicio de referência (02:00)
+                hora_inicio_pausa = datetime.strptime("23:30", "%H:%M").time() # Definir o horário de inicio de referência (02:00)
                 hora_final_pausa = datetime.strptime("23:59", "%H:%M").time() # Definir o horário de inicio de referência (02:00)
             else:
                 print('--- Verificando se é madrugada')

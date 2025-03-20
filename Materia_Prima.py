@@ -87,16 +87,6 @@ def coleta_valida_dados():
         print(dados_planilha)
         return dados_planilha
 
-        '''
-        # Passa todos osdados parasuas variaveis.
-        cracha_mot = dados_planilha[0]
-        silo1 = dados_planilha[1]
-        silo2 = dados_planilha[2]
-        filial_estoq = dados_planilha[3].split('-') # Recebe por exemplo: ['1001', 'VILA PRUDENTE']
-        filial_estoq = filial_estoq[0] # O dado é passado assim: ['1001', 'VILA PRUDENTE'], aqui formata para '1001'
-        centro_custo = valida_filial_estoque(filial_estoq) # Realiza a validação da filial de estoque.
-        chave_xml = dados_planilha[4]
-        '''
 
 def formata_data_coletada(dados_copiados):
     data_copiada = dados_copiados.split(' ')[0]  # Pega apenas a parte da data
@@ -404,7 +394,11 @@ if __name__ == '__main__':
         else:
             tentativa = 0
     else:
-        enviar_email("brunobola2010@gmail.com", "[RPA Cortesia] Executou todas as tentativas", "A execução principal executou todas as tentativas e quebrou")
+        enviar_email(
+            "brunobola2010@gmail.com",
+            "[RPA Cortesia] Executou todas as tentativas",
+            f"A execução principal executou todas as tentativas e quebrou\n {arquivo_erro} \n {mensagem_erro}"
+        )
         logger.critical('--- A execução principal executou todas as tentativas')
 
         # Log do erro crítico no sistema
