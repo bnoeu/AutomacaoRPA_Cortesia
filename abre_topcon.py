@@ -67,30 +67,32 @@ def abre_mercantil():
     time.sleep(1)
     logger.info('--- Clicando para abrir o modulo de compras')
     bot.click(procura_imagem(imagem='imagens/img_topcon/icone_modulo_compras.png', limite_tentativa= 15))
-    time.sleep(0.2)
+    time.sleep(5)
 
     #* Caso não encontre o TopCompras, tenta corrigir o nome
-    corrige_nometela()
+    corrige_nometela("TopCompras (")
     
     #* Verifica se o pop-up "interveniente" está aberto
     logger.info('--- Verificando se o pop-up do interveniente está aberto')
     for i in range (0, 10):
-        if ahk.win_exists("TopCompras (VM-CortesiaApli.CORTESIA.com)", title_match_mode= 2):
-            ahk.win_close("TopCompras (VM-CortesiaApli.CORTESIA.com)", title_match_mode= 2, seconds_to_wait= 2)
+        if ahk.win_exists("TopCompras (", title_match_mode= 2):
+            ahk.win_close("TopCompras (", title_match_mode= 2, seconds_to_wait= 5)
             logger.info('--- Fechando a tela "interveniente" ')
         else:
-            time.sleep(0.2)
+            ativar_janela('TopCompras', 30)
+            time.sleep(0.5)
             if procura_imagem('imagens/img_topcon/txt_mov_material.PNG'):
                 logger.success("Concluiu a task ABRE MERCANTIL")
                 break
         if i >= 9:
-            logger.error(F"Não foi possivel fechar a tela 'interveniente' (TopCompras (VM-CortesiaApli.CORTESIA.com)! Tentativas executadas: {i}")
-            raise Exception('Não foi possivel fechar a tela "TopCompras (VM-CortesiaApli.CORTESIA.com)", necessario reiniciar o TopCon')
+            logger.error(F"Não foi possivel fechar a tela 'interveniente' (TopCompras (! Tentativas executadas: {i}")
+            raise Exception('Não foi possivel fechar a tela "TopCompras (", necessario reiniciar o TopCon')
 
 
     
 
 def navega_topcompras():
+    bot.PAUSE = 1
     logger.info('--- Executando a função: navega topcompras ' )
     # Navegando entre os menus para abrir a opção "Compras - Mercantil"
     ativar_janela('TopCompras', 30)
@@ -249,6 +251,7 @@ def abre_topcon():
         time.sleep(2)
         #* Verifica se apareceu a tela para login já dentro do Topcon
         if procura_imagem(imagem='imagens/img_topcon/txt_OLA_BRUNO.png', continuar_exec= True) is False: 
+            ativar_janela('TopCon', 30)
             if procura_imagem(imagem='imagens/img_topcon/logo_topcon_login.png'): 
                 logger.success("Concluiu a task ABRE TOPCON")
                 return True
