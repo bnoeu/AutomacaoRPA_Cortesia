@@ -276,7 +276,7 @@ def abre_planilha_navegador(link_planilha = alltrips):
     #* Verifica se a planilha realmente já recarrego
         for i in range (0, 30):
             ativar_janela(planilha, 5)
-            time.sleep(0.25)
+            time.sleep(0.5)
             
             if procura_imagem(imagem='imagens/img_planilha/txt_status.png', continuar_exec= True, limite_tentativa= 10):
                 if procura_imagem(imagem='imagens/img_planilha/icone_nuvem.png', continuar_exec= True, limite_tentativa= 10):

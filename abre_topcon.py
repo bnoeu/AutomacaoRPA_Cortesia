@@ -64,7 +64,7 @@ def abre_mercantil():
     logger.info('--- Realizando a abertura do modulo de compras')
 
     ativar_janela('TopCon', 30)
-    time.sleep(0.2)
+    time.sleep(1)
     logger.info('--- Clicando para abrir o modulo de compras')
     bot.click(procura_imagem(imagem='imagens/img_topcon/icone_modulo_compras.png', limite_tentativa= 15))
     time.sleep(0.2)
@@ -73,19 +73,21 @@ def abre_mercantil():
     corrige_nometela()
     
     #* Verifica se o pop-up "interveniente" está aberto
+    logger.info('--- Verificando se o pop-up do interveniente está aberto')
     for i in range (0, 10):
         if ahk.win_exists("TopCompras (VM-CortesiaApli.CORTESIA.com)", title_match_mode= 2):
             ahk.win_close("TopCompras (VM-CortesiaApli.CORTESIA.com)", title_match_mode= 2, seconds_to_wait= 2)
             logger.info('--- Fechando a tela "interveniente" ')
-            #bot.click(procura_imagem(imagem='imagens/img_topcon/botao_ok.jpg', continuar_exec= True))
-
+        else:
+            time.sleep(0.2)
+            if procura_imagem('imagens/img_topcon/txt_mov_material.PNG'):
+                logger.success("Concluiu a task ABRE MERCANTIL")
+                break
         if i >= 9:
             logger.error(F"Não foi possivel fechar a tela 'interveniente' (TopCompras (VM-CortesiaApli.CORTESIA.com)! Tentativas executadas: {i}")
             raise Exception('Não foi possivel fechar a tela "TopCompras (VM-CortesiaApli.CORTESIA.com)", necessario reiniciar o TopCon')
 
-        if procura_imagem('imagens/img_topcon/txt_mov_material.PNG'):
-            logger.success("Concluiu a task ABRE MERCANTIL")
-            break
+
     
 
 def navega_topcompras():
@@ -235,14 +237,25 @@ def abre_topcon():
             
             #* Insere os dados de login.
             bot.write(senha_rdp, interval= 0.1) #Senha BRUNO.S 
-            bot.press('TAB', presses= 3, interval= 0.05) # Navega até o botão "Ok"
+            bot.press('TAB', presses= 3, interval= 0.08) # Navega até o botão "Ok"
             bot.press('ENTER')
+            time.sleep(3)
             logger.info('--- Login realizado no RemoteApp-Cortesia.rdp')
         elif ahk.win_exists('TopCon (VM-CortesiaApli.CORTESIA.com)', title_match_mode= 2): 
             logger.info('--- Tela de login do Topcon já está aberta, prosseguindo para o login')
+            break
 
-        logger.success("Concluiu a task ABRE TOPCON")
-        return True
+        ativar_janela('TopCon', 30)
+        time.sleep(2)
+        #* Verifica se apareceu a tela para login já dentro do Topcon
+        if procura_imagem(imagem='imagens/img_topcon/txt_OLA_BRUNO.png', continuar_exec= True) is False: 
+            if procura_imagem(imagem='imagens/img_topcon/logo_topcon_login.png'): 
+                logger.success("Concluiu a task ABRE TOPCON")
+                return True
+        else:
+            logger.success("Concluiu a task ABRE TOPCON")
+            return True
+
 
 
 def main():
