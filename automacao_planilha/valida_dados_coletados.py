@@ -13,7 +13,6 @@ def valida_dados_coletados(dados_planilha = []):
     chave_xml = dados_planilha[4]
     tipo_chave = (chave_xml[20:22])
 
-
     if "Status" in dados_planilha:
         return False
     if len(dados_planilha) < 6: # Verifica se coletou todos os campos
