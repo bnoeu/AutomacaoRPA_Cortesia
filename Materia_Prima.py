@@ -334,19 +334,9 @@ def trata_erro(ultimo_erro, tentativa):
 
 
 def main():
-    os.system('taskkill /im AutoHotkey.exe /f /t') # Encerra todos os processos do AHK
-    os.system('cls')
-
-    #* Verifica qual sistema está rodando o script
-    if 'VLPTIC1Z9HD33' not in platform.node(): 
-        bot.FAILSAFE = False
-
-    verifica_horario() # Confere o horario dessa execução.
+    #verifica_horario() # Confere o horario dessa execução.
     abre_topcon()
-
-
-    #enviar_email("brunobola2010@gmail.com", "RPA Cortesia iniciando nova execução", "Realizando uma nova execução da função {PROGRAMA_PRINCIPAL}!")
-
+    programa_principal()
 
 
 
@@ -356,13 +346,17 @@ if __name__ == '__main__':
     tempo_pausa = 600 # 10 minutos
     
     #* Realiza os processos inicias da execução da automação
-    main()
+    os.system('taskkill /im AutoHotkey.exe /f /t') # Encerra todos os processos do AHK
+    os.system('cls')
+
+    #* Verifica qual sistema está rodando o script
+    if 'VLPTIC1Z9HD33' not in platform.node(): 
+        bot.FAILSAFE = False
 
     while tentativa < 10:
         try:
             logger.info('--- Iniciando o Try-Catch do PROGRAMA PRINCIPAL')
-            verifica_horario()
-            programa_principal()
+            main()
         except Exception as ultimo_erro:
             arquivo_erro, mensagem_erro = trata_erro(ultimo_erro, tentativa)
 
@@ -404,6 +398,3 @@ if __name__ == '__main__':
         # Log do erro crítico no sistema
         logger.critical("A execução principal falhou com erro crítico.")
         logger.critical(mensagem_erro)
-
-
-# TODO --- Caso NFE Faturada no final do mes, lançar com qual data?24/02/2025
