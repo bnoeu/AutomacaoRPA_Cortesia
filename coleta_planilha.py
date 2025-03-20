@@ -9,7 +9,7 @@ from copia_alltrips import main as copia_banco
 from datetime import datetime
 from automacao_planilha.copia_linha_atual import copia_linha_atual
 from automacao_planilha.valida_dados_coletados import valida_dados_coletados
-from utils.funcoes import reaplica_filtro_status, abre_planilha_navegador, msg_box
+from utils.funcoes import abre_planilha_navegador
 from utils.funcoes import ahk as ahk
 
 
@@ -49,6 +49,8 @@ def valida_dados(dados_planilha):
 
 def processa_dados(dados_planilha):
     chave_xml = dados_planilha[4].strip()
+    
+    #* Confere se essa chave é a ultima, utilizando a situação da coluna "STATUS" como base
     if len(dados_planilha[6]) > 1:
         logger.info(F'--- Dados copiados: {dados_planilha}')
         logger.info(F'--- Chegou na última NFE {chave_xml}')
@@ -62,26 +64,6 @@ def handle_timeout(texto_erro):
     #ahk.win_kill('Edge', title_match_mode=2, seconds_to_wait=3)
     time.sleep(5)
 
-def main():
-    bot.PAUSE = 1.25
-    ultimo_erro = ""
-
-    for i in range(0, 3):
-        logger.debug(F"--- Executando a tentativa {i} de executar o COLETA PLANILHA.py ")
-        try:
-            abre_planilha_navegador(planilha_debug)
-
-            dados_copiados = coleta_dados()
-            if dados_copiados:
-                logger.success('--- Processo de coleta da planilha foi executado corretamente.')
-                return dados_copiados
-        except Exception as e:
-            ultimo_erro = e
-            handle_timeout(texto_erro = ultimo_erro)
-    else:
-        logger.critical("--- Número maximo de tentativas de executar o COLETA PLANILHA.PY ")
-        os.system('taskkill /im msedge.exe /f /t') # Encerra todos os processos do msedge
-        raise Exception(F"Número maximo de tentativas de executar o COLETA PLANILHA.py, erro coletado: {ultimo_erro}")
 
 def formata_data_coletada(dados_copiados):
     data_copiada = dados_copiados.split(' ')
@@ -100,6 +82,28 @@ def calculo_tempo_final(tempo_inicial: float):
     elapsed_time = end_time - tempo_inicial
     medicao_minutos = elapsed_time / 60
     print(f"Tempo decorrido: {medicao_minutos:.2f} segundos")
+
+
+def main():
+    bot.PAUSE = 1
+    ultimo_erro = ""
+
+    for i in range(0, 3):
+        logger.debug(F"--- Executando a tentativa {i} de executar o COLETA PLANILHA.py ")
+        try:
+            abre_planilha_navegador(planilha_debug)
+
+            dados_copiados = coleta_dados()
+            if dados_copiados:
+                logger.success('--- Processo de coleta da planilha foi executado corretamente.')
+                return dados_copiados
+        except Exception as e:
+            ultimo_erro = e
+            handle_timeout(texto_erro = ultimo_erro)
+    else:
+        logger.critical("--- Número maximo de tentativas de executar o COLETA PLANILHA.PY ")
+        os.system('taskkill /im msedge.exe /f /t') # Encerra todos os processos do msedge
+        raise Exception(F"Número maximo de tentativas de executar o COLETA PLANILHA.py, erro coletado: {ultimo_erro}")
 
 
 if __name__ == '__main__':

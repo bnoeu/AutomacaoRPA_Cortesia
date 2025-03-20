@@ -16,7 +16,7 @@ planilha_debug = "https://cortesiaconcreto-my.sharepoint.com/:x:/g/personal/brun
 
 
 def encontra_ultimo_xml(ultimo_xml = ''):
-    bot.PAUSE = 2
+    bot.PAUSE = 3
     while True:
         logger.info(F'--- Iniciando a navegação até a ultima chave XML: {ultimo_xml}')
         ahk.win_activate('db_alltrips.xlsx', title_match_mode= 1)
@@ -157,18 +157,22 @@ def copia_dados():
             raise Exception("Excedeu o limite de tentativas de copiar os dados, soltando SHIFT e CONTROL")
 
 def cola_dados(dados_copiados = "TESTE"):
+    bot.PAUSE = 2
+    
     abre_planilha_navegador(planilha_debug)
-    bot.PAUSE = 1
+    time.sleep(8)
     logger.info('--- Acessando a planilha de debug para COLAR os dados!')
-    time.sleep(3)
     ativar_janela('db_alltrips.xlsx')
     bot.hotkey('CTRL', 'HOME') # Navega até a celula A1.
     bot.press('DOWN', presses= 2) # Proxima linha que deveria estar sem informação.
     logger.info('--- Navegou até a proxima linha sem informações')
 
     bot.press('ALT') # Abre o menu para navegação via teclas
+    time.sleep(0.25)
     bot.press('C') # Vai até a opção "Inicio"
+    time.sleep(0.25)
     bot.press('V') # Abre o menu de "Colar"
+    time.sleep(0.25)
     bot.press('V') # Seleciona a opção "Colar somente valores"
     time.sleep(0.25)
     logger.info('--- Copiado e colado com sucesso! Fechando a planilha original.')
@@ -216,7 +220,6 @@ def main(ultimo_xml = chave_xml):
         abre_planilha_navegador()
         encontra_ultimo_xml(ultimo_xml = ultimo_xml)
 
-
         if valida_nova_chave_inserida(tentativa) is True:
             dados_copiados = copia_dados()
             print(dados_copiados)
@@ -239,7 +242,7 @@ def main(ultimo_xml = chave_xml):
         return True
 
 if __name__ == '__main__':
-    main(ultimo_xml= "35250249034010000137550010010639801961068338")
+    main(ultimo_xml= "35250300934199000125550010003784711003662344")
     
 
     #exit(bot.alert("Terminou"))
