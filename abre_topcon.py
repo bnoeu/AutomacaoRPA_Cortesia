@@ -63,8 +63,9 @@ def fechar_topcompras():
 def abre_mercantil():
     logger.info('--- Realizando a abertura do modulo de compras')
 
+    time.sleep(2)
     ativar_janela('TopCon', 30)
-    time.sleep(1)
+    ahk.win_activate("TopCon", title_match_mode= 2)
     logger.info('--- Clicando para abrir o modulo de compras')
     bot.click(procura_imagem(imagem='imagens/img_topcon/icone_modulo_compras.png', limite_tentativa= 15))
     time.sleep(5)
@@ -247,11 +248,14 @@ def abre_topcon():
             logger.info('--- Tela de login do Topcon já está aberta, prosseguindo para o login')
             break
 
+        logger.info('--- Verificando se já está logado no Topcon')
         ativar_janela('TopCon', 30)
-        time.sleep(2)
+        time.sleep(4)
         #* Verifica se apareceu a tela para login já dentro do Topcon
         if procura_imagem(imagem='imagens/img_topcon/txt_OLA_BRUNO.png', continuar_exec= True) is False: 
+            time.sleep(3)
             ativar_janela('TopCon', 30)
+            time.sleep(3)
             if procura_imagem(imagem='imagens/img_topcon/logo_topcon_login.png'): 
                 logger.success("Concluiu a task ABRE TOPCON")
                 return True
@@ -284,7 +288,7 @@ def main():
             logger.error(F"Apresentou um erro! {ultimo_erro}")
         else:
             logger.success("Executou o ABRE_TOPCON.PY com sucesso!")
-            break
+            return True
     else:   
         raise ultimo_erro
     
