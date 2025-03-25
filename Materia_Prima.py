@@ -335,7 +335,8 @@ def trata_erro(ultimo_erro, tentativa):
 
 def main():
     #verifica_horario() # Confere o horario dessa execução.
-    abre_topcon()
+    if not abre_topcon():
+        raise Exception("Falhou ao abrir o topcon")
     programa_principal()
 
 
