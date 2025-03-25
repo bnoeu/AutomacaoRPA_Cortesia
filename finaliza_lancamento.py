@@ -4,9 +4,9 @@ import pyautogui as bot
 from datetime import date, timedelta
 from abre_topcon import main as abre_topcon
 from utils.configura_logger import get_logger
-from utils.funcoes import marca_lancado, procura_imagem, ativar_janela
-from automacao.processo_transferencia import processo_transferencia
 from alterar_localizar import alterar_localizar
+from automacao.processo_transferencia import processo_transferencia
+from utils.funcoes import marca_lancado, procura_imagem, ativar_janela, corrige_nometela
 
 
 # --- Definição de parametros
@@ -90,6 +90,16 @@ def finaliza_lancamento(planilha_marcada = False, lancamento_concluido = False, 
             bot.click(procura_imagem(imagem='imagens/img_topcon/operacao_realizada.png'))
             logger.info('--- Clicando na tela "Operação Realizada" ')
             bot.press('ENTER')
+            time.sleep(1.5)
+
+            #* Caso apareça a tela sobre o lançamento de CTE
+            time.sleep(2)
+            corrige_nometela("TopCompras (VM-CortesiaApli.CORTESIA.com)")
+            ahk.win_activate("TopCompras (VM-CortesiaApli.CORTESIA.com)", title_match_mode= 2)
+            #* Caso apareça a tela sobre o lançamento de CTE
+            if procura_imagem(imagem='imagens/img_topcon/txt_alerta_conhecimento.png', continuar_exec=True):
+                bot.click(procura_imagem(imagem='imagens/img_topcon/bt_nao.png'))
+                pass
                     
         elif planilha_marcada is True: # Essa parte só pode rodar, se encontrar a opção "operação realizada"
             logger.info('--- Não encontrou a tela "operação realizada", porém a planilha está marcada!')
