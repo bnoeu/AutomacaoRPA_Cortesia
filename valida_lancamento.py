@@ -6,7 +6,7 @@ import pyautogui as bot
 from abre_topcon import main as abre_topcon, fechar_tela_nota_compra, navega_topcompras
 from automacao.conferencia_xml import conferencia_xml
 from coleta_planilha import main as coleta_planilha
-from utils.funcoes import ativar_janela, procura_imagem
+from utils.funcoes import ativar_janela, procura_imagem, corrige_nometela
 from utils.configura_logger import get_logger
 
 
@@ -46,11 +46,19 @@ def altera_topcon_incluir():
 
         if procura_imagem(imagem='imagens/img_topcon/txt_existe_nota_transferencia.png', continuar_exec= True):
             logger.warning('--- Encontrou a tela "existe nota fiscal de transferencia" ')
+            corrige_nometela("TopCompras (VM-CortesiaApli.CORTESIA.com)")
+
             ahk.win_activate("TopCompras (VM-CortesiaApli.CORTESIA.com)", title_match_mode= 2)
             bot.click(procura_imagem(imagem='imagens/img_topcon/botao_ok.jpg'))
-            if ahk.win_exists("TopCompras (VM-CortesiaApli.CORTESIA.com)", title_match_mode= 2):
-                ahk.win_close("TopCompras (VM-CortesiaApli.CORTESIA.com)", title_match_mode= 2)
-            break
+            logger.info('--- Clicou para fechar a tela "existe nota fiscal de transferencia" ')
+
+            for tentativa in range (0, 4):
+                if ahk.win_exists("TopCompras (VM-CortesiaApli.CORTESIA.com)", title_match_mode= 2):
+                    ahk.win_close("TopCompras (VM-CortesiaApli.CORTESIA.com)", title_match_mode= 2)
+                    if tentativa >= 3:
+                        raise Exception("Não foi possivel fechar a tela de transferencia de NFE") 
+                else:
+                    break
 
         if i == 3:
             fechar_tela_nota_compra()
@@ -64,32 +72,40 @@ def altera_topcon_incluir():
 
 # Realiza o processo de validação do lançamento.
 def valida_lancamento():
-    validou_xml = False
-    bot.PAUSE = 1
-    
-    logger.info('--- Iniciando função VALIDA LANÇAMENTO')
-    while validou_xml is False:        
-        dados_planilha = False
-        while dados_planilha is False:
-            time.sleep(0.2)
-            dados_planilha = coleta_planilha() # Recebe os dados coletados da planilha, já validados e formatados.
+    for tentativa in range (0, 4):
+        try:
+            validou_xml = False
+            bot.PAUSE = 1
+            
+            logger.info('--- Iniciando função VALIDA LANÇAMENTO')
+            while validou_xml is False:        
+                dados_planilha = False
+                while dados_planilha is False:
+                    time.sleep(0.2)
+                    dados_planilha = coleta_planilha() # Recebe os dados coletados da planilha, já validados e formatados.
 
-        #* Trata a chave XML, removendo os espaços caso exista.
-        chave_xml = dados_planilha[4].strip()
+                #* Trata a chave XML, removendo os espaços caso exista.
+                chave_xml = dados_planilha[4].strip()
 
-        #* Enquanto a tela não for alterada para o modo incluir
-        altera_topcon_incluir()
-        
-        # Inicia inserção da chave XML
-        bot.press('TAB', presses= 2, interval = 1)
-        bot.write(chave_xml)
-        bot.press('TAB')
-        
-        validou_xml = conferencia_xml() # Confere qual tela será apresentada.
+                #* Enquanto a tela não for alterada para o modo incluir
+                altera_topcon_incluir()
+                
+                # Inicia inserção da chave XML
+                bot.press('TAB', presses= 2, interval = 1)
+                bot.write(chave_xml)
+                bot.press('TAB')
+                
+                validou_xml = conferencia_xml() # Confere qual tela será apresentada.
 
-        if validou_xml is not False:
-            logger.success(F'--- Validou o XML! Prosseguindo para a seleção do pedido: {validou_xml}')
-            return dados_planilha # Após todas as validações, retorna os dados para a execução principal
+                if validou_xml is not False:
+                    logger.success(F'--- Validou o XML! Prosseguindo para a seleção do pedido: {validou_xml}')
+                    return dados_planilha # Após todas as validações, retorna os dados para a execução principal
+        except Exception as e:
+            ultimo_erro = e
+            if tentativa > 3:
+                logger.critical(F"Função VALIDA LANCAMENTO apresentou erro critico! {ultimo_erro}")
+                return ultimo_erro
+            logger.error(F"Apresentou um erro! {ultimo_erro}")
 
 if __name__ == '__main__':
     tempo_inicial = time.time()
