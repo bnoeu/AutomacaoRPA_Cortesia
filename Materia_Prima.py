@@ -16,6 +16,7 @@ import os
 import time
 import platform
 import traceback
+from numpy import true_divide
 import pytesseract
 import pyautogui as bot
 from datetime import date, datetime, timedelta
@@ -83,6 +84,7 @@ def coleta_valida_dados():
     while acabou_pedido is False: 
         dados_planilha = valida_lancamento() # Coleta e confere os dados do lançamento atual
         acabou_pedido = valida_pedido() # Verifica se o pedido está valido.
+        time.sleep(0.2)
     else:
         print(dados_planilha)
         return dados_planilha
@@ -144,7 +146,11 @@ def programa_principal():
     logger.info('--- Preenchendo filial de estoque')
     bot.press('up')
     bot.write(filial_estoq)
-    bot.press('TAB', presses= 2) # Confirma a informação da nova filial de estoque
+    time.sleep(2)
+    bot.press('TAB', presses= 1) # Confirma a informação da nova filial de estoque
+    time.sleep(2)
+    bot.press('TAB', presses= 1) # Confirma a informação da nova filial de estoque
+
 
     #* Alteração da data
     logger.info('--- Realizando validação/alteração da data')
@@ -156,11 +162,12 @@ def programa_principal():
     bot.write(data_formatada)
     bot.press('ENTER')
 
+    time.sleep(2)
     ativar_janela('TopCompras', 70)
 
     # Caso o sistema informe que a data deve ser maior/igual a data inserida acima.
     logger.info('--- Verificando se apareceu data')
-    if procura_imagem('imagens/img_topcon/data_invalida.png', continuar_exec= True):
+    if procura_imagem('imagens/img_topcon/data_invalida.png', continuar_exec= True, limite_tentativa= 2):
         logger.warning('--- Precisa mudar a data, inserindo a data de hoje!')
         #bot.alert("Apresentou tela erro")
         ahk.win_close("TopCompras (VM-CortesiaApli.CORTESIA.com)", title_match_mode= 2)
@@ -169,6 +176,8 @@ def programa_principal():
         bot.press('enter')
         # Aguarda até o topcompras voltar a funcionar
         ativar_janela('TopCompras', 70)
+    else:
+        logger.info('--- Não foi necessario alterar a data!')
 
     try: # Aguarda a tela de erro do TopCon 
         ahk.win_wait('Topsys', title_match_mode= 2, timeout= 3)
@@ -309,6 +318,7 @@ def programa_principal():
     elapsed_time = end_time - tempo_inicial
     medicao_minutos = elapsed_time / 60
     print(f"Tempo decorrido: {medicao_minutos:.2f} segundos")
+    logger.info(f"Tempo decorrido: {medicao_minutos:.2f} segundos")
     #exit(bot.alert(F"Lançamento concluido! \n Tempo que levou: {medicao_minutos:.2f}"))
 
     return True
@@ -334,12 +344,14 @@ def trata_erro(ultimo_erro, tentativa):
 
 
 def main():
-    #verifica_horario() # Confere o horario dessa execução.
+    verifica_horario() # Confere o horario dessa execução.
+    
     if not abre_topcon():
         raise Exception("Falhou ao abrir o topcon")
-    programa_principal()
-
-
+    
+    while programa_principal():
+        return True
+    
 
 if __name__ == '__main__':
     tentativa = 0
@@ -357,7 +369,9 @@ if __name__ == '__main__':
     while tentativa < 10:
         try:
             logger.info('--- Iniciando o Try-Catch do PROGRAMA PRINCIPAL')
-            main()
+            if main() is True:
+                if tentativa > 1:
+                    tentativa - 1
         except Exception as ultimo_erro:
             arquivo_erro, mensagem_erro = trata_erro(ultimo_erro, tentativa)
 
