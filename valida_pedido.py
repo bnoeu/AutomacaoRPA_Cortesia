@@ -49,15 +49,16 @@ mapeamento_imagens = {
 
 def valida_pedido():
     logger.info('--- Executando função: valida pedido' )
-    bot.PAUSE = 0.2
+    bot.PAUSE = 0.8
     tentativa = 0
     img_pedido = 0
     item_pedido = ''
     validou_itensXml = False
 
     #Confirma a abertura da tela de vinculação do pedido
-    time.sleep(0.2)
+    time.sleep(0.4)
     ahk.win_activate('Vinculação Itens da Nota', title_match_mode = 2)
+    time.sleep(1)
 
     #* Coleta o texto do campo "item XML", que é o item a constar na nota fiscal, e com base nisso, trata o dado
     logger.debug('--- Extraindo a imagem para descobrir qual item consta no campo "Itens XML" ')
