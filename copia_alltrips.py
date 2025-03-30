@@ -11,11 +11,12 @@ from utils.funcoes import procura_imagem, abre_planilha_navegador, msg_box, ativ
 
 # --- Definição de parametros
 chave_xml = ""
+powerapps_id = ""
 logger = get_logger("script1")
 planilha_debug = "https://cortesiaconcreto-my.sharepoint.com/:x:/g/personal/bruno_silva_cortesiaconcreto_com_br/ETubFnXLMWREkm0e7ez30CMBnID3pHwfLgGWMHbLqk2l5A?rtime=n9xgTPCH3Eg"
 
 
-def encontra_ultimo_xml(ultimo_xml = ''):
+def encontra_ultimo_xml(ultimo_xml = '', powerapps_id = ''):
     bot.PAUSE = 3
     while True:
         logger.info(F'--- Iniciando a navegação até a ultima chave XML: {ultimo_xml}')
@@ -34,12 +35,12 @@ def encontra_ultimo_xml(ultimo_xml = ''):
         bot.press('RIGHT', presses= 8, interval= 0.05) # Navega até o campo "D. Insercao"]
         logger.info('--- Navegou até a D. Inserção')
         bot.hotkey('ALT', 'DOWN') # Abre o menu do filtro
-        time.sleep(5)
+        time.sleep(3)
         ahk.win_activate('db_alltrips.xlsx', title_match_mode= 1)
-        time.sleep(0.25)
-        bot.click(procura_imagem(imagem='imagens/img_planilha/icone_organiza_A_Z.png', continuar_exec= True)) # Clica no botão "organizar do mais antigo ao mais novo"
+        time.sleep(0.5)
+        bot.click(procura_imagem(imagem='imagens/img_planilha/icone_organiza_A_Z.png', continuar_exec= True, limite_tentativa= 30)) # Clica no botão "organizar do mais antigo ao mais novo"
         logger.info('--- Organizou a planilha da forma "da menor para a maior" ')
-        time.sleep(0.25)
+        time.sleep(0.5)
         ahk.win_activate('db_alltrips.xlsx', title_match_mode= 1)
         bot.click(960, 630) # Clica no meio da planilha para "ativar" a navegação dentro dela.
 
@@ -63,9 +64,37 @@ def encontra_ultimo_xml(ultimo_xml = ''):
 
         # Verifica se realmente chegou no ultimo XML
         bot.hotkey('ctrl', 'c')
-        if ahk.get_clipboard() == ultimo_xml:
+        chave_encontrada = ahk.get_clipboard()
+        if chave_encontrada == ultimo_xml:
             logger.info(F'--- Concluido a navegação até a ultima chave XML: {ultimo_xml}')
-            return True
+
+            #* Verificando o PowerApps ID
+            bot.press('RIGHT')
+            time.sleep(0.2)
+            bot.hotkey('ctrl', 'c')
+            novo_powerapps_id = ahk.get_clipboard()
+            if novo_powerapps_id == powerapps_id:
+                bot.press('LEFT')
+                return True
+            else:
+                #Abre o menu de pesquisa
+                logger.info('--- Abrindo o menu de pesquisa na planilha para procurar o powerapps ID')
+                bot.press('ALT')
+                bot.press('C')
+                bot.press('F')
+                bot.press('D')
+                bot.press('F')
+
+                # Insere a ultima chave copiada da planilha de debug
+                logger.info(F'--- Digitando a ultimo powerapps ID: {powerapps_id}')
+                bot.write(powerapps_id)
+                bot.press('ENTER', presses= 2)
+
+                # Fecha o menu de pesquisa
+                bot.press('ESC')
+                bot.press('ALT', presses= 2)
+                logger.info('--- Fechou o menu de pesquisa')
+                bot.press('LEFT')
         else:
             logger.warning(F'--- Ops... não está na ultima chave {ultimo_xml}, navegando novamente.')
             raise TimeoutError
@@ -163,6 +192,7 @@ def cola_dados(dados_copiados = "TESTE"):
     time.sleep(8)
     logger.info('--- Acessando a planilha de debug para COLAR os dados!')
     ativar_janela('db_alltrips.xlsx')
+    time.sleep(1)
     bot.hotkey('CTRL', 'HOME') # Navega até a celula A1.
     bot.press('DOWN', presses= 2) # Proxima linha que deveria estar sem informação.
     logger.info('--- Navegou até a proxima linha sem informações')
@@ -210,15 +240,14 @@ def verifica_quatro_dias(dados_copiados):
         logger.info(F'Não encontrou: {quatro_dias_antes} nos dados copiados, os dados são novos!')
 
 
-def main(ultimo_xml = chave_xml):
+def main(ultimo_xml = chave_xml, powerapps_id = powerapps_id):
     bot.PAUSE = 2
-
     logger.info('Iniciando função COPIA BANCO ( COPIA ALL TRIPS)')
 
     #* Abre a planilha do db_alltrips (banco original)
     for tentativa in range(0, 5):
         abre_planilha_navegador()
-        encontra_ultimo_xml(ultimo_xml = ultimo_xml)
+        encontra_ultimo_xml(ultimo_xml = ultimo_xml, powerapps_id = powerapps_id)
 
         if valida_nova_chave_inserida(tentativa) is True:
             dados_copiados = copia_dados()
@@ -242,7 +271,7 @@ def main(ultimo_xml = chave_xml):
         return True
 
 if __name__ == '__main__':
-    main(ultimo_xml= "35250300934199000125550010003784711003662344")
+    main(ultimo_xml= "35250300934199000125550010003792561003671464", powerapps_id= "my6J13qTdjg")
     
 
     #exit(bot.alert("Terminou"))
