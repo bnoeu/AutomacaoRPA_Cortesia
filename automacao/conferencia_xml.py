@@ -17,8 +17,8 @@ def conferencia_xml():
     texto_erro = False
     
     #* Aguarda a tela "TopCompras (VM-CortesiaApli.CORTESIA.com)" que é exibida quando ocorre algum retorno de informação do TopCon
-    for i in range(0, 120):
-        time.sleep(0.5)
+    for i in range(0, 140):
+        time.sleep(1)
         if ahk.win_is_active("TopCompras (VM-CortesiaApli.CORTESIA.com)", title_match_mode= 2):
             logger.info('--- Encontrou o pop-up "TopCompras (VM-CortesiaApli.CORTESIA.co" ---' )
             break
