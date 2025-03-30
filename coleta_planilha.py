@@ -9,7 +9,7 @@ from copia_alltrips import main as copia_banco
 from datetime import datetime
 from automacao_planilha.copia_linha_atual import copia_linha_atual
 from automacao_planilha.valida_dados_coletados import valida_dados_coletados
-from utils.funcoes import abre_planilha_navegador
+from utils.funcoes import abre_planilha_navegador, reaplica_filtro_status
 from utils.funcoes import ahk as ahk
 
 
@@ -28,7 +28,8 @@ def coleta_dados():
 def coleta_planilha():
     bot.PAUSE = 1
     logger.info('--- Copiando dados e formatando na planilha de debug')
-    while True:
+    tentativa = 0
+    while tentativa < 20:
         #reaplica_filtro_status()
         time.sleep(0.4)
         ahk.win_activate("debug_db", title_match_mode = 2)
@@ -43,18 +44,21 @@ def coleta_planilha():
             return processa_dados(dados_planilha)
         else:
             logger.warning(F'--- Dados inválidos: {str(dados_planilha)}. Tentando novamente.')
+            if tentativa > 19:
+                raise Exception(F"Dados inválidos: {str(dados_planilha)}, executou todas as tentativas")
 
 def valida_dados(dados_planilha):
     return valida_dados_coletados(dados_planilha)
 
 def processa_dados(dados_planilha):
     chave_xml = dados_planilha[4].strip()
+    powerapps_id = dados_planilha[5]
     
     #* Confere se essa chave é a ultima, utilizando a situação da coluna "STATUS" como base
     if len(dados_planilha[6]) > 1:
         logger.info(F'--- Dados copiados: {dados_planilha}')
         logger.info(F'--- Chegou na última NFE {chave_xml}')
-        copia_banco(chave_xml)
+        copia_banco(chave_xml, powerapps_id)
     else:
         logger.info(F'--- Dados copiados com sucesso: {dados_planilha}')
     return dados_planilha
@@ -92,6 +96,7 @@ def main():
         logger.debug(F"--- Executando a tentativa {i} de executar o COLETA PLANILHA.py ")
         try:
             abre_planilha_navegador(planilha_debug)
+            reaplica_filtro_status()
 
             dados_copiados = coleta_dados()
             if dados_copiados:
