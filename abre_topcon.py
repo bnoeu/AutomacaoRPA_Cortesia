@@ -1,6 +1,7 @@
 # -*- Criado por Bruno da Silva Santos. -*-
 # Para utilização na Cortesia Concreto.
 
+from math import e
 import os
 import time
 import pytesseract
@@ -62,13 +63,13 @@ def fechar_topcompras():
 
 def abre_mercantil():
     logger.info('--- Realizando a abertura do modulo de compras')
+    time.sleep(1)
 
-    time.sleep(2)
     ativar_janela('TopCon', 30)
-    ahk.win_activate("TopCon", title_match_mode= 2)
+    #ahk.win_activate("TopCon", title_match_mode= 2)
     logger.info('--- Clicando para abrir o modulo de compras')
     bot.click(procura_imagem(imagem='imagens/img_topcon/icone_modulo_compras.png', limite_tentativa= 15))
-    time.sleep(5)
+    time.sleep(3)
 
     #* Caso não encontre o TopCompras, tenta corrigir o nome
     corrige_nometela("TopCompras (")
@@ -76,7 +77,7 @@ def abre_mercantil():
     #* Verifica se o pop-up "interveniente" está aberto
     logger.info('--- Verificando se o pop-up do interveniente está aberto')
     for i in range (0, 10):
-        if ahk.win_exists("TopCompras (", title_match_mode= 2):
+        if ahk.win_exists("TopCompras (", title_match_mode= 1):
             ahk.win_close("TopCompras (", title_match_mode= 2, seconds_to_wait= 5)
             logger.info('--- Fechando a tela "interveniente" ')
         else:
@@ -93,7 +94,7 @@ def abre_mercantil():
     
 
 def navega_topcompras():
-    bot.PAUSE = 1
+    bot.PAUSE = 1.5
     logger.info('--- Executando a função: navega topcompras ' )
     # Navegando entre os menus para abrir a opção "Compras - Mercantil"
     ativar_janela('TopCompras', 30)
@@ -103,7 +104,7 @@ def navega_topcompras():
     bot.press('RIGHT', presses= 2, interval= 0.05)
     bot.press('DOWN', presses= 7, interval= 0.05)
     bot.press('ENTER')
-    time.sleep(0.5)
+    time.sleep(3)
     logger.success("Concluiu a função NAVEGA TOPCOMPRAS")
     return True
 
@@ -144,10 +145,12 @@ def fecha_execucoes():
 
 
 def login_topcon():
+    bot.PAUSE = 1.5
+
     logger.info('--- Realizando login no TOPCON')
     #* Se o modulo de compras estiver fechado, realiza o login no TopCon
     if ahk.win_exists('TopCompras', title_match_mode= 2) is False: 
-        time.sleep(8)
+        time.sleep(5)
         ativar_janela('TopCon', 30)
         
         #* Valida se realmente realizou o Login no TopCon ou se já iniciou logado
@@ -173,7 +176,7 @@ def login_topcon():
                 bot.write('rockie')
                 bot.press('tab')
                 bot.press('enter')
-                time.sleep(1)
+                time.sleep(5)
                 logger.success("Login realizado com sucesso!")
                 return True
             else: #* Caso não encontre a tela do para realizar o Login no TopCon
@@ -196,11 +199,12 @@ def abre_topcon():
     while True:
         logger.info('--- Iniciando o RemoteApp')
         os.startfile('RemoteApp\RemoteApp-Cortesia.rdp')
-        time.sleep(10)
+        #time.sleep(10)
         
         telas_seguranca = ['Windows Security', 'Segurança do Windows'] # Tenta encontrar em ingles e portugues.
         tela_login_rdp = False
         
+        # Verifica se ao abrir, já começou logado no RemoteDesktop
         for i in range (0, 10):
             time.sleep(0.2)
             if ahk.win_exists('TopCon', title_match_mode= 2):
@@ -208,8 +212,8 @@ def abre_topcon():
         
         #* Verifica se abriu alguma das telas de segurança de execução do RDP
         for i in range (0, 15):
-            time.sleep(0.2)
-            if procura_imagem(imagem='imagens/img_topcon/txt_ServidorAplicacao.png', continuar_exec= True, limite_tentativa= 3):
+            time.sleep(0.4)
+            if procura_imagem(imagem='imagens/img_topcon/txt_ServidorAplicacao.png', continuar_exec= True):
                 tela_login_rdp = True
                 break
 
@@ -228,7 +232,6 @@ def abre_topcon():
                     ahk.win_activate(tela, title_match_mode= 2)
             
 
-        
         if tela_login_rdp is False: # Caso não encontro nenhuma das telas da lista "telas_seguranca"
             raise Exception("Não foi possivel encontrar nenhuma das telas de login do RDP")
         
@@ -248,16 +251,22 @@ def abre_topcon():
             logger.info('--- Tela de login do Topcon já está aberta, prosseguindo para o login')
             break
 
-        logger.info('--- Verificando se já está logado no Topcon')
-        ativar_janela('TopCon', 30)
-        time.sleep(4)
         #* Verifica se apareceu a tela para login já dentro do Topcon
-        if procura_imagem(imagem='imagens/img_topcon/txt_OLA_BRUNO.png', continuar_exec= True) is False: 
-            time.sleep(3)
+        logger.info('--- Verificando se já está logado no Topcon')
+        for i in range (0, 5):
             ativar_janela('TopCon', 30)
-            time.sleep(3)
-            if procura_imagem(imagem='imagens/img_topcon/logo_topcon_login.png'): 
-                logger.success("Concluiu a task ABRE TOPCON")
+            time.sleep(2)
+
+            # Caso apareça "Olá Bruno" já está logado!
+            if procura_imagem(imagem='imagens/img_topcon/txt_OLA_BRUNO.png', continuar_exec= True) is False: 
+                time.sleep(1)
+                ativar_janela('TopCon', 30)
+
+                # Caso apareça o logo de login, precisa entrar no topcon!
+                if procura_imagem(imagem='imagens/img_topcon/logo_topcon_login.png', continuar_exec= True): 
+                    logger.success("Concluiu a task ABRE TOPCON")
+                    return True
+            else:
                 return True
         else:
             logger.success("Concluiu a task ABRE TOPCON")
@@ -267,8 +276,8 @@ def abre_topcon():
 
 def main():
     ultimo_erro = ""
-    for tentativa in range(0, 7):
-        bot.PAUSE = 0.25
+    for tentativa in range(0, 10):
+        bot.PAUSE = 0.5
         logger.info(F"Tentativa de abrir o topcon: {tentativa}")
         try:
             time.sleep(0.5)
@@ -282,7 +291,7 @@ def main():
                 break
         except Exception as e:
             ultimo_erro = e
-            if tentativa >= 5:
+            if tentativa >= 9:
                 logger.critical(F"Função ABRE TOPCON apresentou erro critico! {ultimo_erro}")
                 return ultimo_erro
             logger.error(F"Apresentou um erro! {ultimo_erro}")
