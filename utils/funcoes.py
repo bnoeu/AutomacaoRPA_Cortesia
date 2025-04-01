@@ -245,7 +245,7 @@ def corrige_nometela(novo_nome = "TopCompras"):
         ahk.win_wait(' (VM-CortesiaApli.CORTESIA.com)', title_match_mode= 1, timeout= 5)
     except (TimeoutError, OSError): # Apresenta Timeout caso esteja aberto com o nome normal.
         try: # Verifica se REALMENTE abriu com o nome normal
-            if ahk.win_wait(novo_nome, title_match_mode= 1, timeout= 8):
+            if ahk.win_wait(novo_nome, title_match_mode= 1, timeout= 6):
                 logger.debug('--- TopCompras abriu com o nome normal, prosseguindo.')
                 return
             else:
