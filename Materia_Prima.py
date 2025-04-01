@@ -157,11 +157,8 @@ def programa_principal():
     hoje = date.today()
     hoje = hoje.strftime("%d%m%y")  # dd/mm/YY
     logger.info(F'--- Inserindo a data coletada: {data_formatada} e apertando ENTER')
-
-
     bot.write(data_formatada)
     bot.press('ENTER')
-
     time.sleep(2)
     ativar_janela('TopCompras', 70)
 
@@ -192,8 +189,6 @@ def programa_principal():
             bot.press('enter')
             time.sleep(0.4)
 
-    #calcula_tempo_processo(tempo_inicial)
-
     logger.info(F'--- Trocando o centro de custo para {centro_custo}')
     ativar_janela('TopCompras', 70)
     bot.write(centro_custo)
@@ -213,7 +208,7 @@ def programa_principal():
     else:
         logger.info(F'--- Apareceu o campo COD_DESC, tentativa: {tentativa_cod_desc} ')
         bot.press('ENTER') # Pressiona enter, e aguarda sumir o campo "cod_desc"
-        
+
     logger.info('--- Aguarda até SUMIR o campo "cod_desc"')
     tentativa_cod_desc = 0
     while procura_imagem(imagem='imagens/img_topcon/cod_desc.png', continuar_exec=True, confianca= 0.74, limite_tentativa= 1) is not False:
@@ -238,10 +233,10 @@ def programa_principal():
     logger.info(F'--- Preenchendo transportador: {cracha_mot}')
     ahk.win_activate('TopCompras', title_match_mode= 2)
     time.sleep(0.5)
-    bot.click(procura_imagem(imagem='imagens/img_topcon/campo_000.png', continuar_exec= True))
-    time.sleep(0.5)
+    bot.click(procura_imagem(imagem='imagens/img_topcon/campo_000.png'))
+    time.sleep(1)
     bot.press('tab')
-    time.sleep(0.5)
+    time.sleep(1)
     tentativa_achar_camp_re = 0
     while procura_imagem(imagem='imagens/img_topcon/campo_re_0.png', continuar_exec= True, limite_tentativa= 1, confianca= 0.74) is False:
         logger.info(F'Tentativa: {tentativa_achar_camp_re}')
@@ -256,7 +251,7 @@ def programa_principal():
         logger.info('--- Campo RE habilitado, preenchendo.')
         # Preenche o campo do transportador e verifica se aconteceu algum erro.
         bot.write(cracha_mot)  # ID transportador
-        time.sleep(0.4)
+        time.sleep(0.5)
         bot.press('enter')
 
     logger.info('--- Aguardando validar o campo do transportador')
@@ -289,12 +284,13 @@ def programa_principal():
     logger.info('--- Navegando para a aba Produtos e Servicos')
     tela_prod_servico = 0
     while procura_imagem(imagem='imagens/img_topcon/botao_alterar.png', area=(100, 839, 300, 400), limite_tentativa= 1, continuar_exec= True, confianca= 0.74) is False:
+        
         if tela_prod_servico > 15:
             logger.error('--- Não encontrou a tela produtos e serviços')
             raise TimeoutError
         
-        bot.click(procura_imagem(imagem='imagens/img_topcon/produtos_servicos.png', confianca= 0.74, limite_tentativa= 3, continuar_exec= True))
         # Aguarda até aparecer o botão "alterar"
+        bot.click(procura_imagem(imagem='imagens/img_topcon/produtos_servicos.png', confianca= 0.74, limite_tentativa= 3, continuar_exec= True))
         ativar_janela('TopCompras', 30)
         logger.info(F'--- Tentativa de procurar PRODUTO E SERVIÇOS: {tela_prod_servico}')
         tela_prod_servico += 1
@@ -323,6 +319,7 @@ def programa_principal():
 
     return True
 
+
 def trata_erro(ultimo_erro, tentativa):
     last_trace = traceback.extract_tb(ultimo_erro.__traceback__)[-1]  # Última entrada do traceback
     arquivo_erro = os.path.basename(last_trace.filename) # Nome do arquivo
@@ -343,18 +340,25 @@ def trata_erro(ultimo_erro, tentativa):
     return arquivo_erro, mensagem_erro
 
 
-def main():
+def main(lancamento_realizado = False):
     verifica_horario() # Confere o horario dessa execução.
     
-    if not abre_topcon():
-        raise Exception("Falhou ao abrir o topcon")
+    if lancamento_realizado == False:
+        if not abre_topcon():
+            raise Exception("Falhou ao abrir o topcon")
+
     
     while programa_principal():
+        logger.info(F"Lançamento realizado! Valor da variavel: {lancamento_realizado}")
         return True
+    else:
+        logger.info(F"Lançamento não foi realizado! Variavel: {lancamento_realizado}")
+        lancamento_realizado = False
     
 
 if __name__ == '__main__':
     tentativa = 0
+    lancamento_realizado = False
     tempo_inicial = time.time()
     tempo_pausa = 600 # 10 minutos
     
@@ -367,12 +371,16 @@ if __name__ == '__main__':
         bot.FAILSAFE = False
 
     while tentativa < 10:
+        logger.info(F'--- Iniciando nova tentativa Nº {tentativa} o Try-Catch do PROGRAMA PRINCIPAL')
         try:
-            logger.info('--- Iniciando o Try-Catch do PROGRAMA PRINCIPAL')
-            if main() is True:
+            if main(lancamento_realizado) is True:
+                lancamento_realizado = True
                 if tentativa > 1:
                     tentativa - 1
+            else:
+                lancamento_realizado = False
         except Exception as ultimo_erro:
+            lancamento_realizado = False
             arquivo_erro, mensagem_erro = trata_erro(ultimo_erro, tentativa)
 
             #enviar_email("brunobola2010@gmail.com", F"[RPA Cortesia] Apresentou erro na task: {arquivo_erro}, tentativa: {tentativa}", F"Erro coletado: \n {mensagem_erro}")
