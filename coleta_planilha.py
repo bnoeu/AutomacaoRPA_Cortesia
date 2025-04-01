@@ -38,14 +38,14 @@ def coleta_planilha():
         bot.press('DOWN')
 
         dados_planilha = copia_linha_atual()
-        time.sleep(0.4)
+        time.sleep(0.5)
 
+        if tentativa > 19:
+            raise Exception(F"Dados inválidos: {str(dados_planilha)}, executou todas as tentativas")
         if valida_dados(dados_planilha):
             return processa_dados(dados_planilha)
         else:
             logger.warning(F'--- Dados inválidos: {str(dados_planilha)}. Tentando novamente.')
-            if tentativa > 19:
-                raise Exception(F"Dados inválidos: {str(dados_planilha)}, executou todas as tentativas")
 
 def valida_dados(dados_planilha):
     return valida_dados_coletados(dados_planilha)
@@ -60,7 +60,7 @@ def processa_dados(dados_planilha):
         logger.info(F'--- Chegou na última NFE {chave_xml}')
         copia_banco(chave_xml, powerapps_id)
     else:
-        logger.info(F'--- Dados copiados com sucesso: {dados_planilha}')
+            logger.info(F'--- Dados copiados com sucesso: {dados_planilha}')
     return dados_planilha
 
 def handle_timeout(texto_erro):

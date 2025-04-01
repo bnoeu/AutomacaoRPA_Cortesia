@@ -90,10 +90,9 @@ def finaliza_lancamento(planilha_marcada = False, lancamento_concluido = False, 
             bot.click(procura_imagem(imagem='imagens/img_topcon/operacao_realizada.png'))
             logger.info('--- Clicando na tela "Operação Realizada" ')
             bot.press('ENTER')
-            time.sleep(1.5)
+            time.sleep(2)
 
             #* Caso apareça a tela sobre o lançamento de CTE
-            time.sleep(2)
             corrige_nometela("TopCompras (VM-CortesiaApli.CORTESIA.com)")
             ahk.win_activate("TopCompras (VM-CortesiaApli.CORTESIA.com)", title_match_mode= 2)
             #* Caso apareça a tela sobre o lançamento de CTE
