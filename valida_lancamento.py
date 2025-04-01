@@ -72,40 +72,32 @@ def altera_topcon_incluir():
 
 # Realiza o processo de validação do lançamento.
 def valida_lancamento():
-    for tentativa in range (0, 4):
-        try:
-            validou_xml = False
-            bot.PAUSE = 1
-            
-            logger.info('--- Iniciando função VALIDA LANÇAMENTO')
-            while validou_xml is False:        
-                dados_planilha = False
-                while dados_planilha is False:
-                    time.sleep(0.2)
-                    dados_planilha = coleta_planilha() # Recebe os dados coletados da planilha, já validados e formatados.
+    validou_xml = False
+    bot.PAUSE = 1
+    
+    logger.info('--- Iniciando função VALIDA LANÇAMENTO')
+    while validou_xml is False:        
+        dados_planilha = False
+        while dados_planilha is False:
+            time.sleep(0.2)
+            dados_planilha = coleta_planilha() # Recebe os dados coletados da planilha, já validados e formatados.
 
-                #* Trata a chave XML, removendo os espaços caso exista.
-                chave_xml = dados_planilha[4].strip()
+        #* Trata a chave XML, removendo os espaços caso exista.
+        chave_xml = dados_planilha[4].strip()
 
-                #* Enquanto a tela não for alterada para o modo incluir
-                altera_topcon_incluir()
-                
-                # Inicia inserção da chave XML
-                bot.press('TAB', presses= 2, interval = 1)
-                bot.write(chave_xml)
-                bot.press('TAB')
-                
-                validou_xml = conferencia_xml() # Confere qual tela será apresentada.
+        #* Enquanto a tela não for alterada para o modo incluir
+        altera_topcon_incluir()
+        
+        # Inicia inserção da chave XML
+        bot.press('TAB', presses= 2, interval = 1)
+        bot.write(chave_xml)
+        bot.press('TAB')
+        
+        validou_xml = conferencia_xml() # Confere qual tela será apresentada.
 
-                if validou_xml is not False:
-                    logger.success(F'--- Validou o XML! Prosseguindo para a seleção do pedido: {validou_xml}')
-                    return dados_planilha # Após todas as validações, retorna os dados para a execução principal
-        except Exception as e:
-            ultimo_erro = e
-            if tentativa > 3:
-                logger.critical(F"Função VALIDA LANCAMENTO apresentou erro critico! {ultimo_erro}")
-                return ultimo_erro
-            logger.error(F"Apresentou um erro! {ultimo_erro}")
+        if validou_xml is not False:
+            logger.success(F'--- Validou o XML! Prosseguindo para a seleção do pedido: {validou_xml}')
+            return dados_planilha # Após todas as validações, retorna os dados para a execução principal
 
 if __name__ == '__main__':
     tempo_inicial = time.time()
