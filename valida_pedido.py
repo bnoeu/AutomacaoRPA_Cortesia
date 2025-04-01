@@ -205,7 +205,7 @@ def valida_bt_localizar():
         if procura_imagem(imagem='imagens/img_topcon/localizar.png', continuar_exec= True):
             logger.info('--- Tela "Vinculação itens da NOTA" carregou e encontrou o botão "LOCALIZAR" ')
             break
-        if i == 10:
+        if i >= 9:
             logger.error('--- Tela "Vinculação itens da NOTA" não carregou corretamente')
             raise Exception('Tela "Vinculação itens da NOTA" não carregou corretamente')
 
