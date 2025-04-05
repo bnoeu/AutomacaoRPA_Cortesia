@@ -19,7 +19,7 @@ chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
 #Nome dos itens que constarem no "Itens XML"
 PEDRA_1 = ('BRITA]','BRITA1', 'PEDRA 01', 'PEDRA DI', 'BRITADA 01', 'PEDRA 1', 'PEDRA BRITADA 01', 'PEDRAT', 'PEDRA BRITADA 1', 'BRITADA 1', 
            'BRITA 01', 'BRITA 1', 'BRITA NR "01"', 'BRITA O01', 'PEDRA No 1', 'PEDRA1')
-PO_PEDRA = ('PO DE PEDRA', 'AREA INDUSTRIAL', 'INDUSTRIAL')
+PO_PEDRA = ('PO DE PEDRA', 'AREA INDUSTRIAL', 'AREIA INDUSTRIAL')
 BRITA_0 = ('BRITA 0', 'PEDRISCO LIMPO', 'BRITAD™', 'BRITAO', 'PEDRISCO LAVADDO', 'BRITA ZERO')
 CIMENTO_CP3 = ('CP 111', 'teste')
 CIMENTO_CP2 = ('CP II-E-40', '£-40', 'CIMENTO PORTLAND CP IIE-40 RS |', "CIMENTO PORTLAND CP I'E-40 RS.", "CIMENTO PORTLAND CP IE-40 RS")
@@ -28,7 +28,7 @@ CIMENTO_CP5 = ('CPV', 'V-ARI')
 AREIA_QUARTZO = ('AREIA DE QUARTZO VERMELHA', 'AREA QUARTZD', 'AREIA DE QUARTZ0 VERMELHA', 'P2 AREIA', 'AREI|A DE QUARTZ0', 'AREIA VERMELHA',
                  'AREIA MEDIA UMIDA BRANCA', 'AREI|A MEDIA UMIDA BRANCA')
 AREIA_PRIME = ('AREA PRIME', 'AREIA PRIME')
-AREIA_BRITADA = ('AR EIA ARTIF ClaL', 'AR EIA AR TIFICIAL', 'AREIA ARTIFICIAL')
+AREIA_BRITADA = ('AR EIA ARTIF ClaL', 'AR EIA AR TIFICIAL', 'AREIA ARTIFICIAL', 'AREIA INDUSTRIAL DE BRITA')
 PEDRISCO_MISTO = ('PEDRA MISTO', 'PEDRISCO MISTO')
 nome_pedido = [PEDRA_1, PO_PEDRA, BRITA_0, CIMENTO_CP2, CIMENTO_CP3, CIMENTO_CP5, AREIA_RIO, AREIA_QUARTZO, AREIA_PRIME, AREIA_BRITADA, PEDRISCO_MISTO]
 # Mapeamento de nomes para imagens
@@ -49,16 +49,15 @@ mapeamento_imagens = {
 
 def valida_pedido():
     logger.info('--- Executando função: valida pedido' )
-    bot.PAUSE = 0.8
+    bot.PAUSE = 0.4
     tentativa = 0
     img_pedido = 0
     item_pedido = ''
     validou_itensXml = False
 
     #Confirma a abertura da tela de vinculação do pedido
-    time.sleep(0.4)
     ahk.win_activate('Vinculação Itens da Nota', title_match_mode = 2)
-    time.sleep(1)
+    time.sleep(0.5)
 
     #* Coleta o texto do campo "item XML", que é o item a constar na nota fiscal, e com base nisso, trata o dado
     logger.debug('--- Extraindo a imagem para descobrir qual item consta no campo "Itens XML" ')
@@ -184,13 +183,13 @@ def valida_pedido():
             time.sleep(0.5)
             return False
 
-#* Aguarda a abertura da tela "Vinculação Itens da Nota"
+
 def verifica_tela_vinculacao():
     logger.info('--- Executando a função VERIFICA TELA VINCULAÇÃO --- ')
     #* Aguarda a abertura da tela "Vinculação Itens da Nota"
-    for i in range(0, 10):
+    for i in range(0, 20):
         ahk.win_activate('Vinculação Itens da Nota', title_match_mode = 2)
-        time.sleep(0.4)
+        time.sleep(0.2)
         if ahk.win_is_active('Vinculação Itens da Nota', title_match_mode = 2):
             logger.info('Tela "Vinculação Itens da Nota" aberta!')
             break
@@ -198,16 +197,18 @@ def verifica_tela_vinculacao():
             logger.error('Não encontrou a tela "Vinculação Itens da Nota" ')
             ahk.win_wait_active('Vinculação Itens da Nota', title_match_mode= 2, timeout= 1)
 
+
 #* Verifica se a tela "Vinculação itens da Nota" carregou e está exibindo o botão "localizar"
 def valida_bt_localizar():
     logger.info('--- Executando a função VALIDA BT LOCALIZAR --- ')
-    for i in range (0, 10):
-        if procura_imagem(imagem='imagens/img_topcon/localizar.png', continuar_exec= True):
+    for i in range (0, 20):
+        if procura_imagem(imagem='imagens/img_topcon/localizar.png', limite_tentativa= 5, continuar_exec= True):
             logger.info('--- Tela "Vinculação itens da NOTA" carregou e encontrou o botão "LOCALIZAR" ')
             break
         if i >= 9:
             logger.error('--- Tela "Vinculação itens da NOTA" não carregou corretamente')
             raise Exception('Tela "Vinculação itens da NOTA" não carregou corretamente')
+
 
 def main():
     logger.info('--- Executando o arquivo VALIDA PEDIDO --- ')

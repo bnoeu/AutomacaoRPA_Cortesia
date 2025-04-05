@@ -21,19 +21,15 @@ def altera_topcon_incluir():
     for i in range(0, 6):
         logger.info('--- Verificando se está no modo Localizar.')
         ativar_janela('TopCompras')
-        '''
-        ahk.win_activate('TopCompras', title_match_mode= 2)
-        ahk.win_wait_active('TopCompras', title_match_mode= 2, timeout= 15)
-        '''
-        time.sleep(1.5)
+        time.sleep(1)
         
-        if procura_imagem(imagem='imagens/img_topcon/txt_inclui.png', continuar_exec= True, area= (852, 956, 1368, 1045)):
+        if procura_imagem(imagem='imagens/img_topcon/txt_inclui.png', limite_tentativa= 5, continuar_exec= True, area= (852, 956, 1368, 1045)):
             logger.info('--- Está no modo "incluir", enviando comando F2 para entrar no modo "Localizar"')
             ahk.win_activate('TopCompras', title_match_mode= 2)
             bot.press('F2', presses= 2)
             time.sleep(0.5)
 
-        if procura_imagem(imagem='imagens/img_topcon/txt_localizar.png', continuar_exec= True, area= (852, 956, 1368, 1045)):
+        if procura_imagem(imagem='imagens/img_topcon/txt_localizar.png', limite_tentativa= 5, continuar_exec= True, area= (852, 956, 1368, 1045)):
             logger.info('--- Está no modo "Localizar" Alterando para "Incluir"')
             ahk.win_activate('TopCompras', title_match_mode= 2)
             time.sleep(0.2)
@@ -73,7 +69,7 @@ def altera_topcon_incluir():
 # Realiza o processo de validação do lançamento.
 def valida_lancamento():
     validou_xml = False
-    bot.PAUSE = 1
+    bot.PAUSE = 0.4
     
     logger.info('--- Iniciando função VALIDA LANÇAMENTO')
     while validou_xml is False:        

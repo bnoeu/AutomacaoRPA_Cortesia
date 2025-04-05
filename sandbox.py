@@ -27,7 +27,7 @@ from valida_pedido import main as valida_pedido
 from valida_lancamento import valida_lancamento
 from preenche_local import main as preenche_local
 from finaliza_lancamento import finaliza_lancamento
-from utils.funcoes import marca_lancado, procura_imagem, verifica_horario, ativar_janela
+from utils.funcoes import marca_lancado, procura_imagem, verifica_horario, ativar_janela, corrige_nometela
 
 #* Definição de parametros
 posicao_img = 0
@@ -136,5 +136,10 @@ def clica_img(img, deslocar_y, deslocar_x, limite_tentativa=5, area=(0, 0, 1920,
     bot.click()
 
 if __name__ == '__main__':
-    posicao_texto = procura_imagem('imagens/bt_pagina_inicial.png')
-    print(posicao_texto[0] + 100)
+    time.sleep(2)
+    corrige_nometela("TopCompras (VM-CortesiaApli.CORTESIA.com)")
+    ahk.win_activate("TopCompras (VM-CortesiaApli.CORTESIA.com)", title_match_mode= 2)
+    #* Caso apareça a tela sobre o lançamento de CTE
+    if procura_imagem(imagem='imagens/img_topcon/txt_alerta_conhecimento.png', continuar_exec=True):
+        bot.click(procura_imagem(imagem='imagens/img_topcon/bt_nao.png'))
+        pass

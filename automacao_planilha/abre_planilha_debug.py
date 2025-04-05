@@ -17,5 +17,5 @@ def abre_planilha(planilha = "debug_db_alltrips"): # Realiza a abertura da plani
         exit(bot.alert('Não deu certo! '))
     
 if __name__ == '__main__':
-    bot.PAUSE = 0.6
+    bot.PAUSE = 0.4
     abre_planilha()

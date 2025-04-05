@@ -96,7 +96,7 @@ def finaliza_lancamento(planilha_marcada = False, lancamento_concluido = False, 
             corrige_nometela("TopCompras (VM-CortesiaApli.CORTESIA.com)")
             ahk.win_activate("TopCompras (VM-CortesiaApli.CORTESIA.com)", title_match_mode= 2)
             #* Caso apareça a tela sobre o lançamento de CTE
-            if procura_imagem(imagem='imagens/img_topcon/txt_alerta_conhecimento.png', continuar_exec=True):
+            if procura_imagem(imagem='imagens/img_topcon/txt_alerta_conhecimento.png', limite_tentativa= 5, confianca= 0.75, continuar_exec=True):
                 bot.click(procura_imagem(imagem='imagens/img_topcon/bt_nao.png'))
                 pass
                     

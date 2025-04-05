@@ -28,7 +28,7 @@ def conferencia_xml():
         logger.critical("Não encontrou o POP-UP, algum problema ocorreu")
         raise Exception("Não encontrou o POP-UP na coferencia do lançamento, algum problema ocorreu")
 
-    for i in range (0, 15):
+    for i in range (0, 30):
         if procura_imagem(imagem='imagens/img_topcon/botao_sim.jpg', continuar_exec= True, limite_tentativa= 1, confianca= 0.73) is not False:
             logger.info('--- XML Validado, indo para validação do pedido (Encontro o botão para vincular pedido "SIM" )')
             ahk.win_activate('TopCompras', title_match_mode=2, detect_hidden_windows= True)

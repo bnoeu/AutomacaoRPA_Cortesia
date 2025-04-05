@@ -26,7 +26,7 @@ def coleta_dados():
     return dados_copiados
 
 def coleta_planilha():
-    bot.PAUSE = 1
+    bot.PAUSE = 0.8
     logger.info('--- Copiando dados e formatando na planilha de debug')
     tentativa = 0
     while tentativa < 20:
@@ -89,7 +89,7 @@ def calculo_tempo_final(tempo_inicial: float):
 
 
 def main():
-    bot.PAUSE = 1
+    bot.PAUSE = 0.8
     ultimo_erro = ""
 
     for i in range(0, 3):

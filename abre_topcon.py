@@ -94,7 +94,7 @@ def abre_mercantil():
     
 
 def navega_topcompras():
-    bot.PAUSE = 1.5
+    bot.PAUSE = 1.2
     logger.info('--- Executando a função: navega topcompras ' )
     # Navegando entre os menus para abrir a opção "Compras - Mercantil"
     ativar_janela('TopCompras', 30)
@@ -145,7 +145,7 @@ def fecha_execucoes():
 
 
 def login_topcon():
-    bot.PAUSE = 1.5
+    bot.PAUSE = 1.2
 
     logger.info('--- Realizando login no TOPCON')
     #* Se o modulo de compras estiver fechado, realiza o login no TopCon
@@ -277,7 +277,7 @@ def abre_topcon():
 def main():
     ultimo_erro = ""
     for tentativa in range(0, 10):
-        bot.PAUSE = 0.5
+        bot.PAUSE = 0.4
         logger.info(F"Tentativa de abrir o topcon: {tentativa}")
         try:
             time.sleep(0.5)

@@ -113,7 +113,7 @@ def coleta_proximo_dia():
 
 def programa_principal():
     global qtd_notas_lancadas
-    bot.PAUSE = 1
+    bot.PAUSE = 0.4
 
     #* Confere o horario dessa execução.
     verifica_horario()
@@ -384,15 +384,15 @@ if __name__ == '__main__':
             arquivo_erro, mensagem_erro = trata_erro(ultimo_erro, tentativa)
 
             #enviar_email("brunobola2010@gmail.com", F"[RPA Cortesia] Apresentou erro na task: {arquivo_erro}, tentativa: {tentativa}", F"Erro coletado: \n {mensagem_erro}")
-            logger.exception(F'--- A execução principal apresentou erro! Tentativa: {tentativa}')
+            logger.exception(F'--- A execução principal apresentou erro! Tentativa: {tentativa}, Pausa anterior: {tempo_pausa}')
 
             #* Realiza as verificações antes da proxima tentativa
             verifica_horario()
 
-            if tentativa > 5: # Começa a pausar o script após a 5º execução
+            if tentativa >= 4: # Começa a pausar o script após a 5º execução
                 logger.info(F"Pausando por: {tempo_pausa} segundos antes da proxima tentativa")
                 time.sleep(tempo_pausa)
-                tempo_pausa *= 0.5
+                tempo_pausa += (0.5 * tempo_pausa)
 
             if tentativa > 9:
                 enviar_email(
