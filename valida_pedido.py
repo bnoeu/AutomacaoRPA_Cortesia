@@ -23,7 +23,7 @@ PO_PEDRA = ('PO DE PEDRA', 'AREA INDUSTRIAL', 'AREIA INDUSTRIAL')
 BRITA_0 = ('BRITA 0', 'PEDRISCO LIMPO', 'BRITAD™', 'BRITAO', 'PEDRISCO LAVADDO', 'BRITA ZERO')
 CIMENTO_CP3 = ('CP 111', 'teste')
 CIMENTO_CP2 = ('CP II-E-40', '£-40', 'CIMENTO PORTLAND CP IIE-40 RS |', "CIMENTO PORTLAND CP I'E-40 RS.", "CIMENTO PORTLAND CP IE-40 RS")
-AREIA_RIO = ('AREIA LAVADA MEDIA', 'AREIA MEDIA', 'ARE A LAVADA MEDIA', 'AREA LAVADA MEDIA', 'AREIA LAVADA')
+AREIA_RIO = ('AREIA LAVADA MEDIA', 'ARE A LAVADA MEDIA', 'AREA LAVADA MEDIA', 'AREIA LAVADA')
 CIMENTO_CP5 = ('CPV', 'V-ARI')
 AREIA_QUARTZO = ('AREIA DE QUARTZO VERMELHA', 'AREA QUARTZD', 'AREIA DE QUARTZ0 VERMELHA', 'P2 AREIA', 'AREI|A DE QUARTZ0', 'AREIA VERMELHA',
                  'AREIA MEDIA UMIDA BRANCA', 'AREI|A MEDIA UMIDA BRANCA')
@@ -49,7 +49,7 @@ mapeamento_imagens = {
 
 def valida_pedido():
     logger.info('--- Executando função: valida pedido' )
-    bot.PAUSE = 0.4
+    bot.PAUSE = 0.2
     tentativa = 0
     img_pedido = 0
     item_pedido = ''
@@ -125,8 +125,6 @@ def valida_pedido():
             logger.warning(F'--- Não encontrou: {img_pedido}, NÃO EXISTE PEDIDO! Saindo do processo.')
             print_erro()
             marca_lancado(texto_marcacao= 'Pedido_Inexistente')
-            ahk.win_activate('Vinculação Itens da Nota', title_match_mode = 2)
-            ahk.win_wait_active('Vinculação Itens da Nota', title_match_mode = 2, timeout= 30)
             ahk.win_close('Vinculação Itens da Nota', title_match_mode = 2)
             ahk.win_wait_close('Vinculação Itens da Nota', title_match_mode = 2, timeout= 30)
             time.sleep(0.5)
@@ -152,15 +150,15 @@ def valida_pedido():
             logger.debug(F'--- Valor campo "item XML": {vazio}')
 
             if vazio is not True:
-                bot.click(procura_imagem('imagens/img_topcon/vinc_xml_pedido.png',continuar_exec=True))
+                bot.click(procura_imagem('imagens/img_topcon/vinc_xml_pedido.png',continuar_exec=True, limite_tentativa= 4, confianca= 0.75))
                 vazio = verifica_ped_vazio(texto=txt_itensXML, pos=pos)
                 logger.info(F'--- Valor campo "vazio": {vazio}')
                 if vazio is True:
                     tentativa = 5
                     break
-                if procura_imagem('imagens/img_topcon/dife_valor.png', continuar_exec=True):
+                if procura_imagem('imagens/img_topcon/dife_valor.png', continuar_exec=True, limite_tentativa= 4):
                     bot.press('ENTER')
-                if procura_imagem('imagens/img_topcon/operacao_fiscal_configurada.png', continuar_exec=True):
+                if procura_imagem('imagens/img_topcon/operacao_fiscal_configurada.png', continuar_exec=True, limite_tentativa= 4):
                     bot.press('ENTER')
                 
                 #Confere se após clicar nos botões, ainda assim o campo ficou vazio.
@@ -180,7 +178,7 @@ def valida_pedido():
                 ahk.win_close('Vinculação Itens da Nota', title_match_mode = 2)
                 
             bot.press('F2')
-            time.sleep(0.5)
+            time.sleep(0.4)
             return False
 
 
