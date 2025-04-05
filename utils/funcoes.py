@@ -111,8 +111,9 @@ def marca_lancado(texto_marcacao='teste_08_12'):
 
     # Navega até o campo "Status"
     bot.press('RIGHT', presses= 6)
+    time.sleep(0.4)
     bot.press('DOWN')
-    time.sleep(0.8)
+    time.sleep(0.6)
     
     # Informa o texto recebido pela função e passa para a celula ao lado, para inserir a data
     bot.write(texto_marcacao)
