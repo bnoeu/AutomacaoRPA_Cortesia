@@ -105,11 +105,6 @@ def marca_lancado(texto_marcacao='teste_08_12'):
 
     logger.info(F'--- Abrindo planilha - MARCA_LANCADO, com parametro: {texto_marcacao}' )
     ativar_janela('debug_db_alltrips', 30)
-    ''' #! Substituido pela logica a cima
-    time.sleep(1)
-    ahk.win_activate('debug_db_alltrips', title_match_mode= 2)
-    ahk.win_wait_active('debug_db_alltrips', title_match_mode= 2, timeout= 30, detect_hidden_windows = True)
-    '''
 
     time.sleep(1)
     bot.hotkey('CTRL', 'HOME')
