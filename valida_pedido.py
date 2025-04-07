@@ -111,11 +111,12 @@ def valida_pedido():
             time.sleep(0.2)
             ahk.win_activate('Vinculação Itens da Nota', title_match_mode = 2)
             ahk.win_wait_active('Vinculação Itens da Nota', title_match_mode = 2, timeout= 30)
-            bot.click(748, 310) #Clica para descer o menu e exibir o resto das opções
-            time.sleep(0.4)
+            bot.click(748, 310) # Clica para descer o menu e exibir o resto das opções
+            time.sleep(0.3)
 
         #* Procura o pedido na tela "6201 - Vinculação Itens da Nota" e conta quantos itens encontrou
-        posicoes = bot.locateAllOnScreen('imagens/img_pedidos/' + img_pedido, confidence= 0.92, grayscale=True, region=(0, 0, 850, 400))
+        #posicoes = bot.locateAllOnScreen('imagens/img_pedidos/' + img_pedido, confidence= 0.92, grayscale=True, region=(0, 0, 850, 400))
+        posicoes = bot.locateAllOnScreen('imagens/img_pedidos/' + img_pedido, confidence= 0.92, grayscale=True, region=(0, 0, 650, 185))
         contagem = 0
         for pos in posicoes:
             contagem += 1
@@ -168,6 +169,16 @@ def valida_pedido():
             else:
                 logger.success(F'--- Pedido validado! VALIDA PEDIDO concluida.  ( valor do campo: {vazio} )')
                 return True
+            
+        # 1. Verificar se encontrou o campo cinza abaixo dos pedidos
+        # 2. Caso encontrou, não precisa de outra tentativa, já testou todos os pedidos
+        # Se achar, significa que não precisa realizar uma nova tentativa, pois já achou o "final" dos pedidos
+        ahk.win_activate('Vinculação Itens da Nota', title_match_mode = 2)
+        time.sleep(0.2)
+        if procura_imagem('imagens/img_topcon/bt_final_pedido.png', continuar_exec=True, limite_tentativa= 4, area= (726, 285, 35, 60)):
+            bot.click(procura_imagem('imagens/img_topcon/bt_final_pedido.png', continuar_exec=True, limite_tentativa= 4, area= (726, 285, 35, 60)))
+            tentativa = 5
+
         tentativa += 1
         
     else:
@@ -176,9 +187,10 @@ def valida_pedido():
             marca_lancado('Erro_Pedido_' + img_pedido)
             while ahk.win_exists('Vinculação Itens da Nota', title_match_mode = 2):
                 ahk.win_close('Vinculação Itens da Nota', title_match_mode = 2)
+                ahk.win_wait_close('Vinculação Itens da Nota', title_match_mode = 2)
                 
+            time.sleep(0.2)
             bot.press('F2')
-            time.sleep(0.4)
             return False
 
 

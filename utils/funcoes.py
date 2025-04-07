@@ -33,13 +33,13 @@ def print_erro(nome_img = "erro"):
     img_erro.save(fp= caminho_erro)
     return caminho_erro
 
-def procura_imagem(imagem, limite_tentativa= 8, area=(0, 0, 1920, 1080), continuar_exec=False, confianca = 0.85):
+def procura_imagem(imagem, limite_tentativa= 8, area=(0, 0, 1920, 1080), continuar_exec=False, confianca = 0.85, cinza = True):
     """Função que realiza o processo de OCR na tela, retornando as coordenadas onde localizou a imagem especificada.
 
     Args:
         imagem (Arquivo): imagem que deseja encontrar.
         limite_tentativa (int, optional): Quantas vezes deseja procurar. Defaults to 5.
-        area (tuple, optional): Area onde deseja procurar. Defaults to (0, 0, 1920, 1080).
+        area (tuple, optional): Os dois primeiros valores é a posição inicial, os dois ultimos o tamanho da area! Defaults to (0, 0, 1920, 1080).
         continuar_exec (bool, optional): Continua a execução caso não encontre. Defaults to False.
         confianca (float, optional): _description_. Defaults to 0.78.
 
@@ -56,7 +56,7 @@ def procura_imagem(imagem, limite_tentativa= 8, area=(0, 0, 1920, 1080), continu
         time.sleep(pausa_img)
         while maquina_viva is False:
             try:
-                posicao_img = bot.locateCenterOnScreen(imagem, grayscale= True, confidence= confianca, region= area)
+                posicao_img = bot.locateCenterOnScreen(imagem, grayscale= cinza, confidence= confianca, region= area)
             except OSError as e:
                 logger.critical(F'--- Erro devido a resolução da maquina virtual, aguardando, erro coletado: \n{e}')
                 time.sleep(15)
@@ -71,8 +71,8 @@ def procura_imagem(imagem, limite_tentativa= 8, area=(0, 0, 1920, 1080), continu
         # Ajuste dos parametros
         confianca -= 0.02           
         tentativa += 1
-        while pausa_img < 0.4:
-            pausa_img += 0.06
+        while pausa_img < 0.3:
+            pausa_img += 0.025
 
     #* Caso seja para continuar
     if (continuar_exec is True) and (posicao_img is None): # Exibe a mensagem que o parametro está ativo
@@ -105,26 +105,20 @@ def marca_lancado(texto_marcacao='teste_08_12'):
 
     logger.info(F'--- Abrindo planilha - MARCA_LANCADO, com parametro: {texto_marcacao}' )
     ativar_janela('debug_db_alltrips', 30)
-
-    time.sleep(1)
-    bot.hotkey('CTRL', 'HOME')
+    time.sleep(0.5)
 
     # Navega até o campo "Status"
+    bot.hotkey('CTRL', 'HOME')
     bot.press('RIGHT', presses= 6)
-    time.sleep(0.4)
     bot.press('DOWN')
-    time.sleep(0.6)
     
     # Informa o texto recebido pela função e passa para a celula ao lado, para inserir a data
     bot.write(texto_marcacao)
     bot.press('RIGHT')
-    time.sleep(0.2)
     hoje = datetime.now()
     hoje_formatado = hoje.strftime('%d/%m/%Y')
     bot.write(hoje_formatado)
-    time.sleep(0.2)
     bot.click(960, 640) # Clica no meio da planilha
-    time.sleep(0.2)
     
     # Retorna a planilha para o modo "Somente Exibição (Botão Verde)"
     bot.hotkey('CTRL', 'HOME')
@@ -154,13 +148,11 @@ def reaplica_filtro_status():
     #* Procura pelo botão aplicar, e clica nele! Caso não encontre lança uma exceção.
     for i in range(0, 10):
         ahk.win_activate('debug_db_alltrips', title_match_mode= 2)
-        time.sleep(0.4)
 
         #* Procura pelo botão "APLICAR"
         if procura_imagem(imagem='imagens/img_planilha/bt_aplicar.png', limite_tentativa= 50, continuar_exec= True):
             bot.click(procura_imagem(imagem='imagens/img_planilha/bt_aplicar.png'))
             logger.info('--- Na tela do menu de filtro, clicou no botão "Aplicar" para reaplicar o filtro ')
-            time.sleep(0.2)
             break
         
         #* Caso exceda o maximo de tentativas de encontrar o botão
@@ -400,6 +392,11 @@ def move_telas_direita(tela:str):
 if __name__ == '__main__':
     bot.PAUSE = 0.4
     bot.FAILSAFE = False
+
+
+    # Calculo do tempo de execução das funções
+    tempo_inicial = time.time()
+
     #print_erro()
     #msg_box("Teste", tempo = 1000)
     #abre_planilha_navegador(planilha_debug)
@@ -407,4 +404,10 @@ if __name__ == '__main__':
     #reaplica_filtro_status()
     #verifica_ped_vazio()
     #corrige_nometela()
-    #marca_lancado()
+    marca_lancado()
+
+    # Calculo do tempo de execução das funções
+    end_time = time.time()
+    elapsed_time = end_time - tempo_inicial
+    medicao_minutos = elapsed_time / 60
+    print(f"Tempo decorrido: {medicao_minutos:.2f} segundos")
