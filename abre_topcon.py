@@ -91,8 +91,6 @@ def abre_mercantil():
             raise Exception('Não foi possivel fechar a tela "TopCompras (", necessario reiniciar o TopCon')
 
 
-    
-
 def navega_topcompras():
     bot.PAUSE = 1.2
     logger.info('--- Executando a função: navega topcompras ' )
@@ -277,7 +275,7 @@ def abre_topcon():
 def main():
     ultimo_erro = ""
     for tentativa in range(0, 10):
-        bot.PAUSE = 0.4
+        bot.PAUSE = 1
         logger.info(F"Tentativa de abrir o topcon: {tentativa}")
         try:
             time.sleep(0.5)

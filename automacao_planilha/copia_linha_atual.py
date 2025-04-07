@@ -7,17 +7,18 @@ from utils.funcoes import ahk as ahk # --- Definição de parametros
 
 def  copia_linha_atual():
     logger = get_logger("script1")
-    bot.PAUSE = 0.05
+    bot.PAUSE = 0.04
     dados_planilha = []
     coluna_atual = 0
     
     while coluna_atual < 9: # Navega entre os 6 campos, realizando a copia um por um, e inserindo na lista Dados Planilha.
+        time.sleep(0.05)
         while True:
             bot.hotkey('ctrl', 'c')
-            time.sleep(0.04)
+            time.sleep(0.05)
             valor_copiado = pyperclip.paste()
             if "Recuperando" == valor_copiado:
-                time.sleep(0.4)
+                time.sleep(0.35)
             else:
                 break
             
@@ -27,6 +28,6 @@ def  copia_linha_atual():
             coluna_atual += 1
         else:
             logger.debug(F'Copiou o texto "Recuperando Dados", tentando copiar novamente {dados_planilha}')
-            time.sleep(0.5)
+            #time.sleep(0.04)
 
     return dados_planilha

@@ -26,19 +26,16 @@ def coleta_dados():
     return dados_copiados
 
 def coleta_planilha():
-    bot.PAUSE = 0.8
+    bot.PAUSE = 0.4
     logger.info('--- Copiando dados e formatando na planilha de debug')
     tentativa = 0
     while tentativa < 20:
-        #reaplica_filtro_status()
-        time.sleep(0.4)
         ahk.win_activate("debug_db", title_match_mode = 2)
-        time.sleep(1)
+        time.sleep(0.4)
         bot.hotkey('CTRL', 'HOME')
         bot.press('DOWN')
 
         dados_planilha = copia_linha_atual()
-        time.sleep(0.5)
 
         if tentativa > 19:
             raise Exception(F"Dados inválidos: {str(dados_planilha)}, executou todas as tentativas")
@@ -89,7 +86,7 @@ def calculo_tempo_final(tempo_inicial: float):
 
 
 def main():
-    bot.PAUSE = 0.8
+    bot.PAUSE = 0.4
     ultimo_erro = ""
 
     for i in range(0, 3):

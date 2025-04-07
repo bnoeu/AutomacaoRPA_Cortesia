@@ -245,7 +245,7 @@ def main(ultimo_xml = chave_xml, powerapps_id = powerapps_id):
     logger.info('Iniciando função COPIA BANCO ( COPIA ALL TRIPS)')
 
     #* Abre a planilha do db_alltrips (banco original)
-    for tentativa in range(0, 5):
+    for tentativa in range(0, 6):
         abre_planilha_navegador()
         encontra_ultimo_xml(ultimo_xml = ultimo_xml, powerapps_id = powerapps_id)
 

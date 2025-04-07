@@ -97,6 +97,7 @@ def valida_lancamento():
 
 if __name__ == '__main__':
     tempo_inicial = time.time()
+    
     valida_lancamento()
     #altera_topcon_incluir()
     
