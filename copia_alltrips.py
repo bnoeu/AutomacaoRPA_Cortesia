@@ -17,7 +17,7 @@ planilha_debug = "https://cortesiaconcreto-my.sharepoint.com/:x:/g/personal/brun
 
 
 def encontra_ultimo_xml(ultimo_xml = '', powerapps_id = ''):
-    bot.PAUSE = 1
+    bot.PAUSE = 1.5
     while True:
         logger.info(F'--- Iniciando a navegação até a ultima chave XML: {ultimo_xml}')
         ahk.win_activate('db_alltrips.xlsx', title_match_mode= 1)
@@ -130,7 +130,7 @@ def valida_nova_chave_inserida(tentativa):
 
 
 def copia_dados():
-    bot.PAUSE = 1
+    bot.PAUSE = 1.5
     dados_copiados = ""
 
     # Inicia o processo de seleção dos dados
@@ -186,7 +186,7 @@ def copia_dados():
             raise Exception("Excedeu o limite de tentativas de copiar os dados, soltando SHIFT e CONTROL")
 
 def cola_dados(dados_copiados = "TESTE"):
-    bot.PAUSE = 1.2
+    bot.PAUSE = 1.5
     
     abre_planilha_navegador(planilha_debug)
     time.sleep(8)
@@ -241,7 +241,7 @@ def verifica_quatro_dias(dados_copiados):
 
 
 def main(ultimo_xml = chave_xml, powerapps_id = powerapps_id):
-    bot.PAUSE = 1.2
+    bot.PAUSE = 1.5
     logger.info('Iniciando função COPIA BANCO ( COPIA ALL TRIPS)')
 
     #* Abre a planilha do db_alltrips (banco original)

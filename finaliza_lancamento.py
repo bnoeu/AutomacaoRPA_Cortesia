@@ -60,7 +60,7 @@ def finaliza_lancamento(planilha_marcada = False, lancamento_concluido = False, 
     while True:        
         # 0. Verifica se ocorreu algo de transferencia
         realizou_transferencia = processo_transferencia()
-        time.sleep(0.5)
+        time.sleep(0.25)
         # 1. Caso chave invalida.  
         if procura_imagem(imagem='imagens/img_topcon/chave_invalida.png', continuar_exec=True, limite_tentativa= 1, confianca= 0.74) is not False:
             marca_lancado(texto_marcacao='Lancado_Manual')

@@ -18,7 +18,7 @@ logger = get_logger("automacao") # Obter logger configurado
 
 def processo_transferencia():
     ahk.win_activate('TopCompras', title_match_mode=2)
-    if procura_imagem(imagem='imagens/img_topcon/txt_transferencia.png', continuar_exec= True, limite_tentativa= 2, confianca= 0.74):
+    if procura_imagem(imagem='imagens/img_topcon/txt_transferencia.png', continuar_exec= True, limite_tentativa= 3, confianca= 0.74):
         logger.info('--- Iniciando a função: processo transferencia ---' )
         ahk.win_activate('TopCompras', title_match_mode=2)
         ahk.win_wait_active('TopCompras', title_match_mode=2, timeout= 30)

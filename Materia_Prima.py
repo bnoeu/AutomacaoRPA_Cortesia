@@ -148,18 +148,18 @@ def programa_principal():
     bot.write(filial_estoq)
     time.sleep(2)
     bot.press('TAB', presses= 1) # Confirma a informação da nova filial de estoque
-    time.sleep(2)
+    time.sleep(1.5)
     bot.press('TAB', presses= 1) # Confirma a informação da nova filial de estoque
 
 
     #* Alteração da data
     logger.info('--- Realizando validação/alteração da data')
     hoje = date.today()
-    hoje = hoje.strftime("%d%m%y")  # dd/mm/YY
+    #hoje = hoje.strftime("%d%m%y")  # dd/mm/YY
     logger.info(F'--- Inserindo a data coletada: {data_formatada} e apertando ENTER')
     bot.write(data_formatada)
     bot.press('ENTER')
-    time.sleep(2)
+    time.sleep(1.5)
     ativar_janela('TopCompras', 70)
 
     # Caso o sistema informe que a data deve ser maior/igual a data inserida acima.
@@ -232,11 +232,11 @@ def programa_principal():
     # * -------------------------------------- VALIDAÇÃO TRANSPORTADOR --------------------------------------
     logger.info(F'--- Preenchendo transportador: {cracha_mot}')
     ahk.win_activate('TopCompras', title_match_mode= 2)
-    time.sleep(0.5)
+    time.sleep(0.25)
     bot.click(procura_imagem(imagem='imagens/img_topcon/campo_000.png'))
-    time.sleep(1)
+    time.sleep(0.5)
     bot.press('tab')
-    time.sleep(1)
+    time.sleep(0.5)
     tentativa_achar_camp_re = 0
     while procura_imagem(imagem='imagens/img_topcon/campo_re_0.png', continuar_exec= True, limite_tentativa= 1, confianca= 0.74) is False:
         logger.info(F'Tentativa: {tentativa_achar_camp_re}')
@@ -256,7 +256,7 @@ def programa_principal():
 
     logger.info('--- Aguardando validar o campo do transportador')
     ahk.win_activate('TopCompras', title_match_mode=2)
-    if procura_imagem(imagem='imagens/img_topcon/transportador_incorreto.png', continuar_exec= True) is not False:
+    if procura_imagem(imagem='imagens/img_topcon/transportador_incorreto.png', continuar_exec= True, limite_tentativa= 6) is not False:
         logger.info('--- Transportador incorreto!')
         bot.press('ENTER')
         bot.press('F2')
@@ -315,6 +315,7 @@ def programa_principal():
     medicao_minutos = elapsed_time / 60
     print(f"Tempo decorrido: {medicao_minutos:.2f} segundos")
     logger.info(f"Tempo decorrido: {medicao_minutos:.2f} segundos")
+    time.sleep(0.05)
     #exit(bot.alert(F"Lançamento concluido! \n Tempo que levou: {medicao_minutos:.2f}"))
 
     return True

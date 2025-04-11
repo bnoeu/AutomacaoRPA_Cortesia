@@ -95,7 +95,7 @@ def preenche_local(silo1 = "", silo2 = ""):
 
         #* Confirma ou cancela os processo executados na tela "itens nota fiscal de compras "
         bot.click(procura_imagem(imagem='imagens/img_topcon/confirma.png'))       
-        if procura_imagem(imagem='imagens/img_topcon/txt_ErroAtribuida.png', limite_tentativa = 12, continuar_exec = True) is False:
+        if procura_imagem(imagem='imagens/img_topcon/txt_ErroAtribuida.png', limite_tentativa = 8, continuar_exec = True) is False:
             logger.info('--- Preenchimento completo, saindo do loop.' )
             break
         else:
