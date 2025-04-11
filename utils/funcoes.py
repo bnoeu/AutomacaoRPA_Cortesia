@@ -71,7 +71,7 @@ def procura_imagem(imagem, limite_tentativa= 8, area=(0, 0, 1920, 1080), continu
         # Ajuste dos parametros
         confianca -= 0.02           
         tentativa += 1
-        while pausa_img < 0.3:
+        while pausa_img < 0.25:
             pausa_img += 0.025
 
     #* Caso seja para continuar
@@ -116,7 +116,8 @@ def marca_lancado(texto_marcacao='teste_08_12'):
     bot.write(texto_marcacao)
     bot.press('RIGHT')
     hoje = datetime.now()
-    hoje_formatado = hoje.strftime('%d/%m/%Y')
+    #hoje_formatado = hoje.strftime('%d/%m/%Y')
+    hoje_formatado = hoje.strftime('%d/%m/%Y %H:%M:%S')
     bot.write(hoje_formatado)
     bot.click(960, 640) # Clica no meio da planilha
     
@@ -129,10 +130,10 @@ def marca_lancado(texto_marcacao='teste_08_12'):
 def reaplica_filtro_status(): 
     bot.PAUSE = 0.2
     logger.debug('--- Executando a função REAPLICA FILTRO STATUS')
-    time.sleep(0.2)
+    #time.sleep(0.2)
     ahk.win_activate('debug_db_alltrips', title_match_mode= 2)
     ahk.win_wait_active('debug_db_alltrips', title_match_mode= 2, timeout= 15)
-    time.sleep(0.2)
+    #time.sleep(0.2)
 
     #* Clica no meio da tela, para garantir que está sem nenhuma outra tela aberta
     bot.click(960, 640)
@@ -304,7 +305,6 @@ def abre_planilha_navegador(link_planilha = alltrips):
             time.sleep(0.2)
             if ahk.win_is_active(planilha, title_match_mode = 2):
                 ahk.win_maximize(planilha)
-                time.sleep(3)
                 logger.info('--- Planilha aberta e maximizada! procurando icone da nuvem & EXCEL')
 
                 if procura_imagem(imagem='imagens/img_planilha/icone_excel.png', limite_tentativa= 50, area= (0, 0, 583, 365)):
@@ -339,10 +339,11 @@ def verifica_horario():
                 print('--- Verificando se passou das 23h')
                 hora_inicio_pausa = datetime.strptime("23:30", "%H:%M").time() # Definir o horário de inicio de referência (02:00)
                 hora_final_pausa = datetime.strptime("23:59", "%H:%M").time() # Definir o horário de inicio de referência (02:00)
+                logger.debug(F'--- São: {hora_atual}, Verificando se passou das 23h: {hora_inicio_pausa} vs {hora_final_pausa}')
             else:
-                print('--- Verificando se é madrugada')
                 hora_inicio_pausa = datetime.strptime("00:00", "%H:%M").time() # Definir o horário de inicio de referência (02:00)
                 hora_final_pausa = datetime.strptime("02:30", "%H:%M").time() # Definir o horário de inicio de referência (02:00)
+                logger.debug(F'--- São: {hora_atual}, Verificando se é madrugada: {hora_inicio_pausa} vs {hora_final_pausa}')
 
             if hora_atual > hora_inicio_pausa and hora_atual < hora_final_pausa:
                 logger.warning(F'--- São: {hora_atual}, aguardando 2 hora para tentar novamente.')
