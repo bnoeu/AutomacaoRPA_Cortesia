@@ -68,7 +68,7 @@ def abre_mercantil():
     ativar_janela('TopCon', 30)
     #ahk.win_activate("TopCon", title_match_mode= 2)
     logger.info('--- Clicando para abrir o modulo de compras')
-    bot.click(procura_imagem(imagem='imagens/img_topcon/icone_modulo_compras.png', limite_tentativa= 15))
+    bot.click(procura_imagem(imagem='imagens/img_topcon/icone_mercantil.png', limite_tentativa= 15))
     time.sleep(3)
 
     #* Caso não encontre o TopCompras, tenta corrigir o nome
@@ -76,21 +76,26 @@ def abre_mercantil():
     
     #* Verifica se o pop-up "interveniente" está aberto
     logger.info('--- Verificando se o pop-up do interveniente está aberto')
-    for i in range (0, 10):
+    for i in range (0, 5):
         if ahk.win_exists("TopCompras (", title_match_mode= 1):
-            ahk.win_close("TopCompras (", title_match_mode= 2, seconds_to_wait= 5)
             logger.info('--- Fechando a tela "interveniente" ')
+            ahk.win_close("TopCompras (", title_match_mode= 2, seconds_to_wait= 5)
         else:
+            corrige_nometela("TopCompras")
+            time.sleep(0.2)
             ativar_janela('TopCompras', 30)
             time.sleep(0.5)
-            if procura_imagem('imagens/img_topcon/txt_mov_material.PNG'):
+            if procura_imagem('imagens/img_topcon/produtos_servicos.png'):
                 logger.success("Concluiu a task ABRE MERCANTIL")
                 break
-        if i >= 9:
+        if i >= 4:
             logger.error(F"Não foi possivel fechar a tela 'interveniente' (TopCompras (! Tentativas executadas: {i}")
             raise Exception('Não foi possivel fechar a tela "TopCompras (", necessario reiniciar o TopCon')
+    else:
+        logger.error(F"Não foi possivel fechar a tela 'interveniente' (TopCompras (! Tentativas executadas: {i}")
+        raise Exception('Não foi possivel fechar a tela "TopCompras (", necessario reiniciar o TopCon')
 
-
+''' #! Não é mais necessario, agora abre direto na tela 6201 - Compras mercantil
 def navega_topcompras():
     bot.PAUSE = 1.2
     logger.info('--- Executando a função: navega topcompras ' )
@@ -105,6 +110,7 @@ def navega_topcompras():
     time.sleep(3)
     logger.success("Concluiu a função NAVEGA TOPCOMPRAS")
     return True
+'''
 
 
 def fecha_execucoes():
@@ -128,15 +134,15 @@ def fecha_execucoes():
         limite_tentativas += 1
         if limite_tentativas > 10:
             logger.error('--- Não conseguiu fechar a tela "TopCompras" ')
-            os.system('taskkill /im mstsc.exe /f /t') # Força o fechamento do processo do RDP por completo
+            os.system('taskkill /im mstsc.exe /f /t 2>nul') # Força o fechamento do processo do RDP por completo
     else:
         time.sleep(0.4)
         logger.info('--- Fechou a tela "TopCompras" ')
 
     logger.info('--- Fechando os processos do RemoteDesktop ---')
     #os.system('taskkill /PID 872 /f /t') # Força o fechamento do processo do RDP por completo
-    os.system('taskkill /im wksprt.exe /f /t') # Força o fechamento do processo do RDP por completo
-    os.system('taskkill /im mstsc.exe /f /t') # Força o fechamento do processo do RDP por completo
+    os.system('taskkill /im wksprt.exe /f /t 2>nul') # Força o fechamento do processo do RDP por completo
+    os.system('taskkill /im mstsc.exe /f /t 2>nul') # Força o fechamento do processo do RDP por completo
     logger.info('--- Os processos wksprt e mstsc.exe do RDP')
 
     logger.success('--- Concluiu a task FECHA EXECUÇÕES')
@@ -203,13 +209,16 @@ def abre_topcon():
         tela_login_rdp = False
         
         # Verifica se ao abrir, já começou logado no RemoteDesktop
-        for i in range (0, 10):
-            time.sleep(0.2)
+        for i in range (0, 20):
+            time.sleep(0.5)
             if ahk.win_exists('TopCon', title_match_mode= 2):
+                logger.info('--- RemoteDesktop já está logado! Não é necessario fazer o processo.')
                 return True
+        else:
+            print('passou')
         
         #* Verifica se abriu alguma das telas de segurança de execução do RDP
-        for i in range (0, 15):
+        for i in range (0, 10):
             time.sleep(0.4)
             if procura_imagem(imagem='imagens/img_topcon/txt_ServidorAplicacao.png', continuar_exec= True):
                 tela_login_rdp = True
@@ -284,7 +293,6 @@ def main():
             login_topcon()
             fechar_topcompras()
             abre_mercantil()
-            navega_topcompras()
             if tentativa >= 6:
                 break
         except Exception as e:
