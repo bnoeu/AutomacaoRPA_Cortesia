@@ -1,9 +1,10 @@
-# Para utilização na Cortesia Concreto.
 # -*- Criado por Bruno da Silva Santos. -*-
+# Para utilização na Cortesia Concreto.
 
 import os
 import time
 import cv2
+import pyperclip
 import pytesseract
 import numpy as np
 from ahk import AHK
@@ -100,7 +101,8 @@ def verifica_tela(nome_tela, manual=False):
     else:
         exit(logger.error(F'--- Tela: {nome_tela} está fechada, saindo do programa.'))
 
-def marca_lancado(texto_marcacao='teste_08_12'):
+
+def marca_lancado(texto_marcacao='teste_08_12', temp_inicial = ""):
     bot.PAUSE = 0.2
 
     logger.info(F'--- Abrindo planilha - MARCA_LANCADO, com parametro: {texto_marcacao}' )
@@ -116,9 +118,54 @@ def marca_lancado(texto_marcacao='teste_08_12'):
     bot.write(texto_marcacao)
     bot.press('RIGHT')
     hoje = datetime.now()
-    #hoje_formatado = hoje.strftime('%d/%m/%Y')
     hoje_formatado = hoje.strftime('%d/%m/%Y %H:%M:%S')
     bot.write(hoje_formatado)
+
+    # Preenchimento tentativa
+    bot.press('RIGHT', presses= 2, interval= 0.1)
+
+
+    for i in range (0, 5):
+        # Verifica se já existe valor no campo
+        time.sleep(0.35)
+        bot.hotkey('ctrl', 'c', interval= 0.1)
+        time.sleep(0.2)
+
+        valor_copiado = pyperclip.paste()
+        if 'Recuperando' not in valor_copiado:
+            break
+
+        if i > 4:
+            raise Exception("Não foi possivel copiar a quantidade de tentativas.")
+        
+    if valor_copiado != "":
+        valor_copiado = int(valor_copiado)
+        if valor_copiado > 0:
+            valor_copiado += 1
+            bot.write(str(valor_copiado))
+    else:
+        # Caso o campo esteja vazio, significa que ainda não havia sido feito uma tentativa! Por isso, marca como 1º tentativa
+        bot.write(str(1))
+
+
+
+
+    #* Caso precise informar o tempo que levou.
+    if temp_inicial != "":
+        bot.press('RIGHT', presses= 1, interval= 0.1)
+        time.sleep(0.4)
+
+        # Valida a medição de tempo que levou
+        end_time = time.time()
+        elapsed_time = end_time - temp_inicial
+        #medicao_minutos = elapsed_time / 60
+        bot.write(F"{round(elapsed_time)}")
+        #print(f"Tempo decorrido: {medicao_minutos:.2f} segundos")
+        #logger.info(f"Tempo decorrido: {medicao_minutos:.2f} segundos")
+
+    time.sleep(0.4)
+    ativar_janela('debug_db_alltrips', 30)
+
     bot.click(960, 640) # Clica no meio da planilha
     
     # Retorna a planilha para o modo "Somente Exibição (Botão Verde)"
@@ -128,47 +175,56 @@ def marca_lancado(texto_marcacao='teste_08_12'):
     logger.info(F'--------------------- Processou NFE, situação: {texto_marcacao} ---------------------')
 
 def reaplica_filtro_status(): 
-    bot.PAUSE = 0.2
-    logger.debug('--- Executando a função REAPLICA FILTRO STATUS')
-    #time.sleep(0.2)
-    ahk.win_activate('debug_db_alltrips', title_match_mode= 2)
-    ahk.win_wait_active('debug_db_alltrips', title_match_mode= 2, timeout= 15)
-    #time.sleep(0.2)
+    filtro_aplicado = False
+    tentativa_filtro = 0
 
-    #* Clica no meio da tela, para garantir que está sem nenhuma outra tela aberta
-    bot.click(960, 640)
-    
-    #* Inicia navamento até o campo "A1"
-    bot.hotkey('CTRL', 'HOME') # Navega até o campo A1
-    #* Navega até a coluna "STATUS" e abre o menu com as opções
-    bot.press('RIGHT', presses= 6) # Navega até o campo "Status"
-    bot.hotkey('ALT', 'DOWN') # Comando do excel para abrir o menu do filtro
-    logger.info('--- Navegou até celula A1 e abriu o filtro do status ')
-    ahk.win_activate('debug_db_alltrips', title_match_mode= 2)
+    while filtro_aplicado == False:
+        tentativa_filtro += 1
 
-    #* Procura pelo botão aplicar, e clica nele! Caso não encontre lança uma exceção.
-    for i in range(0, 10):
-        ahk.win_activate('debug_db_alltrips', title_match_mode= 2)
+        if tentativa_filtro >= 6:
+            raise Exception("Falhou a aplicar o filtro na coluna de status!")
 
-        #* Procura pelo botão "APLICAR"
-        if procura_imagem(imagem='imagens/img_planilha/bt_aplicar.png', limite_tentativa= 50, continuar_exec= True):
-            bot.click(procura_imagem(imagem='imagens/img_planilha/bt_aplicar.png'))
-            logger.info('--- Na tela do menu de filtro, clicou no botão "Aplicar" para reaplicar o filtro ')
-            break
+        try: 
+            bot.PAUSE = 0.3
+            logger.debug('--- Executando a função REAPLICA FILTRO STATUS')
+            ahk.win_activate('debug_db_alltrips', title_match_mode= 2)
+            ahk.win_wait_active('debug_db_alltrips', title_match_mode= 2, timeout= 15)
+            time.sleep(0.3)
+
+            #* Clica no meio da tela, para garantir que está sem nenhuma outra tela aberta
+            bot.click(960, 640)
+            
+            #* Navega até a coluna "STATUS" e abre o menu com as opções
+            #* Inicia navamento até o campo "A1"
+            bot.hotkey('CTRL', 'HOME') # Navega até o campo A1
+            bot.press('RIGHT', presses= 7) # Navega até o campo "Status"
+            bot.press('LEFT') # Navega até o campo "Status"
+            time.sleep(0.2)
+            bot.hotkey('ALT', 'DOWN') # Comando do excel para abrir o menu do filtro
+            logger.info('--- Navegou até celula A1 e abriu o filtro do status ')
+            time.sleep(0.2)
+            ahk.win_activate('debug_db_alltrips', title_match_mode= 2)
+
+            #if procura_imagem(imagem='imagens/img_planilha/bt_aplicar.png', confianca= 100, continuar_exec= True):
+            if procura_imagem(imagem='imagens/img_planilha/bt_aplicar.png', limite_tentativa= 5, continuar_exec= True):
+                bot.click(procura_imagem(imagem='imagens/img_planilha/bt_aplicar.png'))
+                logger.info('--- Na tela do menu de filtro, clicou no botão "Aplicar" para reaplicar o filtro ')
+                filtro_aplicado = True
+
+                #* Verifica se a tela "APLICAR FILTRO PARA TODOS" apareceu
+                if procura_imagem(imagem='imagens/img_planilha/bt_visualizar_todos.png', limite_tentativa= 3, confianca= 0.73, continuar_exec= True):
+                    bot.click(procura_imagem(imagem='imagens/img_planilha/bt_visualizar_todos.png', continuar_exec= True))
+                    logger.info('--- Clicou para visualizar o filtro de todos.')
+            
         
-        #* Caso exceda o maximo de tentativas de encontrar o botão
-        if i >= 9:
-            logger.error('--- Não encontrou o botão APLICAR!')
-            procura_imagem(imagem='imagens/img_planilha/bt_aplicar.png', limite_tentativa= 1)
-    
-    #* Verifica se a tela "APLICAR FILTRO PARA TODOS" apareceu
-    if procura_imagem(imagem='imagens/img_planilha/bt_visualizar_todos.png', limite_tentativa= 3, confianca= 0.73, continuar_exec= True):
-        bot.click(procura_imagem(imagem='imagens/img_planilha/bt_visualizar_todos.png', continuar_exec= True))
-        logger.info('--- Clicou para visualizar o filtro de todos.')
-    
-    #* Concluiu a validação que o filtro está aplicado
-    logger.success("--- Filtro da coluna status aplicado!")
-    bot.hotkey('CTRL', 'HOME') # Navega até o campo A1
+                #* Concluiu a validação que o filtro está aplicado
+                logger.success("--- Filtro da coluna status aplicado!")
+                bot.hotkey('CTRL', 'HOME') # Navega até o campo A1
+                time.sleep(1)
+
+                return True
+        except:
+            pass
 
 def extrai_txt_img(imagem, area_tela, porce_escala = 400):
     time.sleep(0.4)
@@ -283,7 +339,7 @@ def abre_planilha_navegador(link_planilha = alltrips):
         logger.info('--- Executou apenas um recarregamento')
         return True
     else:
-        os.system("cmd /c taskkill /im msedge.exe /f /t")
+        os.system("cmd /c taskkill /im msedge.exe /f /t 2>nul")
         logger.info('--- Planilha (EDGE) fechada, abrindo uma nova execução da planilha: {planilha}')
 
         ''' #! DESABILITADO, PQ A ACTION DE CIMA JÁ FECHA O EDGE POR COMPLETO
@@ -332,12 +388,13 @@ def msg_box(texto: str, tempo: int = 60):
     ahk.win_close('Message', title_match_mode= 2)
 
 def verifica_horario():
+    validou_horarios = 0
     while True:
         hora_atual = datetime.now().time() # Obter o horário atual
-        for i in range (0, 1):
+        for i in range (2):
             if i < 1:
                 print('--- Verificando se passou das 23h')
-                hora_inicio_pausa = datetime.strptime("23:30", "%H:%M").time() # Definir o horário de inicio de referência (02:00)
+                hora_inicio_pausa = datetime.strptime("23:20", "%H:%M").time() # Definir o horário de inicio de referência (02:00)
                 hora_final_pausa = datetime.strptime("23:59", "%H:%M").time() # Definir o horário de inicio de referência (02:00)
                 logger.debug(F'--- São: {hora_atual}, Verificando se passou das 23h: {hora_inicio_pausa} vs {hora_final_pausa}')
             else:
@@ -348,8 +405,13 @@ def verifica_horario():
             if hora_atual > hora_inicio_pausa and hora_atual < hora_final_pausa:
                 logger.warning(F'--- São: {hora_atual}, aguardando 2 hora para tentar novamente.')
                 msg_box(F"São: {hora_atual}, aguardando 2 hora para tentar novamente", 7200)
-        else:
-            return
+                validou_horarios = 0
+            else:
+                validou_horarios += 1
+
+        if validou_horarios >= 2:
+            logger.debug(F'--- Horario validado! Pode prosseguir com o lançamento.')
+            break
 
 def ativar_janela(nome_janela, timeout= 5):
     """ Tenta realizar a ativação de uma janela, e aguarda até ela estar aberta
@@ -398,6 +460,8 @@ if __name__ == '__main__':
     # Calculo do tempo de execução das funções
     tempo_inicial = time.time()
 
+    reaplica_filtro_status()
+    #verifica_horario()
     #print_erro()
     #msg_box("Teste", tempo = 1000)
     #abre_planilha_navegador(planilha_debug)
@@ -405,7 +469,7 @@ if __name__ == '__main__':
     #reaplica_filtro_status()
     #verifica_ped_vazio()
     #corrige_nometela()
-    marca_lancado()
+    #marca_lancado(temp_inicial= tempo_inicial)
 
     # Calculo do tempo de execução das funções
     end_time = time.time()
