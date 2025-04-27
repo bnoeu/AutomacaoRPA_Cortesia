@@ -28,7 +28,7 @@ from valida_pedido import main as valida_pedido
 from valida_lancamento import valida_lancamento
 from preenche_local import main as preenche_local
 from finaliza_lancamento import finaliza_lancamento
-from utils.funcoes import marca_lancado, procura_imagem, verifica_horario, ativar_janela
+from utils.funcoes import marca_lancado, procura_imagem, verifica_horario, ativar_janela, print_erro
 
 #* Definição de parametros
 posicao_img = 0
@@ -47,6 +47,7 @@ def calcula_tempo_processo(tempo_inicial):
     medicao_minutos = elapsed_time / 60
     print(f"Tempo decorrido: {medicao_minutos:.2f} segundos")
     exit(bot.alert("acabou"))
+
 
 def valida_filial_estoque(filial_estoq = ""):
     if filial_estoq == '1001':
@@ -76,6 +77,7 @@ def valida_filial_estoque(filial_estoq = ""):
     if centro_custo != "":
         return centro_custo
 
+
 def coleta_valida_dados():
     logger.info('--- Executando COLETA VALIDA DADOS ')
     #* Realiza a validação do pedido
@@ -83,7 +85,7 @@ def coleta_valida_dados():
 
     while acabou_pedido is False: 
         dados_planilha = valida_lancamento() # Coleta e confere os dados do lançamento atual
-        acabou_pedido = valida_pedido() # Verifica se o pedido está valido.
+        acabou_pedido = valida_pedido(dados_planilha[4]) # Verifica se o pedido está valido.
         time.sleep(0.2)
     else:
         print(dados_planilha)
@@ -107,9 +109,65 @@ def formata_data_coletada(dados_copiados):
     print("--- A data coletada é válida!")
     return data_obj.strftime("%d/%m/%y")  # Retorna a data coletada formatada
 
+
 def coleta_proximo_dia():
     # Retorna a data de amanhã como objeto date
     return date.today() + timedelta(days=1)
+
+
+def valida_transportador(cracha_mot = "112842"):
+    # * -------------------------------------- VALIDAÇÃO TRANSPORTADOR --------------------------------------
+    logger.info(F'--- Preenchendo transportador: {cracha_mot}')
+    ahk.win_activate('TopCompras', title_match_mode= 2)
+    time.sleep(0.4)
+
+    # Clique relativo a posição do campo "Transportador: RE"
+    onde_achou = procura_imagem(imagem='imagens/img_topcon/txt_transportador.png')
+    bot.click(onde_achou[0] + 190, onde_achou[1])
+
+    # Verifica se o TAB realmente navegou até o campo "RE: 0"
+    tentativa_achar_camp_re = 0
+    while procura_imagem(imagem='imagens/img_topcon/campo_re_0.png', continuar_exec= True, limite_tentativa= 2, confianca= 0.74) is False:
+        logger.info(F'Tentativa: {tentativa_achar_camp_re}')
+        time.sleep(0.4)
+        tentativa_achar_camp_re += 1
+        if tentativa_achar_camp_re >= 10:
+            logger.info('--- Limite de tentativas de achar o campo "RE", reabrindo topcompras e reiniciando o processo.')
+            time.sleep(0.5)
+            abre_topcon()
+            return True
+    else:
+        logger.info('--- Campo RE habilitado, preenchendo.')
+        # Preenche o campo do transportador e verifica se aconteceu algum erro.
+        bot.press("Backspace", presses= 6)
+        bot.write(cracha_mot, interval= 0.08)  # ID transportador
+        bot.press('enter')
+
+    logger.info('--- Aguardando validar o campo do transportador')
+    ahk.win_activate('TopCompras', title_match_mode=2)
+    if procura_imagem(imagem='imagens/img_topcon/transportador_incorreto.png', continuar_exec= True, limite_tentativa= 2) is not False:
+        logger.info('--- Transportador incorreto!')
+        bot.press('ENTER')
+        bot.press('F2')
+        marca_lancado(texto_marcacao='RE_Invalido')
+        return False
+    else:
+        logger.info('--- Transportador validado! Prosseguindo para validação da placa')
+        ahk.win_activate('TopCompras', title_match_mode=2)
+        bot.press('enter')
+
+    # Verifica se o campo da placa ficou preenchido
+    time.sleep(0.2)
+    if procura_imagem('imagens/img_topcon/campo_placa.png', confianca= 0.74, continuar_exec=True, limite_tentativa= 4) is not False:
+        logger.info('--- Encontrou o campo vazio, inserindo XXX0000')
+        ahk.win_activate('TopCompras', title_match_mode=2)
+        bot.click(procura_imagem('imagens/img_topcon/campo_placa.png', continuar_exec=True))
+        bot.write('XXX0000')
+        bot.press('ENTER')
+        #time.sleep(0.4)
+    else:
+        logger.info('--- Não achou o campo ou já está preenchido')
+
 
 def programa_principal():
     global qtd_notas_lancadas
@@ -229,6 +287,7 @@ def programa_principal():
     ativar_janela('TopCompras', 70)
     bot.click(procura_imagem(imagem='imagens/img_topcon/txt_ValoresTotais.png', continuar_exec= True))
 
+    '''
     # * -------------------------------------- VALIDAÇÃO TRANSPORTADOR --------------------------------------
     logger.info(F'--- Preenchendo transportador: {cracha_mot}')
     ahk.win_activate('TopCompras', title_match_mode= 2)
@@ -238,7 +297,7 @@ def programa_principal():
     bot.press('tab')
     time.sleep(0.5)
     tentativa_achar_camp_re = 0
-    while procura_imagem(imagem='imagens/img_topcon/campo_re_0.png', continuar_exec= True, limite_tentativa= 1, confianca= 0.74) is False:
+    while procura_imagem(imagem='imagens/img_topcon/campo_re_0.png', continuar_exec= True, limite_tentativa= 2, confianca= 0.74) is False:
         logger.info(F'Tentativa: {tentativa_achar_camp_re}')
         time.sleep(0.4)
         tentativa_achar_camp_re += 1
@@ -256,7 +315,7 @@ def programa_principal():
 
     logger.info('--- Aguardando validar o campo do transportador')
     ahk.win_activate('TopCompras', title_match_mode=2)
-    if procura_imagem(imagem='imagens/img_topcon/transportador_incorreto.png', continuar_exec= True, limite_tentativa= 6) is not False:
+    if procura_imagem(imagem='imagens/img_topcon/transportador_incorreto.png', continuar_exec= True, limite_tentativa= 4) is not False:
         logger.info('--- Transportador incorreto!')
         bot.press('ENTER')
         bot.press('F2')
@@ -269,15 +328,19 @@ def programa_principal():
 
     # Verifica se o campo da placa ficou preenchido
     time.sleep(0.4)
-    if procura_imagem('imagens/img_topcon/campo_placa.png', confianca= 0.74, continuar_exec=True) is not False:
+    if procura_imagem('imagens/img_topcon/campo_placa.png', confianca= 0.74, continuar_exec=True, limite_tentativa= 4) is not False:
         logger.info('--- Encontrou o campo vazio, inserindo XXX0000')
         ahk.win_activate('TopCompras', title_match_mode=2)
         bot.click(procura_imagem('imagens/img_topcon/campo_placa.png', continuar_exec=True))
         bot.write('XXX0000')
         bot.press('ENTER')
-        time.sleep(0.4)
+        #time.sleep(0.4)
     else:
         logger.info('--- Não achou o campo ou já está preenchido')
+    '''
+    if valida_transportador(cracha_mot) is False:
+        logger.info('--- Falhou na validação do transportador, recomeçando o processo.')
+        return False
 
     # * -------------------------------------- Aba Produtos e serviços --------------------------------------
     ativar_janela('TopCompras')
@@ -299,24 +362,22 @@ def programa_principal():
     if '38953477000164' in chave_xml: #Caso não tenha o CNPJ da Consmar
         finaliza_lancamento()
         return True
-    
+
     #* Realiza a extração da quantidade de toneladas
     preenche_local(silo1, silo2)
 
     #* Finaliza o processo de lançamento
-    finaliza_lancamento() # Realiza todo o processo de finalização de lançamento.
+    finaliza_lancamento(temp_inicial= tempo_inicial) # Realiza todo o processo de finalização de lançamento.
     qtd_notas_lancadas += 1
     print(F"Quantidade de NFS lançadas: {qtd_notas_lancadas}")
     logger.info(F"Quantidade de NFS lançadas: {qtd_notas_lancadas}")
 
-    # Valida a medição de tempo
+    # Valida a medição de tempo que levou
     end_time = time.time()
     elapsed_time = end_time - tempo_inicial
     medicao_minutos = elapsed_time / 60
     print(f"Tempo decorrido: {medicao_minutos:.2f} segundos")
     logger.info(f"Tempo decorrido: {medicao_minutos:.2f} segundos")
-    time.sleep(0.05)
-    #exit(bot.alert(F"Lançamento concluido! \n Tempo que levou: {medicao_minutos:.2f}"))
 
     return True
 
@@ -362,14 +423,16 @@ if __name__ == '__main__':
     lancamento_realizado = False
     tempo_inicial = time.time()
     tempo_pausa = 600 # 10 minutos
-    
-    #* Realiza os processos inicias da execução da automação
-    os.system('taskkill /im AutoHotkey.exe /f /t') # Encerra todos os processos do AHK
-    os.system('cls')
 
     #* Verifica qual sistema está rodando o script
     if 'VLPTIC1Z9HD33' not in platform.node(): 
         bot.FAILSAFE = False
+
+
+    #* Realiza os processos inicias da execução da automação
+    os.system('taskkill /im AutoHotkey.exe /f /t 2>nul') # Encerra todos os processos do AHK
+    #os.system('taskkill /im AutoHotkey.exe /f /t') # Encerra todos os processos do AHK
+    os.system('cls')
 
     while tentativa < 10:
         logger.info(F'--- Iniciando nova tentativa Nº {tentativa} o Try-Catch do PROGRAMA PRINCIPAL')
@@ -383,7 +446,7 @@ if __name__ == '__main__':
         except Exception as ultimo_erro:
             lancamento_realizado = False
             arquivo_erro, mensagem_erro = trata_erro(ultimo_erro, tentativa)
-
+            caminho_imagem = print_erro()
             #enviar_email("brunobola2010@gmail.com", F"[RPA Cortesia] Apresentou erro na task: {arquivo_erro}, tentativa: {tentativa}", F"Erro coletado: \n {mensagem_erro}")
             logger.exception(F'--- A execução principal apresentou erro! Tentativa: {tentativa}, Pausa anterior: {tempo_pausa}')
 
