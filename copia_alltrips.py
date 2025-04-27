@@ -6,7 +6,7 @@ import pyautogui as bot
 from datetime import datetime
 from utils.funcoes import ahk as ahk
 from utils.configura_logger import get_logger
-from utils.funcoes import procura_imagem, abre_planilha_navegador, msg_box, ativar_janela
+from utils.funcoes import procura_imagem, abre_planilha_navegador, ativar_janela, reaplica_filtro_status
 
 
 # --- Definição de parametros
@@ -68,33 +68,37 @@ def encontra_ultimo_xml(ultimo_xml = '', powerapps_id = ''):
         if chave_encontrada == ultimo_xml:
             logger.info(F'--- Concluido a navegação até a ultima chave XML: {ultimo_xml}')
 
-            #* Verificando o PowerApps ID
-            bot.press('RIGHT')
-            time.sleep(0.2)
-            bot.hotkey('ctrl', 'c')
-            novo_powerapps_id = ahk.get_clipboard()
-            if novo_powerapps_id == powerapps_id:
-                bot.press('LEFT')
-                return True
+            #* Realiza uma validação também pelo PowerApps ID
+            #* Caso o antigo seja = #NOME?, não realiza a validação.
+            if powerapps_id != "#NOME?":
+                bot.press('RIGHT')
+                time.sleep(0.2)
+                bot.hotkey('ctrl', 'c')
+                novo_powerapps_id = ahk.get_clipboard()
+                if novo_powerapps_id == powerapps_id:
+                    bot.press('LEFT')
+                    return True
+                else:
+                    #Abre o menu de pesquisa
+                    logger.info('--- Abrindo o menu de pesquisa na planilha para procurar o powerapps ID')
+                    bot.press('ALT')
+                    bot.press('C')
+                    bot.press('F')
+                    bot.press('D')
+                    bot.press('F')
+
+                    # Insere a ultima chave copiada da planilha de debug
+                    logger.info(F'--- Digitando a ultimo powerapps ID: {powerapps_id}')
+                    bot.write(powerapps_id)
+                    bot.press('ENTER', presses= 2)
+
+                    # Fecha o menu de pesquisa
+                    bot.press('ESC')
+                    bot.press('ALT', presses= 2)
+                    logger.info('--- Fechou o menu de pesquisa')
+                    bot.press('LEFT')
             else:
-                #Abre o menu de pesquisa
-                logger.info('--- Abrindo o menu de pesquisa na planilha para procurar o powerapps ID')
-                bot.press('ALT')
-                bot.press('C')
-                bot.press('F')
-                bot.press('D')
-                bot.press('F')
-
-                # Insere a ultima chave copiada da planilha de debug
-                logger.info(F'--- Digitando a ultimo powerapps ID: {powerapps_id}')
-                bot.write(powerapps_id)
-                bot.press('ENTER', presses= 2)
-
-                # Fecha o menu de pesquisa
-                bot.press('ESC')
-                bot.press('ALT', presses= 2)
-                logger.info('--- Fechou o menu de pesquisa')
-                bot.press('LEFT')
+                return True
         else:
             logger.warning(F'--- Ops... não está na ultima chave {ultimo_xml}, navegando novamente.')
             raise TimeoutError
@@ -191,7 +195,7 @@ def cola_dados(dados_copiados = "TESTE"):
     abre_planilha_navegador(planilha_debug)
     time.sleep(8)
     logger.info('--- Acessando a planilha de debug para COLAR os dados!')
-    ativar_janela('db_alltrips.xlsx')
+    ativar_janela('debug_db_alltrips.xlsx')
     time.sleep(1)
     bot.hotkey('CTRL', 'HOME') # Navega até a celula A1.
     bot.press('DOWN', presses= 2) # Proxima linha que deveria estar sem informação.
@@ -207,7 +211,8 @@ def cola_dados(dados_copiados = "TESTE"):
     time.sleep(0.25)
     logger.info('--- Copiado e colado com sucesso! Fechando a planilha original.')
 
-    ahk.win_activate('db_alltrips.xlsx', title_match_mode= 1)
+    ahk.win_activate('debug_db_alltrips.xlsx', title_match_mode= 1)
+    time.sleep(0.5)
 
     for i in range (0, 15):
         logger.info("--- Fechando a planilha do banco ORIGINAL antes de prosseguir.")
@@ -218,6 +223,9 @@ def cola_dados(dados_copiados = "TESTE"):
     else:
         logger.error('--- Não conseguiu fechar a planilha original')
         raise Exception("Não conseguiu fechar a planilha original")
+
+    reaplica_filtro_status()
+
 
 def verifica_quatro_dias(dados_copiados):
     """ Compara os dados copiados e verifica se consta alguma nota que a data é de quatro dias atrás.
