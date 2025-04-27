@@ -69,7 +69,7 @@ def processo_transferencia():
             ahk.win_activate('TopCompras (VM-CortesiaApli.CORTESIA.com)', title_match_mode= 2)
             bot.press('enter')
         else:
-            logger.info('--- Não encontrou a tela "Deseja processar NFE ainda')
+            logger.info('--- Não encontrou a tela "Deseja processar NFE ainda" ')
 
 if __name__ == '__main__':
     processo_transferencia()

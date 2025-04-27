@@ -23,7 +23,7 @@ PO_PEDRA = ('PO DE PEDRA', 'AREA INDUSTRIAL', 'AREIA INDUSTRIAL')
 BRITA_0 = ('BRITA 0', 'PEDRISCO LIMPO', 'BRITAD™', 'BRITAO', 'PEDRISCO LAVADDO', 'BRITA ZERO')
 CIMENTO_CP3 = ('CP 111', 'teste')
 CIMENTO_CP2 = ('CP II-E-40', '£-40', 'CIMENTO PORTLAND CP IIE-40 RS |', "CIMENTO PORTLAND CP I'E-40 RS.", "CIMENTO PORTLAND CP IE-40 RS")
-AREIA_RIO = ('AREIA LAVADA MEDIA', 'ARE A LAVADA MEDIA', 'AREA LAVADA MEDIA', 'AREIA LAVADA')
+AREIA_RIO = ('AREIA LAVADA MEDIA', 'ARE A LAVADA MEDIA', 'AREA LAVADA MEDIA', 'AREIA LAVADA', 'AREIA MEDIA')
 CIMENTO_CP5 = ('CPV', 'V-ARI')
 AREIA_QUARTZO = ('AREIA DE QUARTZO VERMELHA', 'AREA QUARTZD', 'AREIA DE QUARTZ0 VERMELHA', 'P2 AREIA', 'AREI|A DE QUARTZ0', 'AREIA VERMELHA',
                  'AREIA MEDIA UMIDA BRANCA', 'AREI|A MEDIA UMIDA BRANCA')
@@ -47,7 +47,7 @@ mapeamento_imagens = {
 }
 
 
-def valida_pedido():
+def valida_pedido(chave_xml = ""):
     logger.info('--- Executando função: valida pedido' )
     bot.PAUSE = 0.2
     tentativa = 0
@@ -63,6 +63,12 @@ def valida_pedido():
     logger.debug('--- Extraindo a imagem para descobrir qual item consta no campo "Itens XML" ')
     txt_itensXML = extrai_txt_img(imagem='item_nota.png',area_tela=(170, 407, 280, 20))
     logger.info(F'--- Texto extraido do "Itens XML": {txt_itensXML} ')
+
+    # Verifica se a nota é da CONSMAR
+    if (txt_itensXML == "AREIA MEDIA") and ("38953477000164" in chave_xml):
+        txt_itensXML = "AREIA LAVADA MEDIA"
+        logger.info(F'--- Nota da CONSMAR! Alterou o item para: {txt_itensXML}')
+
 
     #* Indentifica qual o item que consta na extração.
     for nome in nome_pedido: #* Para cada item na lista de pedidos
@@ -220,16 +226,17 @@ def valida_bt_localizar():
             raise Exception('Tela "Vinculação itens da NOTA" não carregou corretamente')
 
 
-def main():
+def main(chave_xml = ""):
     logger.info('--- Executando o arquivo VALIDA PEDIDO --- ')
+
     verifica_tela_vinculacao()
     valida_bt_localizar()
-    return valida_pedido()
+    return valida_pedido(chave_xml)
     
 
 if __name__ == '__main__':
     tempo_inicial = time.time()
-    main()
+    main("35250438953477000164550010000537031000800001")
 
     # Linha específica onde você quer medir o tempo
     end_time = time.time()

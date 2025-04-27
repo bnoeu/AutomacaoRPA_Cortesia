@@ -3,6 +3,8 @@
 
 import time
 import os
+
+from outcome import Value
 from utils.configura_logger import get_logger
 import pyautogui as bot
 from copia_alltrips import main as copia_banco
@@ -17,7 +19,7 @@ from utils.funcoes import ahk as ahk
 logger = get_logger("script1")
 planilha_debug = "https://cortesiaconcreto-my.sharepoint.com/:x:/g/personal/bruno_silva_cortesiaconcreto_com_br/ETubFnXLMWREkm0e7ez30CMBnID3pHwfLgGWMHbLqk2l5A?rtime=jFhSykjw3Eg"
 
-
+erro_log = ""
 
 def coleta_dados():
     dados_copiados = False
@@ -31,11 +33,12 @@ def coleta_planilha():
     tentativa = 0
     while tentativa < 20:
         ahk.win_activate("debug_db", title_match_mode = 2)
-        time.sleep(0.4)
+        time.sleep(0.2)
         bot.hotkey('CTRL', 'HOME')
         bot.press('DOWN')
 
         dados_planilha = copia_linha_atual()
+        
 
         if tentativa > 19:
             raise Exception(F"Dados inválidos: {str(dados_planilha)}, executou todas as tentativas")
@@ -56,6 +59,7 @@ def processa_dados(dados_planilha):
         logger.info(F'--- Dados copiados: {dados_planilha}')
         logger.info(F'--- Chegou na última NFE {chave_xml}')
         copia_banco(chave_xml, powerapps_id)
+        raise ValueError
     else:
             logger.info(F'--- Dados copiados com sucesso: {dados_planilha}')
     return dados_planilha
@@ -99,13 +103,19 @@ def main():
             if dados_copiados:
                 logger.success('--- Processo de coleta da planilha foi executado corretamente.')
                 return dados_copiados
+
+        except ValueError:
+            return False
+        
         except Exception as e:
+            global erro_log
             ultimo_erro = e
+            erro_log = e
             handle_timeout(texto_erro = ultimo_erro)
     else:
         logger.critical("--- Número maximo de tentativas de executar o COLETA PLANILHA.PY ")
-        os.system('taskkill /im msedge.exe /f /t') # Encerra todos os processos do msedge
-        raise Exception(F"Número maximo de tentativas de executar o COLETA PLANILHA.py, erro coletado: {ultimo_erro}")
+        os.system('taskkill /im msedge.exe /f /t 2>nul') # Encerra todos os processos do msedge
+        raise Exception(F"Número maximo de tentativas de executar o COLETA PLANILHA.py, erro coletado: {erro_log}")
 
 
 if __name__ == '__main__':

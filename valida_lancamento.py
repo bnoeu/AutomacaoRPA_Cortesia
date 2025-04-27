@@ -3,7 +3,7 @@
 
 import time
 import pyautogui as bot
-from abre_topcon import main as abre_topcon, fechar_tela_nota_compra, navega_topcompras
+from abre_topcon import abre_mercantil, main as fechar_tela_nota_compra
 from automacao.conferencia_xml import conferencia_xml
 from coleta_planilha import main as coleta_planilha
 from utils.funcoes import ativar_janela, procura_imagem, corrige_nometela
@@ -58,7 +58,7 @@ def altera_topcon_incluir():
 
         if i == 3:
             fechar_tela_nota_compra()
-            navega_topcompras()
+            abre_mercantil()
 
         if i >= 5:
             logger.error('--- Atingiu o maximo de tentativas de alterar os botões ---')
@@ -77,7 +77,8 @@ def valida_lancamento():
         while dados_planilha is False:
             time.sleep(0.2)
             dados_planilha = coleta_planilha() # Recebe os dados coletados da planilha, já validados e formatados.
-
+            if dados_planilha == False:
+                raise Exception("Copiou dados novos! Necessario reiniciar o processo!")
         #* Trata a chave XML, removendo os espaços caso exista.
         chave_xml = dados_planilha[4].strip()
 

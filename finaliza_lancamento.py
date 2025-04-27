@@ -1,3 +1,4 @@
+from ast import Raise
 import time
 import pyautogui as bot
 
@@ -42,20 +43,22 @@ def janelas_sucesso():
         return True
 
 
-def finaliza_lancamento(planilha_marcada = False, lancamento_concluido = False, realizou_transferencia = False, tentativas_telas = 0):
+def finaliza_lancamento(planilha_marcada = False, lancamento_concluido = False, realizou_transferencia = False, tentativas_telas = 0, temp_inicial = ""):
     logger.info('--- Iniciando a função de finalização de lançamento, enviando PAGEDOWN ---' )
     ativar_janela('TopCompras')
     bot.press('pagedown')  # Conclui o lançamento
 
     logger.info('--- Tentando validar a tela que apresentou no sistema ---' )
-    while True:
-        time.sleep(0.4)
+    for i in range (0, 20):
+        time.sleep(0.5)
         #* Verifica se apresentou alguma das telas de erro!
         if janelas_erro() is True:
             logger.info('--- Finalizou a task FINALIZA LANCAMENTO, pois apareceu uma tela de erro.' )
             return False 
         if janelas_sucesso() is True:
             break
+        if i >= 29:
+            raise Exception("Erro na função  FINALIZA LANCAMENTO: Não encontrou telas SUCESSO ou ERRO")
 
     while True:        
         # 0. Verifica se ocorreu algo de transferencia
@@ -83,20 +86,23 @@ def finaliza_lancamento(planilha_marcada = False, lancamento_concluido = False, 
         if procura_imagem(imagem='imagens/img_topcon/operacao_realizada.png', continuar_exec= True, limite_tentativa= 1, confianca= 0.74) is not False:
             if planilha_marcada is False:
                 logger.info('--- Operação realizada, marcando a planilha com "Lancado RPA" ')
-                marca_lancado(texto_marcacao='Lancado_RPA')
+                marca_lancado(texto_marcacao='Lancado_RPA', temp_inicial = temp_inicial)
                 planilha_marcada = True
             
             ahk.win_activate('TopCompras', title_match_mode= 2)
             bot.click(procura_imagem(imagem='imagens/img_topcon/operacao_realizada.png'))
             logger.info('--- Clicando na tela "Operação Realizada" ')
             bot.press('ENTER')
-            time.sleep(2)
+            for i in range (0, 10):
+                time.sleep(0.2)
+                if procura_imagem(imagem='imagens/img_topcon/operacao_realizada.png', limite_tentativa= 2, continuar_exec= True) is False:
+                    break
 
             #* Caso apareça a tela sobre o lançamento de CTE
             corrige_nometela("TopCompras (VM-CortesiaApli.CORTESIA.com)")
             ahk.win_activate("TopCompras (VM-CortesiaApli.CORTESIA.com)", title_match_mode= 2)
             #* Caso apareça a tela sobre o lançamento de CTE
-            if procura_imagem(imagem='imagens/img_topcon/txt_alerta_conhecimento.png', limite_tentativa= 5, confianca= 0.75, continuar_exec=True):
+            if procura_imagem(imagem='imagens/img_topcon/txt_alerta_conhecimento.png', confianca= 0.75, limite_tentativa= 4, continuar_exec=True):
                 bot.click(procura_imagem(imagem='imagens/img_topcon/bt_nao.png'))
                 pass
                     
