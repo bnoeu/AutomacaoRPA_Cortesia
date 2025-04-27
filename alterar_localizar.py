@@ -3,7 +3,7 @@
 
 import time
 import pyautogui as bot
-from abre_topcon import navega_topcompras, fechar_tela_nota_compra
+from abre_topcon import abre_mercantil, fechar_tela_nota_compra
 #from automacao.conferencia_xml import conferencia_xml
 #from coleta_planilha import main as coleta_planilha
 from utils.funcoes import ahk as ahk
@@ -26,13 +26,6 @@ def alterar_localizar():
             ahk.win_activate('TopCompras', title_match_mode= 2)
             bot.press('F2', presses= 2)
 
-        '''
-        if procura_imagem(imagem='imagens/img_topcon/txt_localizar.png', continuar_exec= True, area= (852, 956, 1368, 1045)):
-            logger.info('--- Está no modo "Localizar" Alterando para "Incluir"')
-            ahk.win_activate('TopCompras', title_match_mode= 2)
-            bot.press('F3', presses= 2)
-        '''
-
         if procura_imagem(imagem='imagens/img_topcon/txt_localizar.png', continuar_exec= True, area= (852, 956, 1368, 1045)):
             logger.success('--- Está no modo "LOCALIZAR", lançamento pode continuar!')
             return True
@@ -40,7 +33,7 @@ def alterar_localizar():
         #* Após 5 execuções, tenta reabrir o TopCompras antes de prosseguir
         if i == 2:
             fechar_tela_nota_compra()
-            navega_topcompras()
+            abre_mercantil()
             
 
         if i >= 4:
