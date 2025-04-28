@@ -26,13 +26,6 @@ def alterar_localizar():
             ahk.win_activate('TopCompras', title_match_mode= 2)
             bot.press('F2', presses= 2)
 
-        '''
-        if procura_imagem(imagem='imagens/img_topcon/txt_localizar.png', continuar_exec= True, area= (852, 956, 1368, 1045)):
-            logger.info('--- Está no modo "Localizar" Alterando para "Incluir"')
-            ahk.win_activate('TopCompras', title_match_mode= 2)
-            bot.press('F3', presses= 2)
-        '''
-
         if procura_imagem(imagem='imagens/img_topcon/txt_localizar.png', continuar_exec= True, area= (852, 956, 1368, 1045)):
             logger.success('--- Está no modo "LOCALIZAR", lançamento pode continuar!')
             return True
