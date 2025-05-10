@@ -17,8 +17,13 @@ planilha_debug = "https://cortesiaconcreto-my.sharepoint.com/:x:/g/personal/brun
 
 
 def encontra_ultimo_xml(ultimo_xml = '', powerapps_id = ''):
-    bot.PAUSE = 1.5
+    bot.PAUSE = 2
+    tentativa = 0
     while True:
+        tentativa += 1
+        if tentativa > 5:
+            raise Exception("Excedeu o limite de tentativas de encontrar o ultimo XML!")
+
         logger.info(F'--- Iniciando a navegação até a ultima chave XML: {ultimo_xml}')
         ahk.win_activate('db_alltrips.xlsx', title_match_mode= 1)
         ahk.win_wait_active('db_alltrips.xlsx', title_match_mode= 1, timeout= 5)
@@ -104,6 +109,7 @@ def encontra_ultimo_xml(ultimo_xml = '', powerapps_id = ''):
             raise TimeoutError
 
 def valida_nova_chave_inserida(tentativa):
+    bot.PAUSE = 2
     tempo_pausa = tentativa * 1800  # Multiplica a tentativa por 30 minutos, como são 4, o maximo é 2 horas
     logger.info('--- Verificando se existe uma nova chave NFE.')
 
@@ -134,7 +140,7 @@ def valida_nova_chave_inserida(tentativa):
 
 
 def copia_dados():
-    bot.PAUSE = 1.5
+    bot.PAUSE = 2
     dados_copiados = ""
 
     # Inicia o processo de seleção dos dados
@@ -167,7 +173,7 @@ def copia_dados():
             logger.info('--- Encontrou "/2025" que indica os dados da coluna "D. Inserção" nos dados copiados!')
             return dados_copiados
 
-        if i >= 8:
+        if i >= 6:
             if ("/" in dados_copiados) or ("/2025" in dados_copiados) or ("," in dados_copiados): # Verifica se os dados foram copiados com sucesso
                 logger.success('--- Novos dados copiados com sucesso da planilha db_alltrips')
                 print('--- Novos dados copiados com sucesso da planilha db_alltrips')
@@ -190,7 +196,7 @@ def copia_dados():
             raise Exception("Excedeu o limite de tentativas de copiar os dados, soltando SHIFT e CONTROL")
 
 def cola_dados(dados_copiados = "TESTE"):
-    bot.PAUSE = 1.5
+    bot.PAUSE = 2
     
     abre_planilha_navegador(planilha_debug)
     time.sleep(8)
@@ -209,11 +215,11 @@ def cola_dados(dados_copiados = "TESTE"):
     time.sleep(0.25)
     bot.press('V') # Seleciona a opção "Colar somente valores"
     time.sleep(0.25)
-    logger.info('--- Copiado e colado com sucesso! Fechando a planilha original.')
+    time.sleep(2)
 
-    ahk.win_activate('debug_db_alltrips.xlsx', title_match_mode= 1)
-    time.sleep(0.5)
-
+    # Realiza o fechamento da planilha com os dados originais. 
+    logger.info('--- Dados colados com sucesso! Fechando a planilha original.')
+    #ahk.win_activate('debug_db_alltrips.xlsx', title_match_mode= 1)
     for i in range (0, 15):
         logger.info("--- Fechando a planilha do banco ORIGINAL antes de prosseguir.")
         time.sleep(0.4)
@@ -249,7 +255,7 @@ def verifica_quatro_dias(dados_copiados):
 
 
 def main(ultimo_xml = chave_xml, powerapps_id = powerapps_id):
-    bot.PAUSE = 1.5
+    bot.PAUSE = 2
     logger.info('Iniciando função COPIA BANCO ( COPIA ALL TRIPS)')
 
     #* Abre a planilha do db_alltrips (banco original)
@@ -279,7 +285,7 @@ def main(ultimo_xml = chave_xml, powerapps_id = powerapps_id):
         return True
 
 if __name__ == '__main__':
-    main(ultimo_xml= "35250300934199000125550010003792561003671464", powerapps_id= "my6J13qTdjg")
+    main(ultimo_xml= "35250533039223000979550010003911141830789622", powerapps_id= "HSk5UQBFA-E")
     
 
     #exit(bot.alert("Terminou"))

@@ -135,11 +135,14 @@ def clica_img(img, deslocar_y, deslocar_x, limite_tentativa=5, area=(0, 0, 1920,
     posicao_texto = procura_imagem('imagens/bt_pagina_inicial.png')
     bot.click()
 
-if __name__ == '__main__':
-    time.sleep(2)
-    corrige_nometela("TopCompras (VM-CortesiaApli.CORTESIA.com)")
-    ahk.win_activate("TopCompras (VM-CortesiaApli.CORTESIA.com)", title_match_mode= 2)
-    #* Caso apareça a tela sobre o lançamento de CTE
-    if procura_imagem(imagem='imagens/img_topcon/txt_alerta_conhecimento.png', continuar_exec=True):
-        bot.click(procura_imagem(imagem='imagens/img_topcon/bt_nao.png'))
-        pass
+ahk.win_activate('TopCompras', title_match_mode = 2)
+time.sleep(0.2)
+
+if procura_imagem(imagem='imagens/img_topcon/txt_fornecedor_nao_cadastrado.png', continuar_exec=True, limite_tentativa= 1, confianca= 0.74) is not False:
+    #marca_lancado(texto_marcacao='Fornecedor_nao_cadastrado')
+    ahk.win_wait('TopCompras', title_match_mode = 2, timeout= 50)
+    logger.info('--- Fornecedor não cadastrado!')
+    bot.click(procura_imagem(imagem='imagens/img_topcon/bt_nao.png'))
+    time.sleep(0.4)
+    bot.press('F2', presses = 2)
+    #break

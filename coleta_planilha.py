@@ -58,6 +58,7 @@ def processa_dados(dados_planilha):
     if len(dados_planilha[6]) > 1:
         logger.info(F'--- Dados copiados: {dados_planilha}')
         logger.info(F'--- Chegou na última NFE {chave_xml}')
+        exit(bot.alert("Verificar copia"))
         copia_banco(chave_xml, powerapps_id)
         raise ValueError
     else:

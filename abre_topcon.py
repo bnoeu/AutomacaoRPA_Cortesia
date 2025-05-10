@@ -63,13 +63,13 @@ def fechar_topcompras():
 
 def abre_mercantil():
     logger.info('--- Realizando a abertura do modulo de compras')
-    time.sleep(1)
+    time.sleep(2)
 
     ativar_janela('TopCon', 30)
     #ahk.win_activate("TopCon", title_match_mode= 2)
     logger.info('--- Clicando para abrir o modulo de compras')
     bot.click(procura_imagem(imagem='imagens/img_topcon/icone_mercantil.png', limite_tentativa= 15))
-    time.sleep(3)
+    time.sleep(2.5)
 
     #* Caso não encontre o TopCompras, tenta corrigir o nome
     corrige_nometela("TopCompras (")
@@ -77,17 +77,19 @@ def abre_mercantil():
     #* Verifica se o pop-up "interveniente" está aberto
     logger.info('--- Verificando se o pop-up do interveniente está aberto')
     for i in range (0, 5):
+        time.sleep(0.2)
         if ahk.win_exists("TopCompras (", title_match_mode= 1):
             logger.info('--- Fechando a tela "interveniente" ')
-            ahk.win_close("TopCompras (", title_match_mode= 2, seconds_to_wait= 5)
+            ahk.win_close("TopCompras (", title_match_mode= 2, seconds_to_wait= 10)
         else:
             corrige_nometela("TopCompras")
             time.sleep(0.2)
             ativar_janela('TopCompras', 30)
-            time.sleep(0.5)
-            if procura_imagem('imagens/img_topcon/produtos_servicos.png'):
+            time.sleep(0.2)
+            if procura_imagem('imagens/img_topcon/produtos_servicos.png', limite_tentativa= 12):
                 logger.success("Concluiu a task ABRE MERCANTIL")
                 break
+        
         if i >= 4:
             logger.error(F"Não foi possivel fechar a tela 'interveniente' (TopCompras (! Tentativas executadas: {i}")
             raise Exception('Não foi possivel fechar a tela "TopCompras (", necessario reiniciar o TopCon')
@@ -154,23 +156,21 @@ def login_topcon():
     logger.info('--- Realizando login no TOPCON')
     #* Se o modulo de compras estiver fechado, realiza o login no TopCon
     if ahk.win_exists('TopCompras', title_match_mode= 2) is False: 
-        time.sleep(5)
+        time.sleep(1)
         ativar_janela('TopCon', 30)
         
         #* Valida se realmente realizou o Login no TopCon ou se já iniciou logado
         for i in range(0, 5):
-            time.sleep(0.2)
-            if procura_imagem(imagem='imagens/img_topcon/logo_topcon_grande.png', continuar_exec= True):
-                time.sleep(0.2)
-                logger.info('--- Tela do Topcon está aberta!')
+            if procura_imagem(imagem='imagens/img_topcon/logo_topcon_grande.png', continuar_exec= True, limite_tentativa= 4):
+                logger.info('--- Já está logado no Topcon!')
                 ahk.win_maximize('TopCon', title_match_mode= 2)
-                break
+                return True
 
             #* Aguarda até aparecer o campo do servidor de aplicação
-            if procura_imagem(imagem='imagens/img_topcon/txt_ServidorAplicacao.png', continuar_exec= True): 
+            elif procura_imagem(imagem='imagens/img_topcon/txt_ServidorAplicacao.png', continuar_exec= True, limite_tentativa= 4): 
                 logger.info('--- Tela de login do topcon aberta')
                 bot.click(procura_imagem(imagem='imagens/img_topcon/txt_ServidorAplicacao.png'))
-                bot.press('tab', presses= 2, interval= 0.005)
+                bot.press('tab', presses= 2, interval= 0.05)
                 bot.press('backspace')
                 
                 #* Insere os dados de login do usuario BRUNO.S
@@ -184,7 +184,10 @@ def login_topcon():
                 logger.success("Login realizado com sucesso!")
                 return True
             else: #* Caso não encontre a tela do para realizar o Login no TopCon
-                raise Exception("Login no Topcon não foi concluido!")
+                logger.warning(f"Tentativa {i+1}/5: não encontrou tela de login nem logo do TopCon.")
+                time.sleep(1)
+        else:
+            raise Exception(f"Login no TopCon não foi concluído após {i} tentativas.")
 
     if procura_imagem('imagens/img_topcon/txt_OLA_BRUNO.png'):
         logger.success("Concluiu o Login no TopCon")
@@ -203,21 +206,20 @@ def abre_topcon():
     while True:
         logger.info('--- Iniciando o RemoteApp')
         os.startfile('RemoteApp\RemoteApp-Cortesia.rdp')
-        #time.sleep(10)
+        ahk.win_wait("RemoteApp", title_match_mode= 3, timeout= 10)
         
-        telas_seguranca = ['Windows Security', 'Segurança do Windows'] # Tenta encontrar em ingles e portugues.
-        tela_login_rdp = False
         
         # Verifica se ao abrir, já começou logado no RemoteDesktop
-        for i in range (0, 20):
+        for i in range (0, 5):
             time.sleep(0.5)
+            corrige_nometela("TopCon - Versão")
             if ahk.win_exists('TopCon', title_match_mode= 2):
                 logger.info('--- RemoteDesktop já está logado! Não é necessario fazer o processo.')
                 return True
-        else:
-            print('passou')
-        
-        #* Verifica se abriu alguma das telas de segurança de execução do RDP
+
+        # Verifica se abriu alguma das telas de segurança de execução do RDP
+        telas_seguranca = ['Windows Security', 'Segurança do Windows']
+        tela_login_rdp = False
         for i in range (0, 10):
             time.sleep(0.4)
             if procura_imagem(imagem='imagens/img_topcon/txt_ServidorAplicacao.png', continuar_exec= True):
@@ -296,11 +298,13 @@ def main():
             if tentativa >= 6:
                 break
         except Exception as e:
-            ultimo_erro = e
+            logger.error(f"Erro: {type(e).__name__} - {str(e)}")
+            #logger.error(F"Apresentou um erro! {ultimo_erro}")
+            logger.debug("Traceback completo:", exc_info=True)
+
             if tentativa >= 9:
                 logger.critical(F"Função ABRE TOPCON apresentou erro critico! {ultimo_erro}")
                 return ultimo_erro
-            logger.error(F"Apresentou um erro! {ultimo_erro}")
         else:
             logger.success("Executou o ABRE_TOPCON.PY com sucesso!")
             return True

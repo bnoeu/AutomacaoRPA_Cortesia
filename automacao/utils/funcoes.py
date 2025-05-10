@@ -101,7 +101,7 @@ def verifica_tela(nome_tela, manual=False):
 
 
 def marca_lancado(texto_marcacao='Lancado'):
-    bot.PAUSE = 0.4
+    bot.PAUSE = 0.5
     tentativa = 0
     
     logger.info('--- Abrindo planilha')
@@ -121,7 +121,8 @@ def marca_lancado(texto_marcacao='Lancado'):
     bot.hotkey('CTRL', 'HOME')
 
     # Navega até o campo "Status"
-    bot.press('RIGHT', presses= 6)
+    bot.press('RIGHT', presses= 6, interval= 0.05)
+    time.sleep(0.2)
     bot.press('DOWN')
     
     # Informa o texto recebido pela função e passa para a celula ao lado, para inserir a data

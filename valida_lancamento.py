@@ -97,10 +97,10 @@ def valida_lancamento():
             return dados_planilha # Após todas as validações, retorna os dados para a execução principal
 
 if __name__ == '__main__':
+    ahk.win_activate('TopCompras', title_match_mode=2, detect_hidden_windows= True)
     tempo_inicial = time.time()
     
     valida_lancamento()
-    #altera_topcon_incluir()
     
     # Linha específica onde você quer medir o tempo
     end_time = time.time()
@@ -108,3 +108,4 @@ if __name__ == '__main__':
     medicao_minutos = elapsed_time / 60
     print(f"Tempo decorrido: {medicao_minutos:.2f} segundos")
     bot.alert("acabou")
+

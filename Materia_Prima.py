@@ -209,7 +209,6 @@ def programa_principal():
     time.sleep(1.5)
     bot.press('TAB', presses= 1) # Confirma a informação da nova filial de estoque
 
-
     #* Alteração da data
     logger.info('--- Realizando validação/alteração da data')
     hoje = date.today()

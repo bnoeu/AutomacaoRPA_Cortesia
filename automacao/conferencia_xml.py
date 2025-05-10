@@ -29,7 +29,7 @@ def conferencia_xml():
         raise Exception("Não encontrou o POP-UP na coferencia do lançamento, algum problema ocorreu")
 
     for i in range (0, 30):
-        if procura_imagem(imagem='imagens/img_topcon/botao_sim.jpg', continuar_exec= True, limite_tentativa= 1, confianca= 0.73) is not False:
+        if procura_imagem(imagem='imagens/img_topcon/txt_deseja_vincular_nota_pedido.png', continuar_exec= True, limite_tentativa= 1, confianca= 0.73) is not False:
             logger.info('--- XML Validado, indo para validação do pedido (Encontro o botão para vincular pedido "SIM" )')
             ahk.win_activate('TopCompras', title_match_mode=2, detect_hidden_windows= True)
             bot.click(procura_imagem(imagem='imagens/img_topcon/botao_sim.jpg', continuar_exec=True))
@@ -40,7 +40,8 @@ def conferencia_xml():
 
         elif procura_imagem(imagem='imagens/img_topcon/txt_fornecedor_cadastrado.png', continuar_exec=True, limite_tentativa= 1, confianca= 0.73) is not False:
             texto_erro = "cadastrar_fornecedor"
-            bot.click(procura_imagem(imagem='imagens/img_topcon/bt_nao.png', continuar_exec= True))       
+            bot.click(procura_imagem(imagem='imagens/img_topcon/bt_nao.png', continuar_exec= True))
+            time.sleep(0.2)
         
         elif procura_imagem(imagem='imagens/img_topcon/naoencontrado_xml.png', continuar_exec=True, limite_tentativa= 1, confianca= 0.73) is not False:
             texto_erro = "Aguardando_SEFAZ"

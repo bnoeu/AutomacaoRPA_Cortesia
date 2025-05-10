@@ -51,7 +51,7 @@ def preenche_local(silo1 = "", silo2 = ""):
 
         #* Verifica se a informação está duplicada nos dois campos
         if silo1 == silo2:
-            logger.error('--- A informação nos dois campos "SILO" estava igual, corrigindo apenas para um preenchimento')
+            logger.warning('--- A informação nos dois campos "SILO" estava igual, corrigindo apenas para um preenchimento')
             silo2 = ""
 
         #* Preenche os locais de estoque informados, e a quantidade.
