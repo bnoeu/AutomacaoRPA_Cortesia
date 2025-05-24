@@ -49,7 +49,7 @@ def finaliza_lancamento(planilha_marcada = False, lancamento_concluido = False, 
     bot.press('pagedown')  # Conclui o lançamento
 
     logger.info('--- Tentando validar a tela que apresentou no sistema ---' )
-    for i in range (0, 20):
+    for i in range (0, 1):
         time.sleep(0.5)
         #* Verifica se apresentou alguma das telas de erro!
         if janelas_erro() is True:
@@ -93,16 +93,16 @@ def finaliza_lancamento(planilha_marcada = False, lancamento_concluido = False, 
             bot.click(procura_imagem(imagem='imagens/img_topcon/operacao_realizada.png'))
             logger.info('--- Clicando na tela "Operação Realizada" ')
             bot.press('ENTER')
-            for i in range (0, 10):
+            for i in range (0, 8):
                 time.sleep(0.2)
-                if procura_imagem(imagem='imagens/img_topcon/operacao_realizada.png', limite_tentativa= 2, continuar_exec= True) is False:
+                if procura_imagem(imagem='imagens/img_topcon/operacao_realizada.png', limite_tentativa= 1, continuar_exec= True) is False:
                     break
 
             #* Caso apareça a tela sobre o lançamento de CTE
             corrige_nometela("TopCompras (VM-CortesiaApli.CORTESIA.com)")
             ahk.win_activate("TopCompras (VM-CortesiaApli.CORTESIA.com)", title_match_mode= 2)
             #* Caso apareça a tela sobre o lançamento de CTE
-            if procura_imagem(imagem='imagens/img_topcon/txt_alerta_conhecimento.png', confianca= 0.75, limite_tentativa= 4, continuar_exec=True):
+            if procura_imagem(imagem='imagens/img_topcon/txt_alerta_conhecimento.png', confianca= 0.75, limite_tentativa= 3, continuar_exec=True):
                 bot.click(procura_imagem(imagem='imagens/img_topcon/bt_nao.png'))
                 pass
                     
@@ -148,13 +148,15 @@ def finaliza_lancamento(planilha_marcada = False, lancamento_concluido = False, 
         while ahk.win_exists('Espelho de Nota Fiscal', title_match_mode= 2):
             ahk.win_close('Espelho de Nota Fiscal', title_match_mode= 2)
 
+        '''
         # 5. Caso apareça a tela "Fornecedor não cadastrado"
         if procura_imagem(imagem='imagens/img_topcon/txt_fornecedor_cadastrado.png', continuar_exec=True, limite_tentativa= 1, confianca= 0.74) is not False:
-            logger.info('--- Nota já lançada, marcando planilha!')
+            logger.info('--- Fornecedor não cadastrado!!')
             bot.press('ENTER')
             bot.press('F2', presses = 2)
             marca_lancado(texto_marcacao='Lancado_Manual')
             break
+        '''
 
         # 6. Caso apareça a tela "Valor de frete maior"
         if procura_imagem(imagem='imagens/img_topcon/txt_valor_frete.png', continuar_exec=True, limite_tentativa= 1, confianca= 0.74) is not False:

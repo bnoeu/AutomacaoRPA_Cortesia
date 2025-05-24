@@ -48,7 +48,7 @@ def procura_imagem(imagem, limite_tentativa= 8, area=(0, 0, 1920, 1080), continu
         _type_: Retorna as posições onde encontrou a imagem.
     """    
     
-    pausa_img = 0.15
+    pausa_img = 0.125
     
     tentativa = 0  
     logger.debug(F'--- Tentando encontrar: {imagem}')
@@ -281,12 +281,10 @@ def verifica_ped_vazio(texto, pos):
     else:  # Caso fique vazio
         logger.info('--- Itens XML ficou vazio! saindo da tela de vinculação')
         bot.click(procura_imagem(imagem='imagens/img_topcon/confirma.png'))
-        
+        time.sleep(3)
+
         ahk.win_wait_active('TopCompras (VM-CortesiaApli.CORTESIA.com)', title_match_mode = 2, timeout= 30)
-        while ahk.win_exists('TopCompras (VM-CortesiaApli.CORTESIA.com)', title_match_mode = 2):
-            ahk.win_activate('TopCompras (VM-CortesiaApli.CORTESIA.com)', title_match_mode = 2)
-            time.sleep(0.4)
-            bot.click(procura_imagem(imagem='imagens/img_topcon/botao_ok.jpg', confianca= 0.73, limite_tentativa= 10))
+        bot.click(procura_imagem(imagem='imagens/img_topcon/botao_ok.jpg', limite_tentativa= 10))
 
         ahk.win_wait_close('Vinculação Itens da Nota', title_match_mode = 2, timeout= 30)
         logger.info('--- Encerrado a função verifica pedido vazio!')

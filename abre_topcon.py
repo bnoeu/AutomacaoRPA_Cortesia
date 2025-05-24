@@ -63,13 +63,12 @@ def fechar_topcompras():
 
 def abre_mercantil():
     logger.info('--- Realizando a abertura do modulo de compras')
-    time.sleep(2)
+    time.sleep(1)
 
     ativar_janela('TopCon', 30)
-    #ahk.win_activate("TopCon", title_match_mode= 2)
     logger.info('--- Clicando para abrir o modulo de compras')
-    bot.click(procura_imagem(imagem='imagens/img_topcon/icone_mercantil.png', limite_tentativa= 15))
-    time.sleep(2.5)
+    bot.click(procura_imagem(imagem='imagens/img_topcon/icone_mercantil.png', limite_tentativa= 15), clicks= 2)
+    time.sleep(3)
 
     #* Caso não encontre o TopCompras, tenta corrigir o nome
     corrige_nometela("TopCompras (")
