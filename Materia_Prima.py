@@ -16,14 +16,15 @@ import os
 import time
 import platform
 import traceback
-from numpy import true_divide
+import subprocess
 import pytesseract
 import pyautogui as bot
-from datetime import date, datetime, timedelta
+from numpy import true_divide
 from utils.funcoes import ahk as ahk
 from abre_topcon import main as abre_topcon
 from utils.enviar_email import enviar_email
 from utils.configura_logger import get_logger
+from datetime import date, datetime, timedelta
 from valida_pedido import main as valida_pedido
 from valida_lancamento import valida_lancamento
 from preenche_local import main as preenche_local
@@ -212,24 +213,25 @@ def programa_principal():
     #* Alteração da data
     logger.info('--- Realizando validação/alteração da data')
     hoje = date.today()
-    #hoje = hoje.strftime("%d%m%y")  # dd/mm/YY
+    hoje = hoje.strftime("%d%m%y")  # dd/mm/YY
     logger.info(F'--- Inserindo a data coletada: {data_formatada} e apertando ENTER')
     bot.write(data_formatada)
     bot.press('ENTER')
-    time.sleep(1.5)
+    time.sleep(2)
     ativar_janela('TopCompras', 70)
 
     # Caso o sistema informe que a data deve ser maior/igual a data inserida acima.
     logger.info('--- Verificando se apareceu data')
     if procura_imagem('imagens/img_topcon/data_invalida.png', continuar_exec= True, limite_tentativa= 2):
-        logger.warning('--- Precisa mudar a data, inserindo a data de hoje!')
+        logger.warning(f'--- Precisa mudar a data, inserindo a data de hoje: {hoje}')
         #bot.alert("Apresentou tela erro")
         ahk.win_close("TopCompras (VM-CortesiaApli.CORTESIA.com)", title_match_mode= 2)
         time.sleep(0.5)        
-        bot.write(hoje)
+        bot.write(f"{hoje}")
         bot.press('enter')
+        time.sleep(1)
         # Aguarda até o topcompras voltar a funcionar
-        ativar_janela('TopCompras', 70)
+        #ativar_janela('TopCompras', 70)
     else:
         logger.info('--- Não foi necessario alterar a data!')
 
@@ -242,7 +244,7 @@ def programa_principal():
             ahk.win_activate('Topsys', title_match_mode= 2)
             logger.warning('--- Precisa mudar a data')
             bot.press('enter')          
-            bot.write(hoje)
+            bot.write(f"{hoje}")
             bot.press('enter')
             time.sleep(0.4)
 
@@ -429,9 +431,12 @@ if __name__ == '__main__':
 
 
     #* Realiza os processos inicias da execução da automação
-    os.system('taskkill /im AutoHotkey.exe /f /t 2>nul') # Encerra todos os processos do AHK
-    #os.system('taskkill /im AutoHotkey.exe /f /t') # Encerra todos os processos do AHK
-    os.system('cls')
+    subprocess.run(["taskkill", "/im", "AutoHotkey.exe", "/f", "/t"], stderr=subprocess.DEVNULL)
+    #os.system('taskkill /im AutoHotkey.exe /f /t 2>nul') # Encerra todos os processos do AHK
+    #os.system('cls')
+    subprocess.run("cls", shell=True)
+    print("--- Executou o CLS para limpar o terminal")
+    time.sleep(10)
 
     while tentativa < 10:
         logger.info(F'--- Iniciando nova tentativa Nº {tentativa} o Try-Catch do PROGRAMA PRINCIPAL')
