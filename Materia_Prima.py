@@ -95,7 +95,7 @@ def coleta_valida_dados():
 
 def formata_data_coletada(dados_copiados):
     data_copiada = dados_copiados.split(' ')[0]  # Pega apenas a parte da data
-    print(F"Data copiada: {data_copiada}")
+    print(F"Data copiada: {data_copiada}, realizando a formatação")
     # Converter a string para objeto datetime.date
     data_obj = datetime.strptime(data_copiada, "%d/%m/%y").date()
 
@@ -384,8 +384,8 @@ if __name__ == '__main__':
     #os.system('taskkill /im AutoHotkey.exe /f /t 2>nul') # Encerra todos os processos do AHK
     #os.system('cls')
     subprocess.run("cls", shell=True)
-    print("--- Executou o CLS para limpar o terminal")
-    time.sleep(10)
+    print("--- Limpeza do Terminal realizada.")
+    time.sleep(2)
 
     while tentativa < 10:
         logger.info(F'--- Iniciando nova tentativa Nº {tentativa} o Try-Catch do PROGRAMA PRINCIPAL')
@@ -402,6 +402,7 @@ if __name__ == '__main__':
             caminho_imagem = print_erro()
             #enviar_email("brunobola2010@gmail.com", F"[RPA Cortesia] Apresentou erro na task: {arquivo_erro}, tentativa: {tentativa}", F"Erro coletado: \n {mensagem_erro}")
             logger.exception(F'--- A execução principal apresentou erro! Tentativa: {tentativa}, Pausa anterior: {tempo_pausa}')
+            print(F'--- A execução principal apresentou erro! Tentativa: {tentativa}, Pausa anterior: {tempo_pausa}')
 
             #* Realiza as verificações antes da proxima tentativa
             verifica_horario()
