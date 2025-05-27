@@ -281,11 +281,17 @@ def verifica_ped_vazio(texto, pos):
     else:  # Caso fique vazio
         logger.info('--- Itens XML ficou vazio! saindo da tela de vinculação')
         bot.click(procura_imagem(imagem='imagens/img_topcon/confirma.png'))
-        time.sleep(3)
 
+        # Aguarda o fechamento da tela de vinculação de pedidos.
+        for i in range (0, 10):
+            if procura_imagem(imagem='imagens/img_topcon/confirma.png', continuar_exec= True, confianca= 0.75) is False:
+                break
+            else:
+                time.sleep(0.2)
+
+        # Fecha a tela de confirmação de pedido vinculado.
         ahk.win_wait_active('TopCompras (VM-CortesiaApli.CORTESIA.com)', title_match_mode = 2, timeout= 30)
         bot.click(procura_imagem(imagem='imagens/img_topcon/botao_ok.jpg', limite_tentativa= 10))
-
         ahk.win_wait_close('Vinculação Itens da Nota', title_match_mode = 2, timeout= 30)
         logger.info('--- Encerrado a função verifica pedido vazio!')
         return True

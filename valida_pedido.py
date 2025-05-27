@@ -60,7 +60,7 @@ def valida_pedido(chave_xml = ""):
 
     #Confirma a abertura da tela de vinculação do pedido
     ahk.win_activate('Vinculação Itens da Nota', title_match_mode = 2)
-    time.sleep(0.5)
+    time.sleep(0.2)
 
     #* Coleta o texto do campo "item XML", que é o item a constar na nota fiscal, e com base nisso, trata o dado
     logger.debug('--- Extraindo a imagem para descobrir qual item consta no campo "Itens XML" ')
@@ -117,11 +117,10 @@ def valida_pedido(chave_xml = ""):
         #* Caso seja a segunda tentativa, já baixa a lista de pedidos.
         if tentativa >= 1 and tentativa <= 4: 
             logger.info(F'--- Está na tentativa: {tentativa} de vincular pedido, baixando a lista dos pedidos')
-            time.sleep(0.2)
             ahk.win_activate('Vinculação Itens da Nota', title_match_mode = 2)
             ahk.win_wait_active('Vinculação Itens da Nota', title_match_mode = 2, timeout= 30)
             bot.click(748, 310) # Clica para descer o menu e exibir o resto das opções
-            time.sleep(0.3)
+            time.sleep(0.2)
 
         #* Procura o pedido na tela "6201 - Vinculação Itens da Nota" e conta quantos itens encontrou
         #posicoes = bot.locateAllOnScreen('imagens/img_pedidos/' + img_pedido, confidence= 0.92, grayscale=True, region=(0, 0, 850, 400))
@@ -151,7 +150,7 @@ def valida_pedido(chave_xml = ""):
 
         #Verifica nas posições que encontrou
         for pos in posicoes:  # Tenta em todos pedidos encontrados
-            logger.debug(F'--- Tentativa: {tentativa}, achou o {txt_itensXML} na posição {pos}')
+            logger.debug(F'--- Encontrou o {txt_itensXML} na posição {pos}, Tentativa: {tentativa}')
             ahk.win_activate('Vinculação Itens da Nota', title_match_mode = 2)
             
             bot.doubleClick(pos)  # Marca o pedido encontrado
@@ -166,9 +165,9 @@ def valida_pedido(chave_xml = ""):
                 if vazio is True:
                     tentativa = 5
                     break
-                if procura_imagem('imagens/img_topcon/dife_valor.png', continuar_exec=True, limite_tentativa= 4):
+                elif procura_imagem('imagens/img_topcon/dife_valor.png', continuar_exec=True, limite_tentativa= 2):
                     bot.press('ENTER')
-                if procura_imagem('imagens/img_topcon/operacao_fiscal_configurada.png', continuar_exec=True, limite_tentativa= 4):
+                elif procura_imagem('imagens/img_topcon/operacao_fiscal_configurada.png', continuar_exec=True, limite_tentativa= 2):
                     bot.press('ENTER')
                 
                 #Confere se após clicar nos botões, ainda assim o campo ficou vazio.
@@ -184,7 +183,7 @@ def valida_pedido(chave_xml = ""):
         # Se achar, significa que não precisa realizar uma nova tentativa, pois já achou o "final" dos pedidos
         ahk.win_activate('Vinculação Itens da Nota', title_match_mode = 2)
         time.sleep(0.2)
-        if procura_imagem('imagens/img_topcon/bt_final_pedido.png', continuar_exec=True, limite_tentativa= 4, area= (726, 285, 35, 60)):
+        if procura_imagem('imagens/img_topcon/bt_final_pedido.png', continuar_exec=True, limite_tentativa= 2, area= (726, 285, 35, 60)):
             bot.click(procura_imagem('imagens/img_topcon/bt_final_pedido.png', continuar_exec=True, limite_tentativa= 4, area= (726, 285, 35, 60)))
             tentativa = 5
 
@@ -204,6 +203,8 @@ def valida_pedido(chave_xml = ""):
 
 
 def verifica_tela_vinculacao():
+    """ Aguarda a abertura da tela: Vinculação Itens da Nota
+    """    
     logger.info('--- Executando a função VERIFICA TELA VINCULAÇÃO --- ')
     #* Aguarda a abertura da tela "Vinculação Itens da Nota"
     for i in range(0, 20):
@@ -217,8 +218,12 @@ def verifica_tela_vinculacao():
             ahk.win_wait_active('Vinculação Itens da Nota', title_match_mode= 2, timeout= 1)
 
 
-#* Verifica se a tela "Vinculação itens da Nota" carregou e está exibindo o botão "localizar"
 def valida_bt_localizar():
+    """ #* Verifica se a tela "Vinculação itens da Nota" carregou e está exibindo o botão "localizar"
+
+    Raises:
+        Exception: Se o botão não existe, a tela ainda não carregou, sobe exceção!
+    """    
     logger.info('--- Executando a função VALIDA BT LOCALIZAR --- ')
     for i in range (0, 20):
         if procura_imagem(imagem='imagens/img_topcon/localizar.png', limite_tentativa= 5, continuar_exec= True):
