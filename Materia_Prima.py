@@ -169,6 +169,44 @@ def valida_transportador(cracha_mot = "112842"):
     else:
         logger.info('--- Não achou o campo ou já está preenchido')
 
+def preenche_data(data_formatada = ""):
+    time.sleep(0.5)
+    ativar_janela('TopCompras', 70)
+    #* Alteração da data
+    logger.info('--- Realizando validação/alteração da data')
+    hoje = date.today()
+    hoje = hoje.strftime("%d%m%y")  # dd/mm/YY
+    logger.info(F'--- Inserindo a data coletada: {data_formatada} e apertando ENTER')
+    bot.write(data_formatada)
+    bot.press('ENTER')
+    time.sleep(2)
+    ativar_janela('TopCompras', 70)
+
+    # Caso o sistema informe que a data deve ser maior/igual a data inserida acima.
+    logger.info('--- Verificando se apareceu data')
+    if procura_imagem('imagens/img_topcon/data_invalida.png', continuar_exec= True, limite_tentativa= 2):
+        logger.warning(f'--- Precisa mudar a data, inserindo a data de hoje: {hoje}')
+        ahk.win_close("TopCompras (VM-CortesiaApli.CORTESIA.com)", title_match_mode= 2)
+        time.sleep(0.5)        
+        bot.write(f"{hoje}")
+        bot.press('enter')
+        time.sleep(1)
+    else:
+        logger.info('--- Não foi necessario alterar a data!')
+
+    try: # Aguarda a tela de erro do TopCon 
+        ahk.win_wait('Topsys', title_match_mode= 2, timeout= 2)
+    except TimeoutError:
+        return True
+    else:
+        if ahk.win_exists('Topsys', title_match_mode= 2):
+            ahk.win_activate('Topsys', title_match_mode= 2)
+            logger.warning('--- Precisa mudar a data')
+            bot.press('enter')          
+            bot.write(f"{hoje}")
+            bot.press('enter')
+            time.sleep(0.4)
+
 
 def programa_principal():
     global qtd_notas_lancadas
@@ -210,7 +248,10 @@ def programa_principal():
     time.sleep(1.5)
     bot.press('TAB', presses= 1) # Confirma a informação da nova filial de estoque
 
-    #* Alteração da data
+    
+    preenche_data(data_formatada)
+
+    '''    #* Alteração da data
     logger.info('--- Realizando validação/alteração da data')
     hoje = date.today()
     hoje = hoje.strftime("%d%m%y")  # dd/mm/YY
@@ -247,6 +288,7 @@ def programa_principal():
             bot.write(f"{hoje}")
             bot.press('enter')
             time.sleep(0.4)
+    '''
 
     logger.info(F'--- Trocando o centro de custo para {centro_custo}')
     ativar_janela('TopCompras', 70)
@@ -255,10 +297,10 @@ def programa_principal():
     logger.info('--- Aguarda aparecer o campo cod_desc')
     tentativa_cod_desc = 0
     while procura_imagem(imagem='imagens/img_topcon/cod_desc.png', continuar_exec=True, confianca= 0.74, limite_tentativa= 1) is False:
-        time.sleep(0.4)
+        time.sleep(0.2)
         if tentativa_cod_desc >= 100:
             logger.info('--- Não foi possivel encontrar o campo cod_desc, reiniciando o processo.')
-            time.sleep(0.5)
+            time.sleep(0.25)
             abre_topcon()
             return True
         else: # Aguarda até o topcompras voltar a funcionar
@@ -272,10 +314,9 @@ def programa_principal():
     tentativa_cod_desc = 0
     while procura_imagem(imagem='imagens/img_topcon/cod_desc.png', continuar_exec=True, confianca= 0.74, limite_tentativa= 1) is not False:
         bot.click(procura_imagem(imagem='imagens/img_topcon/txt_ValoresTotais.png', continuar_exec= True, limite_tentativa= 1, confianca= 0.74))
-        #logger.info(F'--- Tentativa de aguardar sumir o cod_desc: {tentativa_cod_desc}')
         if tentativa_cod_desc >= 100:
             logger.info('--- O campo cod_desc não sumiu, reiniciando o processo.')
-            time.sleep(0.5)
+            time.sleep(0.25)
             abre_topcon()
             return True
         else: # Aguarda até o topcompras voltar a funcionar

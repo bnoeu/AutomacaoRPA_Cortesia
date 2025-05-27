@@ -124,17 +124,6 @@ def finaliza_lancamento(planilha_marcada = False, lancamento_concluido = False, 
                         if alterar_localizar():
                             lancamento_concluido = True
                             return True
-
-                        ''' #! Substituido pela logica a cima.
-                        bot.press('F3', presses = 1)
-                        bot.press('F2', presses = 1)
-                        time.sleep(0.4)
-                        
-                        if procura_imagem(imagem='imagens/img_topcon/txt_localizar.png', continuar_exec= True, area= (852, 956, 1368, 1045)):
-                            logger.info('--- Entrou no modo localizar, lançamento realmente concluido\n')
-                            lancamento_concluido = True
-                            return True
-                        '''
                     
         # 3. Caso apareça "deseja imprimir o espelho da nota?"
         if procura_imagem(imagem='imagens/img_topcon/txt_espelhonota.png', continuar_exec=True, limite_tentativa= 1, confianca= 0.74) is not False:
@@ -147,16 +136,6 @@ def finaliza_lancamento(planilha_marcada = False, lancamento_concluido = False, 
         # 4. Caso apareça tela "Espelho da nota fiscal"
         while ahk.win_exists('Espelho de Nota Fiscal', title_match_mode= 2):
             ahk.win_close('Espelho de Nota Fiscal', title_match_mode= 2)
-
-        '''
-        # 5. Caso apareça a tela "Fornecedor não cadastrado"
-        if procura_imagem(imagem='imagens/img_topcon/txt_fornecedor_cadastrado.png', continuar_exec=True, limite_tentativa= 1, confianca= 0.74) is not False:
-            logger.info('--- Fornecedor não cadastrado!!')
-            bot.press('ENTER')
-            bot.press('F2', presses = 2)
-            marca_lancado(texto_marcacao='Lancado_Manual')
-            break
-        '''
 
         # 6. Caso apareça a tela "Valor de frete maior"
         if procura_imagem(imagem='imagens/img_topcon/txt_valor_frete.png', continuar_exec=True, limite_tentativa= 1, confianca= 0.74) is not False:
