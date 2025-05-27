@@ -7,7 +7,7 @@ from utils.funcoes import ahk as ahk # --- Definição de parametros
 
 def copia_linha_atual():
     logger = get_logger("script1")
-    bot.PAUSE = 0.08
+    bot.PAUSE = 0.1
     dados_planilha = []
     coluna_atual = 0
     

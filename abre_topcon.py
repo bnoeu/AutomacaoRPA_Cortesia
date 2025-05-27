@@ -150,7 +150,7 @@ def fecha_execucoes():
 
 
 def login_topcon():
-    bot.PAUSE = 1.2
+    bot.PAUSE = 1.4
 
     logger.info('--- Realizando login no TOPCON')
     #* Se o modulo de compras estiver fechado, realiza o login no TopCon
@@ -285,7 +285,7 @@ def abre_topcon():
 def main():
     ultimo_erro = ""
     for tentativa in range(0, 10):
-        bot.PAUSE = 1
+        bot.PAUSE = 1.2
         logger.info(F"Tentativa de abrir o topcon: {tentativa}")
         try:
             time.sleep(0.5)

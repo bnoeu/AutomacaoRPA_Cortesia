@@ -101,7 +101,7 @@ def verifica_tela(nome_tela, manual=False):
 
 
 def marca_lancado(texto_marcacao='Lancado'):
-    bot.PAUSE = 0.5
+    bot.PAUSE = 0.6
     tentativa = 0
     
     logger.info('--- Abrindo planilha')
@@ -141,7 +141,7 @@ def marca_lancado(texto_marcacao='Lancado'):
     logger.info(F'--------------------- Processou NFE, situação: {texto_marcacao} ---------------------')
 
 def reaplica_filtro_status(): 
-    bot.PAUSE = 1
+    bot.PAUSE = 1.2
     ahk.win_activate('debug_db_alltrips', title_match_mode= 2)
     logger.debug('--- Reaplicando o filtro na coluna "Status" ')
     time.sleep(0.5)
@@ -248,7 +248,7 @@ def corrige_nometela(novo_nome = "TopCompras"):
         logger.error('--- Encontrou tela sem o nome, e realizou a correção!' )
             
 if __name__ == '__main__':
-    bot.PAUSE = 1
+    bot.PAUSE = 1.2
     bot.FAILSAFE = False
     reaplica_filtro_status()
     #verifica_ped_vazio()

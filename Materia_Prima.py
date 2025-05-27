@@ -172,7 +172,7 @@ def valida_transportador(cracha_mot = "112842"):
 
 def programa_principal():
     global qtd_notas_lancadas
-    bot.PAUSE = 0.4
+    bot.PAUSE = 0.6
 
     #* Confere o horario dessa execução.
     verifica_horario()
@@ -288,57 +288,6 @@ def programa_principal():
     ativar_janela('TopCompras', 70)
     bot.click(procura_imagem(imagem='imagens/img_topcon/txt_ValoresTotais.png', continuar_exec= True))
 
-    '''
-    # * -------------------------------------- VALIDAÇÃO TRANSPORTADOR --------------------------------------
-    logger.info(F'--- Preenchendo transportador: {cracha_mot}')
-    ahk.win_activate('TopCompras', title_match_mode= 2)
-    time.sleep(0.25)
-    bot.click(procura_imagem(imagem='imagens/img_topcon/campo_000.png'))
-    time.sleep(0.5)
-    bot.press('tab')
-    time.sleep(0.5)
-    tentativa_achar_camp_re = 0
-    while procura_imagem(imagem='imagens/img_topcon/campo_re_0.png', continuar_exec= True, limite_tentativa= 2, confianca= 0.74) is False:
-        logger.info(F'Tentativa: {tentativa_achar_camp_re}')
-        time.sleep(0.4)
-        tentativa_achar_camp_re += 1
-        if tentativa_achar_camp_re >= 10:
-            logger.info('--- Limite de tentativas de achar o campo "RE", reabrindo topcompras e reiniciando o processo.')
-            time.sleep(0.5)
-            abre_topcon()
-            return True
-    else:
-        logger.info('--- Campo RE habilitado, preenchendo.')
-        # Preenche o campo do transportador e verifica se aconteceu algum erro.
-        bot.write(cracha_mot)  # ID transportador
-        time.sleep(0.5)
-        bot.press('enter')
-
-    logger.info('--- Aguardando validar o campo do transportador')
-    ahk.win_activate('TopCompras', title_match_mode=2)
-    if procura_imagem(imagem='imagens/img_topcon/transportador_incorreto.png', continuar_exec= True, limite_tentativa= 4) is not False:
-        logger.info('--- Transportador incorreto!')
-        bot.press('ENTER')
-        bot.press('F2')
-        marca_lancado(texto_marcacao='RE_Invalido')
-        programa_principal()
-    else:
-        logger.info('--- Transportador validado! Prosseguindo para validação da placa')
-        ahk.win_activate('TopCompras', title_match_mode=2)
-        bot.press('enter')
-
-    # Verifica se o campo da placa ficou preenchido
-    time.sleep(0.4)
-    if procura_imagem('imagens/img_topcon/campo_placa.png', confianca= 0.74, continuar_exec=True, limite_tentativa= 4) is not False:
-        logger.info('--- Encontrou o campo vazio, inserindo XXX0000')
-        ahk.win_activate('TopCompras', title_match_mode=2)
-        bot.click(procura_imagem('imagens/img_topcon/campo_placa.png', continuar_exec=True))
-        bot.write('XXX0000')
-        bot.press('ENTER')
-        #time.sleep(0.4)
-    else:
-        logger.info('--- Não achou o campo ou já está preenchido')
-    '''
     if valida_transportador(cracha_mot) is False:
         logger.info('--- Falhou na validação do transportador, recomeçando o processo.')
         return False

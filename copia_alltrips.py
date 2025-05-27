@@ -17,7 +17,7 @@ planilha_debug = "https://cortesiaconcreto-my.sharepoint.com/:x:/g/personal/brun
 
 
 def encontra_ultimo_xml(ultimo_xml = '', powerapps_id = ''):
-    bot.PAUSE = 2
+    bot.PAUSE = 2.2
     tentativa = 0
     while True:
         tentativa += 1
@@ -109,12 +109,14 @@ def encontra_ultimo_xml(ultimo_xml = '', powerapps_id = ''):
             raise TimeoutError
 
 def valida_nova_chave_inserida(tentativa):
-    bot.PAUSE = 2
+    bot.PAUSE = 2.2
     tempo_pausa = tentativa * 1800  # Multiplica a tentativa por 30 minutos, como são 4, o maximo é 2 horas
     logger.info('--- Verificando se existe uma nova chave NFE.')
 
     ahk.win_activate('db_alltrips.xlsx', title_match_mode= 1)
+    time.sleep(0.8)
     bot.press('DOWN') # Navega até a proxima linha após a ultima chave.
+    time.sleep(0.2)
 
     while True: # Executa o processo de copia dos dados
         bot.hotkey('ctrl', 'c')
@@ -140,7 +142,7 @@ def valida_nova_chave_inserida(tentativa):
 
 
 def copia_dados():
-    bot.PAUSE = 2
+    bot.PAUSE = 2.2
     dados_copiados = ""
 
     # Inicia o processo de seleção dos dados
@@ -196,7 +198,7 @@ def copia_dados():
             raise Exception("Excedeu o limite de tentativas de copiar os dados, soltando SHIFT e CONTROL")
 
 def cola_dados(dados_copiados = "TESTE"):
-    bot.PAUSE = 2
+    bot.PAUSE = 2.2
     
     abre_planilha_navegador(planilha_debug)
     time.sleep(8)
@@ -255,7 +257,7 @@ def verifica_quatro_dias(dados_copiados):
 
 
 def main(ultimo_xml = chave_xml, powerapps_id = powerapps_id):
-    bot.PAUSE = 2
+    bot.PAUSE = 2.2
     logger.info('Iniciando função COPIA BANCO ( COPIA ALL TRIPS)')
 
     #* Abre a planilha do db_alltrips (banco original)
@@ -285,7 +287,7 @@ def main(ultimo_xml = chave_xml, powerapps_id = powerapps_id):
         return True
 
 if __name__ == '__main__':
-    main(ultimo_xml= "35250533039223000979550010003911141830789622", powerapps_id= "HSk5UQBFA-E")
+    main(ultimo_xml= "35250529067113033280550060003352761109348425", powerapps_id= "iats6lcUqKg")
     
 
     #exit(bot.alert("Terminou"))

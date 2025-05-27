@@ -103,7 +103,7 @@ def verifica_tela(nome_tela, manual=False):
 
 
 def marca_lancado(texto_marcacao='texto_teste_marcacao', temp_inicial = ""):
-    bot.PAUSE = 0.2
+    bot.PAUSE = 0.4
 
     logger.info(F'--- Abrindo planilha - MARCA_LANCADO, com parametro: {texto_marcacao}' )
     ativar_janela('debug_db', 30)
@@ -192,7 +192,7 @@ def reaplica_filtro_status():
             raise Exception("Falhou a aplicar o filtro na coluna de status!")
 
         try: 
-            bot.PAUSE = 0.4
+            bot.PAUSE = 0.6
             logger.debug('--- Executando a função REAPLICA FILTRO STATUS')
             ahk.win_activate('debug_db_alltrips', title_match_mode= 2)
             ahk.win_wait_active('debug_db_alltrips', title_match_mode= 2, timeout= 15)
@@ -465,7 +465,7 @@ def move_telas_direita(tela:str):
 
 
 if __name__ == '__main__':
-    bot.PAUSE = 0.4
+    bot.PAUSE = 0.6
     bot.FAILSAFE = False
 
 

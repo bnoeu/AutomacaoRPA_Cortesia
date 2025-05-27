@@ -69,7 +69,7 @@ def altera_topcon_incluir():
 # Realiza o processo de validação do lançamento.
 def valida_lancamento():
     validou_xml = False
-    bot.PAUSE = 0.4
+    bot.PAUSE = 0.6
     
     logger.info('--- Iniciando função VALIDA LANÇAMENTO')
     while validou_xml is False:        
