@@ -19,18 +19,20 @@ chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
 #Nome dos itens que constarem no "Itens XML"
 PEDRA_1 = ('BRITA]','BRITA1', 'PEDRA 01', 'PEDRA DI', 'BRITADA 01', 'PEDRA 1', 'PEDRA BRITADA 01', 'PEDRAT', 'PEDRA BRITADA 1', 'BRITADA 1', 
            'BRITA 01', 'BRITA 1', 'BRITA NR "01"', 'BRITA O01', 'PEDRA No 1', 'PEDRA1')
-PO_PEDRA = ('PO DE PEDRA', 'AREA INDUSTRIAL', 'INDUSTRIAL')
+PO_PEDRA = ('PO DE PEDRA', 'AREA INDUSTRIAL', 'AREIA INDUSTRIAL')
 BRITA_0 = ('BRITA 0', 'PEDRISCO LIMPO', 'BRITAD™', 'BRITAO', 'PEDRISCO LAVADDO', 'BRITA ZERO')
 CIMENTO_CP3 = ('CP 111', 'teste')
 CIMENTO_CP2 = ('CP II-E-40', '£-40', 'CIMENTO PORTLAND CP IIE-40 RS |', "CIMENTO PORTLAND CP I'E-40 RS.", "CIMENTO PORTLAND CP IE-40 RS")
-AREIA_RIO = ('AREIA LAVADA MEDIA', 'AREIA MEDIA', 'ARE A LAVADA MEDIA', 'AREA LAVADA MEDIA', 'AREIA LAVADA')
+AREIA_RIO = ('AREIA LAVADA MEDIA', 'ARE A LAVADA MEDIA', 'AREA LAVADA MEDIA', 'AREIA LAVADA', 'AREIA MEDIA')
 CIMENTO_CP5 = ('CPV', 'V-ARI')
 AREIA_QUARTZO = ('AREIA DE QUARTZO VERMELHA', 'AREA QUARTZD', 'AREIA DE QUARTZ0 VERMELHA', 'P2 AREIA', 'AREI|A DE QUARTZ0', 'AREIA VERMELHA',
                  'AREIA MEDIA UMIDA BRANCA', 'AREI|A MEDIA UMIDA BRANCA')
 AREIA_PRIME = ('AREA PRIME', 'AREIA PRIME')
-AREIA_BRITADA = ('AR EIA ARTIF ClaL', 'AR EIA AR TIFICIAL', 'AREIA ARTIFICIAL')
-PEDRISCO_MISTO = ('PEDRA MISTO', 'TESTE')
-nome_pedido = [PEDRA_1, PO_PEDRA, BRITA_0, CIMENTO_CP2, CIMENTO_CP3, CIMENTO_CP5, AREIA_RIO, AREIA_QUARTZO, AREIA_PRIME, AREIA_BRITADA, PEDRISCO_MISTO]
+AREIA_BRITADA = ('AR EIA ARTIF ClaL', 'AR EIA AR TIFICIAL', 'AREIA ARTIFICIAL', 'AREIA INDUSTRIAL DE BRITA')
+PEDRISCO_MISTO = ('PEDRA MISTO', 'PEDRISCO MISTO')
+AREIA_VALE = ('Areia Al', 'Areia A1')
+
+nome_pedido = [PEDRA_1, PO_PEDRA, BRITA_0, CIMENTO_CP2, CIMENTO_CP3, CIMENTO_CP5, AREIA_RIO, AREIA_QUARTZO, AREIA_PRIME, AREIA_BRITADA, PEDRISCO_MISTO, AREIA_VALE]
 # Mapeamento de nomes para imagens
 mapeamento_imagens = {
     PEDRA_1: 'PED_BRITA1.jpg',
@@ -43,22 +45,33 @@ mapeamento_imagens = {
     AREIA_PRIME: 'PED_AREIAPRIME.png',
     AREIA_BRITADA: 'PED_AREIABRITA.png',
     CIMENTO_CP3: 'PED_CPIII40.png',
-    PEDRISCO_MISTO: 'PED_PEDRISCOMISTO.png'
+    PEDRISCO_MISTO: 'PED_PEDRISCOMISTO.png',
+    AREIA_VALE: 'PED_AREIAVALE.png'
 }
 
 
-def valida_pedido():
+def valida_pedido(chave_xml = ""):
     logger.info('--- Executando função: valida pedido' )
-    bot.PAUSE = 0.85
+    bot.PAUSE = 0.6
     tentativa = 0
     img_pedido = 0
     item_pedido = ''
     validou_itensXml = False
 
+    #Confirma a abertura da tela de vinculação do pedido
+    ahk.win_activate('Vinculação Itens da Nota', title_match_mode = 2)
+    time.sleep(0.5)
+
     #* Coleta o texto do campo "item XML", que é o item a constar na nota fiscal, e com base nisso, trata o dado
     logger.debug('--- Extraindo a imagem para descobrir qual item consta no campo "Itens XML" ')
     txt_itensXML = extrai_txt_img(imagem='item_nota.png',area_tela=(170, 407, 280, 20))
     logger.info(F'--- Texto extraido do "Itens XML": {txt_itensXML} ')
+
+    # Verifica se a nota é da CONSMAR
+    if (txt_itensXML == "AREIA MEDIA") and ("38953477000164" in chave_xml):
+        txt_itensXML = "AREIA LAVADA MEDIA"
+        logger.info(F'--- Nota da CONSMAR! Alterou o item para: {txt_itensXML}')
+
 
     #* Indentifica qual o item que consta na extração.
     for nome in nome_pedido: #* Para cada item na lista de pedidos
@@ -92,8 +105,9 @@ def valida_pedido():
             corrige_nometela("Vinculação Itens da Nota")
 
     vazio = False
-    while (tentativa < 3) and (vazio is False):
-        vazio = '' 
+    while (tentativa < 4) and (vazio is False):
+        vazio = False 
+        time.sleep(0.2)
         ahk.win_activate('Vinculação Itens da Nota', title_match_mode = 2)
         ahk.win_wait_active('Vinculação Itens da Nota', title_match_mode = 2, timeout= 30)
         
@@ -101,36 +115,38 @@ def valida_pedido():
         #* Tenta encontrar a imagem do pedido e salva as posições onde encontrar
         
         #* Caso seja a segunda tentativa, já baixa a lista de pedidos.
-        if tentativa >= 1 and tentativa <= 3: 
+        if tentativa >= 1 and tentativa <= 4: 
             logger.info(F'--- Está na tentativa: {tentativa} de vincular pedido, baixando a lista dos pedidos')
+            time.sleep(0.2)
             ahk.win_activate('Vinculação Itens da Nota', title_match_mode = 2)
             ahk.win_wait_active('Vinculação Itens da Nota', title_match_mode = 2, timeout= 30)
-            bot.click(748, 310) #Clica para descer o menu e exibir o resto das opções
-            time.sleep(0.4)
+            bot.click(748, 310) # Clica para descer o menu e exibir o resto das opções
+            time.sleep(0.3)
 
         #* Procura o pedido na tela "6201 - Vinculação Itens da Nota" e conta quantos itens encontrou
-        posicoes = bot.locateAllOnScreen('imagens/img_pedidos/' + img_pedido, confidence= 0.92, grayscale=True, region=(0, 0, 850, 400))
+        #posicoes = bot.locateAllOnScreen('imagens/img_pedidos/' + img_pedido, confidence= 0.92, grayscale=True, region=(0, 0, 850, 400))
+        posicoes = bot.locateAllOnScreen('imagens/img_pedidos/' + img_pedido, confidence= 0.92, grayscale=True, region=(0, 0, 650, 185))
         contagem = 0
         for pos in posicoes:
             contagem += 1
 
         #* Caso não encontre a imagem em na tela de vinculação de pedido ( significa que falta pedido. )
-        if contagem == 0: 
+        if contagem == 0 and tentativa > 3 : 
             logger.warning(F'--- Não encontrou: {img_pedido}, NÃO EXISTE PEDIDO! Saindo do processo.')
             print_erro()
             marca_lancado(texto_marcacao= 'Pedido_Inexistente')
-            ahk.win_activate('Vinculação Itens da Nota', title_match_mode = 2)
-            ahk.win_wait_active('Vinculação Itens da Nota', title_match_mode = 2, timeout= 30)
             ahk.win_close('Vinculação Itens da Nota', title_match_mode = 2)
             ahk.win_wait_close('Vinculação Itens da Nota', title_match_mode = 2, timeout= 30)
             time.sleep(0.5)
             bot.press('F2')
             vazio = False
-            tentativa = 4
+            tentativa = 5
             logger.debug("--- Saindo da função VALIDA PEDIDO, acabou pedido = False")
             return False # Retorna false pois não concluiu o processo.
         else:
             logger.info(F"Existem: {contagem} pedidos para o item {txt_itensXML}")
+            ahk.win_activate('Vinculação Itens da Nota', title_match_mode = 2)
+            time.sleep(0.2)
             posicoes = bot.locateAllOnScreen('imagens/img_pedidos/' + img_pedido, confidence= 0.92, grayscale=True, region=(0, 0, 850, 400))
 
         #Verifica nas posições que encontrou
@@ -144,15 +160,15 @@ def valida_pedido():
             logger.debug(F'--- Valor campo "item XML": {vazio}')
 
             if vazio is not True:
-                bot.click(procura_imagem('imagens/img_topcon/vinc_xml_pedido.png',continuar_exec=True))
+                bot.click(procura_imagem('imagens/img_topcon/vinc_xml_pedido.png',continuar_exec=True, limite_tentativa= 4, confianca= 0.75))
                 vazio = verifica_ped_vazio(texto=txt_itensXML, pos=pos)
                 logger.info(F'--- Valor campo "vazio": {vazio}')
                 if vazio is True:
-                    tentativa = 3
+                    tentativa = 5
                     break
-                if procura_imagem('imagens/img_topcon/dife_valor.png', continuar_exec=True):
+                if procura_imagem('imagens/img_topcon/dife_valor.png', continuar_exec=True, limite_tentativa= 4):
                     bot.press('ENTER')
-                if procura_imagem('imagens/img_topcon/operacao_fiscal_configurada.png', continuar_exec=True):
+                if procura_imagem('imagens/img_topcon/operacao_fiscal_configurada.png', continuar_exec=True, limite_tentativa= 4):
                     bot.press('ENTER')
                 
                 #Confere se após clicar nos botões, ainda assim o campo ficou vazio.
@@ -162,6 +178,16 @@ def valida_pedido():
             else:
                 logger.success(F'--- Pedido validado! VALIDA PEDIDO concluida.  ( valor do campo: {vazio} )')
                 return True
+            
+        # 1. Verificar se encontrou o campo cinza abaixo dos pedidos
+        # 2. Caso encontrou, não precisa de outra tentativa, já testou todos os pedidos
+        # Se achar, significa que não precisa realizar uma nova tentativa, pois já achou o "final" dos pedidos
+        ahk.win_activate('Vinculação Itens da Nota', title_match_mode = 2)
+        time.sleep(0.2)
+        if procura_imagem('imagens/img_topcon/bt_final_pedido.png', continuar_exec=True, limite_tentativa= 4, area= (726, 285, 35, 60)):
+            bot.click(procura_imagem('imagens/img_topcon/bt_final_pedido.png', continuar_exec=True, limite_tentativa= 4, area= (726, 285, 35, 60)))
+            tentativa = 5
+
         tentativa += 1
         
     else:
@@ -170,18 +196,19 @@ def valida_pedido():
             marca_lancado('Erro_Pedido_' + img_pedido)
             while ahk.win_exists('Vinculação Itens da Nota', title_match_mode = 2):
                 ahk.win_close('Vinculação Itens da Nota', title_match_mode = 2)
+                ahk.win_wait_close('Vinculação Itens da Nota', title_match_mode = 2)
                 
+            time.sleep(0.2)
             bot.press('F2')
-            time.sleep(0.5)
             return False
 
-#* Aguarda a abertura da tela "Vinculação Itens da Nota"
+
 def verifica_tela_vinculacao():
     logger.info('--- Executando a função VERIFICA TELA VINCULAÇÃO --- ')
     #* Aguarda a abertura da tela "Vinculação Itens da Nota"
-    for i in range(0, 10):
+    for i in range(0, 20):
         ahk.win_activate('Vinculação Itens da Nota', title_match_mode = 2)
-        time.sleep(0.4)
+        time.sleep(0.2)
         if ahk.win_is_active('Vinculação Itens da Nota', title_match_mode = 2):
             logger.info('Tela "Vinculação Itens da Nota" aberta!')
             break
@@ -189,27 +216,30 @@ def verifica_tela_vinculacao():
             logger.error('Não encontrou a tela "Vinculação Itens da Nota" ')
             ahk.win_wait_active('Vinculação Itens da Nota', title_match_mode= 2, timeout= 1)
 
+
 #* Verifica se a tela "Vinculação itens da Nota" carregou e está exibindo o botão "localizar"
 def valida_bt_localizar():
     logger.info('--- Executando a função VALIDA BT LOCALIZAR --- ')
-    for i in range (0, 10):
-        if procura_imagem(imagem='imagens/img_topcon/localizar.png', continuar_exec= True):
+    for i in range (0, 20):
+        if procura_imagem(imagem='imagens/img_topcon/localizar.png', limite_tentativa= 5, continuar_exec= True):
             logger.info('--- Tela "Vinculação itens da NOTA" carregou e encontrou o botão "LOCALIZAR" ')
             break
-        if i == 10:
+        if i >= 9:
             logger.error('--- Tela "Vinculação itens da NOTA" não carregou corretamente')
             raise Exception('Tela "Vinculação itens da NOTA" não carregou corretamente')
 
-def main():
+
+def main(chave_xml = ""):
     logger.info('--- Executando o arquivo VALIDA PEDIDO --- ')
+
     verifica_tela_vinculacao()
     valida_bt_localizar()
-    return valida_pedido()
+    return valida_pedido(chave_xml)
     
 
 if __name__ == '__main__':
     tempo_inicial = time.time()
-    main()
+    main("35250438953477000164550010000537031000800001")
 
     # Linha específica onde você quer medir o tempo
     end_time = time.time()

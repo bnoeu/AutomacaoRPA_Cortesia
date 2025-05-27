@@ -121,7 +121,8 @@ def marca_lancado(texto_marcacao='Lancado'):
     bot.hotkey('CTRL', 'HOME')
 
     # Navega até o campo "Status"
-    bot.press('RIGHT', presses= 6)
+    bot.press('RIGHT', presses= 6, interval= 0.05)
+    time.sleep(0.2)
     bot.press('DOWN')
     
     # Informa o texto recebido pela função e passa para a celula ao lado, para inserir a data
@@ -140,7 +141,7 @@ def marca_lancado(texto_marcacao='Lancado'):
     logger.info(F'--------------------- Processou NFE, situação: {texto_marcacao} ---------------------')
 
 def reaplica_filtro_status(): 
-    bot.PAUSE = 2
+    bot.PAUSE = 1.2
     ahk.win_activate('debug_db_alltrips', title_match_mode= 2)
     logger.debug('--- Reaplicando o filtro na coluna "Status" ')
     time.sleep(0.5)
@@ -163,7 +164,7 @@ def reaplica_filtro_status():
     bot.click(procura_imagem(imagem='imagens/img_planilha/bt_aplicar.png', continuar_exec= True, limite_tentativa= 2, confianca= 0.73))
     logger.debug('--- na tela do menu de filtro, clicou no botão "Aplicar" para reaplicar o filtro ')
     
-    if procura_imagem(imagem='imagens/img_planilha/bt_visualizar_todos.png', continuar_exec= True):
+    if procura_imagem(imagem='imagens/img_planilha/bt_visualizar_todos.png', limite_tentativa= 3, confianca= 0.73, continuar_exec= True):
         bot.click(procura_imagem(imagem='imagens/img_planilha/bt_visualizar_todos.png'))
         time.sleep(2)
         logger.debug('--- Clicou para visualizar o filtro de todos.')
@@ -247,7 +248,7 @@ def corrige_nometela(novo_nome = "TopCompras"):
         logger.error('--- Encontrou tela sem o nome, e realizou a correção!' )
             
 if __name__ == '__main__':
-    bot.PAUSE = 1.5
+    bot.PAUSE = 1.2
     bot.FAILSAFE = False
     reaplica_filtro_status()
     #verifica_ped_vazio()

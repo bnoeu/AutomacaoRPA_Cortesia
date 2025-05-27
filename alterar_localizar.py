@@ -3,7 +3,7 @@
 
 import time
 import pyautogui as bot
-from abre_topcon import navega_topcompras, fechar_tela_nota_compra
+from abre_topcon import abre_mercantil, fechar_tela_nota_compra
 #from automacao.conferencia_xml import conferencia_xml
 #from coleta_planilha import main as coleta_planilha
 from utils.funcoes import ahk as ahk
@@ -33,7 +33,7 @@ def alterar_localizar():
         #* Após 5 execuções, tenta reabrir o TopCompras antes de prosseguir
         if i == 2:
             fechar_tela_nota_compra()
-            navega_topcompras()
+            abre_mercantil()
             
 
         if i >= 4:

@@ -51,7 +51,7 @@ def preenche_local(silo1 = "", silo2 = ""):
 
         #* Verifica se a informação está duplicada nos dois campos
         if silo1 == silo2:
-            logger.error('--- A informação nos dois campos "SILO" estava igual, corrigindo apenas para um preenchimento')
+            logger.warning('--- A informação nos dois campos "SILO" estava igual, corrigindo apenas para um preenchimento')
             silo2 = ""
 
         #* Preenche os locais de estoque informados, e a quantidade.
@@ -95,7 +95,7 @@ def preenche_local(silo1 = "", silo2 = ""):
 
         #* Confirma ou cancela os processo executados na tela "itens nota fiscal de compras "
         bot.click(procura_imagem(imagem='imagens/img_topcon/confirma.png'))       
-        if procura_imagem(imagem='imagens/img_topcon/txt_ErroAtribuida.png', limite_tentativa = 12, continuar_exec = True) is False:
+        if procura_imagem(imagem='imagens/img_topcon/txt_ErroAtribuida.png', limite_tentativa = 8, continuar_exec = True) is False:
             logger.info('--- Preenchimento completo, saindo do loop.' )
             break
         else:

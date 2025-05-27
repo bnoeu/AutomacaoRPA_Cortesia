@@ -3,10 +3,10 @@
 
 import time
 import pyautogui as bot
-from abre_topcon import main as abre_topcon, fechar_tela_nota_compra, navega_topcompras
+from abre_topcon import abre_mercantil, main as fechar_tela_nota_compra
 from automacao.conferencia_xml import conferencia_xml
 from coleta_planilha import main as coleta_planilha
-from utils.funcoes import ativar_janela, procura_imagem
+from utils.funcoes import ativar_janela, procura_imagem, corrige_nometela
 from utils.configura_logger import get_logger
 
 
@@ -21,19 +21,15 @@ def altera_topcon_incluir():
     for i in range(0, 6):
         logger.info('--- Verificando se está no modo Localizar.')
         ativar_janela('TopCompras')
-        '''
-        ahk.win_activate('TopCompras', title_match_mode= 2)
-        ahk.win_wait_active('TopCompras', title_match_mode= 2, timeout= 15)
-        '''
-        time.sleep(1.5)
+        time.sleep(1)
         
-        if procura_imagem(imagem='imagens/img_topcon/txt_inclui.png', continuar_exec= True, area= (852, 956, 1368, 1045)):
+        if procura_imagem(imagem='imagens/img_topcon/txt_inclui.png', limite_tentativa= 5, continuar_exec= True, area= (852, 956, 1368, 1045)):
             logger.info('--- Está no modo "incluir", enviando comando F2 para entrar no modo "Localizar"')
             ahk.win_activate('TopCompras', title_match_mode= 2)
             bot.press('F2', presses= 2)
             time.sleep(0.5)
 
-        if procura_imagem(imagem='imagens/img_topcon/txt_localizar.png', continuar_exec= True, area= (852, 956, 1368, 1045)):
+        if procura_imagem(imagem='imagens/img_topcon/txt_localizar.png', limite_tentativa= 5, continuar_exec= True, area= (852, 956, 1368, 1045)):
             logger.info('--- Está no modo "Localizar" Alterando para "Incluir"')
             ahk.win_activate('TopCompras', title_match_mode= 2)
             time.sleep(0.2)
@@ -46,15 +42,23 @@ def altera_topcon_incluir():
 
         if procura_imagem(imagem='imagens/img_topcon/txt_existe_nota_transferencia.png', continuar_exec= True):
             logger.warning('--- Encontrou a tela "existe nota fiscal de transferencia" ')
+            corrige_nometela("TopCompras (VM-CortesiaApli.CORTESIA.com)")
+
             ahk.win_activate("TopCompras (VM-CortesiaApli.CORTESIA.com)", title_match_mode= 2)
             bot.click(procura_imagem(imagem='imagens/img_topcon/botao_ok.jpg'))
-            if ahk.win_exists("TopCompras (VM-CortesiaApli.CORTESIA.com)", title_match_mode= 2):
-                ahk.win_close("TopCompras (VM-CortesiaApli.CORTESIA.com)", title_match_mode= 2)
-            break
+            logger.info('--- Clicou para fechar a tela "existe nota fiscal de transferencia" ')
+
+            for tentativa in range (0, 4):
+                if ahk.win_exists("TopCompras (VM-CortesiaApli.CORTESIA.com)", title_match_mode= 2):
+                    ahk.win_close("TopCompras (VM-CortesiaApli.CORTESIA.com)", title_match_mode= 2)
+                    if tentativa >= 3:
+                        raise Exception("Não foi possivel fechar a tela de transferencia de NFE") 
+                else:
+                    break
 
         if i == 3:
             fechar_tela_nota_compra()
-            navega_topcompras()
+            abre_mercantil()
 
         if i >= 5:
             logger.error('--- Atingiu o maximo de tentativas de alterar os botões ---')
@@ -65,14 +69,16 @@ def altera_topcon_incluir():
 # Realiza o processo de validação do lançamento.
 def valida_lancamento():
     validou_xml = False
-    bot.PAUSE = 1
+    bot.PAUSE = 0.6
     
     logger.info('--- Iniciando função VALIDA LANÇAMENTO')
     while validou_xml is False:        
         dados_planilha = False
         while dados_planilha is False:
+            time.sleep(0.2)
             dados_planilha = coleta_planilha() # Recebe os dados coletados da planilha, já validados e formatados.
-
+            if dados_planilha == False:
+                raise Exception("Copiou dados novos! Necessario reiniciar o processo!")
         #* Trata a chave XML, removendo os espaços caso exista.
         chave_xml = dados_planilha[4].strip()
 
@@ -91,9 +97,10 @@ def valida_lancamento():
             return dados_planilha # Após todas as validações, retorna os dados para a execução principal
 
 if __name__ == '__main__':
+    ahk.win_activate('TopCompras', title_match_mode=2, detect_hidden_windows= True)
     tempo_inicial = time.time()
+    
     valida_lancamento()
-    #altera_topcon_incluir()
     
     # Linha específica onde você quer medir o tempo
     end_time = time.time()
@@ -101,3 +108,4 @@ if __name__ == '__main__':
     medicao_minutos = elapsed_time / 60
     print(f"Tempo decorrido: {medicao_minutos:.2f} segundos")
     bot.alert("acabou")
+

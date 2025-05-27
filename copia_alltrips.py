@@ -6,18 +6,24 @@ import pyautogui as bot
 from datetime import datetime
 from utils.funcoes import ahk as ahk
 from utils.configura_logger import get_logger
-from utils.funcoes import procura_imagem, abre_planilha_navegador, msg_box, ativar_janela
+from utils.funcoes import procura_imagem, abre_planilha_navegador, ativar_janela, reaplica_filtro_status
 
 
 # --- Definição de parametros
 chave_xml = ""
+powerapps_id = ""
 logger = get_logger("script1")
 planilha_debug = "https://cortesiaconcreto-my.sharepoint.com/:x:/g/personal/bruno_silva_cortesiaconcreto_com_br/ETubFnXLMWREkm0e7ez30CMBnID3pHwfLgGWMHbLqk2l5A?rtime=n9xgTPCH3Eg"
 
 
-def encontra_ultimo_xml(ultimo_xml = ''):
-    bot.PAUSE = 2
+def encontra_ultimo_xml(ultimo_xml = '', powerapps_id = ''):
+    bot.PAUSE = 2.2
+    tentativa = 0
     while True:
+        tentativa += 1
+        if tentativa > 5:
+            raise Exception("Excedeu o limite de tentativas de encontrar o ultimo XML!")
+
         logger.info(F'--- Iniciando a navegação até a ultima chave XML: {ultimo_xml}')
         ahk.win_activate('db_alltrips.xlsx', title_match_mode= 1)
         ahk.win_wait_active('db_alltrips.xlsx', title_match_mode= 1, timeout= 5)
@@ -34,12 +40,12 @@ def encontra_ultimo_xml(ultimo_xml = ''):
         bot.press('RIGHT', presses= 8, interval= 0.05) # Navega até o campo "D. Insercao"]
         logger.info('--- Navegou até a D. Inserção')
         bot.hotkey('ALT', 'DOWN') # Abre o menu do filtro
-        time.sleep(5)
+        time.sleep(3)
         ahk.win_activate('db_alltrips.xlsx', title_match_mode= 1)
-        time.sleep(0.25)
-        bot.click(procura_imagem(imagem='imagens/img_planilha/icone_organiza_A_Z.png', continuar_exec= True)) # Clica no botão "organizar do mais antigo ao mais novo"
+        time.sleep(0.5)
+        bot.click(procura_imagem(imagem='imagens/img_planilha/icone_organiza_A_Z.png', continuar_exec= True, limite_tentativa= 30)) # Clica no botão "organizar do mais antigo ao mais novo"
         logger.info('--- Organizou a planilha da forma "da menor para a maior" ')
-        time.sleep(0.25)
+        time.sleep(0.5)
         ahk.win_activate('db_alltrips.xlsx', title_match_mode= 1)
         bot.click(960, 630) # Clica no meio da planilha para "ativar" a navegação dentro dela.
 
@@ -63,19 +69,54 @@ def encontra_ultimo_xml(ultimo_xml = ''):
 
         # Verifica se realmente chegou no ultimo XML
         bot.hotkey('ctrl', 'c')
-        if ahk.get_clipboard() == ultimo_xml:
+        chave_encontrada = ahk.get_clipboard()
+        if chave_encontrada == ultimo_xml:
             logger.info(F'--- Concluido a navegação até a ultima chave XML: {ultimo_xml}')
-            return True
+
+            #* Realiza uma validação também pelo PowerApps ID
+            #* Caso o antigo seja = #NOME?, não realiza a validação.
+            if powerapps_id != "#NOME?":
+                bot.press('RIGHT')
+                time.sleep(0.2)
+                bot.hotkey('ctrl', 'c')
+                novo_powerapps_id = ahk.get_clipboard()
+                if novo_powerapps_id == powerapps_id:
+                    bot.press('LEFT')
+                    return True
+                else:
+                    #Abre o menu de pesquisa
+                    logger.info('--- Abrindo o menu de pesquisa na planilha para procurar o powerapps ID')
+                    bot.press('ALT')
+                    bot.press('C')
+                    bot.press('F')
+                    bot.press('D')
+                    bot.press('F')
+
+                    # Insere a ultima chave copiada da planilha de debug
+                    logger.info(F'--- Digitando a ultimo powerapps ID: {powerapps_id}')
+                    bot.write(powerapps_id)
+                    bot.press('ENTER', presses= 2)
+
+                    # Fecha o menu de pesquisa
+                    bot.press('ESC')
+                    bot.press('ALT', presses= 2)
+                    logger.info('--- Fechou o menu de pesquisa')
+                    bot.press('LEFT')
+            else:
+                return True
         else:
             logger.warning(F'--- Ops... não está na ultima chave {ultimo_xml}, navegando novamente.')
             raise TimeoutError
 
 def valida_nova_chave_inserida(tentativa):
+    bot.PAUSE = 2.2
     tempo_pausa = tentativa * 1800  # Multiplica a tentativa por 30 minutos, como são 4, o maximo é 2 horas
     logger.info('--- Verificando se existe uma nova chave NFE.')
 
     ahk.win_activate('db_alltrips.xlsx', title_match_mode= 1)
+    time.sleep(0.8)
     bot.press('DOWN') # Navega até a proxima linha após a ultima chave.
+    time.sleep(0.2)
 
     while True: # Executa o processo de copia dos dados
         bot.hotkey('ctrl', 'c')
@@ -101,42 +142,8 @@ def valida_nova_chave_inserida(tentativa):
 
 
 def copia_dados():
-    bot.PAUSE = 1
+    bot.PAUSE = 2.2
     dados_copiados = ""
-
-    ''' #! Substituido pela função "Valida nova chave inserida"
-    logger.info('--- Iniciando o processo de cópia.')
-    while tentativas < 4:
-        ahk.win_activate('db_alltrips.xlsx', title_match_mode= 1)
-        bot.press('DOWN') # Navega até a proxima linha após a ultima chave.
-
-        while True: # Executa o processo de copia dos dados
-            bot.hotkey('ctrl', 'c')
-            if 'Recuperando' in ahk.get_clipboard():
-                logger.info('--- Tentando copiar novamente.')
-                time.sleep(0.4)
-            else:
-                logger.info('--- Dado copiado com sucesso, realizando avaliação.')
-                valor_copiado = ahk.get_clipboard()
-                break
-
-        #* Executa a validação dos dados copiados
-        if valor_copiado == "": # 1. Caso o campo esteja vazio, significa que ainda não foram inseridas novas notas, e para o processo.
-            logger.info(F'--- Valor copiado está vazio! Valor: {valor_copiado}, pausando script por {pausa_padrao / 60} minutos')
-            time.sleep(pausa_padrao)
-            pausa_padrao += 600 # Adicona +10 mintuso a pausa
-            verifica_horario()
-            os.system('taskkill /im msedge.exe /f /t')
-        elif len(valor_copiado) < 20 or len(valor_copiado) > 44:
-            logger.warning(F'--- Valor copiado é invalido: {valor_copiado}')
-            continue
-        else: # 2. Caso o campo esteja com uma chave XML nova, prossegue.
-            logger.info(F'--- Uma nova chave foi inserida: {valor_copiado}, saindo do loop')
-            break
-    else:
-        logger.error(F'--- Não encontrou uma NFE nova! Tentativa: {tentativas}')
-        raise Exception('Não encontrou uma NFE nova! Tentativa: {tentativas}')
-    '''
 
     # Inicia o processo de seleção dos dados
     ativar_janela("db_alltrips.xlsx")
@@ -168,7 +175,7 @@ def copia_dados():
             logger.info('--- Encontrou "/2025" que indica os dados da coluna "D. Inserção" nos dados copiados!')
             return dados_copiados
 
-        if i >= 8:
+        if i >= 6:
             if ("/" in dados_copiados) or ("/2025" in dados_copiados) or ("," in dados_copiados): # Verifica se os dados foram copiados com sucesso
                 logger.success('--- Novos dados copiados com sucesso da planilha db_alltrips')
                 print('--- Novos dados copiados com sucesso da planilha db_alltrips')
@@ -191,24 +198,30 @@ def copia_dados():
             raise Exception("Excedeu o limite de tentativas de copiar os dados, soltando SHIFT e CONTROL")
 
 def cola_dados(dados_copiados = "TESTE"):
+    bot.PAUSE = 2.2
+    
     abre_planilha_navegador(planilha_debug)
-    bot.PAUSE = 1
+    time.sleep(8)
     logger.info('--- Acessando a planilha de debug para COLAR os dados!')
-    time.sleep(3)
-    ativar_janela('db_alltrips.xlsx')
+    ativar_janela('debug_db_alltrips.xlsx')
+    time.sleep(1)
     bot.hotkey('CTRL', 'HOME') # Navega até a celula A1.
     bot.press('DOWN', presses= 2) # Proxima linha que deveria estar sem informação.
     logger.info('--- Navegou até a proxima linha sem informações')
 
     bot.press('ALT') # Abre o menu para navegação via teclas
+    time.sleep(0.25)
     bot.press('C') # Vai até a opção "Inicio"
+    time.sleep(0.25)
     bot.press('V') # Abre o menu de "Colar"
+    time.sleep(0.25)
     bot.press('V') # Seleciona a opção "Colar somente valores"
     time.sleep(0.25)
-    logger.info('--- Copiado e colado com sucesso! Fechando a planilha original.')
+    time.sleep(2)
 
-    ahk.win_activate('db_alltrips.xlsx', title_match_mode= 1)
-
+    # Realiza o fechamento da planilha com os dados originais. 
+    logger.info('--- Dados colados com sucesso! Fechando a planilha original.')
+    #ahk.win_activate('debug_db_alltrips.xlsx', title_match_mode= 1)
     for i in range (0, 15):
         logger.info("--- Fechando a planilha do banco ORIGINAL antes de prosseguir.")
         time.sleep(0.4)
@@ -218,6 +231,9 @@ def cola_dados(dados_copiados = "TESTE"):
     else:
         logger.error('--- Não conseguiu fechar a planilha original')
         raise Exception("Não conseguiu fechar a planilha original")
+
+    reaplica_filtro_status()
+
 
 def verifica_quatro_dias(dados_copiados):
     """ Compara os dados copiados e verifica se consta alguma nota que a data é de quatro dias atrás.
@@ -240,16 +256,14 @@ def verifica_quatro_dias(dados_copiados):
         logger.info(F'Não encontrou: {quatro_dias_antes} nos dados copiados, os dados são novos!')
 
 
-def main(ultimo_xml = chave_xml):
-    bot.PAUSE = 2
-
+def main(ultimo_xml = chave_xml, powerapps_id = powerapps_id):
+    bot.PAUSE = 2.2
     logger.info('Iniciando função COPIA BANCO ( COPIA ALL TRIPS)')
 
     #* Abre a planilha do db_alltrips (banco original)
-    for tentativa in range(0, 5):
+    for tentativa in range(0, 6):
         abre_planilha_navegador()
-        encontra_ultimo_xml(ultimo_xml = ultimo_xml)
-
+        encontra_ultimo_xml(ultimo_xml = ultimo_xml, powerapps_id = powerapps_id)
 
         if valida_nova_chave_inserida(tentativa) is True:
             dados_copiados = copia_dados()
@@ -273,7 +287,7 @@ def main(ultimo_xml = chave_xml):
         return True
 
 if __name__ == '__main__':
-    main(ultimo_xml= "35250249034010000137550010010639801961068338")
+    main(ultimo_xml= "35250529067113033280550060003352761109348425", powerapps_id= "iats6lcUqKg")
     
 
     #exit(bot.alert("Terminou"))

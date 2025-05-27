@@ -17,8 +17,8 @@ def conferencia_xml():
     texto_erro = False
     
     #* Aguarda a tela "TopCompras (VM-CortesiaApli.CORTESIA.com)" que é exibida quando ocorre algum retorno de informação do TopCon
-    for i in range(0, 120):
-        time.sleep(0.5)
+    for i in range(0, 140):
+        time.sleep(1)
         if ahk.win_is_active("TopCompras (VM-CortesiaApli.CORTESIA.com)", title_match_mode= 2):
             logger.info('--- Encontrou o pop-up "TopCompras (VM-CortesiaApli.CORTESIA.co" ---' )
             break
@@ -28,8 +28,8 @@ def conferencia_xml():
         logger.critical("Não encontrou o POP-UP, algum problema ocorreu")
         raise Exception("Não encontrou o POP-UP na coferencia do lançamento, algum problema ocorreu")
 
-    for i in range (0, 15):
-        if procura_imagem(imagem='imagens/img_topcon/botao_sim.jpg', continuar_exec= True, limite_tentativa= 1, confianca= 0.73) is not False:
+    for i in range (0, 30):
+        if procura_imagem(imagem='imagens/img_topcon/txt_deseja_vincular_nota_pedido.png', continuar_exec= True, limite_tentativa= 1, confianca= 0.73) is not False:
             logger.info('--- XML Validado, indo para validação do pedido (Encontro o botão para vincular pedido "SIM" )')
             ahk.win_activate('TopCompras', title_match_mode=2, detect_hidden_windows= True)
             bot.click(procura_imagem(imagem='imagens/img_topcon/botao_sim.jpg', continuar_exec=True))
@@ -40,7 +40,8 @@ def conferencia_xml():
 
         elif procura_imagem(imagem='imagens/img_topcon/txt_fornecedor_cadastrado.png', continuar_exec=True, limite_tentativa= 1, confianca= 0.73) is not False:
             texto_erro = "cadastrar_fornecedor"
-            bot.click(procura_imagem(imagem='imagens/img_topcon/bt_nao.png', continuar_exec= True))       
+            bot.click(procura_imagem(imagem='imagens/img_topcon/bt_nao.png', continuar_exec= True))
+            time.sleep(0.2)
         
         elif procura_imagem(imagem='imagens/img_topcon/naoencontrado_xml.png', continuar_exec=True, limite_tentativa= 1, confianca= 0.73) is not False:
             texto_erro = "Aguardando_SEFAZ"

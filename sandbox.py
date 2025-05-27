@@ -27,7 +27,7 @@ from valida_pedido import main as valida_pedido
 from valida_lancamento import valida_lancamento
 from preenche_local import main as preenche_local
 from finaliza_lancamento import finaliza_lancamento
-from utils.funcoes import marca_lancado, procura_imagem, verifica_horario, ativar_janela
+from utils.funcoes import marca_lancado, procura_imagem, verifica_horario, ativar_janela, corrige_nometela
 
 #* Definição de parametros
 posicao_img = 0
@@ -135,6 +135,14 @@ def clica_img(img, deslocar_y, deslocar_x, limite_tentativa=5, area=(0, 0, 1920,
     posicao_texto = procura_imagem('imagens/bt_pagina_inicial.png')
     bot.click()
 
-if __name__ == '__main__':
-    posicao_texto = procura_imagem('imagens/bt_pagina_inicial.png')
-    print(posicao_texto[0] + 100)
+ahk.win_activate('TopCompras', title_match_mode = 2)
+time.sleep(0.2)
+
+if procura_imagem(imagem='imagens/img_topcon/txt_fornecedor_nao_cadastrado.png', continuar_exec=True, limite_tentativa= 1, confianca= 0.74) is not False:
+    #marca_lancado(texto_marcacao='Fornecedor_nao_cadastrado')
+    ahk.win_wait('TopCompras', title_match_mode = 2, timeout= 50)
+    logger.info('--- Fornecedor não cadastrado!')
+    bot.click(procura_imagem(imagem='imagens/img_topcon/bt_nao.png'))
+    time.sleep(0.4)
+    bot.press('F2', presses = 2)
+    #break

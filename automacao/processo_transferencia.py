@@ -28,8 +28,7 @@ def processo_transferencia():
             while procura_imagem('imagens/img_topcon/bt_sim.png', continuar_exec=True, limite_tentativa= 3, confianca= 0.74):
                 bot.click(procura_imagem('imagens/img_topcon/bt_sim.png', continuar_exec=True))
                 
-            contador_pdf = 0
-            while True:  # Aguardar o .PDF
+            for i in range (0, 15):  # Aguardar o .PDF
                 time.sleep(0.4)
                 try:
                     ahk.win_wait('.pdf', title_match_mode=2, timeout= 8)
@@ -46,13 +45,15 @@ def processo_transferencia():
                             return True
 
                     contador_pdf += 1
-                    logger.info('--- Aguardando .PDF da transferencia')
+                    logger.info(f'--- Aguardando .PDF da transferencia, tentativa: {contador_pdf}')
                     
                 else:
                     ahk.win_activate('.pdf', title_match_mode=2)
                     ahk.win_close('pdf - Google Chrome', title_match_mode=2)
                     logger.info('--- Fechou o PDF da transferencia')
                     break
+            else:
+                raise Exception("Falhou ao executar o processo de transferencia")
             
             # Fechando a tela de transmissão
             while ahk.win_exists('Transmissão', title_match_mode= 2):
@@ -69,7 +70,7 @@ def processo_transferencia():
             ahk.win_activate('TopCompras (VM-CortesiaApli.CORTESIA.com)', title_match_mode= 2)
             bot.press('enter')
         else:
-            logger.info('--- Não encontrou a tela "Deseja processar NFE ainda')
+            logger.info('--- Não encontrou a tela "Deseja processar NFE ainda" ')
 
 if __name__ == '__main__':
     processo_transferencia()
