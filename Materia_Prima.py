@@ -169,6 +169,7 @@ def valida_transportador(cracha_mot = "112842"):
     else:
         logger.info('--- Não achou o campo ou já está preenchido')
 
+
 def preenche_data(data_formatada = ""):
     time.sleep(0.5)
     ativar_janela('TopCompras', 70)
@@ -206,6 +207,7 @@ def preenche_data(data_formatada = ""):
             bot.write(f"{hoje}")
             bot.press('enter')
             time.sleep(0.4)
+
 
 
 def programa_principal():

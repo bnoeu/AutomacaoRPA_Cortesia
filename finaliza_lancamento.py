@@ -90,17 +90,6 @@ def finaliza_lancamento(planilha_marcada = False, lancamento_concluido = False, 
             time.sleep(0.2)
             break
 
-        '''#! Substituido pela logica do verifica pop-up erro
-        # Caso inconsistencia no local de estoque
-        if procura_imagem(imagem='imagens/img_topcon/txt_existe_inconsistencia_local.png', continuar_exec=True, limite_tentativa= 1, confianca= 0.74) is not False:
-            marca_lancado(texto_marcacao='inconsistencia_local_estoque')
-            ahk.win_wait('TopCompras', title_match_mode = 2, timeout= 50)
-            logger.info('--- Nota já lançada, marcando planilha!')
-            bot.press('ENTER')
-            bot.press('F2', presses = 2)
-            break
-        '''
-
         if procura_imagem(imagem='imagens/img_topcon/txt_existe_diferenca_pedido.png', continuar_exec=True, limite_tentativa= 1, confianca= 0.74) is not False:
             marca_lancado(texto_marcacao='Diferenca_ValorPedido')
             ahk.win_wait('TopCompras', title_match_mode = 2, timeout= 50)
