@@ -69,6 +69,39 @@ def finaliza_lancamento(planilha_marcada = False, lancamento_concluido = False, 
         if i >= 29:
             raise Exception("Erro na função  FINALIZA LANCAMENTO: Não encontrou telas SUCESSO ou ERRO")
 
+
+    for i in range (0, 50):
+        # 2. Caso operação realizada.
+        if procura_imagem(imagem='imagens/img_topcon/operacao_realizada.png', continuar_exec= True, limite_tentativa= 1, confianca= 0.74) is not False:
+            if planilha_marcada is False:
+                logger.info('--- Operação realizada, marcando a planilha com "Lancado RPA" ')
+                marca_lancado(texto_marcacao='Lancado_RPA', temp_inicial = temp_inicial)
+                planilha_marcada = True
+            
+            ahk.win_activate('TopCompras', title_match_mode= 2)
+            bot.click(procura_imagem(imagem='imagens/img_topcon/operacao_realizada.png'))
+            logger.info('--- Clicando na tela "Operação Realizada" ')
+            bot.press('ENTER')
+
+            # Aguarda até a tela voltar ao modo "Incluir"
+            if procura_imagem(imagem='imagens/img_topcon/txt_inclui.png', continuar_exec= True, area= (852, 956, 1368, 1045)):
+                break
+
+            '''
+            for i in range (0, 8):
+                time.sleep(0.2)
+                if procura_imagem(imagem='imagens/img_topcon/operacao_realizada.png', limite_tentativa= 1, continuar_exec= True) is False:
+                    break
+            '''
+
+            #* Caso apareça a tela sobre o lançamento de CTE
+            #corrige_nometela("TopCompras (VM-CortesiaApli.CORTESIA.com)")
+            #ahk.win_activate("TopCompras (VM-CortesiaApli.CORTESIA.com)", title_match_mode= 2)
+            #* Caso apareça a tela sobre o lançamento de CTE
+            if procura_imagem(imagem='imagens/img_topcon/txt_alerta_conhecimento.png', confianca= 0.75, limite_tentativa= 3, continuar_exec=True):
+                bot.click(procura_imagem(imagem='imagens/img_topcon/bt_nao.png'))
+                pass
+
     while True:        
         # 0. Verifica se ocorreu algo de transferencia
         realizou_transferencia = processo_transferencia()
@@ -116,8 +149,8 @@ def finaliza_lancamento(planilha_marcada = False, lancamento_concluido = False, 
                     break
 
             #* Caso apareça a tela sobre o lançamento de CTE
-            corrige_nometela("TopCompras (VM-CortesiaApli.CORTESIA.com)")
-            ahk.win_activate("TopCompras (VM-CortesiaApli.CORTESIA.com)", title_match_mode= 2)
+            #corrige_nometela("TopCompras (VM-CortesiaApli.CORTESIA.com)")
+            #ahk.win_activate("TopCompras (VM-CortesiaApli.CORTESIA.com)", title_match_mode= 2)
             #* Caso apareça a tela sobre o lançamento de CTE
             if procura_imagem(imagem='imagens/img_topcon/txt_alerta_conhecimento.png', confianca= 0.75, limite_tentativa= 3, continuar_exec=True):
                 bot.click(procura_imagem(imagem='imagens/img_topcon/bt_nao.png'))
