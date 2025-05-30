@@ -248,47 +248,7 @@ def programa_principal():
     time.sleep(1.5)
     bot.press('TAB', presses= 1) # Confirma a informação da nova filial de estoque
 
-    
     preenche_data(data_formatada)
-
-    '''    #* Alteração da data
-    logger.info('--- Realizando validação/alteração da data')
-    hoje = date.today()
-    hoje = hoje.strftime("%d%m%y")  # dd/mm/YY
-    logger.info(F'--- Inserindo a data coletada: {data_formatada} e apertando ENTER')
-    bot.write(data_formatada)
-    bot.press('ENTER')
-    time.sleep(1)
-    ativar_janela('TopCompras', 70)
-
-    # Caso o sistema informe que a data deve ser maior/igual a data inserida acima.
-    logger.info('--- Verificando se apareceu data')
-    if procura_imagem('imagens/img_topcon/data_invalida.png', continuar_exec= True, limite_tentativa= 2):
-        logger.warning(f'--- Precisa mudar a data, inserindo a data de hoje: {hoje}')
-        #bot.alert("Apresentou tela erro")
-        ahk.win_close("TopCompras (VM-CortesiaApli.CORTESIA.com)", title_match_mode= 2)
-        time.sleep(0.5)        
-        bot.write(f"{hoje}")
-        bot.press('enter')
-        time.sleep(1)
-        # Aguarda até o topcompras voltar a funcionar
-        #ativar_janela('TopCompras', 70)
-    else:
-        logger.info('--- Não foi necessario alterar a data!')
-
-    try: # Aguarda a tela de erro do TopCon 
-        ahk.win_wait('Topsys', title_match_mode= 2, timeout= 1.5)
-    except TimeoutError:
-        pass
-    else:
-        if ahk.win_exists('Topsys', title_match_mode= 2):
-            ahk.win_activate('Topsys', title_match_mode= 2)
-            logger.warning('--- Precisa mudar a data')
-            bot.press('enter')          
-            bot.write(f"{hoje}")
-            bot.press('enter')
-            time.sleep(0.4)
-    '''
 
     logger.info(F'--- Trocando o centro de custo para {centro_custo}')
     ativar_janela('TopCompras', 70)
