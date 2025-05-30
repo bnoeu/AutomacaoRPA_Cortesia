@@ -182,11 +182,11 @@ def copia_dados():
                 return dados_copiados
         else:
             ahk.key_down('Shift') # Segura a tecla SHIFT
-            time.sleep(0.25)
+            time.sleep(0.5)
             ahk.key_down('Control') # Segura a tecla CTRL
-            time.sleep(0.25)
+            time.sleep(0.5)
             ahk.key_press('right') # Avança para a ultima coluna
-            time.sleep(0.25)
+            time.sleep(0.5)
             logger.debug('--- Ainda não encontrou a coluna das datas! Tentando novamente')
             ativar_janela("db_alltrips.xlsx")
 
@@ -198,7 +198,7 @@ def copia_dados():
             raise Exception("Excedeu o limite de tentativas de copiar os dados, soltando SHIFT e CONTROL")
 
 def cola_dados(dados_copiados = "TESTE"):
-    bot.PAUSE = 2.2
+    bot.PAUSE = 2.5
     
     abre_planilha_navegador(planilha_debug)
     time.sleep(8)
@@ -210,13 +210,13 @@ def cola_dados(dados_copiados = "TESTE"):
     logger.info('--- Navegou até a proxima linha sem informações')
 
     bot.press('ALT') # Abre o menu para navegação via teclas
-    time.sleep(0.25)
+    time.sleep(0.8)
     bot.press('C') # Vai até a opção "Inicio"
-    time.sleep(0.25)
+    time.sleep(0.8)
     bot.press('V') # Abre o menu de "Colar"
-    time.sleep(0.25)
+    time.sleep(0.8)
     bot.press('V') # Seleciona a opção "Colar somente valores"
-    time.sleep(0.25)
+    time.sleep(0.8)
     time.sleep(2)
 
     # Realiza o fechamento da planilha com os dados originais. 
@@ -287,7 +287,7 @@ def main(ultimo_xml = chave_xml, powerapps_id = powerapps_id):
         return True
 
 if __name__ == '__main__':
-    main(ultimo_xml= "35250529067113033280550060003352761109348425", powerapps_id= "iats6lcUqKg")
+    main(ultimo_xml= "35250533039223000979550010003925631934762896", powerapps_id= "09bm64PPAZk")
     
 
     #exit(bot.alert("Terminou"))

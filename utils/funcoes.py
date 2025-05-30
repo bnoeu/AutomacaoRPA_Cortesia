@@ -433,7 +433,7 @@ def ativar_janela(nome_janela, timeout= 8):
     """
     logger.debug(F'--- Tentando ativar/abrir a janela: {nome_janela} ---' )
     ahk.win_activate(nome_janela, title_match_mode=2)
-    time.sleep(0.6)
+    time.sleep(0.8)
     ahk.win_wait_active(nome_janela, title_match_mode=2, timeout=timeout)
     time.sleep(0.3)
 
