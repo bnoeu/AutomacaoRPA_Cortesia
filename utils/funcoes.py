@@ -103,7 +103,7 @@ def verifica_tela(nome_tela, manual=False):
 
 
 def marca_lancado(texto_marcacao='texto_teste_marcacao', temp_inicial = ""):
-    bot.PAUSE = 0.4
+    bot.PAUSE = 0.2
 
     logger.info(F'--- Abrindo planilha - MARCA_LANCADO, com parametro: {texto_marcacao}' )
     ativar_janela('debug_db', 30)
