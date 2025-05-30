@@ -379,7 +379,6 @@ if __name__ == '__main__':
     if 'VLPTIC1Z9HD33' not in platform.node(): 
         bot.FAILSAFE = False
 
-
     #* Realiza os processos inicias da execução da automação
     subprocess.run(["taskkill", "/im", "AutoHotkey.exe", "/f", "/t"], stderr=subprocess.DEVNULL)
     #os.system('taskkill /im AutoHotkey.exe /f /t 2>nul') # Encerra todos os processos do AHK

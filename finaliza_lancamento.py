@@ -43,6 +43,15 @@ def janelas_sucesso():
         return True
 
 
+def verifica_popup_erro():
+    # Identifica se algum pop_up de erro apareceu
+
+    # Caso inconsistencia no local de estoque
+    if procura_imagem(imagem='imagens/img_topcon/txt_existe_inconsistencia_local.png', continuar_exec=True, limite_tentativa= 1, confianca= 0.74) is not False:
+        logger.info('--- Apresentou "Existe inconsistencia no local de estoque" ')
+        marca_lancado(texto_marcacao='inconsistencia_local_estoque')
+        return True
+
 def finaliza_lancamento(planilha_marcada = False, lancamento_concluido = False, realizou_transferencia = False, tentativas_telas = 0, temp_inicial = ""):
     logger.info('--- Iniciando a função de finalização de lançamento, enviando PAGEDOWN ---' )
     ativar_janela('TopCompras')
@@ -72,6 +81,25 @@ def finaliza_lancamento(planilha_marcada = False, lancamento_concluido = False, 
             bot.press('ENTER')
             bot.press('F2', presses = 2)
             break
+
+        if verifica_popup_erro() is True:
+            ahk.win_activate('TopCompras (VM-CortesiaApli.CORTESIA.com)', title_match_mode=2)
+            time.sleep(0.6)
+            bot.press('ENTER')
+            bot.press('F2', presses = 2)
+            time.sleep(0.2)
+            break
+
+        '''#! Substituido pela logica do verifica pop-up erro
+        # Caso inconsistencia no local de estoque
+        if procura_imagem(imagem='imagens/img_topcon/txt_existe_inconsistencia_local.png', continuar_exec=True, limite_tentativa= 1, confianca= 0.74) is not False:
+            marca_lancado(texto_marcacao='inconsistencia_local_estoque')
+            ahk.win_wait('TopCompras', title_match_mode = 2, timeout= 50)
+            logger.info('--- Nota já lançada, marcando planilha!')
+            bot.press('ENTER')
+            bot.press('F2', presses = 2)
+            break
+        '''
 
         if procura_imagem(imagem='imagens/img_topcon/txt_existe_diferenca_pedido.png', continuar_exec=True, limite_tentativa= 1, confianca= 0.74) is not False:
             marca_lancado(texto_marcacao='Diferenca_ValorPedido')
@@ -193,6 +221,5 @@ def finaliza_lancamento(planilha_marcada = False, lancamento_concluido = False, 
 def main():
     finaliza_lancamento()
 
-
-if __name__ == '__main__':
+if __name__ == '__main__':        
     main()
