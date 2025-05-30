@@ -258,7 +258,7 @@ def programa_principal():
     logger.info(F'--- Inserindo a data coletada: {data_formatada} e apertando ENTER')
     bot.write(data_formatada)
     bot.press('ENTER')
-    time.sleep(2)
+    time.sleep(1)
     ativar_janela('TopCompras', 70)
 
     # Caso o sistema informe que a data deve ser maior/igual a data inserida acima.
@@ -277,7 +277,7 @@ def programa_principal():
         logger.info('--- Não foi necessario alterar a data!')
 
     try: # Aguarda a tela de erro do TopCon 
-        ahk.win_wait('Topsys', title_match_mode= 2, timeout= 3)
+        ahk.win_wait('Topsys', title_match_mode= 2, timeout= 1.5)
     except TimeoutError:
         pass
     else:
