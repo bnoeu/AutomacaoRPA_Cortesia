@@ -97,23 +97,6 @@ def abre_mercantil():
         logger.error(F"Não foi possivel fechar a tela 'interveniente' (TopCompras (! Tentativas executadas: {i}")
         raise Exception('Não foi possivel fechar a tela "TopCompras (", necessario reiniciar o TopCon')
 
-''' #! Não é mais necessario, agora abre direto na tela 6201 - Compras mercantil
-def navega_topcompras():
-    bot.PAUSE = 1.2
-    logger.info('--- Executando a função: navega topcompras ' )
-    # Navegando entre os menus para abrir a opção "Compras - Mercantil"
-    ativar_janela('TopCompras', 30)
-    time.sleep(2)
-    bot.click(900, 900)
-    bot.press('ALT')
-    bot.press('RIGHT', presses= 2, interval= 0.05)
-    bot.press('DOWN', presses= 7, interval= 0.05)
-    bot.press('ENTER')
-    time.sleep(3)
-    logger.success("Concluiu a função NAVEGA TOPCOMPRAS")
-    return True
-'''
-
 
 def fecha_execucoes():
     """#* Realiza o fechamento completo do TopCon e TopCompras
