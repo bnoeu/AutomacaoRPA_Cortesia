@@ -52,7 +52,7 @@ mapeamento_imagens = {
 
 def valida_pedido(chave_xml = ""):
     logger.info('--- Executando função: valida pedido' )
-    bot.PAUSE = 0.6
+    bot.PAUSE = 0.4
     tentativa = 0
     img_pedido = 0
     item_pedido = ''
@@ -206,15 +206,21 @@ def verifica_tela_vinculacao():
     """ Aguarda a abertura da tela: Vinculação Itens da Nota
     """    
     logger.info('--- Executando a função VERIFICA TELA VINCULAÇÃO --- ')
+
     #* Aguarda a abertura da tela "Vinculação Itens da Nota"
-    for i in range(0, 20):
+    for i in range(0, 40):
         ahk.win_activate('Vinculação Itens da Nota', title_match_mode = 2)
-        time.sleep(0.2)
+        time.sleep(1)
+
         if ahk.win_is_active('Vinculação Itens da Nota', title_match_mode = 2):
-            logger.info('Tela "Vinculação Itens da Nota" aberta!')
-            break
+            logger.info(f'Tela "Vinculação Itens da Nota" aberta!, tentativa: {i}')
+            return True
+
         if i == 10:
-            logger.error('Não encontrou a tela "Vinculação Itens da Nota" ')
+            logger.info(f'Executou: {i} tentativas de achar "Vinculação Itens da Nota" executando o corrige_nome_tela para verificar')
+            corrige_nometela('Vinculação Itens da Nota')
+        if i == 30:
+            logger.error(f'Não encontrou a tela "Vinculação Itens da Nota", tentativa: {i} ')
             ahk.win_wait_active('Vinculação Itens da Nota', title_match_mode= 2, timeout= 1)
 
 
@@ -226,6 +232,8 @@ def valida_bt_localizar():
     """    
     logger.info('--- Executando a função VALIDA BT LOCALIZAR --- ')
     for i in range (0, 20):
+        time.sleep(0.5)
+
         if procura_imagem(imagem='imagens/img_topcon/localizar.png', limite_tentativa= 5, continuar_exec= True):
             logger.info('--- Tela "Vinculação itens da NOTA" carregou e encontrou o botão "LOCALIZAR" ')
             break
