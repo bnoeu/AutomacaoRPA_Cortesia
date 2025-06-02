@@ -70,10 +70,13 @@ def procura_imagem(imagem, limite_tentativa= 8, area=(0, 0, 1920, 1080), continu
             return posicao_img
                 
         # Ajuste dos parametros
-        confianca -= 0.02           
-        tentativa += 1
+        if confianca > 0.5:
+            confianca -= 0.02
+        
         while pausa_img < 0.25:
             pausa_img += 0.025
+
+        tentativa += 1
 
     #* Caso seja para continuar
     if (continuar_exec is True) and (posicao_img is None): # Exibe a mensagem que o parametro está ativo
@@ -160,7 +163,7 @@ def marca_lancado(texto_marcacao='texto_teste_marcacao', temp_inicial = ""):
     #* Caso precise informar o tempo que levou.
     if temp_inicial != "":
         bot.press('RIGHT', presses= 1, interval= 0.1)
-        time.sleep(0.4)
+        time.sleep(0.2)
 
         # Valida a medição de tempo que levou
         end_time = time.time()
@@ -170,7 +173,7 @@ def marca_lancado(texto_marcacao='texto_teste_marcacao', temp_inicial = ""):
         #print(f"Tempo decorrido: {medicao_minutos:.2f} segundos")
         #logger.info(f"Tempo decorrido: {medicao_minutos:.2f} segundos")
 
-    time.sleep(0.4)
+    time.sleep(0.2)
     ativar_janela('debug_db', 30)
 
     bot.click(960, 640) # Clica no meio da planilha
@@ -289,8 +292,14 @@ def verifica_ped_vazio(texto, pos):
         logger.info('--- Encerrado a função verifica pedido vazio!')
         return True
 
-def corrige_nometela(novo_nome = "TopCompras"):    
-    try: # Verifica se o topcon abriu SEM NOME
+def corrige_nometela(novo_nome = "TopCompras"):  
+    """_summary_ Verifica se tem alguma tela com o nome vazio, e realiza a correção.
+
+    Args:
+        novo_nome (str, optional): _description_. Nome da tela que quero tentar corrigir, Defaults to "TopCompras".
+    """
+
+    try: # Verifica se abriu alguma tela sem o nome.
         ahk.win_wait(' (VM-CortesiaApli.CORTESIA.com)', title_match_mode= 1, timeout= 5)
     except (TimeoutError, OSError): # Apresenta Timeout caso esteja aberto com o nome normal.
         try: # Verifica se REALMENTE abriu com o nome normal

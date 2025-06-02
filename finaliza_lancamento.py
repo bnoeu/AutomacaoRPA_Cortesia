@@ -4,9 +4,10 @@ import pyautogui as bot
 
 from datetime import date, timedelta
 from abre_topcon import main as abre_topcon
+from copia_alltrips import encontra_ultimo_xml
 from utils.configura_logger import get_logger
 from alterar_localizar import alterar_localizar
-from automacao.processo_transferencia import processo_transferencia
+from processo_transferencia import processo_transferencia
 from utils.funcoes import marca_lancado, procura_imagem, ativar_janela, corrige_nometela
 
 
@@ -28,6 +29,7 @@ def janelas_erro():
         if ahk.win_exists(tela, title_match_mode= 2):
             logger.error(F'--- Encontrou o pop-up de erro: "{tela}" necessario validar manualmente')
             bot.click(procura_imagem(imagem='imagens/img_topcon/botao_ok.jpg', continuar_exec=True))
+
             marca_lancado(texto_marcacao = F'Erro_{tela}')
             return True
 
@@ -41,10 +43,20 @@ def janelas_sucesso():
         ahk.win_activate('TopCompras (VM-CortesiaApli.CORTESIA.com)', title_match_mode=2)
         ahk.win_wait_active('TopCompras (VM-CortesiaApli.CORTESIA.com)', title_match_mode=2, timeout= 30)
         return True
+    else:
+        logger.info(F'--- Não encontrou nenhuma tela de sucesso!')
 
 
 def verifica_popup_erro():
+    """ Verifica se apareceu alguma das telas de erro
+
+    Returns:
+        Boleano: Retorna True
+    """    
+
     # Identifica se algum pop_up de erro apareceu
+    ahk.win_wait('TopCompras', title_match_mode = 2, timeout= 50)
+    ahk.win_activate('TopCompras', title_match_mode = 2)
 
     # Caso inconsistencia no local de estoque
     if procura_imagem(imagem='imagens/img_topcon/txt_existe_inconsistencia_local.png', continuar_exec=True, limite_tentativa= 1, confianca= 0.74) is not False:
@@ -52,70 +64,107 @@ def verifica_popup_erro():
         marca_lancado(texto_marcacao='inconsistencia_local_estoque')
         return True
 
+    # Caso apareça a tela "Valor de frete maior"
+    elif procura_imagem(imagem='imagens/img_topcon/txt_valor_frete.png', continuar_exec=True, limite_tentativa= 1, confianca= 0.74) is not False:
+        logger.info('--- Erro no valor do frete!')
+        marca_lancado(texto_marcacao='Erro_Frete')
+        return True
+
+    elif procura_imagem(imagem='imagens/img_topcon/txt_contasapagar.png', continuar_exec=True, limite_tentativa= 1, confianca= 0.74) is not False:
+        logger.info('--- Erro de contas a pagar para essa operação!')
+        marca_lancado(texto_marcacao='Erro_OperacaoFiscal')
+        return True
+
+    elif procura_imagem(imagem='imagens/img_topcon/txt_existe_diferenca_pedido.png', continuar_exec=True, limite_tentativa= 1, confianca= 0.74) is not False:
+        logger.info('--- Existe diferença de valor entre o pedido e a nota fiscal!')
+        marca_lancado(texto_marcacao='Diferenca_ValorPedido')
+        return True
+
+    # 1. Caso chave invalida.
+    elif procura_imagem(imagem='imagens/img_topcon/chave_invalida.png', continuar_exec=True, limite_tentativa= 1, confianca= 0.74) is not False:
+        logger.info('--- Nota já lançada, marcando planilha!')
+        marca_lancado(texto_marcacao='Lancado_Manual')
+        return True
+
+
+def operacao_realizada(temp_inicial = ""):
+    """ Verifica se achou a tela "OP. REALIZADA"
+
+    Args:
+        temp_inicial (str, optional): _description_. Defaults to "".
+
+    Returns:
+        Int: 3 = Lançamento realizado, não precisa fazer mais nada.
+        Int: 2 = Lançamento realizado, porém alguma outra tela está aberta.
+    """
+
+    time.sleep(1)
+    ativar_janela('TopCompras')
+    if procura_imagem(imagem='imagens/img_topcon/operacao_realizada.png', continuar_exec= True, limite_tentativa= 1, confianca= 0.74) is not False:
+        logger.info('--- Operação realizada, marcando a planilha com "Lancado RPA" ')
+        marca_lancado(texto_marcacao='Lancado_RPA', temp_inicial = temp_inicial)
+        planilha_marcada = True
+        
+        ahk.win_activate('TopCompras', title_match_mode= 2)
+        bot.click(procura_imagem(imagem='imagens/img_topcon/operacao_realizada.png'))
+        logger.info('--- Clicando na tela "Operação Realizada" ')
+        bot.press('ENTER')
+        time.sleep(0.4)
+
+        if procura_imagem(imagem='imagens/img_topcon/txt_alerta_conhecimento.png', confianca= 0.75, limite_tentativa= 3, continuar_exec=True):
+            bot.click(procura_imagem(imagem='imagens/img_topcon/bt_nao.png'))
+
+        # Aguarda até a tela voltar ao modo "Incluir"
+        if procura_imagem(imagem='imagens/img_topcon/txt_inclui.png', limite_tentativa= 4, continuar_exec= True, area= (852, 956, 1368, 1045)):
+            time.sleep(2)
+            return 3
+        else:
+            time.sleep(2)
+            return 2
+
+
+def aguarda_telas_finalizacao():
+    # Aguarda até aparecer alguma das telas, seja de erro ou de sucesso, e aumenta o delay conforme as tentativas.
+    tempo_pausa = 0.5
+
+    logger.info('--- Tentando validar a tela que apresentou no sistema ---' )
+    for i in range (0, 90):
+        time.sleep(tempo_pausa)
+        
+        if janelas_erro() is True:
+            logger.info('--- Finalizou a task FINALIZA LANCAMENTO, pois apareceu uma tela de erro.' )
+            return False 
+        if janelas_sucesso() is True:
+            return True
+        
+        if i >= 89:
+            raise Exception(f"Erro na função  FINALIZA LANCAMENTO: Não encontrou telas SUCESSO ou ERRO, tentativa {i}")
+        elif i == 30:
+            tempo_pausa = 2
+        elif i == 60:
+            tempo_pausa = 4
+        
+
 def finaliza_lancamento(planilha_marcada = False, lancamento_concluido = False, realizou_transferencia = False, tentativas_telas = 0, temp_inicial = ""):
     logger.info('--- Iniciando a função de finalização de lançamento, enviando PAGEDOWN ---' )
     ativar_janela('TopCompras')
     bot.press('pagedown')  # Conclui o lançamento
 
-    logger.info('--- Tentando validar a tela que apresentou no sistema ---' )
-    for i in range (0, 1):
-        time.sleep(0.5)
-        #* Verifica se apresentou alguma das telas de erro!
-        if janelas_erro() is True:
-            logger.info('--- Finalizou a task FINALIZA LANCAMENTO, pois apareceu uma tela de erro.' )
-            return False 
-        if janelas_sucesso() is True:
-            break
-        if i >= 29:
-            raise Exception("Erro na função  FINALIZA LANCAMENTO: Não encontrou telas SUCESSO ou ERRO")
-
-
-    for i in range (0, 50):
-        # 2. Caso operação realizada.
-        if procura_imagem(imagem='imagens/img_topcon/operacao_realizada.png', continuar_exec= True, limite_tentativa= 1, confianca= 0.74) is not False:
-            if planilha_marcada is False:
-                logger.info('--- Operação realizada, marcando a planilha com "Lancado RPA" ')
-                marca_lancado(texto_marcacao='Lancado_RPA', temp_inicial = temp_inicial)
-                planilha_marcada = True
-            
-            ahk.win_activate('TopCompras', title_match_mode= 2)
-            bot.click(procura_imagem(imagem='imagens/img_topcon/operacao_realizada.png'))
-            logger.info('--- Clicando na tela "Operação Realizada" ')
-            bot.press('ENTER')
-
-            # Aguarda até a tela voltar ao modo "Incluir"
-            if procura_imagem(imagem='imagens/img_topcon/txt_inclui.png', continuar_exec= True, area= (852, 956, 1368, 1045)):
-                break
-
-            '''
-            for i in range (0, 8):
-                time.sleep(0.2)
-                if procura_imagem(imagem='imagens/img_topcon/operacao_realizada.png', limite_tentativa= 1, continuar_exec= True) is False:
-                    break
-            '''
-
-            #* Caso apareça a tela sobre o lançamento de CTE
-            #corrige_nometela("TopCompras (VM-CortesiaApli.CORTESIA.com)")
-            #ahk.win_activate("TopCompras (VM-CortesiaApli.CORTESIA.com)", title_match_mode= 2)
-            #* Caso apareça a tela sobre o lançamento de CTE
-            if procura_imagem(imagem='imagens/img_topcon/txt_alerta_conhecimento.png', confianca= 0.75, limite_tentativa= 3, continuar_exec=True):
-                bot.click(procura_imagem(imagem='imagens/img_topcon/bt_nao.png'))
-                pass
+    # Após apertar pagedown, aguarda até aparecer alguma das telas.
+    aguarda_telas_finalizacao()
 
     while True:        
-        # 0. Verifica se ocorreu algo de transferencia
-        realizou_transferencia = processo_transferencia()
         time.sleep(0.25)
-        # 1. Caso chave invalida.  
-        if procura_imagem(imagem='imagens/img_topcon/chave_invalida.png', continuar_exec=True, limite_tentativa= 1, confianca= 0.74) is not False:
-            marca_lancado(texto_marcacao='Lancado_Manual')
-            ahk.win_wait('TopCompras', title_match_mode = 2, timeout= 50)
-            logger.info('--- Nota já lançada, marcando planilha!')
-            bot.press('ENTER')
-            bot.press('F2', presses = 2)
-            break
 
-        if verifica_popup_erro() is True:
+        lancamento_realizado = operacao_realizada(temp_inicial)
+        if lancamento_realizado == 3:
+            break
+        elif lancamento_realizado == 2:
+            planilha_marcada = True
+            # Verifica se ocorreu algo de transferencia
+            realizou_transferencia = processo_transferencia()
+
+        elif verifica_popup_erro() is True:
             ahk.win_activate('TopCompras (VM-CortesiaApli.CORTESIA.com)', title_match_mode=2)
             time.sleep(0.6)
             bot.press('ENTER')
@@ -123,39 +172,6 @@ def finaliza_lancamento(planilha_marcada = False, lancamento_concluido = False, 
             time.sleep(0.2)
             break
 
-        if procura_imagem(imagem='imagens/img_topcon/txt_existe_diferenca_pedido.png', continuar_exec=True, limite_tentativa= 1, confianca= 0.74) is not False:
-            marca_lancado(texto_marcacao='Diferenca_ValorPedido')
-            ahk.win_wait('TopCompras', title_match_mode = 2, timeout= 50)
-            ahk.win_activate('TopCompras', title_match_mode = 2)
-            logger.info('--- Existe diferença de valor entre o pedido e a nota fiscal!')
-            bot.press('ENTER')
-            bot.press('F2', presses = 2)
-            break
-
-        # 2. Caso operação realizada.
-        if procura_imagem(imagem='imagens/img_topcon/operacao_realizada.png', continuar_exec= True, limite_tentativa= 1, confianca= 0.74) is not False:
-            if planilha_marcada is False:
-                logger.info('--- Operação realizada, marcando a planilha com "Lancado RPA" ')
-                marca_lancado(texto_marcacao='Lancado_RPA', temp_inicial = temp_inicial)
-                planilha_marcada = True
-            
-            ahk.win_activate('TopCompras', title_match_mode= 2)
-            bot.click(procura_imagem(imagem='imagens/img_topcon/operacao_realizada.png'))
-            logger.info('--- Clicando na tela "Operação Realizada" ')
-            bot.press('ENTER')
-            for i in range (0, 8):
-                time.sleep(0.2)
-                if procura_imagem(imagem='imagens/img_topcon/operacao_realizada.png', limite_tentativa= 1, continuar_exec= True) is False:
-                    break
-
-            #* Caso apareça a tela sobre o lançamento de CTE
-            #corrige_nometela("TopCompras (VM-CortesiaApli.CORTESIA.com)")
-            #ahk.win_activate("TopCompras (VM-CortesiaApli.CORTESIA.com)", title_match_mode= 2)
-            #* Caso apareça a tela sobre o lançamento de CTE
-            if procura_imagem(imagem='imagens/img_topcon/txt_alerta_conhecimento.png', confianca= 0.75, limite_tentativa= 3, continuar_exec=True):
-                bot.click(procura_imagem(imagem='imagens/img_topcon/bt_nao.png'))
-                pass
-                    
         elif planilha_marcada is True: # Essa parte só pode rodar, se encontrar a opção "operação realizada"
             logger.info('--- Não encontrou a tela "operação realizada", porém a planilha está marcada!')
             ahk.win_activate('TopCompras', title_match_mode= 2)
@@ -174,19 +190,9 @@ def finaliza_lancamento(planilha_marcada = False, lancamento_concluido = False, 
                         if alterar_localizar():
                             lancamento_concluido = True
                             return True
-                    
-        # 3. Caso apareça "deseja imprimir o espelho da nota?"
-        if procura_imagem(imagem='imagens/img_topcon/txt_espelhonota.png', continuar_exec=True, limite_tentativa= 1, confianca= 0.74) is not False:
-            logger.info('--- Apareceu a tela: "deseja imprimir o espelho da nota?" ')
-            ahk.win_activate('TopCompras', title_match_mode= 2)
-            bot.press('ENTER')
-            ahk.win_activate('Espelho de Nota Fiscal', title_match_mode= 2)
-            ahk.win_wait('Espelho de Nota Fiscal', title_match_mode= 2, timeout= 30)
-        
-        # 4. Caso apareça tela "Espelho da nota fiscal"
-        while ahk.win_exists('Espelho de Nota Fiscal', title_match_mode= 2):
-            ahk.win_close('Espelho de Nota Fiscal', title_match_mode= 2)
 
+
+        ''' #! Substituido pela logica do verifica_popup_erro
         # 6. Caso apareça a tela "Valor de frete maior"
         if procura_imagem(imagem='imagens/img_topcon/txt_valor_frete.png', continuar_exec=True, limite_tentativa= 1, confianca= 0.74) is not False:
             logger.info('--- Nota já lançada, marcando planilha!')
@@ -202,6 +208,17 @@ def finaliza_lancamento(planilha_marcada = False, lancamento_concluido = False, 
             bot.press('F2', presses = 2)
             marca_lancado(texto_marcacao='Erro_OperacaoFiscal')
             break
+        
+        if procura_imagem(imagem='imagens/img_topcon/txt_existe_diferenca_pedido.png', continuar_exec=True, limite_tentativa= 1, confianca= 0.74) is not False:
+            marca_lancado(texto_marcacao='Diferenca_ValorPedido')
+            ahk.win_wait('TopCompras', title_match_mode = 2, timeout= 50)
+            ahk.win_activate('TopCompras', title_match_mode = 2)
+            logger.info('--- Existe diferença de valor entre o pedido e a nota fiscal!')
+            bot.press('ENTER')
+            bot.press('F2', presses = 2)
+            break
+        
+        '''
 
         if lancamento_concluido is True:
             marca_lancado(texto_marcacao='Lancado_RPA')
@@ -244,4 +261,5 @@ def main():
     finaliza_lancamento()
 
 if __name__ == '__main__':        
+    #aguarda_telas_finalizacao()
     main()

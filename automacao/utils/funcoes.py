@@ -7,7 +7,7 @@ import datetime
 import pytesseract
 import numpy as np
 import pyautogui as bot
-from .configura_logger import get_logger
+from ...utils.configura_logger import get_logger
 
 
 # --- Definição de parametros
@@ -169,7 +169,6 @@ def reaplica_filtro_status():
         time.sleep(2)
         logger.debug('--- Clicou para visualizar o filtro de todos.')
         
-
 
 def extrai_txt_img(imagem, area_tela, porce_escala = 400):
     time.sleep(0.5)

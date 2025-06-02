@@ -211,6 +211,7 @@ def preenche_data(data_formatada = ""):
 
 
 def programa_principal():
+
     global qtd_notas_lancadas
     bot.PAUSE = 0.6
 
@@ -358,9 +359,11 @@ def trata_erro(ultimo_erro, tentativa):
 def main(lancamento_realizado = False):
     verifica_horario() # Confere o horario dessa execução.
     
+    '''
     if lancamento_realizado == False:
         if not abre_topcon():
             raise Exception("Falhou ao abrir o topcon")
+    '''
 
     
     while programa_principal():
