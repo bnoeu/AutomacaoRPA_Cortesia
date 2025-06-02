@@ -4,6 +4,7 @@
 import time
 import os
 
+import subprocess
 from outcome import Value
 from utils.configura_logger import get_logger
 import pyautogui as bot
@@ -115,7 +116,7 @@ def main():
             handle_timeout(texto_erro = ultimo_erro)
     else:
         logger.critical("--- Número maximo de tentativas de executar o COLETA PLANILHA.PY ")
-        os.system('taskkill /im msedge.exe /f /t 2>nul') # Encerra todos os processos do msedge
+        subprocess.run(["taskkill", "/im", "msedge.exe", "/f", "/t"], stderr=subprocess.DEVNULL)
         raise Exception(F"Número maximo de tentativas de executar o COLETA PLANILHA.py, erro coletado: {erro_log}")
 
 

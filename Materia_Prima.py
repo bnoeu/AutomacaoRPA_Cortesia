@@ -386,7 +386,6 @@ if __name__ == '__main__':
 
     #* Realiza os processos inicias da execução da automação
     subprocess.run(["taskkill", "/im", "AutoHotkey.exe", "/f", "/t"], stderr=subprocess.DEVNULL)
-    #os.system('taskkill /im AutoHotkey.exe /f /t 2>nul') # Encerra todos os processos do AHK
     #os.system('cls')
     subprocess.run("cls", shell=True)
     print("--- Limpeza do Terminal realizada.")

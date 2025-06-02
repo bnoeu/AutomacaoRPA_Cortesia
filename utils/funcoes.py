@@ -358,15 +358,6 @@ def abre_planilha_navegador(link_planilha = alltrips):
             else:
                 os.system("cmd /c taskkill /im msedge.exe /f /t 2>nul")
                 logger.info('--- Planilha (EDGE) fechada, abrindo uma nova execução da planilha: {planilha}')
-
-                ''' #! DESABILITADO, PQ A ACTION DE CIMA JÁ FECHA O EDGE POR COMPLETO
-                #* Garante que a planilha ORIGINAL não esteja aberta
-                while ahk.win_exists("alltrips.xlsx", title_match_mode= 1): # Garante que a planilha não esteja aberta
-                    logger.info('--- Forçou o fechamento da planilha ORIGINAL do AllTrips')
-                    ahk.win_close('alltrips.xlsx', title_match_mode= 2)
-                    os.system('taskkill /im msedge.exe /f /t')
-                    time.sleep(1)
-                '''
                 
                 comando_iniciar = F'start msedge {link_planilha} -new-window -inprivate'
                 os.system(comando_iniciar)
