@@ -184,11 +184,22 @@ def marca_lancado(texto_marcacao='texto_teste_marcacao', temp_inicial = ""):
     bot.hotkey('CTRL', 'HOME')
     logger.info(F'--------------------- Processou NFE, situação: {texto_marcacao} ---------------------')
 
+def verifica_status_vazio():
+    # No momento da aplicação do filtro, consulta para verificar se existe a opção "Vazio"
+    ahk.win_activate('debug_db_alltrips', title_match_mode= 2)
+    time.sleep(0.2)
+
+    if procura_imagem(imagem='imagens/img_planilha/txt_vazias.png', continuar_exec= True):
+        return True
+    else:
+        return False
+
+
 def reaplica_filtro_status(): 
     filtro_aplicado = False
     tentativa_filtro = 0
 
-    while filtro_aplicado == False:
+    while filtro_aplicado is False:
         tentativa_filtro += 1
 
         if tentativa_filtro >= 6:
@@ -199,10 +210,10 @@ def reaplica_filtro_status():
             logger.debug('--- Executando a função REAPLICA FILTRO STATUS')
             ahk.win_activate('debug_db_alltrips', title_match_mode= 2)
             ahk.win_wait_active('debug_db_alltrips', title_match_mode= 2, timeout= 15)
-            time.sleep(0.3)
+            time.sleep(0.5)
 
-            #* Clica no meio da tela, para garantir que está sem nenhuma outra tela aberta
-            bot.click(960, 640)
+            
+            bot.click(960, 640) #* Clica no meio da tela, para garantir que está sem nenhuma outra tela aberta
             time.sleep(0.25)
             
             #* Navega até a coluna "STATUS" e abre o menu com as opções
@@ -213,12 +224,15 @@ def reaplica_filtro_status():
             time.sleep(0.2)
             bot.hotkey('ALT', 'DOWN') # Comando do excel para abrir o menu do filtro
             logger.info('--- Navegou até celula A1 e abriu o filtro do status ')
-            time.sleep(0.2)
             ahk.win_activate('debug_db_alltrips', title_match_mode= 2)
-            time.sleep(0.2)
+            time.sleep(0.4)
 
-            #if procura_imagem(imagem='imagens/img_planilha/bt_aplicar.png', confianca= 100, continuar_exec= True):
-            if procura_imagem(imagem='imagens/img_planilha/bt_aplicar.png', limite_tentativa= 5, continuar_exec= True):
+            if verifica_status_vazio() is False:
+                logger.info('--- Não existe mais notas com status vazio.')
+                bot.click(960, 640) #* Clica no meio da tela, para garantir que está sem nenhuma outra tela aberta
+                return True
+
+            if procura_imagem(imagem='imagens/img_planilha/bt_aplicar.png', continuar_exec= True):
                 bot.click(procura_imagem(imagem='imagens/img_planilha/bt_aplicar.png'))
                 logger.info('--- Na tela do menu de filtro, clicou no botão "Aplicar" para reaplicar o filtro ')
                 filtro_aplicado = True
@@ -232,7 +246,7 @@ def reaplica_filtro_status():
                 #* Concluiu a validação que o filtro está aplicado
                 logger.success("--- Filtro da coluna status aplicado!")
                 bot.hotkey('CTRL', 'HOME') # Navega até o campo A1
-                time.sleep(1)
+                time.sleep(0.2)
 
                 return True
         except:
@@ -316,7 +330,6 @@ def corrige_nometela(novo_nome = "TopCompras"):
         logger.warning('--- Encontrou tela sem o nome, e realizou a correção!' )
 
 def abre_planilha_navegador(link_planilha = alltrips):
-
     for i in range (0, 3):
         try:
             # Identifica qual planilha será utilizada.
@@ -329,14 +342,14 @@ def abre_planilha_navegador(link_planilha = alltrips):
 
             #* Verifica se a planilha já esta aberta
             if ahk.win_exists(planilha):
-                logger.debug('--- Planilha já está aberta!')
+                logger.debug('--- Planilha já está aberta! Executando apenas um recarregamento')
 
                 ativar_janela(planilha)
                 ahk.win_maximize(planilha, title_match_mode= 2)
                 time.sleep(0.5)
                 bot.hotkey('CTRL', 'F5') # Recarrega a planilha limpando o cache
 
-                # Verifica se a planilha realmente já recarrego
+                # Verifica se a planilha realmente já recarregou
                 for i in range (0, 30):
                     ativar_janela(planilha, 5)
                     time.sleep(0.5)
@@ -348,6 +361,7 @@ def abre_planilha_navegador(link_planilha = alltrips):
                             break           
                         elif procura_imagem(imagem='imagens/img_planilha/icone_nuvem.png', limite_tentativa= 45, area= (0, 0, 583, 365)):
                             logger.success('--- Todas validações realizadas, planilha realmente aberta!')
+                            time.sleep(1)
                             break
                     if i == 30:
                         logger.erro('--- Planilha não carregou corretamente!')
@@ -475,7 +489,9 @@ def move_telas_direita(tela:str):
 if __name__ == '__main__':
     bot.PAUSE = 0.6
     bot.FAILSAFE = False
-
+    reaplica_filtro_status()
+    #verifica_status_vazio()
+    exit()
 
     # Calculo do tempo de execução das funções
     tempo_inicial = time.time()
@@ -490,7 +506,7 @@ if __name__ == '__main__':
     #reaplica_filtro_status()
     #verifica_ped_vazio()
     #corrige_nometela()
-    marca_lancado(temp_inicial= tempo_inicial, texto_marcacao= "teste_2025_09_05")
+    #marca_lancado(temp_inicial= tempo_inicial, texto_marcacao= "teste_2025_09_05")
 
     # Calculo do tempo de execução das funções
     end_time = time.time()
