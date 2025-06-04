@@ -109,17 +109,17 @@ def operacao_realizada(temp_inicial = ""):
         bot.click(procura_imagem(imagem='imagens/img_topcon/operacao_realizada.png'))
         logger.info('--- Clicando na tela "Operação Realizada" ')
         bot.press('ENTER')
-        time.sleep(0.4)
+        time.sleep(0.6)
 
         if procura_imagem(imagem='imagens/img_topcon/txt_alerta_conhecimento.png', confianca= 0.75, limite_tentativa= 3, continuar_exec=True):
             bot.click(procura_imagem(imagem='imagens/img_topcon/bt_nao.png'))
 
         # Aguarda até a tela voltar ao modo "Incluir"
-        if procura_imagem(imagem='imagens/img_topcon/txt_inclui.png', limite_tentativa= 4, continuar_exec= True, area= (852, 956, 1368, 1045)):
-            time.sleep(2)
+        if procura_imagem(imagem='imagens/img_topcon/txt_inclui.png', continuar_exec= True, area= (852, 956, 1368, 1045)):
             return 3
         else:
-            time.sleep(2)
+            logger.info(f'--- Finalizou o processo com o status: {2} significa que pode ter aberto outras telas ')
+            time.sleep(3)
             return 2
 
 

@@ -4,7 +4,6 @@
 import time
 import os
 
-from outcome import Value
 from utils.configura_logger import get_logger
 import pyautogui as bot
 from copia_alltrips import main as copia_banco
@@ -39,7 +38,6 @@ def coleta_planilha():
 
         dados_planilha = copia_linha_atual()
         
-
         if tentativa > 19:
             raise Exception(F"Dados inválidos: {str(dados_planilha)}, executou todas as tentativas")
         if valida_dados(dados_planilha):
@@ -58,7 +56,7 @@ def processa_dados(dados_planilha):
     if len(dados_planilha[6]) > 1:
         logger.info(F'--- Dados copiados: {dados_planilha}')
         logger.info(F'--- Chegou na última NFE {chave_xml}')
-        exit(bot.alert("Verificar copia"))
+        #exit(bot.alert("Verificar copia"))
         copia_banco(chave_xml, powerapps_id)
         raise ValueError
     else:
@@ -93,7 +91,7 @@ def calculo_tempo_final(tempo_inicial: float):
 def main():
     bot.PAUSE = 0.6
     ultimo_erro = ""
-
+    
     for i in range(0, 3):
         logger.debug(F"--- Executando a tentativa {i} de executar o COLETA PLANILHA.py ")
         try:
@@ -121,13 +119,12 @@ def main():
 
 if __name__ == '__main__':
     tempo_inicial = time.time()
+    main()
 
-    dados_copiados = main()
+    #dados_copiados = main()
+    #data_formatada = formata_data_coletada(dados_copiados[8])
+    #coleta_planilha()
 
-    # Exibe os dados copiados
-    print(dados_copiados)
-    data_formatada = formata_data_coletada(dados_copiados[8])
-    print(data_formatada)
-    
-    # Calcula o tempo que levou para realizar a ação
-    calculo_tempo_final(tempo_inicial)
+
+    #Calcula o tempo que levou para realizar a ação
+    #calculo_tempo_final(tempo_inicial)

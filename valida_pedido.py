@@ -50,6 +50,7 @@ mapeamento_imagens = {
 }
 
 
+
 def valida_pedido(chave_xml = ""):
     logger.info('--- Executando função: valida pedido' )
     bot.PAUSE = 0.4
