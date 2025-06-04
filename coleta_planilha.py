@@ -2,10 +2,8 @@
 # Para utilização na Cortesia Concreto.
 
 import time
-import os
 
 import subprocess
-from outcome import Value
 from utils.configura_logger import get_logger
 import pyautogui as bot
 from copia_alltrips import main as copia_banco

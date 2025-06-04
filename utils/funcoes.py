@@ -188,55 +188,53 @@ def reaplica_filtro_status():
     filtro_aplicado = False
     tentativa_filtro = 0
 
-    while filtro_aplicado == False:
+    while filtro_aplicado is False:
         tentativa_filtro += 1
 
         if tentativa_filtro >= 6:
             raise Exception("Falhou a aplicar o filtro na coluna de status!")
 
-        try: 
-            bot.PAUSE = 0.6
-            logger.debug('--- Executando a função REAPLICA FILTRO STATUS')
-            ahk.win_activate('debug_db_alltrips', title_match_mode= 2)
-            ahk.win_wait_active('debug_db_alltrips', title_match_mode= 2, timeout= 15)
-            time.sleep(0.3)
 
-            #* Clica no meio da tela, para garantir que está sem nenhuma outra tela aberta
-            bot.click(960, 640)
-            time.sleep(0.25)
-            
-            #* Navega até a coluna "STATUS" e abre o menu com as opções
-            #* Inicia navamento até o campo "A1"
-            bot.hotkey('CTRL', 'HOME') # Navega até o campo A1
-            bot.press('RIGHT', presses= 7, interval= 0.05) # Navega até o campo "Status"
-            bot.press('LEFT') # Navega até o campo "Status"
-            time.sleep(0.2)
-            bot.hotkey('ALT', 'DOWN') # Comando do excel para abrir o menu do filtro
-            logger.info('--- Navegou até celula A1 e abriu o filtro do status ')
-            time.sleep(0.2)
-            ahk.win_activate('debug_db_alltrips', title_match_mode= 2)
-            time.sleep(0.2)
+        bot.PAUSE = 0.6
+        logger.debug('--- Executando a função REAPLICA FILTRO STATUS')
+        ahk.win_activate('debug_db_alltrips', title_match_mode= 2)
+        ahk.win_wait_active('debug_db_alltrips', title_match_mode= 2, timeout= 15)
+        time.sleep(0.3)
 
-            #if procura_imagem(imagem='imagens/img_planilha/bt_aplicar.png', confianca= 100, continuar_exec= True):
-            if procura_imagem(imagem='imagens/img_planilha/bt_aplicar.png', limite_tentativa= 5, continuar_exec= True):
-                bot.click(procura_imagem(imagem='imagens/img_planilha/bt_aplicar.png'))
-                logger.info('--- Na tela do menu de filtro, clicou no botão "Aplicar" para reaplicar o filtro ')
-                filtro_aplicado = True
-
-                #* Verifica se a tela "APLICAR FILTRO PARA TODOS" apareceu
-                if procura_imagem(imagem='imagens/img_planilha/bt_visualizar_todos.png', limite_tentativa= 3, confianca= 0.73, continuar_exec= True):
-                    bot.click(procura_imagem(imagem='imagens/img_planilha/bt_visualizar_todos.png', continuar_exec= True))
-                    logger.info('--- Clicou para visualizar o filtro de todos.')
-            
+        #* Clica no meio da tela, para garantir que está sem nenhuma outra tela aberta
+        bot.click(960, 640)
+        time.sleep(0.25)
         
-                #* Concluiu a validação que o filtro está aplicado
-                logger.success("--- Filtro da coluna status aplicado!")
-                bot.hotkey('CTRL', 'HOME') # Navega até o campo A1
-                time.sleep(1)
+        #* Navega até a coluna "STATUS" e abre o menu com as opções
+        #* Inicia navamento até o campo "A1"
+        bot.hotkey('CTRL', 'HOME') # Navega até o campo A1
+        bot.press('RIGHT', presses= 7, interval= 0.05) # Navega até o campo "Status"
+        bot.press('LEFT') # Navega até o campo "Status"
+        time.sleep(0.2)
+        bot.hotkey('ALT', 'DOWN') # Comando do excel para abrir o menu do filtro
+        logger.info('--- Navegou até celula A1 e abriu o filtro do status ')
+        time.sleep(0.2)
+        ahk.win_activate('debug_db_alltrips', title_match_mode= 2)
+        time.sleep(0.2)
 
-                return True
-        except:
-            pass
+        #if procura_imagem(imagem='imagens/img_planilha/bt_aplicar.png', confianca= 100, continuar_exec= True):
+        if procura_imagem(imagem='imagens/img_planilha/bt_aplicar.png', limite_tentativa= 5, continuar_exec= True):
+            bot.click(procura_imagem(imagem='imagens/img_planilha/bt_aplicar.png'))
+            logger.info('--- Na tela do menu de filtro, clicou no botão "Aplicar" para reaplicar o filtro ')
+            filtro_aplicado = True
+
+            #* Verifica se a tela "APLICAR FILTRO PARA TODOS" apareceu
+            if procura_imagem(imagem='imagens/img_planilha/bt_visualizar_todos.png', limite_tentativa= 3, confianca= 0.73, continuar_exec= True):
+                bot.click(procura_imagem(imagem='imagens/img_planilha/bt_visualizar_todos.png', continuar_exec= True))
+                logger.info('--- Clicou para visualizar o filtro de todos.')
+        
+    
+            #* Concluiu a validação que o filtro está aplicado
+            logger.success("--- Filtro da coluna status aplicado!")
+            bot.hotkey('CTRL', 'HOME') # Navega até o campo A1
+            time.sleep(1)
+
+            return True
 
 def extrai_txt_img(imagem, area_tela, porce_escala = 400):
     time.sleep(0.4)
@@ -383,7 +381,10 @@ def abre_planilha_navegador(link_planilha = alltrips):
                     bot.press('F5')
                 logger.success('--- Planilha aberta e maximizada.')
                 return True
-        except:
+            
+        except Exception as e:
+            logger.error(f'--- Erro na função de abertura da planilha: {e}!')
+            
             if i > 2:
                 return False
 
@@ -421,7 +422,7 @@ def verifica_horario():
                 validou_horarios += 1
 
         if validou_horarios >= 2:
-            logger.debug(F'--- Horario validado! Pode prosseguir com o lançamento.')
+            logger.debug('--- Horario validado! Pode prosseguir com o lançamento.')
             break
 
 def ativar_janela(nome_janela, timeout= 8):

@@ -1,14 +1,12 @@
-from ast import Raise
 import time
 import pyautogui as bot
 
 from datetime import date, timedelta
 from abre_topcon import main as abre_topcon
-from copia_alltrips import encontra_ultimo_xml
 from utils.configura_logger import get_logger
 from alterar_localizar import alterar_localizar
 from processo_transferencia import processo_transferencia
-from utils.funcoes import marca_lancado, procura_imagem, ativar_janela, corrige_nometela
+from utils.funcoes import marca_lancado, procura_imagem, ativar_janela
 
 
 # --- Definição de parametros
@@ -44,7 +42,7 @@ def janelas_sucesso():
         ahk.win_wait_active('TopCompras (VM-CortesiaApli.CORTESIA.com)', title_match_mode=2, timeout= 30)
         return True
     else:
-        logger.info(F'--- Não encontrou nenhuma tela de sucesso!')
+        logger.info('--- Não encontrou nenhuma tela de sucesso!')
 
 
 def verifica_popup_erro():
@@ -103,7 +101,6 @@ def operacao_realizada(temp_inicial = ""):
     if procura_imagem(imagem='imagens/img_topcon/operacao_realizada.png', continuar_exec= True, limite_tentativa= 1, confianca= 0.74) is not False:
         logger.info('--- Operação realizada, marcando a planilha com "Lancado RPA" ')
         marca_lancado(texto_marcacao='Lancado_RPA', temp_inicial = temp_inicial)
-        planilha_marcada = True
         
         ahk.win_activate('TopCompras', title_match_mode= 2)
         bot.click(procura_imagem(imagem='imagens/img_topcon/operacao_realizada.png'))

@@ -4,11 +4,10 @@
 import os
 import time
 import subprocess
-from math import e
 import pytesseract
 import pyautogui as bot
 from utils.configura_logger import get_logger
-from utils.funcoes import ahk as ahk, msg_box
+from utils.funcoes import ahk as ahk
 from utils.funcoes import procura_imagem, corrige_nometela, ativar_janela
 #from colorama import Style
 
