@@ -16,6 +16,34 @@ logger = get_logger("script1")
 planilha_debug = "https://cortesiaconcreto-my.sharepoint.com/:x:/g/personal/bruno_silva_cortesiaconcreto_com_br/ETubFnXLMWREkm0e7ez30CMBnID3pHwfLgGWMHbLqk2l5A?rtime=n9xgTPCH3Eg"
 
 
+def abre_menu_pesquisa(valor_pesquisa = ""):
+    # Abre o menu de pesquisa, e pesquisa pelo valor informado
+    bot.PAUSE = 0.6
+
+    ahk.win_activate('db_alltrips.xlsx', title_match_mode= 1)
+    time.sleep(2)
+    bot.click(960, 630) # Clica no meio da planilha para "ativar" a navegação dentro dela.
+    time.sleep(2)
+
+    # Abre o menu de pesquisa
+    logger.info(f'--- Abrindo o menu de pesquisa na planilha para procurar o valor: {valor_pesquisa}')
+    bot.press('ALT')
+    bot.press('C')
+    bot.press('F')
+    bot.press('D')
+    bot.press('F')
+
+    # Insere a ultima chave copiada da planilha de debug
+    logger.info(F'--- Digitando o valor: {valor_pesquisa}')
+    bot.write(valor_pesquisa, interval= 0.01)
+    bot.press('ENTER', presses= 2)
+
+    # Fecha o menu de pesquisa
+    bot.press('ESC')
+    bot.press('ALT', presses= 2)
+    logger.info('--- Fechou o menu de pesquisa da planilha')
+
+
 def encontra_ultimo_xml(ultimo_xml = '', powerapps_id = ''):
     bot.PAUSE = 2.2
     tentativa = 0
@@ -49,29 +77,13 @@ def encontra_ultimo_xml(ultimo_xml = '', powerapps_id = ''):
         ahk.win_activate('db_alltrips.xlsx', title_match_mode= 1)
         bot.click(960, 630) # Clica no meio da planilha para "ativar" a navegação dentro dela.
 
-        #Abre o menu de pesquisa
-        logger.info('--- Abrindo o menu de pesquisa na planilha')
-        bot.press('ALT')
-        bot.press('C')
-        bot.press('F')
-        bot.press('D')
-        bot.press('F')
-
-        # Insere a ultima chave copiada da planilha de debug
-        logger.info(F'--- Digitando a ultima chave XML: {ultimo_xml}')
-        bot.write(ultimo_xml)
-        bot.press('ENTER', presses= 2)
-
-        # Fecha o menu de pesquisa
-        bot.press('ESC')
-        bot.press('ALT', presses= 2)
-        logger.info('--- Fechou o menu de pesquisa')
+        abre_menu_pesquisa(ultimo_xml)
 
         # Verifica se realmente chegou no ultimo XML
         bot.hotkey('ctrl', 'c')
         chave_encontrada = ahk.get_clipboard()
         if chave_encontrada == ultimo_xml:
-            logger.info(F'--- Concluido a navegação até a ultima chave XML: {ultimo_xml}')
+            logger.info(F'--- Concluido a navegação até a ultima chave XML: {ultimo_xml}, validando PowerApps ID')
 
             #* Realiza uma validação também pelo PowerApps ID
             #* Caso o antigo seja = #NOME?, não realiza a validação.
@@ -80,33 +92,21 @@ def encontra_ultimo_xml(ultimo_xml = '', powerapps_id = ''):
                 time.sleep(0.2)
                 bot.hotkey('ctrl', 'c')
                 novo_powerapps_id = ahk.get_clipboard()
+
                 if novo_powerapps_id == powerapps_id:
+                    logger.info(f'--- PowerApps ID também validado! valor: {novo_powerapps_id}, realmente está na ultima linha.')
                     bot.press('LEFT')
                     return True
                 else:
-                    #Abre o menu de pesquisa
-                    logger.info('--- Abrindo o menu de pesquisa na planilha para procurar o powerapps ID')
-                    bot.press('ALT')
-                    bot.press('C')
-                    bot.press('F')
-                    bot.press('D')
-                    bot.press('F')
-
-                    # Insere a ultima chave copiada da planilha de debug
-                    logger.info(F'--- Digitando a ultimo powerapps ID: {powerapps_id}')
-                    bot.write(powerapps_id)
-                    bot.press('ENTER', presses= 2)
-
-                    # Fecha o menu de pesquisa
-                    bot.press('ESC')
-                    bot.press('ALT', presses= 2)
-                    logger.info('--- Fechou o menu de pesquisa')
-                    bot.press('LEFT')
+                    logger.info(f'--- PowerApps ID coletado: {novo_powerapps_id} é diferente do da ultima nota: {powerapps_id}')
+                    abre_menu_pesquisa(powerapps_id)
+                    bot.press('LEFT')                    
             else:
                 return True
         else:
             logger.warning(F'--- Ops... não está na ultima chave {ultimo_xml}, navegando novamente.')
             raise TimeoutError
+
 
 def valida_nova_chave_inserida(tentativa):
     bot.PAUSE = 2.2
@@ -197,14 +197,15 @@ def copia_dados():
             ahk.key_up('Control')
             raise Exception("Excedeu o limite de tentativas de copiar os dados, soltando SHIFT e CONTROL")
 
+
 def cola_dados(dados_copiados = "TESTE"):
     bot.PAUSE = 2.5
     
-    abre_planilha_navegador(planilha_debug)
-    time.sleep(8)
     logger.info('--- Acessando a planilha de debug para COLAR os dados!')
-    ativar_janela('debug_db_alltrips.xlsx')
+    abre_planilha_navegador(planilha_debug)
     time.sleep(1)
+    ativar_janela('debug_db_alltrips.xlsx')
+    
     bot.hotkey('CTRL', 'HOME') # Navega até a celula A1.
     bot.press('DOWN', presses= 2) # Proxima linha que deveria estar sem informação.
     logger.info('--- Navegou até a proxima linha sem informações')
@@ -216,12 +217,11 @@ def cola_dados(dados_copiados = "TESTE"):
     bot.press('V') # Abre o menu de "Colar"
     time.sleep(0.8)
     bot.press('V') # Seleciona a opção "Colar somente valores"
-    time.sleep(0.8)
-    time.sleep(2)
+    time.sleep(3)
 
     # Realiza o fechamento da planilha com os dados originais. 
     logger.info('--- Dados colados com sucesso! Fechando a planilha original.')
-    #ahk.win_activate('debug_db_alltrips.xlsx', title_match_mode= 1)
+
     for i in range (0, 15):
         logger.info("--- Fechando a planilha do banco ORIGINAL antes de prosseguir.")
         time.sleep(0.4)
@@ -282,17 +282,26 @@ def main(ultimo_xml = chave_xml, powerapps_id = powerapps_id):
     ahk.key_release('Shift') # Segura a tecla SHIFT
     ahk.key_release('Control')
 
+    # Força o fechamento da planilha ORIGINAL
+    ahk.win_kill('db_alltrips.xlsx', title_match_mode= 1)
+    time.sleep(2)
+
     colou_dados = cola_dados(dados_copiados)
     if colou_dados is True:
         return True
 
 if __name__ == '__main__':
-    main(ultimo_xml= "35250533039223000979550010003925631934762896", powerapps_id= "09bm64PPAZk")
+    ultimo_xml = "35250633039223000979550010003927081074547429"
+    powerapps_ultima_nfe = "ncHouHl1Y4I"
+    
+    cola_dados()
+    exit()
+    main(ultimo_xml= ultimo_xml, powerapps_id= powerapps_ultima_nfe)
+    exit(bot.alert("Terminou"))
     
 
-    #exit(bot.alert("Terminou"))
-    #ultimo_xml = "35250149034010000137550010010590191519789876"
+    #abre_menu_pesquisa("35250533039223000979550010003925631934762896")
     #abre_planilha_navegador()
-    #encontra_ultimo_xml(ultimo_xml = ultimo_xml)
+    #encontra_ultimo_xml(ultimo_xml = ultimo_xml, powerapps_id= powerapps_ultima_nfe)
     #dados = copia_dados()
     #print(dados)
