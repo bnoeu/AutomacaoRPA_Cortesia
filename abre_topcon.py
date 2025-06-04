@@ -1,13 +1,13 @@
 # -*- Criado por Bruno da Silva Santos. -*-
 # Para utilização na Cortesia Concreto.
 
-from math import e
 import os
 import time
+import subprocess
 import pytesseract
 import pyautogui as bot
-from utils.funcoes import ahk as ahk, msg_box
 from utils.configura_logger import get_logger
+from utils.funcoes import ahk as ahk
 from utils.funcoes import procura_imagem, corrige_nometela, ativar_janela
 #from colorama import Style
 
@@ -96,23 +96,6 @@ def abre_mercantil():
         logger.error(F"Não foi possivel fechar a tela 'interveniente' (TopCompras (! Tentativas executadas: {i}")
         raise Exception('Não foi possivel fechar a tela "TopCompras (", necessario reiniciar o TopCon')
 
-''' #! Não é mais necessario, agora abre direto na tela 6201 - Compras mercantil
-def navega_topcompras():
-    bot.PAUSE = 1.2
-    logger.info('--- Executando a função: navega topcompras ' )
-    # Navegando entre os menus para abrir a opção "Compras - Mercantil"
-    ativar_janela('TopCompras', 30)
-    time.sleep(2)
-    bot.click(900, 900)
-    bot.press('ALT')
-    bot.press('RIGHT', presses= 2, interval= 0.05)
-    bot.press('DOWN', presses= 7, interval= 0.05)
-    bot.press('ENTER')
-    time.sleep(3)
-    logger.success("Concluiu a função NAVEGA TOPCOMPRAS")
-    return True
-'''
-
 
 def fecha_execucoes():
     """#* Realiza o fechamento completo do TopCon e TopCompras
@@ -135,15 +118,14 @@ def fecha_execucoes():
         limite_tentativas += 1
         if limite_tentativas > 10:
             logger.error('--- Não conseguiu fechar a tela "TopCompras" ')
-            os.system('taskkill /im mstsc.exe /f /t 2>nul') # Força o fechamento do processo do RDP por completo
+            subprocess.run(["taskkill", "/im", "mstsc.exe", "/f", "/t"], stderr=subprocess.DEVNULL)
     else:
         time.sleep(0.4)
         logger.info('--- Fechou a tela "TopCompras" ')
 
     logger.info('--- Fechando os processos do RemoteDesktop ---')
-    #os.system('taskkill /PID 872 /f /t') # Força o fechamento do processo do RDP por completo
-    os.system('taskkill /im wksprt.exe /f /t 2>nul') # Força o fechamento do processo do RDP por completo
-    os.system('taskkill /im mstsc.exe /f /t 2>nul') # Força o fechamento do processo do RDP por completo
+    subprocess.run(["taskkill", "/im", "wksprt.exe", "/f", "/t"], stderr=subprocess.DEVNULL)
+    subprocess.run(["taskkill", "/im", "mstsc.exe", "/f", "/t"], stderr=subprocess.DEVNULL)
     logger.info('--- Os processos wksprt e mstsc.exe do RDP')
 
     logger.success('--- Concluiu a task FECHA EXECUÇÕES')

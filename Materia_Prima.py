@@ -19,7 +19,6 @@ import traceback
 import subprocess
 import pytesseract
 import pyautogui as bot
-from numpy import true_divide
 from utils.funcoes import ahk as ahk
 from abre_topcon import main as abre_topcon
 from utils.enviar_email import enviar_email
@@ -386,7 +385,6 @@ if __name__ == '__main__':
 
     #* Realiza os processos inicias da execução da automação
     subprocess.run(["taskkill", "/im", "AutoHotkey.exe", "/f", "/t"], stderr=subprocess.DEVNULL)
-    #os.system('taskkill /im AutoHotkey.exe /f /t 2>nul') # Encerra todos os processos do AHK
     #os.system('cls')
     subprocess.run("cls", shell=True)
     print("--- Limpeza do Terminal realizada.")
@@ -430,7 +428,7 @@ if __name__ == '__main__':
             tentativa += 1
 
         except(KeyboardInterrupt) as e:
-            exit(logger.critical("Execução pausada pelo usuario"))
+            exit(logger.critical(f"Execução pausada pelo usuario: {e}"))
         else:
             tentativa = 0
     else:
