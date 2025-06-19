@@ -98,7 +98,7 @@ def encontra_ultimo_xml(ultimo_xml = '', powerapps_id = ''):
                     bot.press('LEFT')
                     return True
                 else:
-                    logger.info(f'--- PowerApps ID coletado: {novo_powerapps_id} é diferente do da ultima nota: {powerapps_id}')
+                    logger.warning(f'--- PowerApps ID coletado: {novo_powerapps_id} é diferente do da ultima nota: {powerapps_id}')
                     abre_menu_pesquisa(powerapps_id)
                     bot.press('LEFT')                    
             else:
@@ -175,7 +175,7 @@ def copia_dados():
             logger.info('--- Encontrou "/2025" que indica os dados da coluna "D. Inserção" nos dados copiados!')
             return dados_copiados
 
-        if i >= 6:
+        if i >= 5:
             if ("/" in dados_copiados) or ("/2025" in dados_copiados) or ("," in dados_copiados): # Verifica se os dados foram copiados com sucesso
                 logger.success('--- Novos dados copiados com sucesso da planilha db_alltrips')
                 print('--- Novos dados copiados com sucesso da planilha db_alltrips')
@@ -266,6 +266,7 @@ def main(ultimo_xml = chave_xml, powerapps_id = powerapps_id):
         encontra_ultimo_xml(ultimo_xml = ultimo_xml, powerapps_id = powerapps_id)
 
         if valida_nova_chave_inserida(tentativa) is True:
+            #exit(bot.alert("Verificar copia dados!"))
             dados_copiados = copia_dados()
             print(dados_copiados)
             if dados_copiados != "":
@@ -294,8 +295,6 @@ if __name__ == '__main__':
     ultimo_xml = "35250633039223000979550010003927081074547429"
     powerapps_ultima_nfe = "ncHouHl1Y4I"
     
-    cola_dados()
-    exit()
     main(ultimo_xml= ultimo_xml, powerapps_id= powerapps_ultima_nfe)
     exit(bot.alert("Terminou"))
     

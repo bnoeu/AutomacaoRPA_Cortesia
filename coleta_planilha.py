@@ -1,5 +1,5 @@
 # -*- Criado por Bruno da Silva Santos. -*-
-# Para utilização na Cortesia Concreto.
+ # Para utilização na Cortesia Concreto.
 
 import time
 
@@ -91,8 +91,8 @@ def calculo_tempo_final(tempo_inicial: float):
 def main():
     bot.PAUSE = 0.6
     ultimo_erro = ""
-    
     for i in range(0, 3):
+    
         logger.debug(F"--- Executando a tentativa {i} de executar o COLETA PLANILHA.py ")
         try:
             abre_planilha_navegador(planilha_debug)

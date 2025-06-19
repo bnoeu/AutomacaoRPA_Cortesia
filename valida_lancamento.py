@@ -13,6 +13,7 @@ from utils.configura_logger import get_logger
 # --- Definição de parametros
 from utils.funcoes import ahk as ahk
 chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
+
 logger = get_logger("script1")
 
 def altera_topcon_incluir():
@@ -21,15 +22,14 @@ def altera_topcon_incluir():
     for i in range(0, 6):
         logger.info('--- Verificando se está no modo Localizar.')
         ativar_janela('TopCompras')
-        time.sleep(1)
         
-        if procura_imagem(imagem='imagens/img_topcon/txt_inclui.png', limite_tentativa= 5, continuar_exec= True, area= (852, 956, 1368, 1045)):
+        if procura_imagem(imagem='imagens/img_topcon/txt_inclui.png', limite_tentativa= 2, continuar_exec= True, area= (852, 956, 1368, 1045)):
             logger.info('--- Está no modo "incluir", enviando comando F2 para entrar no modo "Localizar"')
             ahk.win_activate('TopCompras', title_match_mode= 2)
             bot.press('F2', presses= 2)
             time.sleep(0.5)
 
-        if procura_imagem(imagem='imagens/img_topcon/txt_localizar.png', limite_tentativa= 5, continuar_exec= True, area= (852, 956, 1368, 1045)):
+        if procura_imagem(imagem='imagens/img_topcon/txt_localizar.png', limite_tentativa= 2, continuar_exec= True, area= (852, 956, 1368, 1045)):
             logger.info('--- Está no modo "Localizar" Alterando para "Incluir"')
             ahk.win_activate('TopCompras', title_match_mode= 2)
             time.sleep(0.2)
@@ -77,8 +77,9 @@ def valida_lancamento():
         while dados_planilha is False:
             time.sleep(0.2)
             dados_planilha = coleta_planilha() # Recebe os dados coletados da planilha, já validados e formatados.
-            if dados_planilha == False:
+            if not dados_planilha:
                 raise Exception("Copiou dados novos! Necessario reiniciar o processo!")
+        
         #* Trata a chave XML, removendo os espaços caso exista.
         chave_xml = dados_planilha[4].strip()
 
@@ -100,7 +101,8 @@ if __name__ == '__main__':
     ahk.win_activate('TopCompras', title_match_mode=2, detect_hidden_windows= True)
     tempo_inicial = time.time()
     
-    valida_lancamento()
+    altera_topcon_incluir()
+    #valida_lancamento()
     
     # Linha específica onde você quer medir o tempo
     end_time = time.time()
