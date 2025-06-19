@@ -96,7 +96,7 @@ def formata_data_coletada(dados_copiados):
     data_copiada = dados_copiados.split(' ')[0]  # Pega apenas a parte da data
     print(F"Data copiada: {data_copiada}, realizando a formatação")
     # Converter a string para objeto datetime.date
-    data_obj = datetime.strptime(data_copiada, "%d/%m/%y").date()
+    data_obj = datetime.strptime(data_copiada, "%d/%m/%Y").date()
 
     # Obtém a data de amanhã como objeto date
     amanha_data = coleta_proximo_dia()
@@ -169,6 +169,28 @@ def valida_transportador(cracha_mot = "112842"):
         logger.info('--- Não achou o campo ou já está preenchido')
 
 
+def verifica_incrementa_data(data_antiga_str = "03/06/2025"):
+    if ahk.win_exists("Topsys (VM-CortesiaApli.CORTESIA.com)"):
+        logger.warning(f'--- Precisa mudar a data, inserindo a data de hoje: {data_antiga_str}')
+        bot.press('ENTER')
+    else:
+        return True
+    
+    # Converte para um objeto datetime
+    data = datetime.strptime(data_antiga_str, "%d/%m/%Y")
+
+    # Adiciona 1 dia
+    nova_data = data + timedelta(days=1)
+
+    # Converte de volta para string, se quiser
+    nova_data_str = nova_data.strftime("%d/%m/%Y")
+
+    # Insere a data ajustada
+    bot.write(nova_data_str)
+    time.sleep(0.5)
+    bot.press('ENTER')
+
+
 def preenche_data(data_formatada = ""):
     time.sleep(0.5)
     ativar_janela('TopCompras', 70)
@@ -179,7 +201,11 @@ def preenche_data(data_formatada = ""):
     logger.info(F'--- Inserindo a data coletada: {data_formatada} e apertando ENTER')
     bot.write(data_formatada)
     bot.press('ENTER')
-    time.sleep(2)
+    time.sleep(3)
+
+    while verifica_incrementa_data() is False:
+        time.sleep(0.5)
+
     ativar_janela('TopCompras', 70)
 
     # Caso o sistema informe que a data deve ser maior/igual a data inserida acima.
@@ -223,6 +249,8 @@ def programa_principal():
 
     #* Passa todos os dados para as suas variaveis.
     dados_planilha = coleta_valida_dados()
+    #dados_planilha = ['8078', '', '', '1036-PERUS', '35250648302640001588550100005409241251434230', 'p4ozMaAb2_Q', '', '', '18/06/2025 18:25', '', '', '', '45826,89236', '', 'Versão AllTrips: 172']
+    
     tempo_inicial = time.time()
     silo1 = dados_planilha[1]
     silo2 = dados_planilha[2]
@@ -244,10 +272,10 @@ def programa_principal():
 
     logger.info('--- Preenchendo filial de estoque')
     bot.press('up')
-    bot.write(filial_estoq)
-    time.sleep(2)
+    bot.write(filial_estoq, interval= 0.1)
+    time.sleep(0.4)
     bot.press('TAB', presses= 1) # Confirma a informação da nova filial de estoque
-    time.sleep(1.5)
+    time.sleep(0.4)
     bot.press('TAB', presses= 1) # Confirma a informação da nova filial de estoque
 
     preenche_data(data_formatada)
@@ -262,7 +290,7 @@ def programa_principal():
         time.sleep(0.2)
         if tentativa_cod_desc >= 100:
             logger.info('--- Não foi possivel encontrar o campo cod_desc, reiniciando o processo.')
-            time.sleep(0.25)
+            time.sleep(0.2)
             abre_topcon()
             return True
         else: # Aguarda até o topcompras voltar a funcionar
@@ -358,12 +386,9 @@ def trata_erro(ultimo_erro, tentativa):
 def main(lancamento_realizado = False):
     verifica_horario() # Confere o horario dessa execução.
     
-    '''
-    if lancamento_realizado == False:
+    if lancamento_realizado is False:
         if not abre_topcon():
             raise Exception("Falhou ao abrir o topcon")
-    '''
-
     
     while programa_principal():
         logger.info(F"Lançamento realizado! Valor da variavel: {lancamento_realizado}")
@@ -385,8 +410,7 @@ if __name__ == '__main__':
 
     #* Realiza os processos inicias da execução da automação
     subprocess.run(["taskkill", "/im", "AutoHotkey.exe", "/f", "/t"], stderr=subprocess.DEVNULL)
-    #os.system('cls')
-    subprocess.run("cls", shell=True)
+    #subprocess.run("cls", shell=True)
     print("--- Limpeza do Terminal realizada.")
     time.sleep(2)
 
@@ -400,6 +424,7 @@ if __name__ == '__main__':
             else:
                 lancamento_realizado = False
         except Exception as ultimo_erro:
+            exit(bot.alert(f"Apresentou um erro, verificar: {ultimo_erro}"))
             lancamento_realizado = False
             arquivo_erro, mensagem_erro = trata_erro(ultimo_erro, tentativa)
             caminho_imagem = print_erro()
