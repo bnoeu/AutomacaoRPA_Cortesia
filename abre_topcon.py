@@ -1,7 +1,6 @@
 # -*- Criado por Bruno da Silva Santos. -*-
 # Para utilização na Cortesia Concreto.
 
-import os
 import time
 import subprocess
 import pytesseract
@@ -46,19 +45,19 @@ def fechar_tela_nota_compra():
 def fechar_topcompras():
     """ #* Garante o fechamento do TopCompras, caso ele esteja aberto
     """    
-    
-    for i in range (0, 11):
-        logger.info('--- Janela do TopCompras está aberta, forçando o fechamento')
+    logger.info('--- Tentando forçar o fechamento do TopCompra')
+
+    for tentativa in range (0, 11):
         ahk.win_close('TopCompras', title_match_mode=2, seconds_to_wait= 3)
-        time.sleep(0.5)
+        time.sleep(0.2)
 
         if ahk.win_exists('TopCompras', title_match_mode= 2) is False:
-            logger.info('--- Modulo de compras realmente está fechado! Pode continuar a abertura')
+            logger.info(f'--- Modulo de compras fechado com sucesso! Tentativa: {tentativa}')
             return True        
         
-        if i > 10:
-            logger.warning('--- Não foi possivel fechar apenas o TopCompras, reiniciando Topcon & TopCompras')
-            raise Exception('--- Não foi possivel fechar apenas o TopCompras, reiniciando Topcon & TopCompras')
+    else:
+        logger.error('--- Não foi possivel fechar apenas o TopCompras!')
+        return False
 
 
 def abre_mercantil():
@@ -81,13 +80,16 @@ def abre_mercantil():
             logger.info('--- Fechando a tela "interveniente" ')
             ahk.win_close("TopCompras (", title_match_mode= 2, seconds_to_wait= 10)
         else:
+            logger.success(f"--- Verificando se concluiu a task ABRE MERCANTIL, tentativa: {i}")
             corrige_nometela("TopCompras")
             time.sleep(0.2)
             ativar_janela('TopCompras', 30)
             time.sleep(0.2)
-            if procura_imagem('imagens/img_topcon/produtos_servicos.png', limite_tentativa= 12):
-                logger.success("Concluiu a task ABRE MERCANTIL")
+            if procura_imagem('imagens/img_topcon/produtos_servicos.png', continuar_exec= True):
+                logger.success(f"Concluiu a task ABRE MERCANTIL, tentativa: {i}")
                 break
+            else:
+                pass
         
         if i >= 4:
             logger.error(F"Não foi possivel fechar a tela 'interveniente' (TopCompras (! Tentativas executadas: {i}")
@@ -102,33 +104,33 @@ def fecha_execucoes():
     """    
     
     logger.info('--- Iniciando fecha execucoes, para fechar o TopCompras e o RDP ---')
-    limite_tentativas = 0
 
     #* Verifica se a tela "Vinculação itens da NFE" está aberta, e fecha ela.
     if ahk.win_exists('Vinculação Itens da Nota', title_match_mode = 2):
         ahk.win_close('Vinculação Itens da Nota', title_match_mode = 2, seconds_to_wait= 5)
         ahk.win_wait_close('Vinculação Itens da Nota', title_match_mode = 2, timeout= 30)
         logger.info('--- Fechou a tela "Vinculação itens da nota" ')
-        
+    
     #* Primeiro força o fechamento do TopCompras, para evitar erros de validações
-    while ahk.win_exists(title= "TopCompras", title_match_mode= 2):
+    for tentativa in range (0, 10):
         ahk.win_close(title= 'TopCompras', title_match_mode = 2, seconds_to_wait= 1)   
         ahk.win_kill(title='TopCompras', title_match_mode= 2, seconds_to_wait= 1)
         
-        limite_tentativas += 1
-        if limite_tentativas > 10:
-            logger.error('--- Não conseguiu fechar a tela "TopCompras" ')
-            subprocess.run(["taskkill", "/im", "mstsc.exe", "/f", "/t"], stderr=subprocess.DEVNULL)
+        if ahk.win_exists(title= "TopCompras", title_match_mode= 2) is False:
+            time.sleep(0.4)
+            logger.info('--- Fechou a tela "TopCompras" ')
+            break
     else:
-        time.sleep(0.4)
-        logger.info('--- Fechou a tela "TopCompras" ')
+        logger.error('--- Não conseguiu fechar a tela "TopCompras" ')
+        subprocess.run(["taskkill", "/im", "mstsc.exe", "/f", "/t"], stderr=subprocess.DEVNULL)
+        return False
 
     logger.info('--- Fechando os processos do RemoteDesktop ---')
     subprocess.run(["taskkill", "/im", "wksprt.exe", "/f", "/t"], stderr=subprocess.DEVNULL)
     subprocess.run(["taskkill", "/im", "mstsc.exe", "/f", "/t"], stderr=subprocess.DEVNULL)
     logger.info('--- Os processos wksprt e mstsc.exe do RDP')
-
     logger.success('--- Concluiu a task FECHA EXECUÇÕES')
+    return True
 
 
 def login_topcon():
@@ -174,6 +176,43 @@ def login_topcon():
         logger.success("Concluiu o Login no TopCon")
 
 
+def realiza_login_rdp(tela_login_rdp = ""):
+    #* Realiza o login no RDP, que deve utilizar as informações de login do usuario "CORTESIA\BARBARA.K"
+    if ahk.win_exists(tela_login_rdp, title_match_mode= 2):
+        logger.info(F'--- Abriu a tela "{tela_login_rdp}", realizando o login" ')
+
+        ativar_janela(tela_login_rdp, 10)
+        
+        #* Insere os dados de login.
+        bot.write(senha_rdp, interval= 0.1) #Senha BRUNO.S 
+        bot.press('TAB', presses= 3, interval= 0.08) # Navega até o botão "Ok"
+        bot.press('ENTER')
+        time.sleep(3)
+        logger.info('--- Login realizado no RemoteApp-Cortesia.rdp')
+    elif ahk.win_exists('TopCon (VM-CortesiaApli.CORTESIA.com)', title_match_mode= 2): 
+        logger.info('--- Tela de login do Topcon já está aberta, prosseguindo para o login')
+
+    #* Verifica se apareceu a tela para login já dentro do Topcon
+    logger.info('--- Verificando se já está logado no Topcon')
+    for i in range (0, 5):
+        ativar_janela('TopCon', 30)
+        time.sleep(2)
+
+        # Caso apareça "Olá Bruno" já está logado!
+        if procura_imagem(imagem='imagens/img_topcon/txt_OLA_BRUNO.png', continuar_exec= True) is False: 
+            time.sleep(1)
+            ativar_janela('TopCon', 30)
+
+            # Caso apareça o logo de login, precisa entrar no topcon!
+            if procura_imagem(imagem='imagens/img_topcon/logo_topcon_login.png', continuar_exec= True): 
+                logger.success("Concluiu a task ABRE TOPCON")
+                return True
+        else:
+            return True
+    else:
+        logger.success("Concluiu a task ABRE TOPCON")
+        return True
+
 def abre_topcon():
     logger.info('--- Executando a função: ABRE TOPCON' )
 
@@ -186,7 +225,7 @@ def abre_topcon():
     
     while True:
         logger.info('--- Iniciando o RemoteApp')
-        os.startfile('RemoteApp\RemoteApp-Cortesia.rdp')
+        subprocess.run(['cmd', '/c', 'start', '', 'RemoteApp\\RemoteApp-Cortesia.rdp'], shell=True)
         ahk.win_wait("RemoteApp", title_match_mode= 3, timeout= 10)
         
         

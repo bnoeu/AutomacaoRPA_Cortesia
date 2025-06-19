@@ -1,10 +1,10 @@
 # -*- Criado por Bruno da Silva Santos. -*-
 # Para utilização na Cortesia Concreto.
 
-import os
 import time
 import cv2
 import pyperclip
+import subprocess
 import pytesseract
 import numpy as np
 from ahk import AHK
@@ -196,45 +196,30 @@ def verifica_status_vazio():
 
 
 def reaplica_filtro_status(): 
-    filtro_aplicado = False
-    tentativa_filtro = 0
+    bot.PAUSE = 0.25
 
-    while filtro_aplicado is False:
-        tentativa_filtro += 1
+    for tentativa_filtro in range (0, 6):
+        logger.debug(f'--- Executando a função REAPLICA FILTRO STATUS, tentativa: {tentativa_filtro}')
 
-        if tentativa_filtro >= 6:
-            raise Exception("Falhou a aplicar o filtro na coluna de status!")
-
-
-        bot.PAUSE = 0.6
-        logger.debug('--- Executando a função REAPLICA FILTRO STATUS')
-        ahk.win_activate('debug_db_alltrips', title_match_mode= 2)
-        ahk.win_wait_active('debug_db_alltrips', title_match_mode= 2, timeout= 15)
-        time.sleep(0.3)
+        ativar_janela('debug_db_alltrips')
 
         #* Clica no meio da tela, para garantir que está sem nenhuma outra tela aberta
         bot.click(960, 640)
-        time.sleep(0.25)
+        time.sleep(0.3)
         
         #* Navega até a coluna "STATUS" e abre o menu com as opções
         #* Inicia navamento até o campo "A1"
         bot.hotkey('CTRL', 'HOME') # Navega até o campo A1
-        bot.press('RIGHT', presses= 7, interval= 0.05) # Navega até o campo "Status"
+        bot.press('RIGHT', presses= 7, interval= 0.08) # Navega até o campo "Status"
         bot.press('LEFT') # Navega até o campo "Status"
-        time.sleep(0.2)
         bot.hotkey('ALT', 'DOWN') # Comando do excel para abrir o menu do filtro
         logger.info('--- Navegou até celula A1 e abriu o filtro do status ')
-        time.sleep(0.2)
-        ahk.win_activate('debug_db_alltrips', title_match_mode= 2)
-        time.sleep(0.2)
 
-        #if procura_imagem(imagem='imagens/img_planilha/bt_aplicar.png', confianca= 100, continuar_exec= True):
-        if procura_imagem(imagem='imagens/img_planilha/bt_aplicar.png', limite_tentativa= 5, continuar_exec= True):
+        if procura_imagem(imagem='imagens/img_planilha/bt_aplicar.png', continuar_exec= True):
             bot.click(procura_imagem(imagem='imagens/img_planilha/bt_aplicar.png'))
-            logger.info('--- Na tela do menu de filtro, clicou no botão "Aplicar" para reaplicar o filtro ')
-            filtro_aplicado = True
+            logger.info(f'--- Na tela do menu de filtro, clicou no botão "Aplicar" para reaplicar o filtro, tentativa: {tentativa_filtro}')
 
-            #* Verifica se a tela "APLICAR FILTRO PARA TODOS" apareceu
+            #* Verifica se a tela "Outras pessoas também estão fazendo alterações" apareceu
             if procura_imagem(imagem='imagens/img_planilha/bt_visualizar_todos.png', limite_tentativa= 3, confianca= 0.73, continuar_exec= True):
                 bot.click(procura_imagem(imagem='imagens/img_planilha/bt_visualizar_todos.png', continuar_exec= True))
                 logger.info('--- Clicou para visualizar o filtro de todos.')
@@ -243,9 +228,11 @@ def reaplica_filtro_status():
             #* Concluiu a validação que o filtro está aplicado
             logger.success("--- Filtro da coluna status aplicado!")
             bot.hotkey('CTRL', 'HOME') # Navega até o campo A1
-            time.sleep(1)
 
             return True
+    else:
+        raise Exception("Falhou ao aplicar o filtro na coluna de status!")
+
 
 def extrai_txt_img(imagem, area_tela, porce_escala = 400):
     time.sleep(0.4)
@@ -365,11 +352,11 @@ def abre_planilha_navegador(link_planilha = alltrips):
                 logger.info('--- Executou apenas um recarregamento')
                 return True
             else:
-                os.system("cmd /c taskkill /im msedge.exe /f /t 2>nul")
+                subprocess.run(["cmd", "/c", "taskkill /im msedge.exe /f /t 2>nul"], shell=True)
                 logger.info('--- Planilha (EDGE) fechada, abrindo uma nova execução da planilha: {planilha}')
                 
-                comando_iniciar = F'start msedge {link_planilha} -new-window -inprivate'
-                os.system(comando_iniciar)
+                comando_iniciar = f'start msedge {link_planilha} -new-window -inprivate'
+                subprocess.run(["cmd", "/c", comando_iniciar], shell=True)
                 time.sleep(2)
                 
                 #* Aguarda a planilha abrir no EDGE e maximiza
@@ -436,18 +423,18 @@ def verifica_horario():
             logger.debug('--- Horario validado! Pode prosseguir com o lançamento.')
             break
 
-def ativar_janela(nome_janela, timeout= 8):
+def ativar_janela(nome_janela= "TopCompras", timeout= 8):
     """ Tenta realizar a ativação de uma janela, e aguarda até ela estar aberta
 
     Args:
         nome_janela (_type_): Nome da janela que será aberta
         timeout (int, optional): Tempo em segundos que aguardará até a janela estar aberta. Valor padrão: 10.
     """
+
     logger.debug(F'--- Tentando ativar/abrir a janela: {nome_janela} ---' )
     ahk.win_activate(nome_janela, title_match_mode=2)
-    time.sleep(0.8)
     ahk.win_wait_active(nome_janela, title_match_mode=2, timeout=timeout)
-    time.sleep(0.3)
+    time.sleep(0.2)
 
 def move_telas_direita(tela:str):
     """ Move a {tela} para a esquerda
@@ -478,14 +465,12 @@ def move_telas_direita(tela:str):
 if __name__ == '__main__':
     bot.PAUSE = 0.6
     bot.FAILSAFE = False
+    tempo_inicial = time.time() # Calculo do tempo de execução das funções
+    
+
     reaplica_filtro_status()
+    #ativar_janela()
     #verifica_status_vazio()
-    exit()
-
-    # Calculo do tempo de execução das funções
-    tempo_inicial = time.time()
-
-
     #reaplica_filtro_status()
     #verifica_horario()
     #print_erro()
