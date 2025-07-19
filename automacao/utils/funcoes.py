@@ -97,7 +97,8 @@ def verifica_tela(nome_tela, manual=False):
         logger.info(F'--- A tela: {nome_tela} está fechada, Modo Manual: {True}, executando...')
         return False
     else:
-        exit(logger.error(F'--- Tela: {nome_tela} está fechada, saindo do programa.'))
+        pass
+        #exit(logger.error(F'--- Tela: {nome_tela} está fechada, saindo do programa.'))
 
 
 def marca_lancado(texto_marcacao='Lancado'):

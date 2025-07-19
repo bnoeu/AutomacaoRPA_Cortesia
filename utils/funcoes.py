@@ -102,17 +102,17 @@ def verifica_tela(nome_tela, manual=False):
         logger.info(F'--- A tela: {nome_tela} está fechada, Modo Manual: {True}, executando...')
         return False
     else:
-        exit(logger.error(F'--- Tela: {nome_tela} está fechada, saindo do programa.'))
-
+        pass
+        #exit(logger.error(F'--- Tela: {nome_tela} está fechada, saindo do programa.'))
 
 def marca_lancado(texto_marcacao='texto_teste_marcacao', temp_inicial = ""):
-    bot.PAUSE = 0.2
+    bot.PAUSE = 0.3
 
     logger.info(F'--- Abrindo planilha - MARCA_LANCADO, com parametro: {texto_marcacao}' )
     ativar_janela('debug_db', 30)
-    time.sleep(0.6)
+    time.sleep(1)
     bot.click(960, 630) # Clica no meio da planilha para "ativar" a navegação dentro dela.
-    time.sleep(0.2)
+    time.sleep(0.4)
     
     # Navega até o campo "Status"
     bot.hotkey('CTRL', 'HOME')
@@ -185,15 +185,18 @@ def marca_lancado(texto_marcacao='texto_teste_marcacao', temp_inicial = ""):
     logger.info(F'--------------------- Processou NFE, situação: {texto_marcacao} ---------------------')
 
 def verifica_status_vazio():
-    # No momento da aplicação do filtro, consulta para verificar se existe a opção "Vazio"
-    ahk.win_activate('debug_db_alltrips', title_match_mode= 2)
-    time.sleep(0.2)
+    """No momento da aplicação do filtro, consulta para verificar se existe a opção "Vazio"
+
+    Returns:
+        boolean: True = Existe "Vazias" | False = Não existe "Vazias"
+    """
+
+    ativar_janela('debug_db_alltrips')
 
     if procura_imagem(imagem='imagens/img_planilha/txt_vazias.png', continuar_exec= True):
         return True
     else:
         return False
-
 
 def reaplica_filtro_status(): 
     bot.PAUSE = 0.25
@@ -205,7 +208,7 @@ def reaplica_filtro_status():
 
         #* Clica no meio da tela, para garantir que está sem nenhuma outra tela aberta
         bot.click(960, 640)
-        time.sleep(0.3)
+        time.sleep(0.2)
         
         #* Navega até a coluna "STATUS" e abre o menu com as opções
         #* Inicia navamento até o campo "A1"
@@ -214,6 +217,12 @@ def reaplica_filtro_status():
         bot.press('LEFT') # Navega até o campo "Status"
         bot.hotkey('ALT', 'DOWN') # Comando do excel para abrir o menu do filtro
         logger.info('--- Navegou até celula A1 e abriu o filtro do status ')
+
+        if verifica_status_vazio() is False:
+            logger.info('--- Não existem notas c/ status "Vazias" ')
+            bot.click(960, 640)
+            time.sleep(0.2)
+            return True
 
         if procura_imagem(imagem='imagens/img_planilha/bt_aplicar.png', continuar_exec= True):
             bot.click(procura_imagem(imagem='imagens/img_planilha/bt_aplicar.png'))
@@ -232,7 +241,6 @@ def reaplica_filtro_status():
             return True
     else:
         raise Exception("Falhou ao aplicar o filtro na coluna de status!")
-
 
 def extrai_txt_img(imagem, area_tela, porce_escala = 400):
     time.sleep(0.4)
@@ -467,7 +475,6 @@ if __name__ == '__main__':
     bot.FAILSAFE = False
     tempo_inicial = time.time() # Calculo do tempo de execução das funções
     
-
     reaplica_filtro_status()
     #ativar_janela()
     #verifica_status_vazio()
