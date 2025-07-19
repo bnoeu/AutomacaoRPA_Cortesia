@@ -225,7 +225,7 @@ def abre_topcon():
     
     while True:
         logger.info('--- Iniciando o RemoteApp')
-        subprocess.run(['cmd', '/c', 'start', '', 'RemoteApp\\RemoteApp-Cortesia.rdp'], shell=True)
+        subprocess.run(['cmd', '/c', 'start', '', 'utils\\RemoteApp\\RemoteApp-Cortesia.rdp'], shell=True)
         ahk.win_wait("RemoteApp", title_match_mode= 3, timeout= 10)
         
         
