@@ -1,5 +1,5 @@
-# Para utilização na Cortesia Concreto.
 # -*- Criado por Bruno da Silva Santos. -*-
+# Para utilização na Cortesia Concreto.
 
 import time
 import pyautogui as bot
@@ -7,6 +7,7 @@ from datetime import datetime
 from utils.funcoes import ahk as ahk
 from utils.configura_logger import get_logger
 from utils.funcoes import procura_imagem, abre_planilha_navegador, ativar_janela, reaplica_filtro_status
+from funcoes_planilha import ativa_planilha_original
 
 
 # --- Definição de parametros
@@ -18,7 +19,7 @@ planilha_debug = "https://cortesiaconcreto-my.sharepoint.com/:x:/g/personal/brun
 
 def abre_menu_pesquisa(valor_pesquisa = ""):
     # Abre o menu de pesquisa, e pesquisa pelo valor informado
-    bot.PAUSE = 0.6
+    bot.PAUSE = 0.8
 
     ahk.win_activate('db_alltrips.xlsx', title_match_mode= 1)
     time.sleep(2)
@@ -43,24 +44,40 @@ def abre_menu_pesquisa(valor_pesquisa = ""):
     bot.press('ALT', presses= 2)
     logger.info('--- Fechou o menu de pesquisa da planilha')
 
+def organizar_planilha_por_data():
+    """Navega até o campo da data, e organiza do menor para o maior.
+    """
+    bot.click(960, 630)
+    bot.hotkey('CTRL', 'HOME')
+    bot.press('RIGHT', presses=8)
+    bot.hotkey('ALT', 'DOWN')
+    time.sleep(3)
+    bot.click(procura_imagem('imagens/img_planilha/icone_organiza_A_Z.png', continuar_exec=True, limite_tentativa=30))
+    logger.info('--- Organizou a planilha da forma: DA MENOR PARA A MAIOR')
 
 def encontra_ultimo_xml(ultimo_xml = '', powerapps_id = ''):
-    bot.PAUSE = 2.2
+    bot.PAUSE = 0.2
     tentativa = 0
     while True:
         tentativa += 1
         if tentativa > 5:
             raise Exception("Excedeu o limite de tentativas de encontrar o ultimo XML!")
 
-        logger.info(F'--- Iniciando a navegação até a ultima chave XML: {ultimo_xml}')
+        logger.info(F'--- Iniciando a navegação até a ultima chave na db_alltrips, XML: {ultimo_xml}')
+
+        ativa_planilha_original()
+        ''' #! Substituito pela logica da função acima
         ahk.win_activate('db_alltrips.xlsx', title_match_mode= 1)
-        ahk.win_wait_active('db_alltrips.xlsx', title_match_mode= 1, timeout= 5)
         try:
             ahk.win_wait_active('db_alltrips.xlsx', title_match_mode= 1, timeout= 10)
         except TimeoutError:
             logger.warning('--- Planilha não encontrada!')
             return False
+        '''
 
+        organizar_planilha_por_data()
+
+        ''' #! Substituido pela logica da função a cima
         # Navega até o campo da data, e organiza do menor para o maior.
         bot.click(960, 630) # Clica no meio da planilha para "ativar" a navegação dentro dela.
         bot.hotkey('CTRL', 'HOME') # Move a navegação até a celula A1
@@ -73,11 +90,16 @@ def encontra_ultimo_xml(ultimo_xml = '', powerapps_id = ''):
         time.sleep(0.5)
         bot.click(procura_imagem(imagem='imagens/img_planilha/icone_organiza_A_Z.png', continuar_exec= True, limite_tentativa= 30)) # Clica no botão "organizar do mais antigo ao mais novo"
         logger.info('--- Organizou a planilha da forma "da menor para a maior" ')
+        '''
+        
         time.sleep(0.5)
         ahk.win_activate('db_alltrips.xlsx', title_match_mode= 1)
         bot.click(960, 630) # Clica no meio da planilha para "ativar" a navegação dentro dela.
 
+        exit()
+
         abre_menu_pesquisa(ultimo_xml)
+
 
         # Verifica se realmente chegou no ultimo XML
         bot.hotkey('ctrl', 'c')
@@ -142,33 +164,34 @@ def valida_nova_chave_inserida(tentativa):
 
 
 def copia_dados():
-    bot.PAUSE = 2.2
+    bot.PAUSE = 3
     dados_copiados = ""
 
     # Inicia o processo de seleção dos dados
     ativar_janela("db_alltrips.xlsx")
     logger.info('--- Iniciando o processo de seleção dos dados novos')
-    time.sleep(0.5)
+    time.sleep(0.8)
     bot.press('LEFT', presses= 4) # Navega até a coluna "RE"
-    time.sleep(0.5)
+    time.sleep(0.8)
     ahk.key_down('Shift') # Segura a tecla SHIFT
-    time.sleep(0.5)
+    time.sleep(0.8)
     ahk.key_down('Control') # Segura a tecla CTRL
-    time.sleep(0.5)
+    time.sleep(0.8)
     ahk.key_press('down') # Com shift + ctrl pressionado, navega até a ultima linha da planilha
-    time.sleep(0.5)
+    time.sleep(1)
     ahk.key_press('right') # Avança para a ultima coluna
+    
     logger.info('--- Pressionou SHIFT e CONTROL, indo até a ultima coluna preenchida')
     for i in range (0, 9):
-        time.sleep(0.5)
+        time.sleep(0.8)
         ahk.key_up('Shift')
-        time.sleep(0.5)
+        time.sleep(0.8)
         ahk.key_up('Control')
-        time.sleep(0.5)
+        time.sleep(0.8)
         bot.hotkey('ctrl', 'c')
-        time.sleep(0.5)
+        time.sleep(0.8)
         dados_copiados = ahk.get_clipboard()
-        time.sleep(0.5)
+        time.sleep(0.8)
 
          #* Script de validação original
         if "/2025" in dados_copiados:
@@ -292,8 +315,8 @@ def main(ultimo_xml = chave_xml, powerapps_id = powerapps_id):
         return True
 
 if __name__ == '__main__':
-    ultimo_xml = "35250633039223000979550010003927081074547429"
-    powerapps_ultima_nfe = "ncHouHl1Y4I"
+    ultimo_xml = "35250762136189000100550010002027731493821300"
+    powerapps_ultima_nfe = "6xzAs2RDcSI"
     
     main(ultimo_xml= ultimo_xml, powerapps_id= powerapps_ultima_nfe)
     exit(bot.alert("Terminou"))

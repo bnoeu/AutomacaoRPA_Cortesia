@@ -6,7 +6,7 @@ import time
 import subprocess
 from utils.configura_logger import get_logger
 import pyautogui as bot
-from copia_alltrips import main as copia_banco
+from coleta_novos_dados import main as copia_banco
 from datetime import datetime
 from automacao_planilha.copia_linha_atual import copia_linha_atual
 from automacao_planilha.valida_dados_coletados import valida_dados_coletados
