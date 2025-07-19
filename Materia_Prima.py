@@ -170,29 +170,36 @@ def valida_transportador(cracha_mot = "112842"):
 
 
 def verifica_incrementa_data(data_antiga_str = "03/06/2025"):
-    if ahk.win_exists("Topsys (VM-CortesiaApli.CORTESIA.com)"):
+    if ahk.win_exists("Topsys", title_match_mode= 2):
         logger.warning(f'--- Precisa mudar a data, inserindo a data de hoje: {data_antiga_str}')
+        ativar_janela('Topsys', 70)
+        time.sleep(0.2)
         bot.press('ENTER')
     else:
         return True
     
-    # Converte para um objeto datetime
-    data = datetime.strptime(data_antiga_str, "%d/%m/%Y")
+    # Converter para datetime, assumindo que '25' é o ano 2025
+    data_dt = datetime.strptime(data_antiga_str, "%d/%m/%y")
+
+    ## Exibir a data formatada com 4 dígitos no ano
+    #data = data_dt.strftime("%d/%m/%Y")
 
     # Adiciona 1 dia
-    nova_data = data + timedelta(days=1)
+    nova_data = data_dt + timedelta(days=1)
 
     # Converte de volta para string, se quiser
     nova_data_str = nova_data.strftime("%d/%m/%Y")
 
     # Insere a data ajustada
+    ativar_janela('TopCompras', 70)
+    time.sleep(0.4)
     bot.write(nova_data_str)
-    time.sleep(0.5)
+    time.sleep(0.4)
     bot.press('ENTER')
 
 
 def preenche_data(data_formatada = ""):
-    time.sleep(0.5)
+    time.sleep(0.2)
     ativar_janela('TopCompras', 70)
     #* Alteração da data
     logger.info('--- Realizando validação/alteração da data')
@@ -201,9 +208,9 @@ def preenche_data(data_formatada = ""):
     logger.info(F'--- Inserindo a data coletada: {data_formatada} e apertando ENTER')
     bot.write(data_formatada)
     bot.press('ENTER')
-    time.sleep(3)
+    time.sleep(4)
 
-    while verifica_incrementa_data() is False:
+    while verifica_incrementa_data(data_formatada) is False:
         time.sleep(0.5)
 
     ativar_janela('TopCompras', 70)
@@ -409,10 +416,9 @@ if __name__ == '__main__':
         bot.FAILSAFE = False
 
     #* Realiza os processos inicias da execução da automação
+    print("--- Iniciando RPA! Realizando o fechamento do AHK!")
     subprocess.run(["taskkill", "/im", "AutoHotkey.exe", "/f", "/t"], stderr=subprocess.DEVNULL)
-    #subprocess.run("cls", shell=True)
-    print("--- Limpeza do Terminal realizada.")
-    time.sleep(2)
+    print("--- Executou o TaskKill para fechar o AHK")
 
     while tentativa < 10:
         logger.info(F'--- Iniciando nova tentativa Nº {tentativa} o Try-Catch do PROGRAMA PRINCIPAL')
@@ -424,7 +430,6 @@ if __name__ == '__main__':
             else:
                 lancamento_realizado = False
         except Exception as ultimo_erro:
-            exit(bot.alert(f"Apresentou um erro, verificar: {ultimo_erro}"))
             lancamento_realizado = False
             arquivo_erro, mensagem_erro = trata_erro(ultimo_erro, tentativa)
             caminho_imagem = print_erro()
