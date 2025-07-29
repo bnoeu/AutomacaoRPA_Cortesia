@@ -106,13 +106,13 @@ def verifica_tela(nome_tela, manual=False):
         #exit(logger.error(F'--- Tela: {nome_tela} está fechada, saindo do programa.'))
 
 def marca_lancado(texto_marcacao='texto_teste_marcacao', temp_inicial = ""):
-    bot.PAUSE = 0.3
+    bot.PAUSE = 0.2
 
     logger.info(F'--- Abrindo planilha - MARCA_LANCADO, com parametro: {texto_marcacao}' )
     ativar_janela('debug_db', 30)
-    time.sleep(1)
-    bot.click(960, 630) # Clica no meio da planilha para "ativar" a navegação dentro dela.
     time.sleep(0.4)
+    bot.click(960, 630) # Clica no meio da planilha para "ativar" a navegação dentro dela.
+    time.sleep(0.2)
     
     # Navega até o campo "Status"
     bot.hotkey('CTRL', 'HOME')
@@ -126,15 +126,21 @@ def marca_lancado(texto_marcacao='texto_teste_marcacao', temp_inicial = ""):
     hoje_formatado = hoje.strftime('%d/%m/%Y %H:%M:%S')
     bot.write(hoje_formatado)
 
+    # Navega até a coluna "D. Insercao" para corrigir data
+    bot.press('RIGHT', interval= 0.2)
+    bot.press('F2', interval= 0.2)
+    bot.press('ENTER', interval= 0.2)
+    bot.press('UP', interval= 0.2)
+    
     # Navega até a coluna da tentativa
-    bot.press('RIGHT', presses= 2, interval= 0.1)
+    bot.press('RIGHT', presses= 1, interval= 0.1)
 
     # Copia a quantidade de tentativas atual
     for i in range (0, 5):
         # Verifica se já existe valor no campo
-        time.sleep(0.4)
+        time.sleep(0.2)
         bot.hotkey('ctrl', 'c', interval= 0.1)
-        time.sleep(0.25)
+        time.sleep(0.2)
 
         valor_copiado = pyperclip.paste()
         time.sleep(0.1)
@@ -158,7 +164,7 @@ def marca_lancado(texto_marcacao='texto_teste_marcacao', temp_inicial = ""):
         # Caso o campo esteja vazio, significa que ainda não havia sido feito uma tentativa! Por isso, marca como 1º tentativa
         ativar_janela('debug_db', 30)
         bot.write("1")
-        time.sleep(0.1)
+        time.sleep(0.2)
 
     #* Caso precise informar o tempo que levou.
     if temp_inicial != "":
@@ -198,6 +204,28 @@ def verifica_status_vazio():
     else:
         return False
 
+def verifica_existe_pendente():
+    bot.PAUSE = 1
+    # Verifica se existe mais alguma linha para ser lançada.
+
+    ativar_janela('debug_db_alltrips')
+    time.sleep(0.5)
+    bot.hotkey('CTRL', 'HOME') # Navega até o campo A1
+
+    for i in range (0, 2): # Avança para a terceira linha
+        bot.press('DOWN') # Navega até o campo "Status"
+
+    bot.hotkey('ctrl', 'c')
+    time.sleep(0.4)
+    valor_copiado = pyperclip.paste()
+    tamanho_texto = len(valor_copiado)
+
+    if tamanho_texto > 1:
+        return True
+    else:
+        logger.info('--- Terceira linha da planilha está vazia! Provavelmente chegou ao final')
+        return False
+
 def reaplica_filtro_status(): 
     bot.PAUSE = 0.25
 
@@ -210,6 +238,9 @@ def reaplica_filtro_status():
         bot.click(960, 640)
         time.sleep(0.2)
         
+        if verifica_existe_pendente() is False:
+            return True
+
         #* Navega até a coluna "STATUS" e abre o menu com as opções
         #* Inicia navamento até o campo "A1"
         bot.hotkey('CTRL', 'HOME') # Navega até o campo A1
@@ -319,6 +350,29 @@ def corrige_nometela(novo_nome = "TopCompras"):
         ahk.win_set_title(new_title= novo_nome, title= ' (VM-CortesiaApli.CORTESIA.com)', title_match_mode= 1, detect_hidden_windows= True)
         logger.warning('--- Encontrou tela sem o nome, e realizou a correção!' )
 
+def valida_carregamento_planilha(planilha = ""):
+    # Verifica se a planilha realmente já recarregou
+    for i in range (0, 15):
+        ativar_janela(planilha, 5)
+        time.sleep(0.5)
+        
+        if procura_imagem(imagem='imagens/img_planilha/icone_excel.png', limite_tentativa= 50, area= (0, 0, 583, 365)):
+
+            if planilha == "db_alltrips.xlsx" or "bruno_silva" in planilha:
+                procura_imagem(imagem='imagens/img_planilha/icone_somente_leitura.png', limite_tentativa= 45, area= (0, 0, 583, 365))
+                logger.success('--- Todas validações realizadas, planilha realmente aberta!')
+                time.sleep(0.6)
+                return True 
+                      
+            elif procura_imagem(imagem='imagens/img_planilha/icone_nuvem.png', limite_tentativa= 45, area= (0, 0, 583, 365)):
+                logger.success('--- Todas validações realizadas, planilha realmente aberta!')
+                time.sleep(0.6)
+                return True
+    else:
+        logger.erro('--- Planilha não carregou corretamente!')
+        raise Exception('--- Planilha não carregou corretamente!')
+
+
 def abre_planilha_navegador(link_planilha = alltrips):
     for i in range (0, 3):
         try:
@@ -339,13 +393,15 @@ def abre_planilha_navegador(link_planilha = alltrips):
                 time.sleep(0.5)
                 bot.hotkey('CTRL', 'F5') # Recarrega a planilha limpando o cache
 
-                # Verifica se a planilha realmente já recarregou
+                valida_carregamento_planilha(planilha)
+
+                ''' #! Verifica se a planilha realmente já recarregou
                 for i in range (0, 30):
                     ativar_janela(planilha, 5)
                     time.sleep(0.5)
                     
                     if procura_imagem(imagem='imagens/img_planilha/icone_excel.png', limite_tentativa= 50, area= (0, 0, 583, 365)):
-                        if planilha == "db_alltrips.xlsx":
+                        if planilha == "db_alltrips.xlsx" or "bruno_silva" in planilha:
                             procura_imagem(imagem='imagens/img_planilha/icone_somente_leitura.png', limite_tentativa= 45, area= (0, 0, 583, 365))
                             logger.success('--- Todas validações realizadas, planilha realmente aberta!')
                             break           
@@ -356,7 +412,8 @@ def abre_planilha_navegador(link_planilha = alltrips):
                     if i == 30:
                         logger.erro('--- Planilha não carregou corretamente!')
                         raise Exception('--- Planilha não carregou corretamente!')
-                    
+                '''
+   
                 logger.info('--- Executou apenas um recarregamento')
                 return True
             else:
@@ -475,19 +532,19 @@ if __name__ == '__main__':
     bot.FAILSAFE = False
     tempo_inicial = time.time() # Calculo do tempo de execução das funções
     
-    reaplica_filtro_status()
+    #verifica_existe_pendente()
+    #valida_carregamento_planilha('db_alltrips.xlsx')
+    #reaplica_filtro_status()
     #ativar_janela()
     #verifica_status_vazio()
-    #reaplica_filtro_status()
     #verifica_horario()
     #print_erro()
     #msg_box("Teste", tempo = 1000)
     #abre_planilha_navegador(planilha_debug)
     #bot.alert("Executou")
-    #reaplica_filtro_status()
     #verifica_ped_vazio()
     #corrige_nometela()
-    #marca_lancado(temp_inicial= tempo_inicial, texto_marcacao= "teste_2025_09_05")
+    marca_lancado(temp_inicial= tempo_inicial, texto_marcacao= "teste_2025_07_25")
 
     # Calculo do tempo de execução das funções
     end_time = time.time()

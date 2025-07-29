@@ -19,12 +19,12 @@ planilha_debug = "https://cortesiaconcreto-my.sharepoint.com/:x:/g/personal/brun
 
 def abre_menu_pesquisa(valor_pesquisa = ""):
     # Abre o menu de pesquisa, e pesquisa pelo valor informado
-    bot.PAUSE = 0.8
+    bot.PAUSE = 0.6
 
     ahk.win_activate('db_alltrips.xlsx', title_match_mode= 1)
-    time.sleep(2)
+    time.sleep(0.8)
     bot.click(960, 630) # Clica no meio da planilha para "ativar" a navegação dentro dela.
-    time.sleep(2)
+    time.sleep(0.2)
 
     # Abre o menu de pesquisa
     logger.info(f'--- Abrindo o menu de pesquisa na planilha para procurar o valor: {valor_pesquisa}')
@@ -37,7 +37,7 @@ def abre_menu_pesquisa(valor_pesquisa = ""):
     # Insere a ultima chave copiada da planilha de debug
     logger.info(F'--- Digitando o valor: {valor_pesquisa}')
     bot.write(valor_pesquisa, interval= 0.01)
-    bot.press('ENTER', presses= 2)
+    bot.press('ENTER', presses= 1)
 
     # Fecha o menu de pesquisa
     bot.press('ESC')
@@ -96,10 +96,7 @@ def encontra_ultimo_xml(ultimo_xml = '', powerapps_id = ''):
         ahk.win_activate('db_alltrips.xlsx', title_match_mode= 1)
         bot.click(960, 630) # Clica no meio da planilha para "ativar" a navegação dentro dela.
 
-        exit()
-
         abre_menu_pesquisa(ultimo_xml)
-
 
         # Verifica se realmente chegou no ultimo XML
         bot.hotkey('ctrl', 'c')
@@ -308,15 +305,16 @@ def main(ultimo_xml = chave_xml, powerapps_id = powerapps_id):
 
     # Força o fechamento da planilha ORIGINAL
     ahk.win_kill('db_alltrips.xlsx', title_match_mode= 1)
-    time.sleep(2)
+    time.sleep(1)
 
     colou_dados = cola_dados(dados_copiados)
     if colou_dados is True:
         return True
+    
 
 if __name__ == '__main__':
-    ultimo_xml = "35250762136189000100550010002027731493821300"
-    powerapps_ultima_nfe = "6xzAs2RDcSI"
+    ultimo_xml = "35250700934199000125550010003893881003791688"
+    powerapps_ultima_nfe = "-y0KxX8NkFs"
     
     main(ultimo_xml= ultimo_xml, powerapps_id= powerapps_ultima_nfe)
     exit(bot.alert("Terminou"))

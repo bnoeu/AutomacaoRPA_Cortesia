@@ -211,7 +211,7 @@ def verifica_tela_vinculacao():
     #* Aguarda a abertura da tela "Vinculação Itens da Nota"
     for i in range(0, 40):
         ahk.win_activate('Vinculação Itens da Nota', title_match_mode = 2)
-        time.sleep(1)
+        time.sleep(0.4)
 
         if ahk.win_is_active('Vinculação Itens da Nota', title_match_mode = 2):
             logger.info(f'Tela "Vinculação Itens da Nota" aberta!, tentativa: {i}')
@@ -233,7 +233,7 @@ def valida_bt_localizar():
     """    
     logger.info('--- Executando a função VALIDA BT LOCALIZAR --- ')
     for i in range (0, 20):
-        time.sleep(0.5)
+        time.sleep(0.25)
 
         if procura_imagem(imagem='imagens/img_topcon/localizar.png', limite_tentativa= 5, continuar_exec= True):
             logger.info('--- Tela "Vinculação itens da NOTA" carregou e encontrou o botão "LOCALIZAR" ')
