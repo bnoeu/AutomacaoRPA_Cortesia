@@ -42,6 +42,7 @@ def fechar_tela_nota_compra():
     if procura_imagem(imagem='imagens/img_topcon/produtos_servicos.png', continuar_exec= True) is False:
         logger.info('--- Realmente fechou a tela 6201 NOTA FISCAL DE COMPRA')
 
+
 def fechar_topcompras():
     """ #* Garante o fechamento do TopCompras, caso ele esteja aberto
     """    
@@ -62,7 +63,6 @@ def fechar_topcompras():
 
 def abre_mercantil():
     logger.info('--- Realizando a abertura do modulo de compras')
-    time.sleep(1)
 
     ativar_janela('TopCon', 30)
     logger.info('--- Clicando para abrir o modulo de compras')
@@ -90,13 +90,54 @@ def abre_mercantil():
                 break
             else:
                 pass
-        
-        if i >= 4:
-            logger.error(F"Não foi possivel fechar a tela 'interveniente' (TopCompras (! Tentativas executadas: {i}")
-            raise Exception('Não foi possivel fechar a tela "TopCompras (", necessario reiniciar o TopCon')
+    
     else:
         logger.error(F"Não foi possivel fechar a tela 'interveniente' (TopCompras (! Tentativas executadas: {i}")
         raise Exception('Não foi possivel fechar a tela "TopCompras (", necessario reiniciar o TopCon')
+
+
+def desloga_topcon():
+    """ Desloga o usuario atual do TopCon
+
+    Returns:
+        Boolean: True = Deslogou
+    """
+
+
+    if ahk.win_exists('TopCon', title_match_mode= 2): 
+        logger.info('--- Deslogando do Topcon')
+    
+        
+        ativar_janela('TopCon', 30)
+        time.sleep(0.2)
+        
+        # Verifica se já está deslogado
+        if procura_imagem(imagem='imagens/img_topcon/txt_ServidorAplicacao.png', continuar_exec= True):
+            return True
+
+        bot.click(procura_imagem(imagem='imagens/img_topcon/bt_deslogar_topcon.png'))
+        time.sleep(2)
+
+        bot.click(procura_imagem(imagem='imagens/img_topcon/botao_sim.jpg'))
+        time.sleep(2)
+
+    return True
+
+
+def mata_processos_rdp():
+    """ Utiliza TASKKILL para matar os processos do RDP
+
+    Returns:
+        Boolean: True
+    """
+
+    logger.info('--- Matando os processos do RemoteDesktop ---')
+    subprocess.run(["taskkill", "/im", "wksprt.exe", "/f", "/t"], stderr=subprocess.DEVNULL)
+    subprocess.run(["taskkill", "/im", "mstsc.exe", "/f", "/t"], stderr=subprocess.DEVNULL)
+    logger.info('--- Os processos wksprt e mstsc.exe do RDP foram fechados')
+    
+    print('--- Os processos wksprt e mstsc.exe do RDP')
+    return True
 
 
 def fecha_execucoes():
@@ -105,6 +146,12 @@ def fecha_execucoes():
     
     logger.info('--- Iniciando fecha execucoes, para fechar o TopCompras e o RDP ---')
 
+    if desloga_topcon():
+        logger.info('--- Deslogou do Topcon com sucesso ---')
+        mata_processos_rdp()
+        return True
+
+
     #* Verifica se a tela "Vinculação itens da NFE" está aberta, e fecha ela.
     if ahk.win_exists('Vinculação Itens da Nota', title_match_mode = 2):
         ahk.win_close('Vinculação Itens da Nota', title_match_mode = 2, seconds_to_wait= 5)
@@ -112,7 +159,7 @@ def fecha_execucoes():
         logger.info('--- Fechou a tela "Vinculação itens da nota" ')
     
     #* Primeiro força o fechamento do TopCompras, para evitar erros de validações
-    for tentativa in range (0, 10):
+    for tentativa in range (0, 5):
         ahk.win_close(title= 'TopCompras', title_match_mode = 2, seconds_to_wait= 1)   
         ahk.win_kill(title='TopCompras', title_match_mode= 2, seconds_to_wait= 1)
         
@@ -125,10 +172,7 @@ def fecha_execucoes():
         subprocess.run(["taskkill", "/im", "mstsc.exe", "/f", "/t"], stderr=subprocess.DEVNULL)
         return False
 
-    logger.info('--- Fechando os processos do RemoteDesktop ---')
-    subprocess.run(["taskkill", "/im", "wksprt.exe", "/f", "/t"], stderr=subprocess.DEVNULL)
-    subprocess.run(["taskkill", "/im", "mstsc.exe", "/f", "/t"], stderr=subprocess.DEVNULL)
-    logger.info('--- Os processos wksprt e mstsc.exe do RDP')
+    mata_processos_rdp()
     logger.success('--- Concluiu a task FECHA EXECUÇÕES')
     return True
 
@@ -212,6 +256,7 @@ def realiza_login_rdp(tela_login_rdp = ""):
     else:
         logger.success("Concluiu a task ABRE TOPCON")
         return True
+
 
 def abre_topcon():
     logger.info('--- Executando a função: ABRE TOPCON' )
@@ -302,45 +347,45 @@ def abre_topcon():
             return True
 
 
-
 def main():
+
     ultimo_erro = ""
-    for tentativa in range(0, 10):
-        bot.PAUSE = 1.2
+
+    for tentativa in range(0, 5):
+        pausa_tentativa = 5
+
+        time.sleep(pausa_tentativa)
+
         logger.info(F"Tentativa de abrir o topcon: {tentativa}")
         try:
-            time.sleep(0.5)
             fecha_execucoes()
             abre_topcon()
             login_topcon()
-            fechar_topcompras()
+            
+            #! Acredito que não é mais necessario fechar o topcompras
+            #fechar_topcompras()
             abre_mercantil()
-            if tentativa >= 6:
-                break
+
         except Exception as e:
             logger.error(f"Erro: {type(e).__name__} - {str(e)}")
-            #logger.error(F"Apresentou um erro! {ultimo_erro}")
             logger.debug("Traceback completo:", exc_info=True)
-
-            if tentativa >= 9:
-                logger.critical(F"Função ABRE TOPCON apresentou erro critico! {ultimo_erro}")
-                return ultimo_erro
+            pausa_tentativa = pausa_tentativa * (tentativa * 2)
         else:
             logger.success("Executou o ABRE_TOPCON.PY com sucesso!")
             return True
     else:   
         raise ultimo_erro
-    
+
+
 if __name__ == '__main__':
     tempo_inicial = time.time()
-    main()
 
+    main()
     # Linha específica onde você quer medir o tempo
     end_time = time.time()
     elapsed_time = end_time - tempo_inicial
     medicao_minutos = elapsed_time / 60
     print(f"Tempo decorrido: {medicao_minutos:.2f} segundos")
-    time.sleep(1)
     bot.alert("acabou")
 
     '''

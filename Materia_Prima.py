@@ -40,13 +40,26 @@ chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
 pytesseract.pytesseract.tesseract_cmd = r"C:\Tesseract-OCR\tesseract.exe"
 logger = get_logger("automacao", print_terminal= True) # Obter logger configurado
 
-def calcula_tempo_processo(tempo_inicial):
-    # Linha específica onde você quer medir o tempo
+def calcula_tempo_processo(tempo_inicial, msg_box = False):
+    """ Retorna o tempo em segundos que levou uma ação
+
+    Args:
+        tempo_inicial (_type_): Recebe "time.time()"
+        msg_box (bool, optional): Para exibir a MSG BOX.
+        Defaults to False.
+    """
+
     end_time = time.time()
     elapsed_time = end_time - tempo_inicial
     medicao_minutos = elapsed_time / 60
-    print(f"Tempo decorrido: {medicao_minutos:.2f} segundos")
-    exit(bot.alert("acabou"))
+    tempo_decorrido = f"{medicao_minutos:.2f}"
+
+    print(f"Tempo decorrido: {tempo_decorrido} segundos")
+
+    if msg_box is True:
+        exit(bot.alert("acabou"))
+
+    return
 
 
 def valida_filial_estoque(filial_estoq = ""):
@@ -93,6 +106,12 @@ def coleta_valida_dados():
 
 
 def formata_data_coletada(dados_copiados):
+
+    # Verifica se a variável está vazia ou contém apenas espaços
+    if not dados_copiados.strip():
+        print("--- Nenhuma data coletada. Usando a data atual.")
+        return date.today().strftime("%d/%m/%y")
+
     data_copiada = dados_copiados.split(' ')[0]  # Pega apenas a parte da data
     print(F"Data copiada: {data_copiada}, realizando a formatação")
     # Converter a string para objeto datetime.date
@@ -119,7 +138,7 @@ def valida_transportador(cracha_mot = "112842"):
     # * -------------------------------------- VALIDAÇÃO TRANSPORTADOR --------------------------------------
     logger.info(F'--- Preenchendo transportador: {cracha_mot}')
     ahk.win_activate('TopCompras', title_match_mode= 2)
-    time.sleep(0.4)
+    time.sleep(0.2)
 
     # Clique relativo a posição do campo "Transportador: RE"
     onde_achou = procura_imagem(imagem='imagens/img_topcon/txt_transportador.png')
@@ -242,6 +261,7 @@ def preenche_data(data_formatada = ""):
 
 
 
+
 def programa_principal():
 
     global qtd_notas_lancadas
@@ -360,12 +380,15 @@ def programa_principal():
     print(F"Quantidade de NFS lançadas: {qtd_notas_lancadas}")
     logger.info(F"Quantidade de NFS lançadas: {qtd_notas_lancadas}")
 
+    calcula_tempo_processo(tempo_inicial= tempo_inicial)
+    ''' #! Substituido pela função
     # Valida a medição de tempo que levou
     end_time = time.time()
     elapsed_time = end_time - tempo_inicial
     medicao_minutos = elapsed_time / 60
     print(f"Tempo decorrido: {medicao_minutos:.2f} segundos")
     logger.info(f"Tempo decorrido: {medicao_minutos:.2f} segundos")
+    '''
 
     return True
 
