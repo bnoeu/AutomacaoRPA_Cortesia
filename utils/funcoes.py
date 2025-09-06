@@ -3,6 +3,7 @@
 
 import time
 import cv2
+import psutil
 import pyperclip
 import subprocess
 import pytesseract
@@ -10,6 +11,7 @@ import numpy as np
 from ahk import AHK
 import pyautogui as bot
 from datetime import datetime
+
 
 if __name__ == '__main__':
     from configura_logger import get_logger
@@ -335,7 +337,7 @@ def corrige_nometela(novo_nome = "TopCompras"):
     """
 
     try: # Verifica se abriu alguma tela sem o nome.
-        ahk.win_wait(' (VM-CortesiaApli.CORTESIA.com)', title_match_mode= 1, timeout= 5)
+        ahk.win_wait(' (VM-CortesiaApli.CORTESIA.com)', title_match_mode= 1, timeout= 8)
     except (TimeoutError, OSError): # Apresenta Timeout caso esteja aberto com o nome normal.
         try: # Verifica se REALMENTE abriu com o nome normal
             if ahk.win_wait(novo_nome, title_match_mode= 1, timeout= 6):
@@ -347,27 +349,24 @@ def corrige_nometela(novo_nome = "TopCompras"):
             logger.warning("Não encontrou o TopCompras nem a tela sem nome")
             return
     else:
-        ahk.win_set_title(new_title= novo_nome, title= ' (VM-CortesiaApli.CORTESIA.com)', title_match_mode= 1, detect_hidden_windows= True)
-        logger.warning('--- Encontrou tela sem o nome, e realizou a correção!' )
+        if ahk.win_exists(' (VM-CortesiaApli.CORTESIA.com)', title_match_mode= 1):
+            time.sleep(1)
+            ahk.win_set_title(new_title= novo_nome, title= ' (VM-CortesiaApli.CORTESIA.com)', title_match_mode= 1, detect_hidden_windows= True)
+            logger.warning('--- Encontrou tela sem o nome, e realizou a correção!' )
 
-def valida_carregamento_planilha(planilha = ""):
+def valida_carregamento_planilha(nome_planilha = ""):
     # Verifica se a planilha realmente já recarregou
-    for i in range (0, 15):
-        ativar_janela(planilha, 5)
-        time.sleep(0.5)
+    for i in range (0, 3):
+        ativar_janela(nome_planilha, 5)
+        time.sleep(0.4)
         
-        if procura_imagem(imagem='imagens/img_planilha/icone_excel.png', limite_tentativa= 50, area= (0, 0, 583, 365)):
+        if procura_imagem(imagem='imagens/img_planilha/icones_inferior.png', limite_tentativa= 10, continuar_exec= True):
+            logger.success('--- Todas validações realizadas, planilha realmente aberta!')
+            return True 
+        else:
+            ahk.win_maximize(nome_planilha)
+            time.sleep(0.4)
 
-            if planilha == "db_alltrips.xlsx" or "bruno_silva" in planilha:
-                procura_imagem(imagem='imagens/img_planilha/icone_somente_leitura.png', limite_tentativa= 45, area= (0, 0, 583, 365))
-                logger.success('--- Todas validações realizadas, planilha realmente aberta!')
-                time.sleep(0.6)
-                return True 
-                      
-            elif procura_imagem(imagem='imagens/img_planilha/icone_nuvem.png', limite_tentativa= 45, area= (0, 0, 583, 365)):
-                logger.success('--- Todas validações realizadas, planilha realmente aberta!')
-                time.sleep(0.6)
-                return True
     else:
         logger.erro('--- Planilha não carregou corretamente!')
         raise Exception('--- Planilha não carregou corretamente!')
@@ -376,73 +375,39 @@ def valida_carregamento_planilha(planilha = ""):
 def abre_planilha_navegador(link_planilha = alltrips):
     for i in range (0, 3):
         try:
-            # Identifica qual planilha será utilizada.
+            # Identifica qual nome_planilha será utilizada.
             if link_planilha == alltrips: # Planilha original
-                planilha = "db_alltrips.xlsx" 
+                nome_planilha = "db_alltrips.xlsx" 
             else: # Planilha de debug
-                planilha = "debug_db_alltrips.xlsx"   
+                nome_planilha = "debug_db_alltrips.xlsx"   
 
-            logger.info(F'--- Iniciando função ABRE PLANILHA NAVEGADOR, abrindo: {planilha}')
+            logger.info(F'--- Iniciando função ABRE PLANILHA NAVEGADOR, abrindo: {nome_planilha}')
 
             #* Verifica se a planilha já esta aberta
-            if ahk.win_exists(planilha):
+            if ahk.win_exists(nome_planilha):
                 logger.debug('--- Planilha já está aberta! Executando apenas um recarregamento')
 
-                ativar_janela(planilha)
-                ahk.win_maximize(planilha, title_match_mode= 2)
+                ativar_janela(nome_planilha)
+                ahk.win_maximize(nome_planilha, title_match_mode= 2)
                 time.sleep(0.5)
                 bot.hotkey('CTRL', 'F5') # Recarrega a planilha limpando o cache
 
-                valida_carregamento_planilha(planilha)
+                valida_carregamento_planilha(nome_planilha)
 
-                ''' #! Verifica se a planilha realmente já recarregou
-                for i in range (0, 30):
-                    ativar_janela(planilha, 5)
-                    time.sleep(0.5)
-                    
-                    if procura_imagem(imagem='imagens/img_planilha/icone_excel.png', limite_tentativa= 50, area= (0, 0, 583, 365)):
-                        if planilha == "db_alltrips.xlsx" or "bruno_silva" in planilha:
-                            procura_imagem(imagem='imagens/img_planilha/icone_somente_leitura.png', limite_tentativa= 45, area= (0, 0, 583, 365))
-                            logger.success('--- Todas validações realizadas, planilha realmente aberta!')
-                            break           
-                        elif procura_imagem(imagem='imagens/img_planilha/icone_nuvem.png', limite_tentativa= 45, area= (0, 0, 583, 365)):
-                            logger.success('--- Todas validações realizadas, planilha realmente aberta!')
-                            time.sleep(1)
-                            break
-                    if i == 30:
-                        logger.erro('--- Planilha não carregou corretamente!')
-                        raise Exception('--- Planilha não carregou corretamente!')
-                '''
-   
                 logger.info('--- Executou apenas um recarregamento')
                 return True
             else:
-                subprocess.run(["cmd", "/c", "taskkill /im msedge.exe /f /t 2>nul"], shell=True)
-                logger.info('--- Planilha (EDGE) fechada, abrindo uma nova execução da planilha: {planilha}')
+                #subprocess.run(["cmd", "/c", "taskkill /im msedge.exe /f /t 2>nul"], shell=True)
+                matar_autohotkey(nome_exec= "msedge.exe")
+                logger.info('--- Planilha (EDGE) fechada, abrindo uma nova execução da planilha: {nome_planilha}')
                 
                 comando_iniciar = f'start msedge {link_planilha} -new-window -inprivate'
                 subprocess.run(["cmd", "/c", comando_iniciar], shell=True)
                 time.sleep(2)
                 
-                #* Aguarda a planilha abrir no EDGE e maximiza
-                for i in range (0, 10):
-                    ahk.win_activate(planilha, title_match_mode = 2)
-                    time.sleep(0.2)
-                    if ahk.win_is_active(planilha, title_match_mode = 2):
-                        ahk.win_maximize(planilha)
-                        logger.info('--- Planilha aberta e maximizada! procurando icone da nuvem & EXCEL')
 
-                        if procura_imagem(imagem='imagens/img_planilha/icone_excel.png', limite_tentativa= 50, area= (0, 0, 583, 365)):
-                            if procura_imagem(imagem='imagens/img_planilha/icone_nuvem.png', limite_tentativa= 45, area= (0, 0, 583, 365)):
-                                logger.success('--- Todas validações realizadas, planilha realmente aberta!')
-                                return True
-                    
-                    if i >= 9:
-                        logger.error('--- Planilha não abriu corretamente!')
-                        raise Exception('--- Planilha não abriu corretamente!')
-                    
-                    bot.press('F5')
-                logger.success('--- Planilha aberta e maximizada.')
+                #* Aguarda a planilha abrir no EDGE e maximiza
+                valida_carregamento_planilha(nome_planilha)
                 return True
             
         except Exception as e:
@@ -463,6 +428,25 @@ def msg_box(texto: str, tempo: int = 60):
     ahk.win_close('Message', title_match_mode= 2)
 
 def verifica_horario():
+    while True:
+        hora_atual = datetime.now().time()
+        intervalos_pausa = [
+            (datetime.strptime("23:20", "%H:%M").time(), datetime.strptime("23:59", "%H:%M").time()),
+            (datetime.strptime("00:00", "%H:%M").time(), datetime.strptime("04:30", "%H:%M").time())
+        ]
+
+        for inicio, fim in intervalos_pausa:
+            logger.debug(f'--- São: {hora_atual}, verificando intervalo: {inicio} até {fim}')
+            if inicio < hora_atual < fim:
+                logger.warning(f'São: {hora_atual}, aguardando 2 horas para tentar novamente.')
+                msg_box(f"São: {hora_atual}, aguardando 2 horas para tentar novamente", 7200)
+                break
+        else:
+            logger.debug('--- Horário validado! Pode prosseguir com o lançamento.')
+            break
+
+''' #! Substituido pela logica a cima.
+def verifica_horario():
     validou_horarios = 0
     while True:
         hora_atual = datetime.now().time() # Obter o horário atual
@@ -474,7 +458,7 @@ def verifica_horario():
                 logger.debug(F'--- São: {hora_atual}, Verificando se passou das 23h: {hora_inicio_pausa} vs {hora_final_pausa}')
             else:
                 hora_inicio_pausa = datetime.strptime("00:00", "%H:%M").time() # Definir o horário de inicio de referência (02:00)
-                hora_final_pausa = datetime.strptime("02:30", "%H:%M").time() # Definir o horário de inicio de referência (02:00)
+                hora_final_pausa = datetime.strptime("04:30", "%H:%M").time() # Definir o horário de inicio de referência (02:00)
                 logger.debug(F'--- São: {hora_atual}, Verificando se é madrugada: {hora_inicio_pausa} vs {hora_final_pausa}')
 
             if hora_atual > hora_inicio_pausa and hora_atual < hora_final_pausa:
@@ -487,6 +471,7 @@ def verifica_horario():
         if validou_horarios >= 2:
             logger.debug('--- Horario validado! Pode prosseguir com o lançamento.')
             break
+'''
 
 def ativar_janela(nome_janela= "TopCompras", timeout= 8):
     """ Tenta realizar a ativação de uma janela, e aguarda até ela estar aberta
@@ -527,11 +512,53 @@ def move_telas_direita(tela:str):
         return
 
 
+def matar_autohotkey(nome_exec = "", timeout=5):
+    """
+    Encerra todos os processos de forma segura.
+    - Tenta matar via psutil (mais rápido e confiável).
+    - Se não encontrar, tenta usar taskkill com timeout.
+    """
+    
+    # 1️⃣ Tentativa via psutil (mais confiável e sem travamento)
+    encontrado = False
+    for proc in psutil.process_iter(['name']):
+        if proc.info['name'] and proc.info['name'].lower() == nome_exec:
+            try:
+                proc.kill()
+                encontrado = True
+            except Exception as e:
+                print(f"⚠️ Erro ao encerrar PID {proc.pid}: {e}")
+    
+    if encontrado:
+        print(f"✅ Processo: {nome_exec} encerrado via psutil.")
+        return
+    
+    # 2️⃣ Se não encontrou, tenta via taskkill (com timeout)
+    try:
+        subprocess.run(
+            ["taskkill", "/im", nome_exec, "/f", "/t"],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            timeout=timeout
+        )
+        print(f"✅ Processo: {nome_exec} encerrado via taskkill.")
+    except subprocess.TimeoutExpired:
+        print("⏳ taskkill demorou demais, processo ignorado.")
+    except Exception as e:
+        print(f"⚠️ Erro ao executar taskkill: {e}")
+
+
 if __name__ == '__main__':
     bot.PAUSE = 0.6
     bot.FAILSAFE = False
     tempo_inicial = time.time() # Calculo do tempo de execução das funções
     
+    corrige_nometela("TopCompras")
+    #corrige_nometela('TopCon')
+    #verifica_horario()
+    #matar_autohotkey(nome_exec= "msedge.exe")
+    #exit()
+    #abre_planilha_navegador(alltrips)
     #verifica_existe_pendente()
     #valida_carregamento_planilha('db_alltrips.xlsx')
     #reaplica_filtro_status()
@@ -544,7 +571,7 @@ if __name__ == '__main__':
     #bot.alert("Executou")
     #verifica_ped_vazio()
     #corrige_nometela()
-    marca_lancado(temp_inicial= tempo_inicial, texto_marcacao= "teste_2025_07_25")
+    #marca_lancado(temp_inicial= tempo_inicial, texto_marcacao= "teste_2025_07_25")
 
     # Calculo do tempo de execução das funções
     end_time = time.time()
