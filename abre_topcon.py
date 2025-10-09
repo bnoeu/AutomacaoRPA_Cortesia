@@ -148,11 +148,12 @@ def desloga_topcon():
         if procura_imagem(imagem='imagens/img_topcon/txt_ServidorAplicacao.png', continuar_exec= True):
             return True
 
+        time.sleep(1)
         bot.click(procura_imagem(imagem='imagens/img_topcon/bt_deslogar_topcon.png'))
         time.sleep(2)
 
         bot.click(procura_imagem(imagem='imagens/img_topcon/botao_sim.jpg'))
-        time.sleep(2)
+        time.sleep(1)
     else:
         logger.info('--- Topcon já está deslogado/janela não existe ---')
 
@@ -225,9 +226,9 @@ def login_topcon():
         #* Valida se realmente realizou o Login no TopCon ou se já iniciou logado
         for i in range(0, 5):
             ativar_janela('TopCon', 30)
-            time.sleep(1)
+            time.sleep(0.4)
 
-            if procura_imagem(imagem='imagens/img_topcon/logo_topcon_grande.png', continuar_exec= True, limite_tentativa= 4):
+            if procura_imagem(imagem='imagens/img_topcon/logo_topcon_grande.png', continuar_exec= True):
                 logger.info('--- Já está logado no Topcon!')
                 ahk.win_maximize('TopCon', title_match_mode= 2)
                 return True
