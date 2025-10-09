@@ -1,6 +1,7 @@
 # -*- Criado por Bruno da Silva Santos. -*-
 # Para utilização na Cortesia Concreto.
 
+
 import time
 import pytesseract
 import pyautogui as bot
@@ -21,7 +22,7 @@ PEDRA_1 = ('BRITA]','BRITA1', 'PEDRA 01', 'PEDRA DI', 'BRITADA 01', 'PEDRA 1', '
            'BRITA 01', 'BRITA 1', 'BRITA NR "01"', 'BRITA O01', 'PEDRA No 1', 'PEDRA1')
 PO_PEDRA = ('PO DE PEDRA', 'AREA INDUSTRIAL', 'AREIA INDUSTRIAL')
 BRITA_0 = ('BRITA 0', 'PEDRISCO LIMPO', 'BRITAD™', 'BRITAO', 'PEDRISCO LAVADDO', 'BRITA ZERO')
-CIMENTO_CP3 = ('CP 111', 'teste')
+CIMENTO_CP3 = ('CP 111', 'CP lll')
 CIMENTO_CP2 = ('CP II-E-40', '£-40', 'CIMENTO PORTLAND CP IIE-40 RS |', "CIMENTO PORTLAND CP I'E-40 RS.", "CIMENTO PORTLAND CP IE-40 RS")
 AREIA_RIO = ('AREIA LAVADA MEDIA', 'ARE A LAVADA MEDIA', 'AREA LAVADA MEDIA', 'AREIA LAVADA', 'AREIA MEDIA')
 CIMENTO_CP5 = ('CPV', 'V-ARI')
@@ -72,6 +73,11 @@ def valida_pedido(chave_xml = ""):
     if (txt_itensXML == "AREIA MEDIA") and ("38953477000164" in chave_xml):
         txt_itensXML = "AREIA LAVADA MEDIA"
         logger.info(F'--- Nota da CONSMAR! Alterou o item para: {txt_itensXML}')
+
+    # Verifica se a nota é da MINERAÇÃO CAJU
+    if (txt_itensXML == "AREIA MEDIA FINA") and ("09425531000109" in chave_xml):
+        txt_itensXML = "AREIA DE QUARTZO VERMELHA"
+        logger.info(F'--- Nota da MINEERAÇÃO CAJU! Alterou o item para: {txt_itensXML}')
 
 
     #* Indentifica qual o item que consta na extração.
@@ -151,6 +157,12 @@ def valida_pedido(chave_xml = ""):
 
         #Verifica nas posições que encontrou
         for pos in posicoes:  # Tenta em todos pedidos encontrados
+            #! Temporario para corrigir o problema das NFE de caçapava
+
+            if "52611571000247" in chave_xml:
+                if 222 < pos.top < 228:
+                    continue
+            
             logger.debug(F'--- Encontrou o {txt_itensXML} na posição {pos}, Tentativa: {tentativa}')
             ahk.win_activate('Vinculação Itens da Nota', title_match_mode = 2)
             
@@ -253,7 +265,7 @@ def main(chave_xml = ""):
 
 if __name__ == '__main__':
     tempo_inicial = time.time()
-    main("35250438953477000164550010000537031000800001")
+    main("35250852611571000247550010001235361841695058")
 
     # Linha específica onde você quer medir o tempo
     end_time = time.time()
