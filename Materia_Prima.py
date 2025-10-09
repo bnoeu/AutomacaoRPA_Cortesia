@@ -16,7 +16,6 @@ import os
 import time
 import platform
 import traceback
-import subprocess
 import pytesseract
 import pyautogui as bot
 from utils.funcoes import ahk as ahk
@@ -28,7 +27,7 @@ from valida_pedido import main as valida_pedido
 from valida_lancamento import valida_lancamento
 from preenche_local import main as preenche_local
 from finaliza_lancamento import finaliza_lancamento
-from utils.funcoes import marca_lancado, procura_imagem, verifica_horario, ativar_janela, print_erro
+from utils.funcoes import marca_lancado, procura_imagem, verifica_horario, ativar_janela, print_erro, matar_autohotkey
 
 #* Definição de parametros
 posicao_img = 0
@@ -39,6 +38,7 @@ bot.LOG_SCREENSHOTS_LIMIT = 5
 chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
 pytesseract.pytesseract.tesseract_cmd = r"C:\Tesseract-OCR\tesseract.exe"
 logger = get_logger("automacao", print_terminal= True) # Obter logger configurado
+
 
 def calcula_tempo_processo(tempo_inicial, msg_box = False):
     """ Retorna o tempo em segundos que levou uma ação
@@ -218,19 +218,20 @@ def verifica_incrementa_data(data_antiga_str = "03/06/2025"):
 
 
 def preenche_data(data_formatada = ""):
-    time.sleep(0.2)
-    ativar_janela('TopCompras', 70)
     #* Alteração da data
     logger.info('--- Realizando validação/alteração da data')
+    ativar_janela('TopCompras', 70)
+    time.sleep(0.2)
+
     hoje = date.today()
     hoje = hoje.strftime("%d%m%y")  # dd/mm/YY
     logger.info(F'--- Inserindo a data coletada: {data_formatada} e apertando ENTER')
-    bot.write(data_formatada)
+    bot.write(data_formatada, interval= 0.025)
     bot.press('ENTER')
-    time.sleep(4)
+    time.sleep(2)
 
     while verifica_incrementa_data(data_formatada) is False:
-        time.sleep(0.5)
+        time.sleep(0.25)
 
     ativar_janela('TopCompras', 70)
 
@@ -259,8 +260,20 @@ def preenche_data(data_formatada = ""):
             bot.press('enter')
             time.sleep(0.4)
 
+def preenche_filial_estoque(filial_estoq):
 
+    logger.info('--- Preenchendo filial de estoque')
+    ativar_janela('TopCompras')
+    time.sleep(0.4)
 
+    # Coleta a posição do TXT e faz um clique relativo
+    posicao_texto = procura_imagem(imagem='imagens/img_topcon/txt_filial_estoque.png')
+    bot.click(posicao_texto.x + 296, posicao_texto.y)
+    time.sleep(0.4)
+
+    bot.write(filial_estoq, interval= 0.025)
+    time.sleep(0.2)
+    bot.press('TAB', presses= 2, interval= 0.2) # Confirma a informação da nova filial de estoque
 
 def programa_principal():
 
@@ -279,6 +292,7 @@ def programa_principal():
     #dados_planilha = ['8078', '', '', '1036-PERUS', '35250648302640001588550100005409241251434230', 'p4ozMaAb2_Q', '', '', '18/06/2025 18:25', '', '', '', '45826,89236', '', 'Versão AllTrips: 172']
     
     tempo_inicial = time.time()
+
     silo1 = dados_planilha[1]
     silo2 = dados_planilha[2]
     chave_xml = dados_planilha[4]
@@ -297,6 +311,8 @@ def programa_principal():
     while procura_imagem(imagem='imagens/img_topcon/produtos_servicos.png', continuar_exec= True) is False:
         ativar_janela('TopCompras')
 
+    preenche_filial_estoque(filial_estoq= filial_estoq)
+    ''' #! Substituido pela função a cima.
     logger.info('--- Preenchendo filial de estoque')
     bot.press('up')
     bot.write(filial_estoq, interval= 0.1)
@@ -304,6 +320,7 @@ def programa_principal():
     bot.press('TAB', presses= 1) # Confirma a informação da nova filial de estoque
     time.sleep(0.4)
     bot.press('TAB', presses= 1) # Confirma a informação da nova filial de estoque
+    '''
 
     preenche_data(data_formatada)
 
@@ -356,7 +373,7 @@ def programa_principal():
     tela_prod_servico = 0
     while procura_imagem(imagem='imagens/img_topcon/botao_alterar.png', area=(100, 839, 300, 400), limite_tentativa= 1, continuar_exec= True, confianca= 0.74) is False:
         
-        if tela_prod_servico > 15:
+        if tela_prod_servico > 25:
             logger.error('--- Não encontrou a tela produtos e serviços')
             raise TimeoutError
         
@@ -417,8 +434,7 @@ def main(lancamento_realizado = False):
     verifica_horario() # Confere o horario dessa execução.
     
     if lancamento_realizado is False:
-        if not abre_topcon():
-            raise Exception("Falhou ao abrir o topcon")
+        abre_topcon()
     
     while programa_principal():
         logger.info(F"Lançamento realizado! Valor da variavel: {lancamento_realizado}")
@@ -440,7 +456,8 @@ if __name__ == '__main__':
 
     #* Realiza os processos inicias da execução da automação
     print("--- Iniciando RPA! Realizando o fechamento do AHK!")
-    subprocess.run(["taskkill", "/im", "AutoHotkey.exe", "/f", "/t"], stderr=subprocess.DEVNULL)
+    #subprocess.run(["taskkill", "/im", "AutoHotkey.exe", "/f", "/t"], stderr=subprocess.DEVNULL)
+    matar_autohotkey(nome_exec= "AutoHotkey.exe")
     print("--- Executou o TaskKill para fechar o AHK")
 
     while tentativa < 10:
@@ -477,7 +494,6 @@ if __name__ == '__main__':
                 logger.critical(F'--- A execução principal apresentou erro! Executando o script principal novamente, tentativa: {tentativa}')
                 break
 
-            abre_topcon()
             tentativa += 1
 
         except(KeyboardInterrupt) as e:

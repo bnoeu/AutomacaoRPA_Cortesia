@@ -116,16 +116,16 @@ def operacao_realizada(temp_inicial = ""):
             return 3
         else:
             logger.info(f'--- Finalizou o processo com o status: {2} significa que pode ter aberto outras telas ')
-            time.sleep(3)
+            time.sleep(2)
             return 2
 
 
 def aguarda_telas_finalizacao():
     # Aguarda até aparecer alguma das telas, seja de erro ou de sucesso, e aumenta o delay conforme as tentativas.
-    tempo_pausa = 0.5
+    tempo_pausa = 0.8
 
     logger.info('--- Tentando validar a tela que apresentou no sistema ---' )
-    for i in range (0, 90):
+    for i in range (0, 180):
         time.sleep(tempo_pausa)
         
         if janelas_erro() is True:
@@ -134,12 +134,16 @@ def aguarda_telas_finalizacao():
         if janelas_sucesso() is True:
             return True
         
-        if i >= 89:
+        if i >= 179:
             raise Exception(f"Erro na função  FINALIZA LANCAMENTO: Não encontrou telas SUCESSO ou ERRO, tentativa {i}")
         elif i == 30:
-            tempo_pausa = 2
+            tempo_pausa = 1
         elif i == 60:
             tempo_pausa = 4
+        elif i == 100:
+            tempo_pausa = 8
+        elif i == 140:
+            tempo_pausa = 10
         
 
 def finaliza_lancamento(planilha_marcada = False, lancamento_concluido = False, realizou_transferencia = False, tentativas_telas = 0, temp_inicial = ""):
@@ -241,7 +245,7 @@ def finaliza_lancamento(planilha_marcada = False, lancamento_concluido = False, 
             ahk.win_activate('TopCompras (VM-CortesiaApli.CORTESIA.com)', title_match_mode=2)
             logger.warning('--- Apareceu a tela de vencimento, alterando para +3 dias')
             bot.press('ENTER')
-            ahk.win_wait_close('TopCompras (VM-CortesiaApli.CORTESIA.com)', title_match_mode=2)
+            ahk.win_wait_close('TopCompras (VM-CortesiaApli.CORTESIA.com)', title_match_mode=2, timeout= 5)
             time.sleep(0.5)
             # Altera a data de vencimento para +3 dias
             bot.click(procura_imagem(imagem='imagens/img_topcon/bt_contasapagar.PNG'))

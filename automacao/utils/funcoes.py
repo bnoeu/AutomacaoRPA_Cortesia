@@ -142,7 +142,7 @@ def marca_lancado(texto_marcacao='Lancado'):
     logger.info(F'--------------------- Processou NFE, situação: {texto_marcacao} ---------------------')
 
 def reaplica_filtro_status(): 
-    bot.PAUSE = 1.2
+    bot.PAUSE = 1
     ahk.win_activate('debug_db_alltrips', title_match_mode= 2)
     logger.debug('--- Reaplicando o filtro na coluna "Status" ')
     time.sleep(0.5)
@@ -156,13 +156,13 @@ def reaplica_filtro_status():
     for i in range (0, 10):
         time.sleep(0.5)
         ahk.win_activate('debug_db_alltrips', title_match_mode= 2)
-        if procura_imagem(imagem='imagens/img_planilha/bt_aplicar.png', continuar_exec= True, limite_tentativa= 3):
+        if procura_imagem(imagem='imagens/img_planilha/bt_aplicar.png', continuar_exec= True):
             break
     else:
         procura_imagem(imagem='imagens/img_planilha/bt_aplicar.png', limite_tentativa= 1)
 
 
-    bot.click(procura_imagem(imagem='imagens/img_planilha/bt_aplicar.png', continuar_exec= True, limite_tentativa= 2, confianca= 0.73))
+    bot.click(procura_imagem(imagem='imagens/img_planilha/bt_aplicar.png', continuar_exec= True, confianca= 0.73))
     logger.debug('--- na tela do menu de filtro, clicou no botão "Aplicar" para reaplicar o filtro ')
     
     if procura_imagem(imagem='imagens/img_planilha/bt_visualizar_todos.png', limite_tentativa= 3, confianca= 0.73, continuar_exec= True):

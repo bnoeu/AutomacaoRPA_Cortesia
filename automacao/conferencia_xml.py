@@ -4,29 +4,44 @@
 import time
 import pyautogui as bot
 from utils.funcoes import ahk as ahk
-from abre_topcon import main as abre_topcon
 from utils.configura_logger import get_logger
 from utils.funcoes import marca_lancado, procura_imagem, corrige_nometela
 
 # Definição de parametros
 logger = get_logger("script1")
 
+def aguarda_pop_up():
+    #* Aguarda a tela "TopCompras (VM-CortesiaApli.CORTESIA.com)" que é exibida quando ocorre algum retorno de informação do TopCon
+    for i in range(0, 500):
+        time.sleep(0.5)
+        if ahk.win_exists("TopCompras (VM-CortesiaApli.CORTESIA.com)", title_match_mode= 2):
+            logger.info('--- Encontrou o pop-up "TopCompras (VM-CortesiaApli.CORTESIA.co" ---' )
+            break
+        if ahk.win_exists(' (VM-CortesiaApli.CORTESIA.com)', title_match_mode= 1):
+            corrige_nometela("TopCompras (VM-CortesiaApli.CORTESIA.com)")
+    else:
+        logger.critical("Não encontrou o POP-UP, algum problema ocorreu")
+        raise Exception("Não encontrou o POP-UP na coferencia do lançamento, algum problema ocorreu")
+
 
 def conferencia_xml():    
     logger.info('--- Iniciando a função: CONFERENCIA XML ---' )
     texto_erro = False
     
+    aguarda_pop_up()
+    ''' #! Substituido pela função acima 
     #* Aguarda a tela "TopCompras (VM-CortesiaApli.CORTESIA.com)" que é exibida quando ocorre algum retorno de informação do TopCon
     for i in range(0, 140):
-        time.sleep(1)
-        if ahk.win_is_active("TopCompras (VM-CortesiaApli.CORTESIA.com)", title_match_mode= 2):
+        time.sleep(0.4)
+        if ahk.win_exists("TopCompras (VM-CortesiaApli.CORTESIA.com)", title_match_mode= 2):
             logger.info('--- Encontrou o pop-up "TopCompras (VM-CortesiaApli.CORTESIA.co" ---' )
             break
-        if ahk.win_is_active(' (VM-CortesiaApli.CORTESIA.com)', title_match_mode= 1):
+        if ahk.win_exists(' (VM-CortesiaApli.CORTESIA.com)', title_match_mode= 1):
             corrige_nometela("TopCompras (VM-CortesiaApli.CORTESIA.com)")
     else:
         logger.critical("Não encontrou o POP-UP, algum problema ocorreu")
         raise Exception("Não encontrou o POP-UP na coferencia do lançamento, algum problema ocorreu")
+    '''
 
     for i in range (0, 30):
         if procura_imagem(imagem='imagens/img_topcon/txt_deseja_vincular_nota_pedido.png', continuar_exec= True, limite_tentativa= 1, confianca= 0.73) is not False:
@@ -70,3 +85,7 @@ def conferencia_xml():
     else:
         logger.critical("Task conferencia XML quebrou por completo!")
         raise Exception("Task conferencia XML quebrou por completo!")
+    
+
+if __name__ == '__main__':
+    conferencia_xml()

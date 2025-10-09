@@ -4,8 +4,6 @@
 import time
 import pyautogui as bot
 from abre_topcon import abre_mercantil, fechar_tela_nota_compra
-#from automacao.conferencia_xml import conferencia_xml
-#from coleta_planilha import main as coleta_planilha
 from utils.funcoes import ahk as ahk
 from utils.funcoes import procura_imagem, ativar_janela
 from utils.configura_logger import get_logger

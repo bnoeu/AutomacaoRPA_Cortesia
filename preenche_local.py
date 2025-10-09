@@ -27,23 +27,39 @@ def extrai_qtd(valor_escala = 0):
         logger.error('--- Não foi possivel extrair as toneladas da NFE!" ')
         raise Exception('--- Não foi possivel extrair as toneladas da NFE!')
 
+def valida_preenchimento():
+    logger.info('--- Verificando se apresentou erro no preenchimento do SILO ')
+
+    for tentativa in range (0, 3):
+        ahk.win_activate('TopCompras', title_match_mode=2)
+        logger.info('--- Aguardando fechamento da tela: Itens da nota fiscal de compra ')
+        time.sleep(0.2)
+
+        if procura_imagem(imagem='imagens/img_topcon/local_estoque_obrigatorio.png', continuar_exec=True, limite_tentativa= 4):
+            marca_lancado("erro_local_estoque")
+            ahk.win_activate('TopCompras', title_match_mode=2)
+            bot.click(procura_imagem(imagem='imagens/img_topcon/botao_ok.jpg', continuar_exec=True))
+            time.sleep(0.4)
+            bot.click(procura_imagem(imagem='imagens/img_topcon/bt_cancela.png', continuar_exec=True))
+            raise Exception('--- Falhou no preenchimento do SILO para essa nota fiscal')
+            #return False
 
 def preenche_local(silo1 = "", silo2 = ""):
-    tentativa = 0
-
     logger.info('--- Iniciando a função PREENCHE LOCAL ')
     ahk.win_activate('TopCompras', title_match_mode=2)
     ahk.win_wait_active('TopCompras', title_match_mode=2, timeout= 10)
 
     valor_escala = 200
-    while True:
+    for i in range (0, 50):
         qtd_ton = extrai_qtd(valor_escala)
 
         logger.info('--- Abrindo a tela "Itens nota fiscal de compra" ')
         bot.click(procura_imagem(imagem='imagens/img_topcon/botao_alterar.png', area=(100, 839, 300, 400)))
+
+        logger.info('--- Aguardando aparecer a tela "Itens nota fiscal de compra" ')
         while procura_imagem(imagem='imagens/img_topcon/valor_cofins.png', continuar_exec= True, limite_tentativa= 1, confianca= 0.74) is False:
-            logger.info('--- Aguardando aparecer a tela "Itens nota fiscal de compra" ')
-        
+            pass # Caso encontre, o carregamento foi completo.
+
         ahk.win_activate('TopCompras', title_match_mode=2)
         ahk.win_wait_active('TopCompras', title_match_mode=2, timeout= 30)
         time.sleep(0.4)
@@ -94,8 +110,10 @@ def preenche_local(silo1 = "", silo2 = ""):
             break
 
         #* Confirma ou cancela os processo executados na tela "itens nota fiscal de compras "
-        bot.click(procura_imagem(imagem='imagens/img_topcon/confirma.png'))       
-        if procura_imagem(imagem='imagens/img_topcon/txt_ErroAtribuida.png', limite_tentativa = 8, continuar_exec = True) is False:
+        bot.click(procura_imagem(imagem='imagens/img_topcon/confirma.png'))    
+        time.sleep(1)   
+
+        if procura_imagem(imagem='imagens/img_topcon/txt_ErroAtribuida.png', continuar_exec = True) is False:
             logger.info('--- Preenchimento completo, saindo do loop.' )
             break
         else:
@@ -106,6 +124,7 @@ def preenche_local(silo1 = "", silo2 = ""):
                 bot.press('ESC')
                 time.sleep(0.4)
 
+        '''
         while procura_imagem(imagem='imagens/img_topcon/confirma.png', continuar_exec=True) is not False:
             ahk.win_activate('TopCompras', title_match_mode=2)
             logger.info('--- Aguardando fechamento da tela do botão "Alterar" ')
@@ -123,11 +142,16 @@ def preenche_local(silo1 = "", silo2 = ""):
                 raise Exception('Não foi possivel fechar a tela "itens nota fiscal de compra')
         else:
             logger.warning('--- Não fechou a tela "itens nota fiscal de compras" ')
+        '''
+    else:
+        raise Exception('--- Falhou ao tentar preencher o local')
 
 
-def main(silo1, silo2):
+def main(silo1, silo2: str = ''):
     preenche_local(silo1, silo2)
+    valida_preenchimento()
 
 
 if __name__ == '__main__':
-    main()
+    main(silo1= 'SILO 8')
+    #valida_preenchimento()

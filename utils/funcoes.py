@@ -114,12 +114,13 @@ def marca_lancado(texto_marcacao='texto_teste_marcacao', temp_inicial = ""):
     ativar_janela('debug_db', 30)
     time.sleep(0.4)
     bot.click(960, 630) # Clica no meio da planilha para "ativar" a navegação dentro dela.
-    time.sleep(0.2)
+    time.sleep(0.4)
     
     # Navega até o campo "Status"
     bot.hotkey('CTRL', 'HOME')
     bot.press('RIGHT', presses= 6)
     bot.press('DOWN')
+    time.sleep(0.4)
     
     # Informa o texto recebido pela função e passa para a celula ao lado, para inserir a data
     bot.write(texto_marcacao)
@@ -127,12 +128,14 @@ def marca_lancado(texto_marcacao='texto_teste_marcacao', temp_inicial = ""):
     hoje = datetime.now()
     hoje_formatado = hoje.strftime('%d/%m/%Y %H:%M:%S')
     bot.write(hoje_formatado)
+    time.sleep(0.4)
 
     # Navega até a coluna "D. Insercao" para corrigir data
     bot.press('RIGHT', interval= 0.2)
     bot.press('F2', interval= 0.2)
     bot.press('ENTER', interval= 0.2)
     bot.press('UP', interval= 0.2)
+    time.sleep(0.4)
     
     # Navega até a coluna da tentativa
     bot.press('RIGHT', presses= 1, interval= 0.1)
@@ -483,6 +486,7 @@ def ativar_janela(nome_janela= "TopCompras", timeout= 8):
 
     logger.debug(F'--- Tentando ativar/abrir a janela: {nome_janela} ---' )
     ahk.win_activate(nome_janela, title_match_mode=2)
+    time.sleep(0.2)
     ahk.win_wait_active(nome_janela, title_match_mode=2, timeout=timeout)
     time.sleep(0.2)
 
