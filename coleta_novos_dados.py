@@ -1,5 +1,5 @@
-# -*- Criado por Bruno da Silva Santos. -*-
 # Para utilização na Cortesia Concreto.
+# -*- Criado por Bruno da Silva Santos. -*-
 
 import time
 import pyautogui as bot
@@ -19,7 +19,7 @@ planilha_debug = "https://cortesiaconcreto-my.sharepoint.com/:x:/g/personal/brun
 
 def abre_menu_pesquisa(valor_pesquisa = ""):
     # Abre o menu de pesquisa, e pesquisa pelo valor informado
-    bot.PAUSE = 0.6
+    bot.PAUSE = 1
 
     ahk.win_activate('db_alltrips.xlsx', title_match_mode= 1)
     time.sleep(0.8)
@@ -41,22 +41,27 @@ def abre_menu_pesquisa(valor_pesquisa = ""):
 
     # Fecha o menu de pesquisa
     bot.press('ESC')
-    bot.press('ALT', presses= 2)
+    time.sleep(1)
+    bot.press('ALT', presses= 2, interval= 2)
+    time.sleep(1)
     logger.info('--- Fechou o menu de pesquisa da planilha')
 
 def organizar_planilha_por_data():
     """Navega até o campo da data, e organiza do menor para o maior.
     """
+    ativar_janela('db_alltrips.xlsx')
+    time.sleep(0.5)
+    
     bot.click(960, 630)
     bot.hotkey('CTRL', 'HOME')
     bot.press('RIGHT', presses=8)
     bot.hotkey('ALT', 'DOWN')
-    time.sleep(3)
+    time.sleep(2)
     bot.click(procura_imagem('imagens/img_planilha/icone_organiza_A_Z.png', continuar_exec=True, limite_tentativa=30))
     logger.info('--- Organizou a planilha da forma: DA MENOR PARA A MAIOR')
 
 def encontra_ultimo_xml(ultimo_xml = '', powerapps_id = ''):
-    bot.PAUSE = 0.2
+    bot.PAUSE = 1
     tentativa = 0
     while True:
         tentativa += 1
@@ -96,6 +101,7 @@ def encontra_ultimo_xml(ultimo_xml = '', powerapps_id = ''):
         ahk.win_activate('db_alltrips.xlsx', title_match_mode= 1)
         bot.click(960, 630) # Clica no meio da planilha para "ativar" a navegação dentro dela.
 
+        ultimo_xml = powerapps_id
         abre_menu_pesquisa(ultimo_xml)
 
         # Verifica se realmente chegou no ultimo XML
@@ -107,19 +113,24 @@ def encontra_ultimo_xml(ultimo_xml = '', powerapps_id = ''):
             #* Realiza uma validação também pelo PowerApps ID
             #* Caso o antigo seja = #NOME?, não realiza a validação.
             if powerapps_id != "#NOME?":
-                bot.press('RIGHT')
+                ahk.win_activate('db_alltrips.xlsx', title_match_mode= 1)
+                #bot.press('RIGHT')
                 time.sleep(0.2)
                 bot.hotkey('ctrl', 'c')
                 novo_powerapps_id = ahk.get_clipboard()
 
                 if novo_powerapps_id == powerapps_id:
                     logger.info(f'--- PowerApps ID também validado! valor: {novo_powerapps_id}, realmente está na ultima linha.')
+                    ahk.win_activate('db_alltrips.xlsx', title_match_mode= 1)
                     bot.press('LEFT')
                     return True
                 else:
                     logger.warning(f'--- PowerApps ID coletado: {novo_powerapps_id} é diferente do da ultima nota: {powerapps_id}')
                     abre_menu_pesquisa(powerapps_id)
-                    bot.press('LEFT')                    
+                    time.sleep(1)
+                    ahk.win_activate('db_alltrips.xlsx', title_match_mode= 1)
+                    bot.press('LEFT')
+                    return True                
             else:
                 return True
         else:
@@ -128,7 +139,7 @@ def encontra_ultimo_xml(ultimo_xml = '', powerapps_id = ''):
 
 
 def valida_nova_chave_inserida(tentativa):
-    bot.PAUSE = 2.2
+    bot.PAUSE = 2
     tempo_pausa = tentativa * 1800  # Multiplica a tentativa por 30 minutos, como são 4, o maximo é 2 horas
     logger.info('--- Verificando se existe uma nova chave NFE.')
 
@@ -152,8 +163,8 @@ def valida_nova_chave_inserida(tentativa):
         logger.info(F'--- Valor copiado está vazio! Aguardando {tempo_pausa / 60} minutos antes de tentar novamente')
         time.sleep(tempo_pausa)
         return False
-    elif len(valor_copiado) < 20 or len(valor_copiado) > 44:
-        logger.warning(F'--- Valor copiado é invalido: {valor_copiado}')
+    elif len(valor_copiado) < 20 or len(valor_copiado) > 47:
+        logger.warning(F'--- Chave XML copiada é invalida: {valor_copiado}')
         return False
     else: # 2. Caso o campo esteja com uma chave XML nova, prossegue.
         logger.info(F'--- Uma nova chave foi inserida: {valor_copiado}, saindo do loop')
@@ -237,7 +248,7 @@ def cola_dados(dados_copiados = "TESTE"):
     bot.press('V') # Abre o menu de "Colar"
     time.sleep(0.8)
     bot.press('V') # Seleciona a opção "Colar somente valores"
-    time.sleep(3)
+    time.sleep(2)
 
     # Realiza o fechamento da planilha com os dados originais. 
     logger.info('--- Dados colados com sucesso! Fechando a planilha original.')
@@ -286,7 +297,7 @@ def main(ultimo_xml = chave_xml, powerapps_id = powerapps_id):
         encontra_ultimo_xml(ultimo_xml = ultimo_xml, powerapps_id = powerapps_id)
 
         if valida_nova_chave_inserida(tentativa) is True:
-            #exit(bot.alert("Verificar copia dados!"))
+            exit(bot.alert("Verificar copia dados!"))
             dados_copiados = copia_dados()
             print(dados_copiados)
             if dados_copiados != "":
@@ -313,13 +324,12 @@ def main(ultimo_xml = chave_xml, powerapps_id = powerapps_id):
     
 
 if __name__ == '__main__':
-    ultimo_xml = "35250700934199000125550010003893881003791688"
-    powerapps_ultima_nfe = "-y0KxX8NkFs"
+    ultimo_xml = "35250901637895017299550060005674411834743378"
+    powerapps_ultima_nfe = "h2Yw5UecZVs"
     
     main(ultimo_xml= ultimo_xml, powerapps_id= powerapps_ultima_nfe)
     exit(bot.alert("Terminou"))
     
-
     #abre_menu_pesquisa("35250533039223000979550010003925631934762896")
     #abre_planilha_navegador()
     #encontra_ultimo_xml(ultimo_xml = ultimo_xml, powerapps_id= powerapps_ultima_nfe)

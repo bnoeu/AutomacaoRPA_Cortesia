@@ -10,7 +10,7 @@ from coleta_novos_dados import main as copia_banco
 from datetime import datetime
 from automacao_planilha.copia_linha_atual import copia_linha_atual
 from automacao_planilha.valida_dados_coletados import valida_dados_coletados
-from utils.funcoes import abre_planilha_navegador, reaplica_filtro_status
+from utils.funcoes import abre_planilha_navegador, reaplica_filtro_status, matar_autohotkey
 from utils.funcoes import ahk as ahk
 
 
@@ -66,7 +66,7 @@ def processa_dados(dados_planilha):
 def handle_timeout(texto_erro):
     logger.exception("Os processos de coleta na PLANILHA apresentaram erro")
     #ahk.win_kill('Edge', title_match_mode=2, seconds_to_wait=3)
-    time.sleep(5)
+    time.sleep(1)
 
 
 def formata_data_coletada(dados_copiados):
@@ -113,7 +113,9 @@ def main():
             handle_timeout(texto_erro = ultimo_erro)
     else:
         logger.critical("--- Número maximo de tentativas de executar o COLETA PLANILHA.PY ")
-        subprocess.run(["taskkill", "/im", "msedge.exe", "/f", "/t"], stderr=subprocess.DEVNULL)
+        #subprocess.run([ ", "/im", "msedge.exe", "/f", "/t"], stderr=subprocess.DEVNULL)
+        matar_autohotkey(nome_exec= "msedge.exe")
+
         raise Exception(F"Número maximo de tentativas de executar o COLETA PLANILHA.py, erro coletado: {erro_log}")
 
 
