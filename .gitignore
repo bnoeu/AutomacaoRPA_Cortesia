@@ -15,3 +15,4 @@ automacao.log
 /logs
 sandbox.py
 sandbox.py
+automacao/utils/__pycache__/funcoes.cpython-311.pyc
