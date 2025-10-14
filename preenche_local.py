@@ -57,8 +57,14 @@ def preenche_local(silo1 = "", silo2 = ""):
         bot.click(procura_imagem(imagem='imagens/img_topcon/botao_alterar.png', area=(100, 839, 300, 400)))
 
         logger.info('--- Aguardando aparecer a tela "Itens nota fiscal de compra" ')
-        while procura_imagem(imagem='imagens/img_topcon/valor_cofins.png', continuar_exec= True, limite_tentativa= 1, confianca= 0.74) is False:
-            pass # Caso encontre, o carregamento foi completo.
+        for i in range (0, 100):
+            time.sleep(0.4)
+            if procura_imagem(imagem='imagens/img_topcon/valor_cofins.png', continuar_exec= True, limite_tentativa= 3, confianca= 0.73) is False:
+                pass
+            else:
+                break
+        else:
+            raise Exception('Falhou ao encontrar a opção: VALOR COFINS')
 
         ahk.win_activate('TopCompras', title_match_mode=2)
         ahk.win_wait_active('TopCompras', title_match_mode=2, timeout= 30)

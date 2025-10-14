@@ -203,6 +203,7 @@ def verifica_status_vazio():
     """
 
     ativar_janela('debug_db_alltrips')
+    time.sleep(1)
 
     if procura_imagem(imagem='imagens/img_planilha/txt_vazias.png', continuar_exec= True):
         return True
@@ -232,7 +233,7 @@ def verifica_existe_pendente():
         return False
 
 def reaplica_filtro_status(): 
-    bot.PAUSE = 0.25
+    bot.PAUSE = 0.4
 
     for tentativa_filtro in range (0, 6):
         logger.debug(f'--- Executando a função REAPLICA FILTRO STATUS, tentativa: {tentativa_filtro}')
@@ -391,6 +392,7 @@ def abre_planilha_navegador(link_planilha = alltrips):
                 logger.debug('--- Planilha já está aberta! Executando apenas um recarregamento')
 
                 ativar_janela(nome_planilha)
+                time.sleep(1)
                 ahk.win_maximize(nome_planilha, title_match_mode= 2)
                 time.sleep(0.5)
                 bot.hotkey('CTRL', 'F5') # Recarrega a planilha limpando o cache
@@ -557,7 +559,8 @@ if __name__ == '__main__':
     bot.FAILSAFE = False
     tempo_inicial = time.time() # Calculo do tempo de execução das funções
     
-    corrige_nometela("TopCompras")
+    reaplica_filtro_status()
+    #corrige_nometela("TopCompras")
     #corrige_nometela('TopCon')
     #verifica_horario()
     #matar_autohotkey(nome_exec= "msedge.exe")
