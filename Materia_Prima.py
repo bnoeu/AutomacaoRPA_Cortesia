@@ -40,55 +40,33 @@ pytesseract.pytesseract.tesseract_cmd = r"C:\Tesseract-OCR\tesseract.exe"
 logger = get_logger("automacao", print_terminal= True) # Obter logger configurado
 
 
-def calcula_tempo_processo(tempo_inicial, msg_box = False):
-    """ Retorna o tempo em segundos que levou uma ação
-
-    Args:
-        tempo_inicial (_type_): Recebe "time.time()"
-        msg_box (bool, optional): Para exibir a MSG BOX.
-        Defaults to False.
-    """
-
-    end_time = time.time()
-    elapsed_time = end_time - tempo_inicial
-    medicao_minutos = elapsed_time / 60
-    tempo_decorrido = f"{medicao_minutos:.2f}"
-
-    print(f"Tempo decorrido: {tempo_decorrido} segundos")
-
-    if msg_box is True:
-        exit(bot.alert("acabou"))
-
-    return
+def calcula_tempo_processo(tempo_inicial, msg_box=False):
+    elapsed_seconds = time.time() - tempo_inicial
+    minutos = elapsed_seconds / 60
+    logger.info(f"Tempo decorrido: {elapsed_seconds:.2f} s ({minutos:.2f} min)")
+    if msg_box:
+        bot.alert("acabou")
+    return elapsed_seconds
 
 
-def valida_filial_estoque(filial_estoq = ""):
-    if filial_estoq == '1001':
-        centro_custo = 'VILA'
-    elif filial_estoq == '1002':
-        centro_custo = 'CACAPAVA'
-    elif filial_estoq == '1003':
-        centro_custo = 'BARUERI'
-    elif filial_estoq == '1004':
-        centro_custo = 'JAGUARE'
-    elif filial_estoq == '1006':
-        centro_custo = 'ATIBAIA'
-    elif filial_estoq == '1008':
-        centro_custo = 'MOGI'
-    elif filial_estoq == '1005':
-        centro_custo = 'SANTOS'
-    elif filial_estoq == '1005':
-        centro_custo = 'SANTOS'
-    elif filial_estoq == '1032':
-        centro_custo = 'TAMOIO'
-    elif filial_estoq == '1036':
-        centro_custo = 'PERUS'
-    else:
-        marca_lancado(texto_marcacao= "Filial_nao_cadastrada")
-        exit(F'Filial de estoque não padronizada: {filial_estoq}')
-    
-    if centro_custo != "":
-        return centro_custo
+FILIAIS = {
+    '1001': 'VILA',
+    '1002': 'CACAPAVA',
+    '1003': 'BARUERI',
+    '1004': 'JAGUARE',
+    '1006': 'ATIBAIA',
+    '1008': 'MOGI',
+    '1005': 'SANTOS',
+    '1032': 'TAMOIO',
+    '1036': 'PERUS',
+}
+
+def valida_filial_estoque(filial_estoq: str) -> str:
+    centro = FILIAIS.get(filial_estoq)
+    if not centro:
+        marca_lancado(texto_marcacao="Filial_nao_cadastrada")
+        raise ValueError(f'Filial de estoque nao padronizada: {filial_estoq}')
+    return centro
 
 
 def coleta_valida_dados():
