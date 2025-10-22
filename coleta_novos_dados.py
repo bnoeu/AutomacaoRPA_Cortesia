@@ -295,9 +295,10 @@ def main(ultimo_xml = chave_xml, powerapps_id = powerapps_id):
     for tentativa in range(0, 6):
         abre_planilha_navegador()
         encontra_ultimo_xml(ultimo_xml = ultimo_xml, powerapps_id = powerapps_id)
+        time.sleep(1)
 
         if valida_nova_chave_inserida(tentativa) is True:
-            exit(bot.alert("Verificar copia dados!"))
+            #exit(bot.alert("Verificar copia dados!"))
             dados_copiados = copia_dados()
             print(dados_copiados)
             if dados_copiados != "":
@@ -324,8 +325,8 @@ def main(ultimo_xml = chave_xml, powerapps_id = powerapps_id):
     
 
 if __name__ == '__main__':
-    ultimo_xml = "35250901637895017299550060005674411834743378"
-    powerapps_ultima_nfe = "h2Yw5UecZVs"
+    ultimo_xml = "35251033039223000979550010004006041388926896"
+    powerapps_ultima_nfe = "gNbgobnRKCA"
     
     main(ultimo_xml= ultimo_xml, powerapps_id= powerapps_ultima_nfe)
     exit(bot.alert("Terminou"))
