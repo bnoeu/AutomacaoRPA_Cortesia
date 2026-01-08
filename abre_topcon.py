@@ -12,7 +12,6 @@ from utils.funcoes import procura_imagem, corrige_nometela, ativar_janela, matar
 
 # Definição de parametros
 posicao_img = 0
-continuar = True
 tempo_inicio = time.time()
 chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
 pytesseract.pytesseract.tesseract_cmd = r"C:\Tesseract-OCR\tesseract.exe"
@@ -64,9 +63,9 @@ def valida_abertura_mercantil():
     logger.success("--- Verificando se concluiu a task ABRE MERCANTIL")
     corrige_nometela("TopCompras")
     
-    for i in range (0, 10):
+    for i in range (0, 20):
         ativar_janela('TopCompras', 30)
-        time.sleep(1)
+        time.sleep(2)
 
         if procura_imagem('imagens/img_topcon/produtos_servicos.png', continuar_exec= True):
             logger.success("Concluiu a task ABRE MERCANTIL")
@@ -88,6 +87,15 @@ def fecha_tela_interveniente():
         logger.error(F"Não foi possivel fechar a tela 'interveniente' (TopCompras (! Tentativas executadas: {i}")
         raise Exception('Não foi possivel fechar a tela "TopCompras (", necessario reiniciar o TopCon')
 
+
+def fecha_existe_nfe():
+    # Fecha a tela "existe NFES para aprovação" caso ela exista
+    time.sleep(10)
+    if ahk.win_exists("TopCompras (VM-CortesiaApli.CORTESIA.com)", title_match_mode= 1):
+        ahk.win_close("TopCompras (VM-CortesiaApli.CORTESIA.com)", title_match_mode= 2, seconds_to_wait= 10)
+        time.sleep(5)
+
+        # Fecha a tela ""
 
 def abre_mercantil():
     logger.info('--- Realizando a abertura do modulo de compras')
@@ -397,6 +405,7 @@ def main():
     # Pós login
     abre_mercantil()
     fecha_tela_interveniente()
+    fecha_existe_nfe()
     valida_abertura_mercantil()
     return True
 
