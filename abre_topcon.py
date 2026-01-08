@@ -60,7 +60,7 @@ def fechar_topcompras():
         return False
 
 def valida_abertura_mercantil():
-    logger.success("--- Verificando se concluiu a task ABRE MERCANTIL")
+    logger.info("--- Verificando se concluiu a task ABRE MERCANTIL")
     corrige_nometela("TopCompras")
     
     for i in range (0, 20):
@@ -68,7 +68,7 @@ def valida_abertura_mercantil():
         time.sleep(2)
 
         if procura_imagem('imagens/img_topcon/produtos_servicos.png', continuar_exec= True):
-            logger.success("Concluiu a task ABRE MERCANTIL")
+            logger.info("Concluiu a task ABRE MERCANTIL")
             return True
     else:
         raise Exception("Falhou na validação da abertura do Mercantil")
@@ -105,36 +105,6 @@ def abre_mercantil():
     logger.info('--- Clicando para abrir o modulo de compras')
     bot.click(procura_imagem(imagem='imagens/img_topcon/icone_mercantil.png', limite_tentativa= 15), clicks= 2)
     time.sleep(6)
-
-    '''
-    #* Caso não encontre o TopCompras, tenta corrigir o nome
-    corrige_nometela("TopCompras (")
-    '''
-    
-    '''
-    #* Verifica se o pop-up "interveniente" está aberto
-    logger.info('--- Verificando se o pop-up do interveniente está aberto')
-    for i in range (0, 5):
-
-        time.sleep(0.4)
-        if ahk.win_exists("TopCompras (VM-CortesiaApli.CORTESIA.com)", title_match_mode= 1):
-            logger.info('--- Fechando a tela "interveniente" ')
-            ahk.win_close("TopCompras (VM-CortesiaApli.CORTESIA.com)", title_match_mode= 2, seconds_to_wait= 10)
-        else:
-            logger.success(f"--- Verificando se concluiu a task ABRE MERCANTIL, tentativa: {i}")
-            corrige_nometela("TopCompras")
-            ativar_janela('TopCompras', 30)
-            time.sleep(0.4)
-            if procura_imagem('imagens/img_topcon/produtos_servicos.png', continuar_exec= True):
-                logger.success(f"Concluiu a task ABRE MERCANTIL, tentativa: {i}")
-                break
-            else:
-                pass
-    
-        if i >= 4:
-            logger.error(F"Não foi possivel fechar a tela 'interveniente' (TopCompras (! Tentativas executadas: {i}")
-            raise Exception('Não foi possivel fechar a tela "TopCompras (", necessario reiniciar o TopCon')
-    '''
 
 
 def desloga_topcon():
@@ -220,7 +190,7 @@ def fecha_execucoes():
         return False
 
     mata_processos_rdp()
-    logger.success('--- Concluiu a task FECHA EXECUÇÕES')
+    logger.info('--- Concluiu a task FECHA EXECUÇÕES')
     return True
 
 
@@ -256,7 +226,7 @@ def login_topcon():
                 bot.press('tab')
                 bot.press('enter')
                 time.sleep(5)
-                logger.success("Login realizado com sucesso!")
+                logger.info("Login realizado com sucesso!")
                 return True
             else: #* Caso não encontre a tela do para realizar o Login no TopCon
                 logger.warning(f"Tentativa {i+1}/5: não encontrou tela de login nem logo do TopCon.")
@@ -265,7 +235,7 @@ def login_topcon():
             raise Exception(f"Login no TopCon não foi concluído após {i} tentativas.")
     
     if procura_imagem('imagens/img_topcon/txt_OLA_BRUNO.png'):
-        logger.success("Concluiu o Login no TopCon")
+        logger.info("Concluiu o Login no TopCon")
 
 
 def realiza_login_rdp(tela_login_rdp = ""):
@@ -297,12 +267,12 @@ def realiza_login_rdp(tela_login_rdp = ""):
 
             # Caso apareça o logo de login, precisa entrar no topcon!
             if procura_imagem(imagem='imagens/img_topcon/logo_topcon_login.png', continuar_exec= True): 
-                logger.success("Concluiu a task ABRE TOPCON")
+                logger.info("Concluiu a task ABRE TOPCON")
                 return True
         else:
             return True
     else:
-        logger.success("Concluiu a task ABRE TOPCON")
+        logger.info("Concluiu a task ABRE TOPCON")
         return True
 
 
@@ -385,12 +355,12 @@ def abre_topcon():
 
                 # Caso apareça o logo de login, precisa entrar no topcon!
                 if procura_imagem(imagem='imagens/img_topcon/logo_topcon_login.png', continuar_exec= True): 
-                    logger.success("Concluiu a task ABRE TOPCON")
+                    logger.info("Concluiu a task ABRE TOPCON")
                     return True
             else:
                 return True
         else:
-            logger.success("Concluiu a task ABRE TOPCON")
+            logger.info("Concluiu a task ABRE TOPCON")
             return True
 
 
@@ -410,38 +380,7 @@ def main():
     return True
 
 
-'''
-def main():
 
-    ultimo_erro = ""
-
-    for tentativa in range(0, 5):
-        pausa_tentativa = 5
-
-        time.sleep(pausa_tentativa)
-
-        logger.info(F"Tentativa de abrir o topcon: {tentativa}")
-        try:
-            # Etapas de login
-            fecha_execucoes()
-            abre_topcon()
-            login_topcon()
-            
-            # Pós login
-            abre_mercantil()
-            fecha_tela_interveniente()
-            valida_abertura_mercantil()
-
-        except Exception as e:
-            logger.error(f"Erro: {type(e).__name__} - {str(e)}")
-            logger.debug("Traceback completo:", exc_info=True)
-            pausa_tentativa = pausa_tentativa * (tentativa * 2)
-        else:
-            logger.success("Executou o ABRE_TOPCON.PY com sucesso!")
-            return True
-    else:   
-        raise ultimo_erro
-'''
 
 
 if __name__ == '__main__':
