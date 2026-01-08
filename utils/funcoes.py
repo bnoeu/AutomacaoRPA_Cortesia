@@ -132,6 +132,18 @@ def marca_lancado(texto_marcacao='texto_teste_marcacao', temp_inicial = ""):
 
     # Navega até a coluna "D. Insercao" para corrigir data
     bot.press('RIGHT', interval= 0.2)
+    time.sleep(0.2)
+
+    # Preenche D Inserção c/ dia atual + hora caso esteja vazio
+    bot.hotkey('ctrl', 'c', interval= 0.2)
+    time.sleep(0.2)
+    valor_copiado = pyperclip.paste()
+    time.sleep(0.2)
+    if valor_copiado == '':
+        hoje = datetime.now()
+        hoje_formatado = hoje.strftime('%d/%m/%Y 00:07:01')
+        bot.write(hoje_formatado)
+
     bot.press('F2', interval= 0.2)
     bot.press('ENTER', interval= 0.2)
     bot.press('UP', interval= 0.2)
@@ -559,7 +571,8 @@ if __name__ == '__main__':
     bot.FAILSAFE = False
     tempo_inicial = time.time() # Calculo do tempo de execução das funções
     
-    reaplica_filtro_status()
+    marca_lancado()
+    #reaplica_filtro_status()
     #corrige_nometela("TopCompras")
     #corrige_nometela('TopCon')
     #verifica_horario()
