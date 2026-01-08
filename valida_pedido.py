@@ -32,8 +32,10 @@ AREIA_PRIME = ('AREA PRIME', 'AREIA PRIME')
 AREIA_BRITADA = ('AR EIA ARTIF ClaL', 'AR EIA AR TIFICIAL', 'AREIA ARTIFICIAL', 'AREIA INDUSTRIAL DE BRITA')
 PEDRISCO_MISTO = ('PEDRA MISTO', 'PEDRISCO MISTO')
 AREIA_VALE = ('Areia Al', 'Areia A1')
+AREIA_LAVADA = ('PEDRA LAVADA', 'TESTETESTEBRUNO')
 
-nome_pedido = [PEDRA_1, PO_PEDRA, BRITA_0, CIMENTO_CP2, CIMENTO_CP3, CIMENTO_CP5, AREIA_RIO, AREIA_QUARTZO, AREIA_PRIME, AREIA_BRITADA, PEDRISCO_MISTO, AREIA_VALE]
+nome_pedido = [PEDRA_1, PO_PEDRA, BRITA_0, CIMENTO_CP2, CIMENTO_CP3, CIMENTO_CP5, AREIA_RIO, AREIA_QUARTZO, AREIA_PRIME, AREIA_BRITADA, PEDRISCO_MISTO, AREIA_VALE, AREIA_LAVADA]
+
 # Mapeamento de nomes para imagens
 mapeamento_imagens = {
     PEDRA_1: 'PED_BRITA1.jpg',
@@ -47,9 +49,9 @@ mapeamento_imagens = {
     AREIA_BRITADA: 'PED_AREIABRITA.png',
     CIMENTO_CP3: 'PED_CPIII40.png',
     PEDRISCO_MISTO: 'PED_PEDRISCOMISTO.png',
+    AREIA_LAVADA: 'PED_AREIALAVADA.png',
     AREIA_VALE: 'PED_AREIAVALE.png'
 }
-
 
 
 def valida_pedido(chave_xml = ""):
@@ -265,7 +267,7 @@ def main(chave_xml = ""):
 
 if __name__ == '__main__':
     tempo_inicial = time.time()
-    main("35250852611571000247550010001235361841695058")
+    main("35251000255910000115550010007456581716861448")
 
     # Linha específica onde você quer medir o tempo
     end_time = time.time()

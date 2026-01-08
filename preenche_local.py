@@ -78,7 +78,9 @@ def preenche_local(silo1 = "", silo2 = ""):
 
         #* Preenche os locais de estoque informados, e a quantidade.
         if ('SILO' in silo1) or ('SILO' in silo2):
-            bot.click(851, 443)  # Clica na linha para informar o primeiro silo
+            bot.click(860, 597)  # Clica na linha para informar o primeiro silo
+            ahk.win_activate('TopCompras', title_match_mode=2)
+            time.sleep(1)
             if ('SILO' in silo1) and ('SILO' in silo2):  
                 qtd_ton = str((qtd_ton / 2)) # Realiza a divisão da quantidade de cimento, pois será distribuido em dois silos!
                 qtd_ton = qtd_ton.replace(".", ",")
@@ -159,5 +161,5 @@ def main(silo1, silo2: str = ''):
 
 
 if __name__ == '__main__':
-    main(silo1= 'SILO 8')
+    main(silo1= 'SILO 2')
     #valida_preenchimento()
