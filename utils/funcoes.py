@@ -36,64 +36,68 @@ def print_erro(nome_img = "erro"):
     img_erro.save(fp= caminho_erro)
     return caminho_erro
 
-def procura_imagem(imagem, limite_tentativa= 8, area=(0, 0, 1920, 1080), continuar_exec=False, confianca = 0.85, cinza = True):
-    """Função que realiza o processo de OCR na tela, retornando as coordenadas onde localizou a imagem especificada.
+def procura_imagem(imagem, limite_tentativa=8, area=(0, 0, 1920, 1080), continuar_exec=False, confianca=0.85, cinza=True):
+    """Procura uma imagem na tela usando OCR e retorna suas coordenadas.
 
     Args:
-        imagem (Arquivo): imagem que deseja encontrar.
-        limite_tentativa (int, optional): Quantas vezes deseja procurar. Defaults to 5.
-        area (tuple, optional): Os dois primeiros valores é a posição inicial, os dois ultimos o tamanho da area! Defaults to (0, 0, 1920, 1080).
-        continuar_exec (bool, optional): Continua a execução caso não encontre. Defaults to False.
-        confianca (float, optional): _description_. Defaults to 0.78.
+        imagem (str): Caminho da imagem a ser encontrada
+        limite_tentativa (int): Número máximo de tentativas. Default: 8
+        area (tuple): Região da tela para buscar (x1,y1,x2,y2). Default: tela inteira
+        continuar_exec (bool): Se True, continua execução mesmo sem encontrar. Default: False 
+        confianca (float): Nível de confiança da busca (0-1). Default: 0.85
+        cinza (bool): Se True, converte para escala de cinza. Default: True
 
     Returns:
-        _type_: Retorna as posições onde encontrou a imagem.
-    """    
-    
-    pausa_img = 0.125
-    
-    tentativa = 0  
-    logger.debug(F'--- Tentando encontrar: {imagem}')
-    while tentativa < limite_tentativa:
-        maquina_viva = False
-        time.sleep(pausa_img)
-        while maquina_viva is False:
-            try:
-                posicao_img = bot.locateCenterOnScreen(imagem, grayscale= cinza, confidence= confianca, region= area)
-            except OSError as e:
-                logger.critical(F'--- Erro devido a resolução da maquina virtual, aguardando, erro coletado: \n{e}')
-                time.sleep(15)
-                raise OSError
-            else:
-                maquina_viva = True
-            
-        if posicao_img is not None:
-            logger.debug(F'--- Encontrou {imagem} na posição: {posicao_img} ( Tentativa: {tentativa}, Confiança: {confianca:.2f}, Pausa: {pausa_img})')
-            return posicao_img
-                
-        # Ajuste dos parametros
-        if confianca > 0.5:
-            confianca -= 0.02
+        tuple: Coordenadas (x,y) onde encontrou a imagem, ou False se não encontrou
         
-        while pausa_img < 0.25:
-            pausa_img += 0.025
-
-        tentativa += 1
-
-    #* Caso seja para continuar
-    if (continuar_exec is True) and (posicao_img is None): # Exibe a mensagem que o parametro está ativo
-        logger.debug('' + F'--- {imagem} não foi encontrada, "continuar_exec" está habilitado (Tentativa: {tentativa}, Confiança {confianca}, Pausa: {pausa_img} Area: {area})')
-        return False
+    Raises:
+        OSError: Se houver erro de resolução da VM
+        Exception: Se exceder limite de tentativas
+    """
+    pausa_img = 0.125
+    confianca_min = 0.5
+    pausa_max = 0.25
     
-    if tentativa >= limite_tentativa: # Caso exceda o limite de tentativas
-        logger.warning(F'--- Não encontrou a imagem: {imagem}, ( Tentativa: {tentativa}, Confiança: {confianca} ) ')
-        time_atual = str(datetime.now()).replace(":","_").replace(".","_")
-        caminho_erro = 'imagens/img_geradas/erros/' + 'erro' + time_atual + '.png'
-        img_erro = bot.screenshot()
-        img_erro.save(fp= caminho_erro)
-        ahk.get_active_window()
-        raise Exception(F"--- Falhou ao procurar imagem: {imagem}, confiança: {confianca}")
-    return posicao_img
+    for tentativa in range(limite_tentativa):
+        try:
+            posicao_img = bot.locateCenterOnScreen(
+                imagem, 
+                grayscale=cinza,
+                confidence=confianca,
+                region=area
+            )
+            
+            if posicao_img:
+                logger.debug(
+                    f'Encontrou {imagem} em {posicao_img} '
+                    f'(Tentativa: {tentativa}, Confiança: {confianca:.2f}, Pausa: {pausa_img})'
+                )
+                return posicao_img
+                
+        except OSError as e:
+            logger.critical(f'Erro de resolução da VM: {e}')
+            time.sleep(15)
+            raise
+            
+        # Ajuste gradual dos parâmetros
+        if confianca > confianca_min:
+            confianca -= 0.02
+        pausa_img = min(pausa_img + 0.025, pausa_max)
+        time.sleep(pausa_img)
+
+    if continuar_exec:
+        logger.debug(
+            f'{imagem} não encontrada com continuar_exec=True '
+            f'(Tentativas: {limite_tentativa}, Confiança: {confianca})'
+        )
+        return False
+
+    # Salva screenshot do erro
+    time_atual = datetime.now().strftime('%Y%m%d_%H%M%S')
+    caminho_erro = f'imagens/img_geradas/erros/erro_{time_atual}.png'
+    bot.screenshot().save(caminho_erro)
+    
+    raise Exception(f"Falha ao procurar {imagem} após {limite_tentativa} tentativas")
 
 def verifica_tela(nome_tela, manual=False):
     if ahk.win_exists(nome_tela):
