@@ -14,7 +14,6 @@
 
 import os
 import time
-import platform
 import traceback
 import pytesseract
 import pyautogui as bot
@@ -32,13 +31,13 @@ from utils.funcoes import marca_lancado, procura_imagem, verifica_horario, ativa
 #* Definição de parametros
 posicao_img = 0
 continuar = True
+bot.FAILSAFE = False
 qtd_notas_lancadas = 0
 bot.LOG_SCREENSHOTS = True  
 bot.LOG_SCREENSHOTS_LIMIT = 5
 chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
 pytesseract.pytesseract.tesseract_cmd = r"C:\Tesseract-OCR\tesseract.exe"
 logger = get_logger("automacao", print_terminal= True) # Obter logger configurado
-
 
 def calcula_tempo_processo(tempo_inicial, msg_box=False):
     elapsed_seconds = time.time() - tempo_inicial
@@ -60,6 +59,7 @@ FILIAIS = {
     '1032': 'TAMOIO',
     '1036': 'PERUS',
 }
+
 
 def valida_filial_estoque(filial_estoq: str) -> str:
     centro = FILIAIS.get(filial_estoq)
@@ -118,6 +118,8 @@ def valida_transportador(cracha_mot = "112842"):
     ahk.win_activate('TopCompras', title_match_mode= 2)
     time.sleep(0.2)
 
+    # Move a tela para encontrar o campo do transportador
+    bot.click(1907, 970, 2)
     # Clique relativo a posição do campo "Transportador: RE"
     onde_achou = procura_imagem(imagem='imagens/img_topcon/txt_transportador.png')
     bot.click(onde_achou[0] + 190, onde_achou[1])
@@ -162,16 +164,20 @@ def valida_transportador(cracha_mot = "112842"):
         bot.write('XXX0000')
         bot.press('ENTER')
         #time.sleep(0.4)
+
+        # Volta a tela para a posição correta
+        bot.click(1907, 78, 2)
     else:
         logger.info('--- Não achou o campo ou já está preenchido')
 
 
-def verifica_incrementa_data(data_antiga_str = "03/06/2025"):
+def verifica_incrementa_data(data_antiga_str = "03/06/2025", qtd_incremento = 1):
     if ahk.win_exists("Topsys", title_match_mode= 2):
         logger.warning(f'--- Precisa mudar a data, inserindo a data de hoje: {data_antiga_str}')
         ativar_janela('Topsys', 70)
-        time.sleep(0.2)
+        time.sleep(1)
         bot.press('ENTER')
+        time.sleep(1)
     else:
         return True
     
@@ -182,7 +188,7 @@ def verifica_incrementa_data(data_antiga_str = "03/06/2025"):
     #data = data_dt.strftime("%d/%m/%Y")
 
     # Adiciona 1 dia
-    nova_data = data_dt + timedelta(days=1)
+    nova_data = data_dt + timedelta(days = qtd_incremento)
 
     # Converte de volta para string, se quiser
     nova_data_str = nova_data.strftime("%d/%m/%Y")
@@ -193,6 +199,7 @@ def verifica_incrementa_data(data_antiga_str = "03/06/2025"):
     bot.write(nova_data_str)
     time.sleep(0.4)
     bot.press('ENTER')
+    time.sleep(0.4)
 
 
 def preenche_data(data_formatada = ""):
@@ -208,8 +215,12 @@ def preenche_data(data_formatada = ""):
     bot.press('ENTER')
     time.sleep(2)
 
-    while verifica_incrementa_data(data_formatada) is False:
+    qtd_incremento = 1
+    while verifica_incrementa_data(data_formatada, qtd_incremento) is not True:
         time.sleep(0.25)
+        qtd_incremento += 1
+        if qtd_incremento > 4:
+            raise Exception (f'Tentou preencher a data por {qtd_incremento} vezes sem sucesso!')
 
     ativar_janela('TopCompras', 70)
 
@@ -238,6 +249,7 @@ def preenche_data(data_formatada = ""):
             bot.press('enter')
             time.sleep(0.4)
 
+
 def preenche_filial_estoque(filial_estoq):
 
     logger.info('--- Preenchendo filial de estoque')
@@ -252,6 +264,7 @@ def preenche_filial_estoque(filial_estoq):
     bot.write(filial_estoq, interval= 0.025)
     time.sleep(0.2)
     bot.press('TAB', presses= 2, interval= 0.2) # Confirma a informação da nova filial de estoque
+
 
 def programa_principal():
 
@@ -281,7 +294,7 @@ def programa_principal():
     data_formatada = formata_data_coletada(dados_planilha[8])
 
 
-#* -------------------------- Continua o processo de lançamento da NFE -------------------------- 
+    #* -------------------------- Continua o processo de lançamento da NFE -------------------------- 
     logger.info('--- Preenchendo dados na tela principal do lançamento')
     ativar_janela('TopCompras')
 
@@ -422,21 +435,17 @@ def main(lancamento_realizado = False):
         lancamento_realizado = False
     
 
+
 if __name__ == '__main__':
     tentativa = 0
     lancamento_realizado = False
     tempo_inicial = time.time()
     tempo_pausa = 600 # 10 minutos
 
-    #* Verifica qual sistema está rodando o script
-    if 'VLPTIC1Z9HD33' not in platform.node(): 
-        bot.FAILSAFE = False
 
     #* Realiza os processos inicias da execução da automação
     print("--- Iniciando RPA! Realizando o fechamento do AHK!")
-    #subprocess.run(["taskkill", "/im", "AutoHotkey.exe", "/f", "/t"], stderr=subprocess.DEVNULL)
     matar_autohotkey(nome_exec= "AutoHotkey.exe")
-    print("--- Executou o TaskKill para fechar o AHK")
 
     while tentativa < 10:
         logger.info(F'--- Iniciando nova tentativa Nº {tentativa} o Try-Catch do PROGRAMA PRINCIPAL')

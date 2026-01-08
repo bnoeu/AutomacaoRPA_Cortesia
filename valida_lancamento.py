@@ -101,8 +101,8 @@ if __name__ == '__main__':
     ahk.win_activate('TopCompras', title_match_mode=2, detect_hidden_windows= True)
     tempo_inicial = time.time()
     
-    altera_topcon_incluir()
-    #valida_lancamento()
+    #altera_topcon_incluir()
+    valida_lancamento()
     
     # Linha específica onde você quer medir o tempo
     end_time = time.time()
