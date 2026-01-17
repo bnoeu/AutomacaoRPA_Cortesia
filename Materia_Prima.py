@@ -251,7 +251,6 @@ def preenche_data(data_formatada = ""):
 
 
 def preenche_filial_estoque(filial_estoq):
-
     logger.info('--- Preenchendo filial de estoque')
     ativar_janela('TopCompras')
     time.sleep(0.4)

@@ -1,4 +1,4 @@
-# -*- Criado por Bruno da Silva Santos. -*-
+# Criado por Bruno da Silva Santos.
 # Para utilização na Cortesia Concreto.
 
 import time
@@ -301,14 +301,15 @@ def abre_topcon():
 
         # Verifica se abriu alguma das telas de segurança de execução do RDP
         telas_seguranca = ['Windows Security', 'Segurança do Windows']
-        tela_login_rdp = False
+        tela_login_rdp: str | None = None
+        
         for i in range (0, 10):
             time.sleep(0.2)
             if procura_imagem(imagem='imagens/img_topcon/txt_ServidorAplicacao.png', continuar_exec= True):
-                tela_login_rdp = True
+                tela_login_rdp = 'TopCon'
                 break
 
-            if tela_login_rdp is not False:
+            if tela_login_rdp is not None:
                 break
             
             for tela in telas_seguranca:
@@ -323,7 +324,7 @@ def abre_topcon():
                     ahk.win_activate(tela, title_match_mode= 2)
             
 
-        if tela_login_rdp is False: # Caso não encontro nenhuma das telas da lista "telas_seguranca"
+        if tela_login_rdp is None: # Caso não encontro nenhuma das telas da lista "telas_seguranca"
             raise Exception("Não foi possivel encontrar nenhuma das telas de login do RDP")
         
         #* Realiza o login no RDP, que deve utilizar as informações de login do usuario "CORTESIA\BARBARA.K"
@@ -365,8 +366,8 @@ def abre_topcon():
 
 
 def main():
-
     logger.info("Realizando os processos do abre_topcon.py")
+    
     # Etapas de login
     fecha_execucoes()
     abre_topcon()
@@ -387,15 +388,11 @@ if __name__ == '__main__':
     tempo_inicial = time.time()
 
     main()
+
     # Linha específica onde você quer medir o tempo
     end_time = time.time()
     elapsed_time = end_time - tempo_inicial
     medicao_minutos = elapsed_time / 60
     print(f"Tempo decorrido: {medicao_minutos:.2f} segundos")
-    bot.alert("acabou")
 
-    '''
-    fechar_tela_nota_compra()
-    navega_topcompras()
-    msg_box("Conclui a TASK Abre TopCon", 10)
-    '''
+

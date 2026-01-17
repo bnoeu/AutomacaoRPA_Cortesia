@@ -135,8 +135,9 @@ def clica_img(img, deslocar_y, deslocar_x, limite_tentativa=5, area=(0, 0, 1920,
     posicao_texto = procura_imagem('imagens/bt_pagina_inicial.png')
     bot.click()
 
-ahk.win_activate('TopCompras', title_match_mode = 2)
-time.sleep(0.2)
+
+procura_imagem(imagem='imagens/img_topcon/txt_fornecedor_nao_cadastrado.png', continuar_exec=True, limite_tentativa= 1, confianca= 0.74)
+
 
 if procura_imagem(imagem='imagens/img_topcon/txt_fornecedor_nao_cadastrado.png', continuar_exec=True, limite_tentativa= 1, confianca= 0.74) is not False:
     #marca_lancado(texto_marcacao='Fornecedor_nao_cadastrado')
