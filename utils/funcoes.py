@@ -11,6 +11,7 @@ import numpy as np
 from ahk import AHK
 import pyautogui as bot
 from datetime import datetime
+import asyncio
 
 
 if __name__ == '__main__':
@@ -111,7 +112,7 @@ def verifica_tela(nome_tela, manual=False):
         pass
         #exit(logger.error(F'--- Tela: {nome_tela} está fechada, saindo do programa.'))
 
-def marca_lancado(texto_marcacao='texto_teste_marcacao', temp_inicial = ""):
+def marca_lancado(texto_marcacao='texto_teste_marcacao', temp_inicial = 0):
     bot.PAUSE = 0.2
 
     logger.info(F'--- Abrindo planilha - MARCA_LANCADO, com parametro: {texto_marcacao}' )
@@ -364,7 +365,7 @@ def corrige_nometela(novo_nome = "TopCompras"):
                 logger.debug('--- TopCompras abriu com o nome normal, prosseguindo.')
                 return
             else:
-                exit(bot.alert('TopCompras não encontrado.'))
+                exit(bot.alert('TopCompras não encontrado.')) # pyrefly: ignore[missing-attribute]
         except (TimeoutError, OSError):
             logger.warning("Não encontrou o TopCompras nem a tela sem nome")
             return
@@ -381,14 +382,14 @@ def valida_carregamento_planilha(nome_planilha = ""):
         time.sleep(0.4)
         
         if procura_imagem(imagem='imagens/img_planilha/icones_inferior.png', limite_tentativa= 10, continuar_exec= True):
-            logger.success('--- Todas validações realizadas, planilha realmente aberta!')
+            logger.info('--- Todas validações realizadas, planilha realmente aberta!')
             return True 
         else:
             ahk.win_maximize(nome_planilha)
             time.sleep(0.4)
 
     else:
-        logger.erro('--- Planilha não carregou corretamente!')
+        logger.error('--- Planilha não carregou corretamente!')
         raise Exception('--- Planilha não carregou corretamente!')
 
 
@@ -419,7 +420,7 @@ def abre_planilha_navegador(link_planilha = alltrips):
                 return True
             else:
                 #subprocess.run(["cmd", "/c", "taskkill /im msedge.exe /f /t 2>nul"], shell=True)
-                matar_autohotkey(nome_exec= "msedge.exe")
+                asyncio.run(matar_autohotkey(nome_exec= "msedge.exe"))
                 logger.info('--- Planilha (EDGE) fechada, abrindo uma nova execução da planilha: {nome_planilha}')
                 
                 comando_iniciar = f'start msedge {link_planilha} -new-window -inprivate'
@@ -515,7 +516,7 @@ def move_telas_direita(tela:str):
         tela (str): nome da tela que será movida
     """    
     
-    posicao = ahk.win_get_position(tela, title_match_mode = 2)
+    posicao = ahk.win_get_position(tela, title_match_mode = 2) # pyrefly: ignore
 
     if type(posicao) is not tuple:
         return
@@ -534,22 +535,29 @@ def move_telas_direita(tela:str):
         return
 
 
-def matar_autohotkey(nome_exec = "", timeout=5):
+async def matar_autohotkey(nome_exec="", timeout=5):
     """
-    Encerra todos os processos de forma segura.
+    Encerra todos os processos de forma segura (versão assíncrona).
     - Tenta matar via psutil (mais rápido e confiável).
     - Se não encontrar, tenta usar taskkill com timeout.
     """
     
     # 1️⃣ Tentativa via psutil (mais confiável e sem travamento)
     encontrado = False
-    for proc in psutil.process_iter(['name']):
-        if proc.info['name'] and proc.info['name'].lower() == nome_exec:
-            try:
-                proc.kill()
-                encontrado = True
-            except Exception as e:
-                print(f"⚠️ Erro ao encerrar PID {proc.pid}: {e}")
+    
+    # Executa a iteração de processos em thread separada
+    def encontrar_e_matar():
+        encontrado_local = False
+        for proc in psutil.process_iter(['name']):
+            if proc.info['name'] and proc.info['name'].lower() == nome_exec:
+                try:
+                    proc.kill()
+                    encontrado_local = True
+                except Exception as e:
+                    print(f"⚠️ Erro ao encerrar PID {proc.pid}: {e}")
+        return encontrado_local
+    
+    encontrado = await asyncio.to_thread(encontrar_e_matar)
     
     if encontrado:
         print(f"✅ Processo: {nome_exec} encerrado via psutil.")
@@ -557,14 +565,14 @@ def matar_autohotkey(nome_exec = "", timeout=5):
     
     # 2️⃣ Se não encontrou, tenta via taskkill (com timeout)
     try:
-        subprocess.run(
-            ["taskkill", "/im", nome_exec, "/f", "/t"],
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
-            timeout=timeout
+        process = await asyncio.create_subprocess_exec(
+            "taskkill", "/im", nome_exec, "/f", "/t",
+            stdout=asyncio.subprocess.DEVNULL,
+            stderr=asyncio.subprocess.DEVNULL
         )
+        await asyncio.wait_for(process.wait(), timeout=timeout)
         print(f"✅ Processo: {nome_exec} encerrado via taskkill.")
-    except subprocess.TimeoutExpired:
+    except asyncio.TimeoutError:
         print("⏳ taskkill demorou demais, processo ignorado.")
     except Exception as e:
         print(f"⚠️ Erro ao executar taskkill: {e}")
@@ -575,12 +583,13 @@ if __name__ == '__main__':
     bot.FAILSAFE = False
     tempo_inicial = time.time() # Calculo do tempo de execução das funções
     
-    marca_lancado()
+    #marca_lancado()
+    #asyncio.run(asyncio.run(matar_autohotkey(nome_exec="msedge.exe")))
     #reaplica_filtro_status()
     #corrige_nometela("TopCompras")
     #corrige_nometela('TopCon')
     #verifica_horario()
-    #matar_autohotkey(nome_exec= "msedge.exe")
+    #asyncio.run(matar_autohotkey(nome_exec= "msedge.exe")
     #exit()
     #abre_planilha_navegador(alltrips)
     #verifica_existe_pendente()

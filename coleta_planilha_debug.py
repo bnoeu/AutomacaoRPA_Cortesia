@@ -3,7 +3,7 @@
 
 import time
 
-import subprocess
+import asyncio
 from utils.configura_logger import get_logger
 import pyautogui as bot
 from coleta_novos_dados import main as copia_banco
@@ -91,6 +91,8 @@ def calculo_tempo_final(tempo_inicial: float):
 def main():
     bot.PAUSE = 0.6
     ultimo_erro = ""
+    erro_log = "" 
+
     for i in range(0, 3):
     
         logger.debug(F"--- Executando a tentativa {i} de executar o COLETA PLANILHA.py ")
@@ -100,21 +102,20 @@ def main():
 
             dados_copiados = coleta_dados()
             if dados_copiados:
-                logger.success('--- Processo de coleta da planilha foi executado corretamente.')
+                logger.info('--- Processo de coleta da planilha foi executado corretamente.')
                 return dados_copiados
 
         except ValueError:
             return False
         
         except Exception as e:
-            global erro_log
             ultimo_erro = e
             erro_log = e
             handle_timeout(texto_erro = ultimo_erro)
     else:
         logger.critical("--- Número maximo de tentativas de executar o COLETA PLANILHA.PY ")
         #subprocess.run([ ", "/im", "msedge.exe", "/f", "/t"], stderr=subprocess.DEVNULL)
-        matar_autohotkey(nome_exec= "msedge.exe")
+        asyncio.run(matar_autohotkey(nome_exec= "msedge.exe"))
 
         raise Exception(F"Número maximo de tentativas de executar o COLETA PLANILHA.py, erro coletado: {erro_log}")
 

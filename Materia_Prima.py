@@ -18,6 +18,7 @@ import traceback
 import pytesseract
 import pyautogui as bot
 from utils.funcoes import ahk as ahk
+import asyncio
 from abre_topcon import main as abre_topcon
 from utils.enviar_email import enviar_email
 from utils.configura_logger import get_logger
@@ -36,7 +37,7 @@ qtd_notas_lancadas = 0
 bot.LOG_SCREENSHOTS = True  
 bot.LOG_SCREENSHOTS_LIMIT = 5
 chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
-pytesseract.pytesseract.tesseract_cmd = r"C:\Tesseract-OCR\tesseract.exe"
+pytesseract.pytesseract.tesseract_cmd = r"C:\Tesseract-OCR\tesseract.exe" # pyrefly: ignore[bad-assignment]
 logger = get_logger("automacao", print_terminal= True) # Obter logger configurado
 
 def calcula_tempo_processo(tempo_inicial, msg_box=False):
@@ -44,7 +45,7 @@ def calcula_tempo_processo(tempo_inicial, msg_box=False):
     minutos = elapsed_seconds / 60
     logger.info(f"Tempo decorrido: {elapsed_seconds:.2f} s ({minutos:.2f} min)")
     if msg_box:
-        bot.alert("acabou")
+        bot.alert("acabou") # pyrefly: ignore[missing-attribute]
     return elapsed_seconds
 
 
@@ -76,6 +77,10 @@ def coleta_valida_dados():
 
     while acabou_pedido is False: 
         dados_planilha = valida_lancamento() # Coleta e confere os dados do lançamento atual
+        if dados_planilha is None:
+            logger.warning('--- valida_lancamento() retornou None, tentando novamente')
+            time.sleep(0.2)
+            continue
         acabou_pedido = valida_pedido(dados_planilha[4]) # Verifica se o pedido está valido.
         time.sleep(0.2)
     else:
@@ -257,7 +262,7 @@ def preenche_filial_estoque(filial_estoq):
 
     # Coleta a posição do TXT e faz um clique relativo
     posicao_texto = procura_imagem(imagem='imagens/img_topcon/txt_filial_estoque.png')
-    bot.click(posicao_texto.x + 296, posicao_texto.y)
+    bot.click(posicao_texto.x + 296, posicao_texto.y) # pyrefly: ignore[missing-attribute]
     time.sleep(0.4)
 
     bot.write(filial_estoq, interval= 0.025)
@@ -440,11 +445,13 @@ if __name__ == '__main__':
     lancamento_realizado = False
     tempo_inicial = time.time()
     tempo_pausa = 600 # 10 minutos
+    arquivo_erro = ""
+    mensagem_erro = ""
 
 
     #* Realiza os processos inicias da execução da automação
     print("--- Iniciando RPA! Realizando o fechamento do AHK!")
-    matar_autohotkey(nome_exec= "AutoHotkey.exe")
+    asyncio.run(matar_autohotkey(nome_exec= "AutoHotkey.exe"))
 
     while tentativa < 10:
         logger.info(F'--- Iniciando nova tentativa Nº {tentativa} o Try-Catch do PROGRAMA PRINCIPAL')
@@ -469,7 +476,7 @@ if __name__ == '__main__':
             if tentativa >= 4: # Começa a pausar o script após a 5º execução
                 logger.info(F"Pausando por: {tempo_pausa} segundos antes da proxima tentativa")
                 time.sleep(tempo_pausa)
-                tempo_pausa += (0.5 * tempo_pausa)
+                tempo_pausa = int(tempo_pausa + (0.5 * tempo_pausa))
 
             if tentativa > 9:
                 enviar_email(
