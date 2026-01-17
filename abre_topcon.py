@@ -6,15 +6,18 @@ import subprocess
 import pytesseract
 import pyautogui as bot
 from utils.configura_logger import get_logger
+import asyncio
 from utils.funcoes import ahk as ahk
 from utils.funcoes import procura_imagem, corrige_nometela, ativar_janela, matar_autohotkey
 #from colorama import Style
+
+
 
 # Definição de parametros
 posicao_img = 0
 tempo_inicio = time.time()
 chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
-pytesseract.pytesseract.tesseract_cmd = r"C:\Tesseract-OCR\tesseract.exe"
+pytesseract.pytesseract.tesseract_cmd = r"C:\Tesseract-OCR\tesseract.exe"  # pyrefly: ignore[bad-assignment]
 logger = get_logger("script1", print_terminal = True)
 
 #! Dados para acesso ao remoteApp
@@ -147,9 +150,9 @@ def mata_processos_rdp():
 
     logger.info('--- Matando os processos do RemoteDesktop ---')
     #subprocess.run(["taskkill", "/im", "wksprt.exe", "/f", "/t"], stderr=subprocess.DEVNULL)
-    matar_autohotkey(nome_exec= "wksprt.exe")
+    asyncio.run(matar_autohotkey(nome_exec= "wksprt.exe"))
     #subprocess.run(["taskkill", "/im", "mstsc.exe", "/f", "/t"], stderr=subprocess.DEVNULL)
-    matar_autohotkey(nome_exec= "mstsc.exe")
+    asyncio.run(matar_autohotkey(nome_exec= "mstsc.exe"))
 
     logger.info('--- Os processos wksprt e mstsc.exe do RDP foram fechados')
     print('--- Os processos wksprt e mstsc.exe do RDP foram fechados')
@@ -186,7 +189,7 @@ def fecha_execucoes():
     else:
         logger.error('--- Não conseguiu fechar a tela "TopCompras" ')
         #subprocess.run(["taskkill", "/im", "mstsc.exe", "/f", "/t"], stderr=subprocess.DEVNULL)
-        matar_autohotkey(nome_exec= "mstsc.exe")
+        asyncio.run(matar_autohotkey(nome_exec= "mstsc.exe"))
         return False
 
     mata_processos_rdp()
