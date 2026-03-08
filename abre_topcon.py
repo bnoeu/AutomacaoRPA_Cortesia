@@ -369,19 +369,29 @@ def abre_topcon():
 
 
 def main():
-    logger.info("Realizando os processos do abre_topcon.py")
-    
-    # Etapas de login
-    fecha_execucoes()
-    abre_topcon()
-    login_topcon()
-    
-    # Pós login
-    abre_mercantil()
-    fecha_tela_interveniente()
-    fecha_existe_nfe()
-    valida_abertura_mercantil()
-    return True
+    for i in range(3):
+        try:
+            logger.info(f"Tentativa {i + 1}/3 - Executando abre_topcon.py")
+
+            fecha_execucoes()
+            abre_topcon()
+            login_topcon()
+
+            abre_mercantil()
+            fecha_tela_interveniente()
+            fecha_existe_nfe()
+            valida_abertura_mercantil()
+
+            return True
+
+        except Exception as erro_coletado:
+            logger.warning(f"Falha na tentativa {i + 1}/3m ultimo erro: {erro_coletado}", exc_info=True)
+            time.sleep(5 * i)
+
+    else:
+        # só entra aqui se TODAS as tentativas falharem
+        raise RuntimeError("Falha após 3 tentativas ao executar abre_topcon.py")
+
 
 
 
