@@ -5,10 +5,13 @@
 import time
 import pytesseract
 import pyautogui as bot
+from abre_topcon import fechar_tela_nota_compra
 from utils.funcoes import ahk as ahk, ativar_janela
 from utils.configura_logger import get_logger
 from utils.funcoes import marca_lancado, procura_imagem, extrai_txt_img, verifica_ped_vazio, corrige_nometela, print_erro
 from utils.comunicacao_chat import msg_chat
+
+from automacao.topcompras_handler import preenche_data
 
 # --- Definição de parametros
 posicao_img = 0  # Define a variavel para utilização global dela.
@@ -55,7 +58,7 @@ mapeamento_imagens = {
 }
 
 
-def valida_pedido(chave_xml = "", qtd_vale = ""):
+def valida_pedido(chave_xml = ""):
     logger.info('--- Executando função: valida pedido' )
     bot.PAUSE = 0.4
     tentativa = 0
@@ -76,7 +79,7 @@ def valida_pedido(chave_xml = "", qtd_vale = ""):
     if (txt_itensXML == "AREIA MEDIA") and ("38953477000164" in chave_xml):
         txt_itensXML = "AREIA LAVADA MEDIA"
         logger.info(F'--- Nota da CONSMAR! Alterou o item para: {txt_itensXML}')
-        #exit(msg_chat('--- Nota da CONSMAR!'))
+        exit(msg_chat('--- Nota da CONSMAR!'))
 
     # Verifica se a nota é da MINERAÇÃO CAJU
     if (txt_itensXML == "AREIA MEDIA FINA") and ("09425531000109" in chave_xml):
@@ -110,7 +113,7 @@ def valida_pedido(chave_xml = "", qtd_vale = ""):
                 break
         return False
 
-    #* --------------------------------- Pedidos Encontrados ---------------------------------
+#* --------------------------------- Pedidos Encontrados ---------------------------------
     if ahk.win_exists('Vinculação Itens da Nota') is False:
         if ahk.win_is_active(' (VM-CortesiaApli.CORTESIA.com)', title_match_mode= 1):
             corrige_nometela("Vinculação Itens da Nota")
@@ -160,10 +163,10 @@ def valida_pedido(chave_xml = "", qtd_vale = ""):
             posicoes = bot.locateAllOnScreen('imagens/img_pedidos/' + img_pedido, confidence= 0.92, grayscale=True, region=(0, 0, 850, 400))
 
         #Verifica nas posições que encontrou
-        # Tenta em todos pedidos encontrados
-        for pos in posicoes:  
-            
-            if "52611571000247" in chave_xml: #! Temporario para corrigir o problema das NFE de caçapava
+        for pos in posicoes:  # Tenta em todos pedidos encontrados
+            #! Temporario para corrigir o problema das NFE de caçapava
+
+            if "52611571000247" in chave_xml:
                 if 222 < pos.top < 228:
                     continue
             
@@ -258,54 +261,117 @@ def valida_bt_localizar():
             logger.error('--- Tela "Vinculação itens da NOTA" não carregou corretamente')
             raise Exception('Tela "Vinculação itens da NOTA" não carregou corretamente')
 
+def altera_topcon_incluir():
+    logger.info('--- Alterando o TopCompras para o modo incluir')
+    
+    for i in range(0, 6):
+        logger.info('--- Verificando se está no modo Localizar.')
+        ativar_janela('TopCompras')
+        
+        if procura_imagem(imagem='imagens/img_topcon/txt_inclui.png', limite_tentativa= 2, continuar_exec= True, area= (852, 956, 1368, 1045)):
+            logger.info('--- Está no modo "incluir", enviando comando F2 para entrar no modo "Localizar"')
+            ahk.win_activate('TopCompras', title_match_mode= 2)
+            bot.press('F2', presses= 2)
+            time.sleep(0.5)
 
-def altera_quantidade_consmar(qtd_vale= "38,16"):
+        if procura_imagem(imagem='imagens/img_topcon/txt_localizar.png', limite_tentativa= 2, continuar_exec= True, area= (852, 956, 1368, 1045)):
+            logger.info('--- Está no modo "Localizar" Alterando para "Incluir"')
+            ahk.win_activate('TopCompras', title_match_mode= 2)
+            time.sleep(0.2)
+            bot.press('F3', presses= 2)
+            time.sleep(1)
+
+        if procura_imagem(imagem='imagens/img_topcon/txt_inclui.png', continuar_exec= True, area= (852, 956, 1368, 1045)):
+            logger.success('--- Está no modo "Incluir", lançamento pode continuar!')
+            break
+
+        if procura_imagem(imagem='imagens/img_topcon/txt_existe_nota_transferencia.png', continuar_exec= True):
+            logger.warning('--- Encontrou a tela "existe nota fiscal de transferencia" ')
+            corrige_nometela("TopCompras (VM-CortesiaApli.CORTESIA.com)")
+
+            ahk.win_activate("TopCompras (VM-CortesiaApli.CORTESIA.com)", title_match_mode= 2)
+            bot.click(procura_imagem(imagem='imagens/img_topcon/botao_ok.jpg'))
+            logger.info('--- Clicou para fechar a tela "existe nota fiscal de transferencia" ')
+
+            for tentativa in range (0, 4):
+                if ahk.win_exists("TopCompras (VM-CortesiaApli.CORTESIA.com)", title_match_mode= 2):
+                    ahk.win_close("TopCompras (VM-CortesiaApli.CORTESIA.com)", title_match_mode= 2)
+                    if tentativa >= 3:
+                        raise Exception("Não foi possivel fechar a tela de transferencia de NFE") 
+                else:
+                    break
+
+
+        if i >= 5:
+            logger.error('--- Atingiu o maximo de tentativas de alterar os botões ---')
+            #bot.alert("Limite de tentativas de alterar o topcon para o modo incluir")        
+            raise Exception("Atingiu o maximo de tentativas de alterar os botões")
+
+#def lancamento_vale():
+
+
+def preenche_dados_cacapava(numero_vale = "8000"):
     logger.info('--- Preenchendo os dados para o lançamento de caçapava --- ')
-    #ativar_janela('TopCompras')
-    ahk.win_activate('Vinculação Itens da Nota', title_match_mode = 2)
-    time.sleep(0.4)
+    ativar_janela('TopCompras')
+    
+    # Limpa o valor do campo Filial
+    bot.press('end')
+    bot.press('backspace', presses= 25, interval= 0.05)
+    time.sleep(0.5)
 
-    bot.doubleClick(1012, 717)
-    time.sleep(1)
+    # Inicio preenchimento
+    for i in range (0, 2):
+        bot.write('1002') # Caçapava
+        bot.press('tab')
+        time.sleep(0.5)
 
-    bot.press('backspace', presses= 10)
-    bot.write(qtd_vale)
-    time.sleep(0.2)
+    # Navega até e Preenche o campo "Fornecedor"
+    bot.press('tab')
+    bot.write('24226') # Caçapava
+    bot.press('tab')
+    time.sleep(0.5)
+
+    # Preenche o campo "Tipo Doc"
+    bot.write('24') # Caçapava
+    bot.press('tab')
+    time.sleep(0.5)
+
+    # Preenche o campo "Serie"
+    bot.write('CC') # Caçapava
+    bot.press('tab')
+    time.sleep(0.5)
+
+    # Preenche o campo "Número NF"
+    bot.write(numero_vale) # Caçapava
+    bot.press('tab')
+    time.sleep(0.5)
+    # TODO: Precisa Identificar se apareceu a tela "Número NF já existente" ao inserir o número do vale, se apareceu adiciona um (1) na frente
+
+    # Preenche o campos "Data"
+    preenche_data("04/03/2026")
+    bot.press('tab')
+    time.sleep(10)
+
+    # Campo C.Custo
+    bot.write('12') # Caçapava
+    bot.press('tab')
+    time.sleep(12)
+
+    # Preenche o campo Valor total dos produtos de forma temporaria
+    bot.click(1136, 587)
+    bot.write('999') # Caçapava
     bot.press('enter')
-    time.sleep(0.2)
+    
 
-def main(chave_xml = "", qtd_vale = "38,16"):
+def main(chave_xml = ""):
     logger.info('--- Executando o arquivo VALIDA PEDIDO --- ')
 
     verifica_tela_vinculacao()
     valida_bt_localizar()
-
-    valida_pedido(chave_xml, qtd_vale)
-
-    # Altera valor transportado para a quantidade do vale
-    if qtd_vale:
-        altera_quantidade_consmar(qtd_vale)
-
-    bot.click(procura_imagem(imagem='imagens/img_topcon/confirma.png'))
-
-    # Fecha a tela de confirmação de pedido vinculado.
-    ahk.win_wait_active('TopCompras (VM-CortesiaApli.CORTESIA.com)', title_match_mode = 2, timeout= 30)
-
-    bot.click(procura_imagem(imagem='imagens/img_topcon/botao_ok.jpg', limite_tentativa= 10))
-    ahk.win_wait_close('Vinculação Itens da Nota', title_match_mode = 2, timeout= 30)
-    logger.info('--- Encerrado a função verifica pedido vazio!')
-    return True
+    return valida_pedido(chave_xml)
     
 
 if __name__ == '__main__':
-    altera_quantidade_consmar()
-
-    tempo_inicial = time.time()
-    main("35260338953477000164550020000003211286171418")
-
-    # Linha específica onde você quer medir o tempo
-    end_time = time.time()
-    elapsed_time = end_time - tempo_inicial
-    medicao_minutos = elapsed_time / 60
-    print(f"Tempo decorrido: {medicao_minutos:.2f} segundos")
-    bot.alert("acabou")
+    #altera_topcon_incluir()
+    time.sleep(0.5)
+    preenche_dados_cacapava("80002629")
