@@ -6,6 +6,7 @@ import pyautogui as bot
 from datetime import datetime
 from utils.funcoes import ahk as ahk
 from utils.configura_logger import get_logger
+from utils.comunicacao_chat import msg_chat
 from utils.funcoes import procura_imagem, abre_planilha_navegador, ativar_janela, reaplica_filtro_status
 from funcoes_planilha import ativa_planilha_original
 
@@ -190,7 +191,7 @@ def copia_dados():
     ahk.key_press('right') # Avança para a ultima coluna
     
     logger.info('--- Pressionou SHIFT e CONTROL, indo até a ultima coluna preenchida')
-    for i in range (0, 9):
+    for i in range (0, 11):
         time.sleep(0.8)
         ahk.key_up('Shift')
         time.sleep(0.8)
@@ -206,7 +207,7 @@ def copia_dados():
             logger.info('--- Encontrou "/2025" que indica os dados da coluna "D. Inserção" nos dados copiados!')
             return dados_copiados
 
-        if i >= 5:
+        if i >= 7:
             if ("/" in dados_copiados) or ("/2025" in dados_copiados) or ("," in dados_copiados): # Verifica se os dados foram copiados com sucesso
                 logger.success('--- Novos dados copiados com sucesso da planilha db_alltrips')
                 print('--- Novos dados copiados com sucesso da planilha db_alltrips')
@@ -290,6 +291,7 @@ def verifica_quatro_dias(dados_copiados):
 def main(ultimo_xml = chave_xml, powerapps_id = powerapps_id):
     bot.PAUSE = 2.2
     logger.info('Iniciando função COPIA BANCO ( COPIA ALL TRIPS)')
+    #msg_chat(f'Iniciando função COPIA BANCO ( COPIA ALL TRIPS) \nÚltimo XML: {ultimo_xml} \nPowerApps ID: {powerapps_id}')
 
     #* Abre a planilha do db_alltrips (banco original)
     for tentativa in range(0, 6):
@@ -325,8 +327,8 @@ def main(ultimo_xml = chave_xml, powerapps_id = powerapps_id):
     
 
 if __name__ == '__main__':
-    ultimo_xml = "35251033039223000979550010004006041388926896"
-    powerapps_ultima_nfe = "gNbgobnRKCA"
+    ultimo_xml = "35260352611571000247550010001323471131048982"
+    powerapps_ultima_nfe = "zVodGatK_fw"
     
     main(ultimo_xml= ultimo_xml, powerapps_id= powerapps_ultima_nfe)
     exit(bot.alert("Terminou"))
