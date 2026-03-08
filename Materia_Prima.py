@@ -12,7 +12,6 @@
 #* A resolução da maquina precisa ser: 1920 x 1080, com a aproximação em "150%"
 #*'''
 
-import os
 import time
 import traceback
 import pytesseract
@@ -22,12 +21,19 @@ import asyncio
 from abre_topcon import main as abre_topcon
 from utils.enviar_email import enviar_email
 from utils.configura_logger import get_logger
-from datetime import date, datetime, timedelta
-from valida_pedido import main as valida_pedido
-from valida_lancamento import valida_lancamento
 from preenche_local import main as preenche_local
 from finaliza_lancamento import finaliza_lancamento
-from utils.funcoes import marca_lancado, procura_imagem, verifica_horario, ativar_janela, print_erro, matar_autohotkey
+from utils.funcoes import (
+    procura_imagem, verifica_horario, ativar_janela, 
+    print_erro, matar_autohotkey, calcula_tempo_processo, trata_erro
+)
+from utils.validators import (
+    valida_filial_estoque, formata_data_coletada,
+    coleta_valida_dados
+)
+from automacao.topcompras_handler import (
+    valida_transportador, preenche_data, preenche_filial_estoque
+)
 
 #* Definição de parametros
 posicao_img = 0
@@ -40,234 +46,19 @@ chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
 pytesseract.pytesseract.tesseract_cmd = r"C:\Tesseract-OCR\tesseract.exe" # pyrefly: ignore[bad-assignment]
 logger = get_logger("automacao", print_terminal= True) # Obter logger configurado
 
-def calcula_tempo_processo(tempo_inicial, msg_box=False):
-    elapsed_seconds = time.time() - tempo_inicial
-    minutos = elapsed_seconds / 60
-    logger.info(f"Tempo decorrido: {elapsed_seconds:.2f} s ({minutos:.2f} min)")
-    if msg_box:
-        bot.alert("acabou") # pyrefly: ignore[missing-attribute]
-    return elapsed_seconds
+# FILIAIS e calcula_tempo_processo foram movidos para utils/validators.py e utils/funcoes.py
 
 
-FILIAIS = {
-    '1001': 'VILA',
-    '1002': 'CACAPAVA',
-    '1003': 'BARUERI',
-    '1004': 'JAGUARE',
-    '1006': 'ATIBAIA',
-    '1008': 'MOGI',
-    '1005': 'SANTOS',
-    '1032': 'TAMOIO',
-    '1036': 'PERUS',
-}
 
 
-def valida_filial_estoque(filial_estoq: str) -> str:
-    centro = FILIAIS.get(filial_estoq)
-    if not centro:
-        marca_lancado(texto_marcacao="Filial_nao_cadastrada")
-        raise ValueError(f'Filial de estoque nao padronizada: {filial_estoq}')
-    return centro
 
 
-def coleta_valida_dados():
-    logger.info('--- Executando COLETA VALIDA DADOS ')
-    #* Realiza a validação do pedido
-    acabou_pedido = False
-
-    while acabou_pedido is False: 
-        dados_planilha = valida_lancamento() # Coleta e confere os dados do lançamento atual
-        if dados_planilha is None:
-            logger.warning('--- valida_lancamento() retornou None, tentando novamente')
-            time.sleep(0.2)
-            continue
-        acabou_pedido = valida_pedido(dados_planilha[4]) # Verifica se o pedido está valido.
-        time.sleep(0.2)
-    else:
-        print(dados_planilha)
-        return dados_planilha
 
 
-def formata_data_coletada(dados_copiados):
-
-    # Verifica se a variável está vazia ou contém apenas espaços
-    if not dados_copiados.strip():
-        print("--- Nenhuma data coletada. Usando a data atual.")
-        return date.today().strftime("%d/%m/%y")
-
-    data_copiada = dados_copiados.split(' ')[0]  # Pega apenas a parte da data
-    print(F"Data copiada: {data_copiada}, realizando a formatação")
-    # Converter a string para objeto datetime.date
-    data_obj = datetime.strptime(data_copiada, "%d/%m/%Y").date()
-
-    # Obtém a data de amanhã como objeto date
-    amanha_data = coleta_proximo_dia()
-
-    # Comparação correta entre objetos date
-    if data_obj >= amanha_data:
-        print("--- A data coletada é do próximo dia! Alterando para a data atual.")
-        return date.today().strftime("%d/%m/%y")  # Retorna a data atual formatada
-    
-    print("--- A data coletada é válida!")
-    return data_obj.strftime("%d/%m/%y")  # Retorna a data coletada formatada
 
 
-def coleta_proximo_dia():
-    # Retorna a data de amanhã como objeto date
-    return date.today() + timedelta(days=1)
 
-
-def valida_transportador(cracha_mot = "112842"):
-    # * -------------------------------------- VALIDAÇÃO TRANSPORTADOR --------------------------------------
-    logger.info(F'--- Preenchendo transportador: {cracha_mot}')
-    ahk.win_activate('TopCompras', title_match_mode= 2)
-    time.sleep(0.2)
-
-    # Move a tela para encontrar o campo do transportador
-    bot.click(1907, 970, 2)
-    # Clique relativo a posição do campo "Transportador: RE"
-    onde_achou = procura_imagem(imagem='imagens/img_topcon/txt_transportador.png')
-    bot.click(onde_achou[0] + 190, onde_achou[1])
-
-    # Verifica se o TAB realmente navegou até o campo "RE: 0"
-    tentativa_achar_camp_re = 0
-    while procura_imagem(imagem='imagens/img_topcon/campo_re_0.png', continuar_exec= True, limite_tentativa= 2, confianca= 0.74) is False:
-        logger.info(F'Tentativa: {tentativa_achar_camp_re}')
-        time.sleep(0.4)
-        tentativa_achar_camp_re += 1
-        if tentativa_achar_camp_re >= 10:
-            logger.info('--- Limite de tentativas de achar o campo "RE", reabrindo topcompras e reiniciando o processo.')
-            time.sleep(0.5)
-            abre_topcon()
-            return True
-    else:
-        logger.info('--- Campo RE habilitado, preenchendo.')
-        # Preenche o campo do transportador e verifica se aconteceu algum erro.
-        bot.press("Backspace", presses= 6)
-        bot.write(cracha_mot, interval= 0.08)  # ID transportador
-        bot.press('enter')
-
-    logger.info('--- Aguardando validar o campo do transportador')
-    ahk.win_activate('TopCompras', title_match_mode=2)
-    if procura_imagem(imagem='imagens/img_topcon/transportador_incorreto.png', continuar_exec= True, limite_tentativa= 2) is not False:
-        logger.info('--- Transportador incorreto!')
-        bot.press('ENTER')
-        bot.press('F2')
-        marca_lancado(texto_marcacao='RE_Invalido')
-        return False
-    else:
-        logger.info('--- Transportador validado! Prosseguindo para validação da placa')
-        ahk.win_activate('TopCompras', title_match_mode=2)
-        bot.press('enter')
-
-    # Verifica se o campo da placa ficou preenchido
-    time.sleep(0.2)
-    if procura_imagem('imagens/img_topcon/campo_placa.png', confianca= 0.74, continuar_exec=True, limite_tentativa= 4) is not False:
-        logger.info('--- Encontrou o campo vazio, inserindo XXX0000')
-        ahk.win_activate('TopCompras', title_match_mode=2)
-        bot.click(procura_imagem('imagens/img_topcon/campo_placa.png', continuar_exec=True))
-        bot.write('XXX0000')
-        bot.press('ENTER')
-        #time.sleep(0.4)
-
-        # Volta a tela para a posição correta
-        bot.click(1907, 78, 2)
-    else:
-        logger.info('--- Não achou o campo ou já está preenchido')
-
-
-def verifica_incrementa_data(data_antiga_str = "03/06/2025", qtd_incremento = 1):
-    if ahk.win_exists("Topsys", title_match_mode= 2):
-        logger.warning(f'--- Precisa mudar a data, inserindo a data de hoje: {data_antiga_str}')
-        ativar_janela('Topsys', 70)
-        time.sleep(1)
-        bot.press('ENTER')
-        time.sleep(1)
-    else:
-        return True
-    
-    # Converter para datetime, assumindo que '25' é o ano 2025
-    data_dt = datetime.strptime(data_antiga_str, "%d/%m/%y")
-
-    ## Exibir a data formatada com 4 dígitos no ano
-    #data = data_dt.strftime("%d/%m/%Y")
-
-    # Adiciona 1 dia
-    nova_data = data_dt + timedelta(days = qtd_incremento)
-
-    # Converte de volta para string, se quiser
-    nova_data_str = nova_data.strftime("%d/%m/%Y")
-
-    # Insere a data ajustada
-    ativar_janela('TopCompras', 70)
-    time.sleep(0.4)
-    bot.write(nova_data_str)
-    time.sleep(0.4)
-    bot.press('ENTER')
-    time.sleep(0.4)
-
-
-def preenche_data(data_formatada = ""):
-    #* Alteração da data
-    logger.info('--- Realizando validação/alteração da data')
-    ativar_janela('TopCompras', 70)
-    time.sleep(0.2)
-
-    hoje = date.today()
-    hoje = hoje.strftime("%d%m%y")  # dd/mm/YY
-    logger.info(F'--- Inserindo a data coletada: {data_formatada} e apertando ENTER')
-    bot.write(data_formatada, interval= 0.025)
-    bot.press('ENTER')
-    time.sleep(2)
-
-    qtd_incremento = 1
-    while verifica_incrementa_data(data_formatada, qtd_incremento) is not True:
-        time.sleep(0.25)
-        qtd_incremento += 1
-        if qtd_incremento > 4:
-            raise Exception (f'Tentou preencher a data por {qtd_incremento} vezes sem sucesso!')
-
-    ativar_janela('TopCompras', 70)
-
-    # Caso o sistema informe que a data deve ser maior/igual a data inserida acima.
-    logger.info('--- Verificando se apareceu data')
-    if procura_imagem('imagens/img_topcon/data_invalida.png', continuar_exec= True, limite_tentativa= 2):
-        logger.warning(f'--- Precisa mudar a data, inserindo a data de hoje: {hoje}')
-        ahk.win_close("TopCompras (VM-CortesiaApli.CORTESIA.com)", title_match_mode= 2)
-        time.sleep(0.5)        
-        bot.write(f"{hoje}")
-        bot.press('enter')
-        time.sleep(1)
-    else:
-        logger.info('--- Não foi necessario alterar a data!')
-
-    try: # Aguarda a tela de erro do TopCon 
-        ahk.win_wait('Topsys', title_match_mode= 2, timeout= 2)
-    except TimeoutError:
-        return True
-    else:
-        if ahk.win_exists('Topsys', title_match_mode= 2):
-            ahk.win_activate('Topsys', title_match_mode= 2)
-            logger.warning('--- Precisa mudar a data')
-            bot.press('enter')          
-            bot.write(f"{hoje}")
-            bot.press('enter')
-            time.sleep(0.4)
-
-
-def preenche_filial_estoque(filial_estoq):
-    logger.info('--- Preenchendo filial de estoque')
-    ativar_janela('TopCompras')
-    time.sleep(0.4)
-
-    # Coleta a posição do TXT e faz um clique relativo
-    posicao_texto = procura_imagem(imagem='imagens/img_topcon/txt_filial_estoque.png')
-    bot.click(posicao_texto.x + 296, posicao_texto.y) # pyrefly: ignore[missing-attribute]
-    time.sleep(0.4)
-
-    bot.write(filial_estoq, interval= 0.025)
-    time.sleep(0.2)
-    bot.press('TAB', presses= 2, interval= 0.2) # Confirma a informação da nova filial de estoque
+# Funções de TopCompras foram movidas para automacao/topcompras_handler.py
 
 
 def programa_principal():
@@ -378,10 +169,11 @@ def programa_principal():
         logger.info(F'--- Tentativa de procurar PRODUTO E SERVIÇOS: {tela_prod_servico}')
         tela_prod_servico += 1
     
-    
-    if '38953477000164' in chave_xml: #Caso não tenha o CNPJ da Consmar
+    '''
+    if '38953477000164' in chave_xml: #Caso tenha o CNPJ da Consmar
         finaliza_lancamento()
         return True
+    '''
 
     #* Realiza a extração da quantidade de toneladas
     preenche_local(silo1, silo2)
@@ -405,24 +197,7 @@ def programa_principal():
     return True
 
 
-def trata_erro(ultimo_erro, tentativa):
-    last_trace = traceback.extract_tb(ultimo_erro.__traceback__)[-1]  # Última entrada do traceback
-    arquivo_erro = os.path.basename(last_trace.filename) # Nome do arquivo
 
-    # Captura o traceback completo
-    erro_traceback = traceback.format_exc()
-    erro_tipo = type(ultimo_erro).__name__
-    erro_mensagem = str(ultimo_erro)
-
-    # Mensagem detalhada do erro
-    mensagem_erro = (
-        f"Erro ocorrido durante a execução do RPA:\n\n"
-        f"Tipo do erro: {erro_tipo}\n"
-        f"Mensagem: {erro_mensagem}\n\n"
-        f"Traceback:\n{erro_traceback}"
-    )
-
-    return arquivo_erro, mensagem_erro
 
 
 def main(lancamento_realizado = False):
@@ -430,7 +205,8 @@ def main(lancamento_realizado = False):
     
     if lancamento_realizado is False:
         abre_topcon()
-    
+        pass
+
     while programa_principal():
         logger.info(F"Lançamento realizado! Valor da variavel: {lancamento_realizado}")
         return True
@@ -441,6 +217,12 @@ def main(lancamento_realizado = False):
 
 
 if __name__ == '__main__':
+
+    '''
+    coleta_valida_dados()
+    exit()
+    '''
+    
     tentativa = 0
     lancamento_realizado = False
     tempo_inicial = time.time()
