@@ -189,17 +189,15 @@ def marca_lancado(texto_marcacao='texto_teste_marcacao', temp_inicial = 0):
         time.sleep(0.2)
 
     #* Caso precise informar o tempo que levou.
-    if temp_inicial != "":
+    if temp_inicial != "" and temp_inicial != 0:
+        ativar_janela('debug_db', 30)
         bot.press('RIGHT', presses= 1, interval= 0.1)
         time.sleep(0.2)
 
         # Valida a medição de tempo que levou
         end_time = time.time()
         elapsed_time = end_time - temp_inicial
-        #medicao_minutos = elapsed_time / 60
         bot.write(F"{round(elapsed_time)}")
-        #print(f"Tempo decorrido: {medicao_minutos:.2f} segundos")
-        #logger.info(f"Tempo decorrido: {medicao_minutos:.2f} segundos")
 
     time.sleep(0.2)
     ativar_janela('debug_db', 30)
@@ -341,13 +339,6 @@ def verifica_ped_vazio(texto, pos):
         return False
     else:  # Caso fique vazio
         logger.info('--- Itens XML ficou vazio! saindo da tela de vinculação')
-        bot.click(procura_imagem(imagem='imagens/img_topcon/confirma.png'))
-
-        # Fecha a tela de confirmação de pedido vinculado.
-        ahk.win_wait_active('TopCompras (VM-CortesiaApli.CORTESIA.com)', title_match_mode = 2, timeout= 30)
-        bot.click(procura_imagem(imagem='imagens/img_topcon/botao_ok.jpg', limite_tentativa= 10))
-        ahk.win_wait_close('Vinculação Itens da Nota', title_match_mode = 2, timeout= 30)
-        logger.info('--- Encerrado a função verifica pedido vazio!')
         return True
 
 def corrige_nometela(novo_nome = "TopCompras"):  
@@ -504,8 +495,8 @@ def ativar_janela(nome_janela= "TopCompras", timeout= 8):
     """
 
     logger.debug(F'--- Tentando ativar/abrir a janela: {nome_janela} ---' )
+    time.sleep(0.4)
     ahk.win_activate(nome_janela, title_match_mode=2)
-    time.sleep(0.2)
     ahk.win_wait_active(nome_janela, title_match_mode=2, timeout=timeout)
     time.sleep(0.2)
 
@@ -578,12 +569,63 @@ async def matar_autohotkey(nome_exec="", timeout=5):
         print(f"⚠️ Erro ao executar taskkill: {e}")
 
 
+def calcula_tempo_processo(tempo_inicial: float, msg_box: bool = False) -> float:
+    """
+    Calcula e registra o tempo decorrido desde o início do processo.
+    
+    Args:
+        tempo_inicial (float): Timestamp do início do processo (time.time()).
+        msg_box (bool): Se True, mostra uma caixa de diálogo. Default: False
+        
+    Returns:
+        float: Tempo decorrido em segundos.
+    """
+    elapsed_seconds = time.time() - tempo_inicial
+    minutos = elapsed_seconds / 60
+    logger.info(f"Tempo decorrido: {elapsed_seconds:.2f} s ({minutos:.2f} min)")
+    if msg_box:
+        bot.alert("acabou")
+    return elapsed_seconds
+
+
+def trata_erro(ultimo_erro: Exception, tentativa: int) -> tuple:
+    """
+    Trata exceções e extrai informações detalhadas do erro.
+    
+    Args:
+        ultimo_erro (Exception): Exceção capturada.
+        tentativa (int): Número da tentativa.
+        
+    Returns:
+        tuple: (nome_arquivo_erro, mensagem_erro_formatada)
+    """
+    import traceback
+    import os
+    
+    last_trace = traceback.extract_tb(ultimo_erro.__traceback__)[-1]  # Última entrada do traceback
+    arquivo_erro = os.path.basename(last_trace.filename)  # Nome do arquivo
+
+    # Captura o traceback completo
+    erro_traceback = traceback.format_exc()
+    erro_tipo = type(ultimo_erro).__name__
+    erro_mensagem = str(ultimo_erro)
+
+    # Mensagem detalhada do erro
+    mensagem_erro = (
+        f"Erro ocorrido durante a execução do RPA:\n\n"
+        f"Tipo do erro: {erro_tipo}\n"
+        f"Mensagem: {erro_mensagem}\n\n"
+        f"Traceback:\n{erro_traceback}"
+    )
+
+    return arquivo_erro, mensagem_erro
+
+
 if __name__ == '__main__':
     bot.PAUSE = 0.6
     bot.FAILSAFE = False
     tempo_inicial = time.time() # Calculo do tempo de execução das funções
     
-    #marca_lancado()
     #asyncio.run(asyncio.run(matar_autohotkey(nome_exec="msedge.exe")))
     #reaplica_filtro_status()
     #corrige_nometela("TopCompras")
@@ -604,7 +646,7 @@ if __name__ == '__main__':
     #bot.alert("Executou")
     #verifica_ped_vazio()
     #corrige_nometela()
-    #marca_lancado(temp_inicial= tempo_inicial, texto_marcacao= "teste_2025_07_25")
+    marca_lancado(texto_marcacao= "teste_2026_01_17")
 
     # Calculo do tempo de execução das funções
     end_time = time.time()
