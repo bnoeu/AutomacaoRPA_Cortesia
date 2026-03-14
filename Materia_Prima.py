@@ -47,24 +47,9 @@ chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
 pytesseract.pytesseract.tesseract_cmd = r"C:\Tesseract-OCR\tesseract.exe" # pyrefly: ignore[bad-assignment]
 logger = get_logger("automacao", print_terminal= True) # Obter logger configurado
 
-# FILIAIS e calcula_tempo_processo foram movidos para utils/validators.py e utils/funcoes.py
-
-
-
-
-
-
-
-
-
-
-
-# Funções de TopCompras foram movidas para automacao/topcompras_handler.py
-
 
 
 def programa_principal():
-
     global qtd_notas_lancadas
     bot.PAUSE = 0.6
 
@@ -111,15 +96,6 @@ def programa_principal():
         ativar_janela('TopCompras')
 
     preenche_filial_estoque(filial_estoq= filial_estoq)
-    ''' #! Substituido pela função a cima.
-    logger.info('--- Preenchendo filial de estoque')
-    bot.press('up')
-    bot.write(filial_estoq, interval= 0.1)
-    time.sleep(0.4)
-    bot.press('TAB', presses= 1) # Confirma a informação da nova filial de estoque
-    time.sleep(0.4)
-    bot.press('TAB', presses= 1) # Confirma a informação da nova filial de estoque
-    '''
 
     preenche_data(data_formatada)
 
