@@ -251,12 +251,12 @@ if __name__ == '__main__':
                     tentativa - 1
             else:
                 lancamento_realizado = False
-        except Exception as ultimo_erro:
+        except (ValueError, RuntimeError, TimeoutError) as ultimo_erro:
             lancamento_realizado = False
             arquivo_erro, mensagem_erro = trata_erro(ultimo_erro, tentativa)
             caminho_imagem = print_erro()
             #enviar_email("brunobola2010@gmail.com", F"[RPA Cortesia] Apresentou erro na task: {arquivo_erro}, tentativa: {tentativa}", F"Erro coletado: \n {mensagem_erro}")
-            logger.exception(F'--- A execução principal apresentou erro! Tentativa: {tentativa}, Pausa anterior: {tempo_pausa}')
+            logger.exception(F'--- A execução principal apresentou erro! Tentativa: {tentativa}, Pausa anterior: {tempo_pausa}, Erro: {mensagem_erro}')
             print(F'--- A execução principal apresentou erro! Tentativa: {tentativa}, Pausa anterior: {tempo_pausa}')
 
             #* Realiza as verificações antes da proxima tentativa
@@ -265,7 +265,7 @@ if __name__ == '__main__':
             if tentativa >= 4: # Começa a pausar o script após a 5º execução
                 logger.info(F"Pausando por: {tempo_pausa} segundos antes da proxima tentativa")
                 time.sleep(tempo_pausa)
-                tempo_pausa = int(tempo_pausa + (0.5 * tempo_pausa))
+                tempo_pausa = min(int(tempo_pausa + (0.5 * tempo_pausa)), 3600)  # Limita a pausa máxima a 1 hora (3600 segundos)
 
             if tentativa > 9:
                 enviar_email(
