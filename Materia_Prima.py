@@ -198,17 +198,8 @@ def programa_principal():
     logger.info(F"Quantidade de NFS lançadas: {qtd_notas_lancadas}")
 
     calcula_tempo_processo(tempo_inicial= tempo_inicial)
-    ''' #! Substituido pela função
-    # Valida a medição de tempo que levou
-    end_time = time.time()
-    elapsed_time = end_time - tempo_inicial
-    medicao_minutos = elapsed_time / 60
-    print(f"Tempo decorrido: {medicao_minutos:.2f} segundos")
-    logger.info(f"Tempo decorrido: {medicao_minutos:.2f} segundos")
-    '''
 
     return True
-
 
 
 
