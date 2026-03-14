@@ -30,6 +30,17 @@ def janelas_erro():
 
             marca_lancado(texto_marcacao = F'Erro_{tela}')
             return True
+        
+    ahk.win_activate('TopCompras', title_match_mode=2)
+    if procura_imagem(imagem='imagens/img_topcon/erro_type_mismatch.png', continuar_exec=True, limite_tentativa= 3, confianca= 0.74):
+            msg_erro = "erro_insercao_type_mismatch"
+            logger.error(f'--- Encontrou o pop-up de erro: "{msg_erro}" necessario validar manualmente')
+            bot.click(procura_imagem(imagem='imagens/img_topcon/botao_ok.jpg', continuar_exec=True))
+            time.sleep(2)
+            bot.click(procura_imagem(imagem='imagens/img_topcon/botao_ok.jpg', continuar_exec=True))
+
+            marca_lancado(texto_marcacao = msg_erro)
+            return True
 
 
 def janelas_sucesso():

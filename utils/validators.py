@@ -1,5 +1,8 @@
 # -*- Validadores de dados para o RPA Cortesia. -*-
 
+import os
+import sys
+sys.path.append(os.path.dirname(os.path.dirname(__file__)))   # add project root
 from datetime import date, datetime, timedelta
 from utils.funcoes import marca_lancado
 from utils.configura_logger import get_logger
@@ -101,13 +104,13 @@ def coleta_valida_dados():
 
     while acabou_pedido is False: 
         dados_planilha = valida_lancamento()  # Coleta e confere os dados do lançamento atual
-        
         if dados_planilha is None:
             logger.warning('--- valida_lancamento() retornou None, tentando novamente')
             time.sleep(0.2)
             continue
+        
         acabou_pedido = valida_pedido(dados_planilha[4], dados_planilha[15])  # Verifica se o pedido está válido
-        time.sleep(0.2)
+        time.sleep(1)
     else:
         logger.info(f"Dados coletados: {dados_planilha}")
         return dados_planilha

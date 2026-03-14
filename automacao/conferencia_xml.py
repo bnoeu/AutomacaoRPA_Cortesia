@@ -16,9 +16,16 @@ def aguarda_pop_up():
         time.sleep(0.5)
         if ahk.win_exists("TopCompras (VM-CortesiaApli.CORTESIA.com)", title_match_mode= 2):
             logger.info('--- Encontrou o pop-up "TopCompras (VM-CortesiaApli.CORTESIA.co" ---' )
-            break
+            return False
+
         if ahk.win_exists(' (VM-CortesiaApli.CORTESIA.com)', title_match_mode= 1):
             corrige_nometela("TopCompras (VM-CortesiaApli.CORTESIA.com)")
+            return False
+
+        if ahk.win_exists("Vinculação Itens da Nota", title_match_mode= 2):
+            logger.info('--- Encontrou o pop-up "TopCompras (VM-CortesiaApli.CORTESIA.co" ---' )
+            return True # Retorna os dados, confirmando que essa chave XML é valida.
+
     else:
         logger.critical("Não encontrou o POP-UP, algum problema ocorreu")
         raise Exception("Não encontrou o POP-UP na coferencia do lançamento, algum problema ocorreu")
@@ -28,7 +35,13 @@ def conferencia_xml():
     logger.info('--- Iniciando a função: CONFERENCIA XML ---' )
     texto_erro = False
     
-    aguarda_pop_up()
+    resultado_popup = aguarda_pop_up()
+
+    if resultado_popup is True:
+        logger.info('--- Encontrou a tela de vinculação de itens da nota, confirmando que o XML é válido! ---' )
+        return True # Retorna os dados, confirmando que essa chave XML é valida.
+    
+
     ''' #! Substituido pela função acima 
     #* Aguarda a tela "TopCompras (VM-CortesiaApli.CORTESIA.com)" que é exibida quando ocorre algum retorno de informação do TopCon
     for i in range(0, 140):
@@ -44,6 +57,7 @@ def conferencia_xml():
     '''
 
     for i in range (0, 30):
+
         if procura_imagem(imagem='imagens/img_topcon/txt_deseja_vincular_nota_pedido.png', continuar_exec= True, limite_tentativa= 1, confianca= 0.73) is not False:
             logger.info('--- XML Validado, indo para validação do pedido (Encontro o botão para vincular pedido "SIM" )')
             ahk.win_activate('TopCompras', title_match_mode=2, detect_hidden_windows= True)
@@ -66,7 +80,7 @@ def conferencia_xml():
         
         elif procura_imagem(imagem='imagens/img_topcon/nfe_cancelada.png', continuar_exec=True, limite_tentativa= 1, confianca= 0.73) is not False:
             texto_erro = "NFE_Cancelada"
-
+        
         #* Caso encontre algum erro no lançamento da NFE
         if texto_erro is not False: # Caso tenha apresentado alguma tela de erro.
             logger.warning(F'--- Apresentou um erro: {texto_erro}' )

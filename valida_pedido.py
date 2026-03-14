@@ -28,17 +28,19 @@ CIMENTO_CP2 = ('CP II-E-40', '£-40', 'CIMENTO PORTLAND CP IIE-40 RS |', "CIMENT
 AREIA_RIO = ('AREIA LAVADA MEDIA', 'ARE A LAVADA MEDIA', 'AREA LAVADA MEDIA', 'AREIA LAVADA', 'AREIA MEDIA')
 CIMENTO_CP5 = ('CPV', 'V-ARI')
 AREIA_QUARTZO = ('AREIA DE QUARTZO VERMELHA', 'AREA QUARTZD', 'AREIA DE QUARTZ0 VERMELHA', 'P2 AREIA', 'AREI|A DE QUARTZ0', 'AREIA VERMELHA',
-                 'AREIA MEDIA UMIDA BRANCA', 'AREI|A MEDIA UMIDA BRANCA')
+                 'AREIA MEDIA UMIDA BRANCA', 'AREI|A MEDIA UMIDA BRANCA', 'AREIA DE QUARTZ0')
 AREIA_PRIME = ('AREA PRIME', 'AREIA PRIME')
-AREIA_BRITADA = ('AR EIA ARTIF ClaL', 'AR EIA AR TIFICIAL', 'AREIA ARTIFICIAL', 'AREIA INDUSTRIAL DE BRITA')
+AREIA_BRITADA = ('AR EIA ARTIF ClaL', 'AR EIA AR TIFICIAL', 'AREIA ARTIFICIAL', 'AREIA INDUSTRIAL DE BRITA', 'AREI|A DE BRITA - TIPO')
 PEDRISCO_MISTO = ('PEDRA MISTO', 'PEDRISCO MISTO')
 AREIA_VALE = ('Areia Al', 'Areia A1')
 AREIA_LAVADA = ('PEDRA LAVADA', 'TESTETESTEBRUNO')
+ARGAMIX = ('ARGAMIX', 'ARGAMIX 20KG')
 
-nome_pedido = [PEDRA_1, PO_PEDRA, BRITA_0, CIMENTO_CP2, CIMENTO_CP3, CIMENTO_CP5, AREIA_RIO, AREIA_QUARTZO, AREIA_PRIME, AREIA_BRITADA, PEDRISCO_MISTO, AREIA_VALE, AREIA_LAVADA]
+nome_pedido = [ARGAMIX, PEDRA_1, PO_PEDRA, BRITA_0, CIMENTO_CP2, CIMENTO_CP3, CIMENTO_CP5, AREIA_RIO, AREIA_QUARTZO, AREIA_PRIME, AREIA_BRITADA, PEDRISCO_MISTO, AREIA_VALE, AREIA_LAVADA]
 
 # Mapeamento de nomes para imagens
 mapeamento_imagens = {
+    ARGAMIX: 'PED_ARGAMIX.png',
     PEDRA_1: 'PED_BRITA1.jpg',
     PO_PEDRA: 'PED_POPEDRA.png',
     BRITA_0: 'PED_BRITA0.jpg',
@@ -83,6 +85,9 @@ def valida_pedido(chave_xml = "", qtd_vale = ""):
         txt_itensXML = "AREIA DE QUARTZO VERMELHA"
         logger.info(F'--- Nota da MINEERAÇÃO CAJU! Alterou o item para: {txt_itensXML}')
 
+    # Regras adicionadas a pedido do Mateus em 09/03/2026
+    if '01637895017450' in chave_xml:
+        txt_itensXML = "V-ARI"
 
     #* Indentifica qual o item que consta na extração.
     for nome in nome_pedido: #* Para cada item na lista de pedidos
@@ -96,9 +101,10 @@ def valida_pedido(chave_xml = "", qtd_vale = ""):
                     ahk.win_activate('Vinculação Itens da Nota', title_match_mode = 2)
                     validou_itensXml = True
                     break
-    
+
     #* Caso não tenha encontrado o texto em nenhuma lista. 
     if validou_itensXml is False:
+
         logger.error(F'--- Não foi possivel encontrar: "{txt_itensXML}" em nenhuma lista, marcando planilha com "padronizar item" ')
         marca_lancado(texto_marcacao='Padronizar_Item')
         for i in range(0, 30): # Aguarda o fechamento da tela "Vinculação Itens da Nota"
@@ -274,7 +280,7 @@ def altera_quantidade_consmar(qtd_vale= "38,16"):
     bot.press('enter')
     time.sleep(0.2)
 
-def main(chave_xml = "", qtd_vale = "38,16"):
+def main(chave_xml = "", qtd_vale = ""):
     logger.info('--- Executando o arquivo VALIDA PEDIDO --- ')
 
     verifica_tela_vinculacao()
@@ -298,10 +304,10 @@ def main(chave_xml = "", qtd_vale = "38,16"):
     
 
 if __name__ == '__main__':
-    altera_quantidade_consmar()
+    #altera_quantidade_consmar()
 
     tempo_inicial = time.time()
-    main("35260338953477000164550020000003211286171418")
+    main("35260304997769000187550100000167201575146583")
 
     # Linha específica onde você quer medir o tempo
     end_time = time.time()

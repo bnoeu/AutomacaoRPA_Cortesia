@@ -223,9 +223,10 @@ def login_topcon():
                 
                 #* Insere os dados de login do usuario BRUNO.S
                 logger.info('--- Inserindo dados para login')
-                bot.write('BRUNO.S')
+                bot.write('automacao')
+                #bot.write('BRUNO.S')
                 bot.press('tab')
-                bot.write('rockie')
+                bot.write('c0rtesi@')
                 bot.press('tab')
                 bot.press('enter')
                 time.sleep(5)

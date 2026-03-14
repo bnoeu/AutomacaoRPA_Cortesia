@@ -12,6 +12,7 @@
 #* A resolução da maquina precisa ser: 1920 x 1080, com a aproximação em "150%"
 #*'''
 
+
 import time
 import traceback
 import pytesseract
@@ -61,6 +62,7 @@ logger = get_logger("automacao", print_terminal= True) # Obter logger configurad
 # Funções de TopCompras foram movidas para automacao/topcompras_handler.py
 
 
+
 def programa_principal():
 
     global qtd_notas_lancadas
@@ -77,6 +79,17 @@ def programa_principal():
     dados_planilha = coleta_valida_dados()
     #dados_planilha = ['8078', '', '', '1036-PERUS', '35250648302640001588550100005409241251434230', 'p4ozMaAb2_Q', '', '', '18/06/2025 18:25', '', '', '', '45826,89236', '', 'Versão AllTrips: 172']
     
+    # Preenche dados do campo Tipo Doc
+    ahk.win_activate('TopCompras', title_match_mode= 2)
+    time.sleep(1)
+    if procura_imagem(imagem='imagens/img_topcon/txt_15-NF_ELETRO.png', continuar_exec= True, confianca= 0.74) is False:
+        bot.write('15', interval= 1)
+        bot.press('enter', interval= 1)
+        time.sleep(2)
+    else:
+        pass
+        # Já está preenchido
+
     tempo_inicial = time.time()
 
     silo1 = dados_planilha[1]
@@ -213,16 +226,10 @@ def main(lancamento_realizado = False):
     else:
         logger.info(F"Lançamento não foi realizado! Variavel: {lancamento_realizado}")
         lancamento_realizado = False
-    
 
 
-if __name__ == '__main__':
 
-    '''
-    coleta_valida_dados()
-    exit()
-    '''
-    
+if __name__ == '__main__':    
     tentativa = 0
     lancamento_realizado = False
     tempo_inicial = time.time()
