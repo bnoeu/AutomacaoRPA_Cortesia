@@ -17,7 +17,7 @@ import asyncio
 if __name__ == '__main__':
     from configura_logger import get_logger
 else:
-    from .configura_logger import get_logger
+    from configura_logger import get_logger
 
 
 # --- Definição de parametros

@@ -3,7 +3,7 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from email.mime.base import MIMEBase
 from email import encoders
-from utils.funcoes import print_erro
+from funcoes import print_erro
 
 def enviar_email(destinatario, assunto, mensagem):
     # Configurações do servidor de e-mail

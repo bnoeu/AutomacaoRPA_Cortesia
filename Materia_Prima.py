@@ -14,10 +14,8 @@
 
 
 import time
-import traceback
 import pytesseract
 import pyautogui as bot
-from utils.comunicacao_chat import msg_chat
 from utils.funcoes import ahk as ahk
 import asyncio
 from abre_topcon import main as abre_topcon
@@ -25,9 +23,10 @@ from utils.enviar_email import enviar_email
 from utils.configura_logger import get_logger
 from preenche_local import main as preenche_local
 from finaliza_lancamento import finaliza_lancamento
+from utils.trata_exception import handle_exception
 from utils.funcoes import (
-    procura_imagem, verifica_horario, ativar_janela, 
-    print_erro, matar_autohotkey, calcula_tempo_processo, trata_erro
+    procura_imagem, verifica_horario, ativar_janela,
+    matar_autohotkey, calcula_tempo_processo
 )
 from utils.validators import (
     valida_filial_estoque, formata_data_coletada,
@@ -90,6 +89,20 @@ def preenche_centro_custo(centro_custo):
     return False  # Ou ajuste o retorno conforme necessário
 
 
+def preenche_tipo_doc():
+    # Preenche dados do campo Tipo Doc
+
+    ahk.win_activate('TopCompras', title_match_mode= 2)
+    time.sleep(1)
+    if procura_imagem(imagem='imagens/img_topcon/txt_15-NF_ELETRO.png', continuar_exec= True, confianca= 0.74) is False:
+        bot.write('15', interval= 1)
+        bot.press('enter', interval= 1)
+        time.sleep(2)
+    else:
+        pass
+        # Já está preenchido
+
+
 def programa_principal():
     global qtd_notas_lancadas
     bot.PAUSE = 0.6
@@ -105,16 +118,7 @@ def programa_principal():
     dados_planilha = coleta_valida_dados()
     #dados_planilha = ['8078', '', '', '1036-PERUS', '35250648302640001588550100005409241251434230', 'p4ozMaAb2_Q', '', '', '18/06/2025 18:25', '', '', '', '45826,89236', '', 'Versão AllTrips: 172']
     
-    # Preenche dados do campo Tipo Doc
-    ahk.win_activate('TopCompras', title_match_mode= 2)
-    time.sleep(1)
-    if procura_imagem(imagem='imagens/img_topcon/txt_15-NF_ELETRO.png', continuar_exec= True, confianca= 0.74) is False:
-        bot.write('15', interval= 1)
-        bot.press('enter', interval= 1)
-        time.sleep(2)
-    else:
-        pass
-        # Já está preenchido
+    preenche_tipo_doc()
 
     tempo_inicial = time.time()  # Removido por não ser utilizado
 
@@ -200,18 +204,16 @@ def main(lancamento_realizado = False):
         lancamento_realizado = False
 
 
-
 def run_main_loop():
     tentativa = 0
     lancamento_realizado = False
-    #tempo_inicial = time.time()
-    tempo_pausa = 600 # 10 minutos
+    tempo_pausa = 600  # 10 minutos
     arquivo_erro = ""
     mensagem_erro = ""
 
     #* Realiza os processos inicias da execução da automação
     print("--- Iniciando RPA! Realizando o fechamento do AHK!")
-    asyncio.run(matar_autohotkey(nome_exec= "AutoHotkey.exe"))
+    asyncio.run(matar_autohotkey(nome_exec="AutoHotkey.exe"))
 
     while tentativa < 10:
         logger.info(F'--- Iniciando nova tentativa Nº {tentativa} o Try-Catch do PROGRAMA PRINCIPAL')
@@ -219,39 +221,17 @@ def run_main_loop():
             if main(lancamento_realizado):
                 lancamento_realizado = True
                 if tentativa > 1:
-                    tentativa - 1
+                    tentativa -= 1
             else:
                 lancamento_realizado = False
         except Exception as ultimo_erro:
+            continue_loop, tentativa, tempo_pausa = handle_exception(ultimo_erro, tentativa, tempo_pausa, arquivo_erro, mensagem_erro)
             lancamento_realizado = False
-            arquivo_erro, mensagem_erro = trata_erro(ultimo_erro, tentativa)
-            print_erro()
-            #enviar_email("brunobola2010@gmail.com", F"[RPA Cortesia] Apresentou erro na task: {arquivo_erro}, tentativa: {tentativa}", F"Erro coletado: \n {mensagem_erro}")
-            logger.exception(F'--- A execução principal apresentou erro! Tentativa: {tentativa}, Pausa anterior: {tempo_pausa}, Erro: {mensagem_erro}')
-            print(F'--- A execução principal apresentou erro! Tentativa: {tentativa}, Pausa anterior: {tempo_pausa}')
-
-            #* Realiza as verificações antes da proxima tentativa
-            verifica_horario()
-
-            if tentativa >= 4: # Começa a pausar o script após a 5º execução
-                logger.info(F"Pausando por: {tempo_pausa} segundos antes da proxima tentativa")
-                time.sleep(tempo_pausa)
-                tempo_pausa = min(int(tempo_pausa + (0.5 * tempo_pausa)), 3600)  # Limita a pausa máxima a 1 hora (3600 segundos)
-
-            if tentativa >= 5:
-                enviar_email(
-                    "brunobola2010@gmail.com",
-                    f"[RPA Cortesia] Erro catastrofico: {arquivo_erro}",
-                    f"Erro coletado: \n{traceback.format_exc()}"
-                )
-                msg_chat(f'A execução principal apresentou erro! Executando o script principal novamente, tentativa: {tentativa}')
-                logger.critical(F'--- A execução principal apresentou erro! Executando o script principal novamente, tentativa: {tentativa}')
+            if not continue_loop:
                 break
-
-            tentativa += 1
-
         except KeyboardInterrupt as e:
             logger.critical(f"Execução pausada pelo usuario: {e}")
+            break
         else:
             pass
     else:
@@ -261,10 +241,7 @@ def run_main_loop():
             f"A execução principal executou todas as tentativas e quebrou\n {arquivo_erro} \n {mensagem_erro}"
         )
         logger.critical('--- A execução principal executou todas as tentativas')
-
-        # Log do erro crítico no sistema
         logger.critical("A execução principal falhou com erro crítico.")
-        logger.critical(mensagem_erro)
         logger.critical(mensagem_erro)
 
 if __name__ == '__main__':
