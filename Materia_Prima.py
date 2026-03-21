@@ -142,47 +142,6 @@ def programa_principal():
 
     preenche_centro_custo(centro_custo)
     
-    ''' #! Substituido pela função preenche_centro_custo, que já valida o preenchimento do centro de custo.
-    logger.info(f'--- Trocando o centro de custo para {centro_custo}')
-    ativar_janela('TopCompras', 70)
-    bot.write(centro_custo)
-    ahk.win_activate('TopCompras', title_match_mode= 2)
-    logger.info('--- Aguarda aparecer o campo cod_desc')
-    tentativa_cod_desc = 0
-    while procura_imagem(imagem='imagens/img_topcon/cod_desc.png', continuar_exec=True, confianca= 0.74, limite_tentativa= 1) is False:
-        time.sleep(0.2)
-        tentativa_cod_desc += 1
-        if tentativa_cod_desc >= 100:
-            logger.info('--- Não foi possível encontrar o campo cod_desc, reiniciando o processo.')
-            time.sleep(0.2)
-            abre_topcon()
-            return True
-        else: # Aguarda até o topcompras voltar a funcionar
-            ativar_janela('TopCompras', 70)
-    else:
-        logger.info(F'--- Apareceu o campo COD_DESC, tentativa: {tentativa_cod_desc} ')
-        bot.press('ENTER') # Pressiona enter, e aguarda sumir o campo "cod_desc"
-
-    logger.info('--- Aguarda até SUMIR o campo "cod_desc"')
-    tentativa_cod_desc = 0
-    while procura_imagem(imagem='imagens/img_topcon/cod_desc.png', continuar_exec=True, confianca= 0.74, limite_tentativa= 1) is not False:
-        bot.click(procura_imagem(imagem='imagens/img_topcon/txt_ValoresTotais.png', continuar_exec= True, limite_tentativa= 1, confianca= 0.74))
-        if tentativa_cod_desc >= 100:
-            logger.info('--- O campo cod_desc não sumiu, reiniciando o processo.')
-            time.sleep(0.25)
-            abre_topcon()
-            return True
-        else: # Aguarda até o topcompras voltar a funcionar
-            ativar_janela('TopCompras', 70)
-            tentativa_cod_desc += 1 
-    else:
-        logger.info(F'--- Sumiu o campo "cod_desc", tentativa: {tentativa_cod_desc}')
-
-    # Aguarda até o topcompras voltar a funcionar
-    ativar_janela('TopCompras', 70)
-    bot.click(procura_imagem(imagem='imagens/img_topcon/txt_ValoresTotais.png', continuar_exec= True))
-    '''
-
     if valida_transportador(cracha_mot) is False:
         logger.info('--- Falhou na validação do transportador, recomeçando o processo.')
         return False
