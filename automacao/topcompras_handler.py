@@ -63,6 +63,7 @@ def preenche_data(data_formatada: str = "") -> None:
     Raises:
         Exception: Se não conseguir preencher a data após múltiplas tentativas.
     """
+
     logger.info('--- Realizando validação/alteração da data')
     ativar_janela('TopCompras', 70)
     time.sleep(0.2)
@@ -73,12 +74,16 @@ def preenche_data(data_formatada: str = "") -> None:
     bot.press('ENTER')
     time.sleep(2)
 
-    qtd_incremento = 1
+    qtd_incremento = 0
     while verifica_incrementa_data(data_formatada, qtd_incremento) is not True:
         time.sleep(0.25)
-        qtd_incremento += 1
+
         if qtd_incremento > 4:
+            if ahk.win_exists("Topsys", title_match_mode=2):
+                ahk.win_close('Topsys', title_match_mode=2)
+            marca_lancado(texto_marcacao='data_limite_ultrapassada')
             raise Exception(f'Tentou preencher a data por {qtd_incremento} vezes sem sucesso!')
+        qtd_incremento += 1
 
     ativar_janela('TopCompras', 70)
 

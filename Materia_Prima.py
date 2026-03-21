@@ -17,6 +17,7 @@ import time
 import traceback
 import pytesseract
 import pyautogui as bot
+from utils.comunicacao_chat import msg_chat
 from utils.funcoes import ahk as ahk
 import asyncio
 from abre_topcon import main as abre_topcon
@@ -48,6 +49,46 @@ pytesseract.pytesseract.tesseract_cmd = r"C:\Tesseract-OCR\tesseract.exe" # pyre
 logger = get_logger("automacao", print_terminal= True) # Obter logger configurado
 
 
+def preenche_centro_custo(centro_custo):
+    logger.info(f'--- Trocando o centro de custo para {centro_custo}')
+    ativar_janela('TopCompras', 70)
+    bot.write(centro_custo)
+    ahk.win_activate('TopCompras', title_match_mode=2)
+    logger.info('--- Aguarda aparecer o campo cod_desc')
+    tentativa_cod_desc = 0
+    while procura_imagem(imagem='imagens/img_topcon/cod_desc.png', continuar_exec=True, confianca=0.74, limite_tentativa=1) is False:
+        time.sleep(0.2)
+        tentativa_cod_desc += 1
+        if tentativa_cod_desc >= 100:
+            logger.info('--- Não foi possível encontrar o campo cod_desc, reiniciando o processo.')
+            time.sleep(0.2)
+            abre_topcon()
+            return True
+        else:
+            ativar_janela('TopCompras', 70)
+    else:
+        logger.info(f'--- Apareceu o campo COD_DESC, tentativa: {tentativa_cod_desc}')
+        bot.press('ENTER')
+
+    logger.info('--- Aguarda até SUMIR o campo "cod_desc"')
+    tentativa_cod_desc = 0
+    while procura_imagem(imagem='imagens/img_topcon/cod_desc.png', continuar_exec=True, confianca=0.74, limite_tentativa=1) is not False:
+        bot.click(procura_imagem(imagem='imagens/img_topcon/txt_ValoresTotais.png', continuar_exec=True, limite_tentativa=1, confianca=0.74))
+        if tentativa_cod_desc >= 100:
+            logger.info('--- O campo cod_desc não sumiu, reiniciando o processo.')
+            time.sleep(0.25)
+            abre_topcon()
+            return True
+        else:
+            ativar_janela('TopCompras', 70)
+            tentativa_cod_desc += 1
+    else:
+        logger.info(f'--- Sumiu o campo "cod_desc", tentativa: {tentativa_cod_desc}')
+
+    ativar_janela('TopCompras', 70)
+    bot.click(procura_imagem(imagem='imagens/img_topcon/txt_ValoresTotais.png', continuar_exec=True))
+    return False  # Ou ajuste o retorno conforme necessário
+
 
 def programa_principal():
     global qtd_notas_lancadas
@@ -75,7 +116,7 @@ def programa_principal():
         pass
         # Já está preenchido
 
-    tempo_inicial = time.time()
+    tempo_inicial = time.time()  # Removido por não ser utilizado
 
     silo1 = dados_planilha[1]
     silo2 = dados_planilha[2]
@@ -99,7 +140,10 @@ def programa_principal():
 
     preenche_data(data_formatada)
 
-    logger.info(F'--- Trocando o centro de custo para {centro_custo}')
+    preenche_centro_custo(centro_custo)
+    
+    ''' #! Substituido pela função preenche_centro_custo, que já valida o preenchimento do centro de custo.
+    logger.info(f'--- Trocando o centro de custo para {centro_custo}')
     ativar_janela('TopCompras', 70)
     bot.write(centro_custo)
     ahk.win_activate('TopCompras', title_match_mode= 2)
@@ -107,14 +151,14 @@ def programa_principal():
     tentativa_cod_desc = 0
     while procura_imagem(imagem='imagens/img_topcon/cod_desc.png', continuar_exec=True, confianca= 0.74, limite_tentativa= 1) is False:
         time.sleep(0.2)
+        tentativa_cod_desc += 1
         if tentativa_cod_desc >= 100:
-            logger.info('--- Não foi possivel encontrar o campo cod_desc, reiniciando o processo.')
+            logger.info('--- Não foi possível encontrar o campo cod_desc, reiniciando o processo.')
             time.sleep(0.2)
             abre_topcon()
             return True
         else: # Aguarda até o topcompras voltar a funcionar
             ativar_janela('TopCompras', 70)
-            tentativa_cod_desc += 1 
     else:
         logger.info(F'--- Apareceu o campo COD_DESC, tentativa: {tentativa_cod_desc} ')
         bot.press('ENTER') # Pressiona enter, e aguarda sumir o campo "cod_desc"
@@ -132,11 +176,12 @@ def programa_principal():
             ativar_janela('TopCompras', 70)
             tentativa_cod_desc += 1 
     else:
-        logger.info(F'--- sumiu o campo "cod_desc", tentativa: {tentativa_cod_desc}')
+        logger.info(F'--- Sumiu o campo "cod_desc", tentativa: {tentativa_cod_desc}')
 
     # Aguarda até o topcompras voltar a funcionar
     ativar_janela('TopCompras', 70)
     bot.click(procura_imagem(imagem='imagens/img_topcon/txt_ValoresTotais.png', continuar_exec= True))
+    '''
 
     if valida_transportador(cracha_mot) is False:
         logger.info('--- Falhou na validação do transportador, recomeçando o processo.')
@@ -183,6 +228,7 @@ def programa_principal():
 def main(lancamento_realizado = False):
     verifica_horario() # Confere o horario dessa execução.
     
+    
     if lancamento_realizado is False:
         abre_topcon()
         pass
@@ -196,14 +242,13 @@ def main(lancamento_realizado = False):
 
 
 
-if __name__ == '__main__':    
+def run_main_loop():
     tentativa = 0
     lancamento_realizado = False
-    tempo_inicial = time.time()
+    #tempo_inicial = time.time()
     tempo_pausa = 600 # 10 minutos
     arquivo_erro = ""
     mensagem_erro = ""
-
 
     #* Realiza os processos inicias da execução da automação
     print("--- Iniciando RPA! Realizando o fechamento do AHK!")
@@ -212,16 +257,16 @@ if __name__ == '__main__':
     while tentativa < 10:
         logger.info(F'--- Iniciando nova tentativa Nº {tentativa} o Try-Catch do PROGRAMA PRINCIPAL')
         try:
-            if main(lancamento_realizado) is True:
+            if main(lancamento_realizado):
                 lancamento_realizado = True
                 if tentativa > 1:
                     tentativa - 1
             else:
                 lancamento_realizado = False
-        except (ValueError, RuntimeError, TimeoutError) as ultimo_erro:
+        except Exception as ultimo_erro:
             lancamento_realizado = False
             arquivo_erro, mensagem_erro = trata_erro(ultimo_erro, tentativa)
-            caminho_imagem = print_erro()
+            print_erro()
             #enviar_email("brunobola2010@gmail.com", F"[RPA Cortesia] Apresentou erro na task: {arquivo_erro}, tentativa: {tentativa}", F"Erro coletado: \n {mensagem_erro}")
             logger.exception(F'--- A execução principal apresentou erro! Tentativa: {tentativa}, Pausa anterior: {tempo_pausa}, Erro: {mensagem_erro}')
             print(F'--- A execução principal apresentou erro! Tentativa: {tentativa}, Pausa anterior: {tempo_pausa}')
@@ -234,21 +279,22 @@ if __name__ == '__main__':
                 time.sleep(tempo_pausa)
                 tempo_pausa = min(int(tempo_pausa + (0.5 * tempo_pausa)), 3600)  # Limita a pausa máxima a 1 hora (3600 segundos)
 
-            if tentativa > 9:
+            if tentativa >= 5:
                 enviar_email(
                     "brunobola2010@gmail.com",
                     f"[RPA Cortesia] Erro catastrofico: {arquivo_erro}",
                     f"Erro coletado: \n{traceback.format_exc()}"
                 )
+                msg_chat(f'A execução principal apresentou erro! Executando o script principal novamente, tentativa: {tentativa}')
                 logger.critical(F'--- A execução principal apresentou erro! Executando o script principal novamente, tentativa: {tentativa}')
                 break
 
             tentativa += 1
 
-        except(KeyboardInterrupt) as e:
-            exit(logger.critical(f"Execução pausada pelo usuario: {e}"))
+        except KeyboardInterrupt as e:
+            logger.critical(f"Execução pausada pelo usuario: {e}")
         else:
-            tentativa = 0
+            pass
     else:
         enviar_email(
             "brunobola2010@gmail.com",
@@ -260,3 +306,7 @@ if __name__ == '__main__':
         # Log do erro crítico no sistema
         logger.critical("A execução principal falhou com erro crítico.")
         logger.critical(mensagem_erro)
+        logger.critical(mensagem_erro)
+
+if __name__ == '__main__':
+    run_main_loop()

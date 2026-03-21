@@ -291,7 +291,8 @@ def verifica_quatro_dias(dados_copiados):
 def main(ultimo_xml = chave_xml, powerapps_id = powerapps_id):
     bot.PAUSE = 2.2
     logger.info('Iniciando função COPIA BANCO ( COPIA ALL TRIPS)')
-    #msg_chat(f'Iniciando função COPIA BANCO ( COPIA ALL TRIPS) \nÚltimo XML: {ultimo_xml} \nPowerApps ID: {powerapps_id}')
+    #msg_chat(f'VERIFICAR FUNÇÃO: Iniciando função COPIA BANCO ( COPIA ALL TRIPS) \nÚltimo XML: {ultimo_xml} \nPowerApps ID: {powerapps_id}')
+    #exit()
 
     #* Abre a planilha do db_alltrips (banco original)
     for tentativa in range(0, 6):
