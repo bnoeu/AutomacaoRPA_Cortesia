@@ -27,6 +27,7 @@ senha_rdp = '4Pyth0n@'
 '''
 #* Novo usuario
 bot.FAILSAFE = False
+#hostname = 'cortesia'
 login_rdp = 'b.santos'
 senha_rdp = 'C0rtesi@2025'
 

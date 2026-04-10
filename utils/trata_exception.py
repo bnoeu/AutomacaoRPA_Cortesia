@@ -1,9 +1,9 @@
 import time
 import traceback
-from comunicacao_chat import msg_chat
-from enviar_email import enviar_email
-from configura_logger import get_logger
-from funcoes import (
+from .comunicacao_chat import msg_chat
+from .enviar_email import enviar_email
+from .configura_logger import get_logger
+from .funcoes import (
     print_erro, trata_erro, verifica_horario
 )
 
@@ -42,7 +42,7 @@ def handle_exception(ultimo_erro, tentativa, tempo_pausa, arquivo_erro, mensagem
     #* Realiza as verificações antes da proxima tentativa
     verifica_horario()
 
-    if tentativa >= 5:
+    if tentativa >= 9:
         enviar_email(
             "brunobola2010@gmail.com",
             f"[RPA Cortesia] Erro catastrofico: {arquivo_erro}",

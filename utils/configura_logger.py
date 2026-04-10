@@ -34,7 +34,9 @@ def get_logger(name, print_terminal = False):
     # Garantir que os diretórios "logs" e "debug" existam
     os.makedirs("logs", exist_ok=True)
     os.makedirs("debug", exist_ok=True)
-    
+
+    horario_inicio = datetime.now() # Declarar aqui, para evitar erro de não estar declarada
+
     #* Gerar o nome do arquivo de log apenas na primeira execução
     if LOG_FILE is None:
         horario_inicio = datetime.now()

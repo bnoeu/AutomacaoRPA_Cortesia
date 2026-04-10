@@ -13,11 +13,23 @@ import pyautogui as bot
 from datetime import datetime
 import asyncio
 
+if __name__ == '__main__':
+    import configura_logger
+    logger = configura_logger.get_logger("")
+else:
+    from .configura_logger import get_logger
+    logger = get_logger("")
+
+
+'''
+from configura_logger import get_logger
+
 
 if __name__ == '__main__':
-    from configura_logger import get_logger
 else:
-    from configura_logger import get_logger
+    pass
+    #from configura_logger import get_logger
+'''
 
 
 # --- Definição de parametros
@@ -26,7 +38,6 @@ posicao_img = 0  # Define a variavel para utilização global dela.
 continuar = True
 chave_xml, cracha_mot, silo2, silo1 = '', '', '', ''
 bot.useImageNotFoundException(False)
-logger = get_logger("")
 planilha_debug = "https://cortesiaconcreto-my.sharepoint.com/:x:/g/personal/bruno_silva_cortesiaconcreto_com_br/ETubFnXLMWREkm0e7ez30CMBnID3pHwfLgGWMHbLqk2l5A?rtime=jFhSykjw3Eg"
 alltrips = "https://cortesiaconcreto-my.sharepoint.com/:x:/g/personal/bi_cortesiaconcreto_com_br/EQx5PclDGRFGkweQjtb3QckByyAsqydfI5za0MTuO9tjXg?e=RYfgcA.com"
 
@@ -218,7 +229,7 @@ def verifica_status_vazio():
     """
 
     ativar_janela('debug_db_alltrips')
-    time.sleep(1)
+    time.sleep(0.5)
 
     if procura_imagem(imagem='imagens/img_planilha/txt_vazias.png', continuar_exec= True):
         return True
@@ -334,7 +345,7 @@ def verifica_ped_vazio(texto, pos):
     logger.debug(F'--- Item da nota: {texto}, texto que ainda ficou: {texto_xml}, tamanho do texto {len(texto_xml)}')
 
     # Verifica pelo tamanho do texto, se ainda ficou algum valor no campo "Itens do pedido"
-    if len(texto_xml) > 5: 
+    if len(texto_xml) >= 4: 
         logger.warning('--- Itens XML ainda tem informação!')
         return False
     else:  # Caso fique vazio
@@ -441,6 +452,7 @@ def msg_box(texto: str, tempo: int = 60):
     ahk.win_close('Message', title_match_mode= 2)
 
 def verifica_horario():
+    return True
     while True:
         hora_atual = datetime.now().time()
         intervalos_pausa = [
@@ -456,7 +468,7 @@ def verifica_horario():
                 break
         else:
             logger.debug('--- Horário validado! Pode prosseguir com o lançamento.')
-            break
+            return True
 
 ''' #! Substituido pela logica a cima.
 def verifica_horario():
