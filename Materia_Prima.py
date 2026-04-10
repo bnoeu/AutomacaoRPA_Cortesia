@@ -16,8 +16,11 @@
 import time
 import pytesseract
 import pyautogui as bot
-from utils.funcoes import ahk as ahk
+
+#from utils.funcoes import ahk as ahk
 import asyncio
+
+import requests
 from abre_topcon import main as abre_topcon
 from utils.enviar_email import enviar_email
 from utils.configura_logger import get_logger
@@ -35,6 +38,10 @@ from utils.validators import (
 from automacao.topcompras_handler import (
     valida_transportador, preenche_data, preenche_filial_estoque
 )
+
+# AHK para uso
+from ahk import AHK
+ahk = AHK() 
 
 #* Definição de parametros
 posicao_img = 0
@@ -191,7 +198,6 @@ def programa_principal():
 def main(lancamento_realizado = False):
     verifica_horario() # Confere o horario dessa execução.
     
-    
     if lancamento_realizado is False:
         abre_topcon()
         pass
@@ -203,6 +209,12 @@ def main(lancamento_realizado = False):
         logger.info(F"Lançamento não foi realizado! Variavel: {lancamento_realizado}")
         lancamento_realizado = False
 
+def monitoramento_healthcheck():
+    try:
+        requests.get("https://hc-ping.com/1a1bf6c1-7124-4b54-917b-b8db3fe998ec", timeout=10)
+    except requests.RequestException as e:
+        # Log ping failure here...
+        print("Ping failed: %s" % e)
 
 def run_main_loop():
     tentativa = 0
@@ -219,6 +231,7 @@ def run_main_loop():
         logger.info(F'--- Iniciando nova tentativa Nº {tentativa} o Try-Catch do PROGRAMA PRINCIPAL')
         try:
             if main(lancamento_realizado):
+                monitoramento_healthcheck()
                 lancamento_realizado = True
                 if tentativa > 1:
                     tentativa -= 1
