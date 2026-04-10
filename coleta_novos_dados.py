@@ -72,32 +72,9 @@ def encontra_ultimo_xml(ultimo_xml = '', powerapps_id = ''):
         logger.info(F'--- Iniciando a navegação até a ultima chave na db_alltrips, XML: {ultimo_xml}')
 
         ativa_planilha_original()
-        ''' #! Substituito pela logica da função acima
-        ahk.win_activate('db_alltrips.xlsx', title_match_mode= 1)
-        try:
-            ahk.win_wait_active('db_alltrips.xlsx', title_match_mode= 1, timeout= 10)
-        except TimeoutError:
-            logger.warning('--- Planilha não encontrada!')
-            return False
-        '''
 
-        organizar_planilha_por_data()
+        #organizar_planilha_por_data()
 
-        ''' #! Substituido pela logica da função a cima
-        # Navega até o campo da data, e organiza do menor para o maior.
-        bot.click(960, 630) # Clica no meio da planilha para "ativar" a navegação dentro dela.
-        bot.hotkey('CTRL', 'HOME') # Move a navegação até a celula A1
-        logger.info('--- Navegou até a coluna/celula A1')
-        bot.press('RIGHT', presses= 8, interval= 0.05) # Navega até o campo "D. Insercao"]
-        logger.info('--- Navegou até a D. Inserção')
-        bot.hotkey('ALT', 'DOWN') # Abre o menu do filtro
-        time.sleep(3)
-        ahk.win_activate('db_alltrips.xlsx', title_match_mode= 1)
-        time.sleep(0.5)
-        bot.click(procura_imagem(imagem='imagens/img_planilha/icone_organiza_A_Z.png', continuar_exec= True, limite_tentativa= 30)) # Clica no botão "organizar do mais antigo ao mais novo"
-        logger.info('--- Organizou a planilha da forma "da menor para a maior" ')
-        '''
-        
         time.sleep(0.5)
         ahk.win_activate('db_alltrips.xlsx', title_match_mode= 1)
         bot.click(960, 630) # Clica no meio da planilha para "ativar" a navegação dentro dela.
