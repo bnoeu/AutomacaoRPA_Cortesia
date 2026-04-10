@@ -27,18 +27,19 @@ CIMENTO_CP2 = ('CP II-E-40', '£-40', 'CIMENTO PORTLAND CP IIE-40 RS |', "CIMENT
 AREIA_RIO = ('AREIA LAVADA MEDIA', 'ARE A LAVADA MEDIA', 'AREA LAVADA MEDIA', 'AREIA LAVADA', 'AREIA MEDIA')
 CIMENTO_CP5 = ('CPV', 'V-ARI')
 AREIA_QUARTZO = ('AREIA DE QUARTZO VERMELHA', 'AREA QUARTZD', 'AREIA DE QUARTZ0 VERMELHA', 'P2 AREIA', 'AREI|A DE QUARTZ0', 'AREIA VERMELHA',
-                 'AREIA MEDIA UMIDA BRANCA', 'AREI|A MEDIA UMIDA BRANCA', 'AREIA DE QUARTZ0')
+                 'AREIA MEDIA UMIDA BRANCA', 'AREI|A MEDIA UMIDA BRANCA', 'AREIA DE QUARTZ0', 'AREIA Mens: Alig ')
 AREIA_PRIME = ('AREA PRIME', 'AREIA PRIME')
 AREIA_BRITADA = ('AR EIA ARTIF ClaL', 'AR EIA AR TIFICIAL', 'AREIA ARTIFICIAL', 'AREIA INDUSTRIAL DE BRITA', 'AREI|A DE BRITA - TIPO', 'AREIA DE BRITA - TIPO II')
 PEDRISCO_MISTO = ('PEDRA MISTO', 'PEDRISCO MISTO')
 AREIA_VALE = ('Areia Al', 'Areia A1')
 AREIA_LAVADA = ('PEDRA LAVADA', 'TESTETESTEBRUNO')
 ARGAMIX = ('ARGAMIX', 'ARGAMIX 20KG')
-
+SEIXO = ('SEIXO', 'SEIX0')
 
 # AREIA DE BRITA - TIPO II
 
-nome_pedido = [ARGAMIX, PEDRA_1, PO_PEDRA, BRITA_0, CIMENTO_CP2, CIMENTO_CP3, CIMENTO_CP5, AREIA_RIO, AREIA_QUARTZO, AREIA_PRIME, AREIA_BRITADA, PEDRISCO_MISTO, AREIA_VALE, AREIA_LAVADA]
+nome_pedido = [ARGAMIX, PEDRA_1, PO_PEDRA, BRITA_0, CIMENTO_CP2, CIMENTO_CP3, CIMENTO_CP5, AREIA_RIO, AREIA_QUARTZO,
+                AREIA_PRIME, AREIA_BRITADA, PEDRISCO_MISTO, AREIA_VALE, AREIA_LAVADA, SEIXO]
 
 # Mapeamento de nomes para imagens
 mapeamento_imagens = {
@@ -55,7 +56,8 @@ mapeamento_imagens = {
     CIMENTO_CP3: 'PED_CPIII40.png',
     PEDRISCO_MISTO: 'PED_PEDRISCOMISTO.png',
     AREIA_LAVADA: 'PED_AREIALAVADA.png',
-    AREIA_VALE: 'PED_AREIAVALE.png'
+    AREIA_VALE: 'PED_AREIAVALE.png',
+    SEIXO: 'PED_SEIXO.png'
 }
 
 
@@ -269,18 +271,18 @@ def valida_bt_localizar():
 
 def altera_quantidade_consmar(qtd_vale= "38,16"):
     logger.info('--- Preenchendo os dados para o lançamento de caçapava --- ')
-    ativar_janela('TopCompras')
+    #ativar_janela('TopCompras')
     ahk.win_activate('Vinculação Itens da Nota', title_match_mode = 2)
     time.sleep(0.4)
 
     bot.doubleClick(1012, 717)
-    time.sleep(1)
+    time.sleep(3)
 
     bot.press('backspace', presses= 10)
     bot.write(qtd_vale)
-    time.sleep(0.2)
+    time.sleep(0.6)
     bot.press('enter')
-    time.sleep(0.2)
+    time.sleep(0.6)
 
 def main(chave_xml = "", qtd_vale = ""):
     logger.info('--- Executando o arquivo VALIDA PEDIDO --- ')
