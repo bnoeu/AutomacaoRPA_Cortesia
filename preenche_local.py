@@ -76,6 +76,22 @@ def preenche_local(silo1 = "", silo2 = ""):
             logger.warning('--- A informação nos dois campos "SILO" estava igual, corrigindo apenas para um preenchimento')
             silo2 = ""
 
+        if 'SILO 3/6' in silo1:
+            logger.warning('--- O silo 3/6 não é permitido, corrigindo para "SILO 3" ')
+            silo1 = 'SILO 3'
+
+        if 'SILO 3/6' in silo2:
+            logger.warning('--- O silo 3/6 não é permitido, corrigindo para "SILO 3" ')
+            silo2 = 'SILO 3'
+
+        if 'SILO 4/5' in silo1:
+            logger.warning('--- O silo 4/5 não é permitido, corrigindo para "SILO 4" ')
+            silo1 = 'SILO 4'
+
+        if 'SILO 4/5' in silo2:
+            logger.warning('--- O silo 4/5 não é permitido, corrigindo para "SILO 4" ')
+            silo2 = 'SILO 4'
+
         #* Preenche os locais de estoque informados, e a quantidade.
         if ('SILO' in silo1) or ('SILO' in silo2):
             bot.click(860, 597)  # Clica na linha para informar o primeiro silo
